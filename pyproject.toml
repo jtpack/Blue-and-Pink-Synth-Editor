@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nymphes-gui"
+version = "0.1.0"
+description = "A gui application for full control of the Dreadbox Nymphes MIDI synthesizer"
+readme = "README.md"
+authors = [{name = "Scott Lumsden", email = "jtpack@gmail.com"}]
+license = { file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["MIDI", "OSC", "Nymphes"]
+dependencies = [
+    "python-osc",
+    "netifaces",
+    "kivy[base]"
+]
+requires-python = ">=3.9"
+
+[project.urls]
+Homepage = "https://github.com/jtpack/nymphes-gui"
+
+[project.scripts]
+nymphes-osc = "nymphes_gui.__main__:main"

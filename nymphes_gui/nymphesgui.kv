@@ -1,0 +1,21 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+ScreenManager:
+    Screen:
+        name: 'dashboard'
+
+        canvas.before:
+            Color:
+                rgba: C('#06070FFF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                text: 'Hello'
+
