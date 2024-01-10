@@ -150,7 +150,7 @@ class NymphesGuiApp(App):
 
     def on_start(self):
         # Start the nymphes_osc subprocess
-        #self._start_nymphes_osc_subprocess()
+        self._start_nymphes_osc_subprocess()
 
         #
         # Start OSC Communication
@@ -173,9 +173,8 @@ class NymphesGuiApp(App):
         self._encoder_osc_dispatcher.map('*', self._on_encoder_osc_message)
 
         #
-        # Register as client with nymphes-osc and Encoders device
+        # Register as client with Encoders device
         #
-        self._register_as_nymphes_osc_client()
         self._register_as_encoders_osc_client()
 
     def _load_config_file(self, filepath):
@@ -581,7 +580,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
 
-        elif address == '/loaded_preset_dump_from_midi_input_port_into_nymphes_memory_slot':
+        elif address == '/loaded_preset_dump_from_midi_input_into_nymphes_memory_slot':
             #
             # A persistent preset import type SYSEX message has been
             # received from a MIDI input port.
@@ -597,7 +596,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
 
-        elif address == '/midi_input_port_detected':
+        elif address == '/midi_input_detected':
             #
             # A MIDI input port has been detected
             #
@@ -611,7 +610,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {port_name}')
 
-        elif address == '/midi_input_port_no_longer_detected':
+        elif address == '/midi_input_no_longer_detected':
             #
             # A previously-detected MIDI input port is no longer found
             #
@@ -640,7 +639,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {args}')
 
-        elif address == '/midi_input_port_connected':
+        elif address == '/midi_input_connected':
             #
             # A MIDI input port has been connected
             #
@@ -654,7 +653,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {port_name}')
 
-        elif address == '/midi_input_port_disconnected':
+        elif address == '/midi_input_disconnected':
             #
             # A previously-connected MIDI input port has been disconnected
             #
@@ -683,7 +682,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {args}')
 
-        elif address == '/midi_output_port_detected':
+        elif address == '/midi_output_detected':
             #
             # A MIDI output port has been detected
             #
@@ -697,7 +696,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {port_name}')
 
-        elif address == '/midi_output_port_no_longer_detected':
+        elif address == '/midi_output_no_longer_detected':
             #
             # A previously-detected MIDI output port is no longer found
             #
@@ -726,7 +725,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {args}')
 
-        elif address == '/midi_output_port_connected':
+        elif address == '/midi_output_connected':
             #
             # A MIDI output port has been connected
             #
@@ -740,7 +739,7 @@ class NymphesGuiApp(App):
 
             logger.info(f'{address} {port_name}')
 
-        elif address == '/midi_output_port_disconnected':
+        elif address == '/midi_output_disconnected':
             #
             # A previously-connected MIDI output port has been disconnected
             #
@@ -840,12 +839,15 @@ class NymphesGuiApp(App):
         :return:
         """
         try:
-            arguments = ['--port 1237', '--host 127.0.0.1', '--midi_channel 1', '--debug_osc']
+            arguments = ['--server_host', self._nymphes_osc_outgoing_host,
+                         '--server_port', str(self._nymphes_osc_outgoing_port),
+                         '--client_host', self._nymphes_osc_incoming_host,
+                         '--client_port', str(self._nymphes_osc_incoming_port),
+                         '--midi_channel', str(self._nymphes_midi_channel),
+                         '--debug_osc']
             command = ['python', '-m', 'nymphes_osc'] + arguments
             self._nymphes_osc_subprocess = subprocess.Popen(
                 command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 text=True
             )
 
