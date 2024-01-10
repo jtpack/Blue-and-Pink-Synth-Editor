@@ -844,7 +844,8 @@ class NymphesGuiApp(App):
                          '--client_host', self._nymphes_osc_incoming_host,
                          '--client_port', str(self._nymphes_osc_incoming_port),
                          '--midi_channel', str(self._nymphes_midi_channel),
-                         '--debug_osc']
+                         '--osc_log_level', 'WARNING',
+                         '--midi_log_level', 'WARNING']
             command = ['python', '-m', 'nymphes_osc'] + arguments
             self._nymphes_osc_subprocess = subprocess.Popen(
                 command,
