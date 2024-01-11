@@ -1362,12 +1362,14 @@ class NymphesGuiApp(App):
             led_brightness = 0.0
 
         # Send OSC message
-        self.nymphes_osc_controller._send_encoder_osc('/encoder_led_color',
-                                                      encoder_num,
-                                                      led_red,
-                                                      led_green,
-                                                      led_blue,
-                                                      led_brightness)
+        self._send_encoder_osc(
+            '/encoder_led_color',
+            encoder_num,
+            led_red,
+            led_green,
+            led_blue,
+            led_brightness
+        )
 
     def update_all_encoder_led_colors(self):
         for encoder_num in range(self.num_param_encoders):
@@ -1458,7 +1460,7 @@ class NymphesGuiApp(App):
                     address += f'/{self._encoder_property_dict_key[encoder_num]}'
 
                     # Send it
-                self.nymphes_osc_controller._send_nymphes_osc(address, new_val)
+                self._send_nymphes_osc(address, new_val)
 
         else:
             # This is the preset encoder
