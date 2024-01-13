@@ -23,6 +23,7 @@ import netifaces
 import logging
 from logging.handlers import RotatingFileHandler
 import subprocess
+from nymphes_osc.NymphesPreset import NymphesPreset
 
 kivy.require('2.1.0')
 Config.read('app_config.ini')
@@ -63,121 +64,15 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 
-class ParamsGridModCell(ButtonBehavior, BoxLayout):
-    property_name = StringProperty('')
-    nymphes_property = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    name_label_font_size = NumericProperty(14)
-    section_name = StringProperty('')
-
-
-class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
-    property_name = StringProperty('')
-    nymphes_property = DictProperty({'value': 0})
-    name_label_font_size = NumericProperty(14)
-    section_name = StringProperty('')
-
-
-class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
-    nymphes_property = DictProperty({'type': 0, 'key_sync': 0})
-    name_label_font_size = NumericProperty(14)
-    section_name = StringProperty('')
-
-
-class ParamsGridPlaceholderCell(Widget):
-    pass
-
-
-class LoadDialog(FloatLayout):
-    load = ObjectProperty(None)
-    cancel = ObjectProperty(None)
-
-
-class SaveDialog(FloatLayout):
-    save = ObjectProperty(None)
-    text_input = ObjectProperty(None)
-    cancel = ObjectProperty(None)
-
-
-Factory.register('LoadDialog', cls=LoadDialog)
-Factory.register('SaveDialog', cls=SaveDialog)
-
-
-class ModAmountLine(Widget):
-    midi_val = NumericProperty(0) # This is 0 to 127
-    color_hex = StringProperty('#FFFFFFFF')
-
-
-class PlayModeButton(ButtonBehavior, Label):
-    play_mode_name = StringProperty('')
-
-
-class PlayModeSectionBox(BoxLayout):
-    corner_radius = NumericProperty(20)
-
-
-class LegatoSectionBox(BoxLayout):
-    corner_radius = NumericProperty(20)
-
-
-class SectionRelativeLayout(RelativeLayout):
-    corner_radius = NumericProperty(12)
-    section_name = StringProperty('')
-
-class ParameterBox(ButtonBehavior, BoxLayout):
-    name = StringProperty('NAME')
-    value = NumericProperty(0)
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
-
-    def on_release(self):
-        # Create a popup
-        popup = ModParameterPopup(title=self.name)
-        popup.name = self.name
-        popup.value = self.value
-        popup.lfo2 = self.lfo2
-        popup.wheel = self.wheel
-        popup.velocity = self.velocity
-        popup.aftertouch = self.aftertouch
-        popup.open()
-
-
-class ModParameterPopup(Popup):
-    name = StringProperty('NAME')
-    value = NumericProperty(0)
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
-
-    def on_value_slider(self, new_value):
-        self.value = new_value
-
-
-class ModAmountsBox(BoxLayout):
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
-
-
 class NymphesGuiApp(App):
 
-    #
-    # Properties and constants related to Encoders
-    #
-
-    # The encoders that control synthesizer parameters
-    # go before the preset encoder
-    num_param_encoders = 5
-
-    # Encoder for controller presets. It is the last encoder
-    preset_encoder_num = num_param_encoders
-
-    encoder_display_names = ListProperty([''] * num_param_encoders)
-    encoder_display_types = ListProperty([''] * num_param_encoders)
-    encoder_display_values = ListProperty([''] * num_param_encoders)
+    @staticmethod
+    def presets_spinner_values_list():
+        """
+        Returns a list of text values for the presets spinner to show.
+        """
+        return [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+                for num in [1, 2, 3, 4, 5, 6, 7]]
 
     #
     # App Status Parameters
@@ -195,7 +90,7 @@ class NymphesGuiApp(App):
     midi_controller_output_name = StringProperty('Not Connected')
     midi_controller_output_connected = BooleanProperty(False)
     presets_spinner_text = StringProperty('PRESET')
-    presets_spinner_values = ListProperty(NymphesGuiApp.presets_spinner_values_list())
+    presets_spinner_values = ListProperty(presets_spinner_values_list())
 
     selected_section = StringProperty('')
 
@@ -282,10 +177,6 @@ class NymphesGuiApp(App):
         #
         # Encoder Properties
         #
-        self._encoder_bindings = {i: {'property_name': None, 'function': None} for i in range(self.num_param_encoders)}
-        self._encoder_property_dict_key = [None] * self.num_param_encoders
-        self._encoder_property_osc_addresses = [''] * self.num_param_encoders
-        self._encoder_property_osc_value_maps = [None] * self.num_param_encoders
         self._connected_to_encoders = False
 
         self._encoder_osc_incoming_host = None
@@ -658,8 +549,6 @@ class NymphesGuiApp(App):
         :param args: A list of arguments
         :return:
         """
-        logger.debug(f'Received OSC Message from nymphes-osc: {address}, {[str(arg) + " " for arg in args]}')
-
         # App Status Messages
         #
         if address == '/client_registered':
@@ -1041,7 +930,32 @@ class NymphesGuiApp(App):
             logger.debug(f'{address}: {self._legato}')
 
         else:
-            logger.info(f'Received unhandled OSC message: {address}')
+            # This could be a Nymphes parameter message
+
+            # Convert to a parameter name by skipping the
+            # first character and replacing all slashes
+            # with periods
+            param_name = address[1:].replace('/', '.')
+
+            if param_name in NymphesPreset.all_param_names():
+                # This is a valid parameter name.
+                logger.debug(f'Received param name {param_name}')
+
+                # Get the components of the parameter
+                #
+                section = NymphesPreset.section_for_param(param_name)
+                feature = NymphesPreset.feature_for_param(param_name)
+                target = NymphesPreset.target_for_param(param_name)
+
+                # Get our property for the parameter
+                prop = getattr(self, f'{section}_{feature}')
+
+                # Set the value of the correct target of the property
+                prop[target] = args[0]
+
+            else:
+                # This is an unrecognized OSC message
+                logger.warning(f'Received unhandled OSC message: {address}')
 
     def _on_encoder_osc_message(self, address, *args):
         """
@@ -1126,14 +1040,6 @@ class NymphesGuiApp(App):
 
         # Stop the nymphes_osc subprocess
         self._stop_nymphes_osc_subprocess()
-
-    @staticmethod
-    def presets_spinner_values_list():
-        """
-        Returns a list of text values for the presets spinner to show.
-        """
-        return [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-                for num in [1, 2, 3, 4, 5, 6, 7]]
 
     @staticmethod
     def parse_preset_index(preset_index):
@@ -1302,79 +1208,6 @@ class NymphesGuiApp(App):
 
         self.load_preset_by_index(preset_index)
 
-    def update_encoder_led_color(self, encoder_num):
-        # Get the name of the parameter for this encoder
-        property_name = self._encoder_bindings[encoder_num]['property_name']
-
-        if property_name is not None:
-            # Get the dict key currently used by this encoder
-            key = self._encoder_property_dict_key[encoder_num]
-            print(f'update_encoder_led_color enc: {encoder_num} prop: {property_name} dict key: {key}')
-
-            # Detemine color based on the dictionary key
-            if key == 'value':
-                led_red = 100
-                led_green = 100
-                led_blue = 100
-                led_brightness = 1.0
-
-            elif key == 'lfo2':
-                led_red = 100
-                led_green = 0
-                led_blue = 0
-                led_brightness = 1.0
-
-            elif key == 'wheel':
-                led_red = 100
-                led_green = 100
-                led_blue = 0
-                led_brightness = 1.0
-
-            elif key == 'velocity':
-                led_red = 0
-                led_green = 255
-                led_blue = 0
-                led_brightness = 1.0
-
-            elif key == 'aftertouch':
-                led_red = 0
-                led_green = 0
-                led_blue = 255
-                led_brightness = 1.0
-
-            elif key == 'type':
-                led_red = 100
-                led_green = 0
-                led_blue = 100
-                led_brightness = 1.0
-
-            elif key == 'key_sync':
-                led_red = 0
-                led_green = 100
-                led_blue = 100
-                led_brightness = 1.0
-
-        else:
-            # The encoder is not being used at the moment
-            led_red = 0
-            led_green = 0
-            led_blue = 0
-            led_brightness = 0.0
-
-        # Send OSC message
-        self._send_encoder_osc(
-            '/encoder_led_color',
-            encoder_num,
-            led_red,
-            led_green,
-            led_blue,
-            led_brightness
-        )
-
-    def update_all_encoder_led_colors(self):
-        for encoder_num in range(self.num_param_encoders):
-            self.update_encoder_led_color(encoder_num)
-
     def on_encoder_osc_message(self, address, *args):
         """
         An OSC message has been received from the encoders.
@@ -1417,206 +1250,414 @@ class NymphesGuiApp(App):
         else:
             print(f'Received unrecognized OSC Message: {address}')
 
-    def on_encoder_pos(self, encoder_num, encoder_pos):
-        if encoder_num < self.preset_encoder_num:
-            # This is a parameter encoder
-            #
+    def select_section(self, section_name):
+        if section_name == 'oscillator_top_row':
+            self.encoder_display_names = [
+                'PW',
+                'GLIDE',
+                'DETUNE',
+                'CHORD',
+                'EG'
+            ]
 
-            # Get the DictProperty for this encoder
-            prop_name = self._encoder_bindings[encoder_num]['property_name']
-            prop_dict = getattr(self, prop_name)
+            encoder_property_names = [
+                'osc_pulsewidth',
+                'pitch_glide',
+                'pitch_detune',
+                'pitch_chord',
+                'pitch_env_depth'
+            ]
 
-            # Get the current dict key for the encoder
-            dict_key = self._encoder_property_dict_key[encoder_num]
+            self._encoder_property_osc_addresses = [
+                '/osc/pulsewidth',
+                '/pitch/glide',
+                '/pitch/detune',
+                '/pitch/chord',
+                '/pitch/env_depth'
+            ]
 
-            # Determine min and max values for the current property
-            #
-            if dict_key == 'type':
-                min_val = 0
-                max_val = 3
-            elif dict_key == 'key_sync':
-                min_val = 0
-                max_val = 1
-            else:
-                min_val = 0
-                max_val = 127
+        elif section_name == 'oscillator_bottom_row':
+            self.encoder_display_names = [
+                'WAVE',
+                'LEVEL',
+                'SUB',
+                'NOISE',
+                'LFO'
+            ]
 
-            # Apply the encoder's new value to the property
-            new_val = prop_dict[dict_key] + encoder_pos
-            if new_val < min_val:
-                new_val = min_val
-            if new_val > max_val:
-                new_val = max_val
+            encoder_property_names = [
+                'osc_wave',
+                'mix_osc',
+                'mix_sub',
+                'mix_noise',
+                'pitch_lfo1'
+            ]
 
-            if new_val != prop_dict[dict_key]:
-                # Store the new value
-                prop_dict[dict_key] = new_val
+            self._encoder_property_osc_addresses = [
+                '/osc/wave',
+                '/mix/osc',
+                '/mix/sub',
+                '/mix/noise',
+                '/pitch/lfo1'
+            ]
 
-                # Prepare an OSC message to update the nymphes with the new value
-                address = self._encoder_property_osc_addresses[encoder_num]
-                if dict_key in ['lfo2', 'wheel', 'velocity', 'aftertouch']:
-                    address += f'/mod/{self._encoder_property_dict_key[encoder_num]}'
-                else:
-                    address += f'/{self._encoder_property_dict_key[encoder_num]}'
+        elif section_name == 'filter_top_row':
+            self.encoder_display_names = [
+                'CUTOFF',
+                'RESONANCE',
+                'TRACKING',
+                'EG',
+                'LFO'
+            ]
 
-                    # Send it
-                self._send_nymphes_osc(address, new_val)
+            encoder_property_names = [
+                'lpf_cutoff',
+                'lpf_resonance',
+                'lpf_tracking',
+                'lpf_env_depth',
+                'lpf_lfo1'
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/lpf/cutoff',
+                '/lpf/resonance',
+                '/lpf/tracking',
+                '/lpf/env_depth',
+                '/lpf/lfo1'
+            ]
+
+        elif section_name == 'filter_bottom_row':
+            self.encoder_display_names = [
+                'HPF',
+                '',
+                '',
+                '',
+                ''
+            ]
+
+            encoder_property_names = [
+                'hpf_cutoff',
+                None,
+                None,
+                None,
+                None
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/hpf/cutoff',
+                None,
+                None,
+                None,
+                None
+            ]
+
+        elif section_name == 'amp':
+            self.encoder_display_names = [
+                'ATTACK',
+                'DECAY',
+                'SUSTAIN',
+                'RELEASE',
+                'MAIN'
+            ]
+
+            encoder_property_names = [
+                'amp_attack',
+                'amp_decay',
+                'amp_sustain',
+                'amp_release',
+                'main_level'
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/amp/attack',
+                '/amp/decay',
+                '/amp/sustain',
+                '/amp/release',
+                '/amp/level'
+            ]
+
+        elif section_name == 'pitch_filter_env':
+            self.encoder_display_names = [
+                'ATTACK',
+                'DECAY',
+                'SUSTAIN',
+                'RELEASE',
+                ''
+            ]
+
+            encoder_property_names = [
+                'pitch_filter_env_attack',
+                'pitch_filter_env_decay',
+                'pitch_filter_env_sustain',
+                'pitch_filter_env_release',
+                None
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/pitch_filter_env/attack',
+                '/pitch_filter_env/decay',
+                '/pitch_filter_env/sustain',
+                '/pitch_filter_env/release',
+                None
+            ]
+
+        elif section_name == 'lfo1':
+            self.encoder_display_names = [
+                'RATE',
+                'WAVE',
+                'DELAY',
+                'FADE',
+                'CONFIG'
+            ]
+
+            encoder_property_names = [
+                'lfo1_rate',
+                'lfo1_wave',
+                'lfo1_delay',
+                'lfo1_fade',
+                'lfo1_config'
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/lfo1/rate',
+                '/lfo1/wave',
+                '/lfo1/delay',
+                '/lfo1/fade',
+                '/lfo1'
+            ]
+
+        elif section_name == 'lfo2':
+            self.encoder_display_names = [
+                'RATE',
+                'WAVE',
+                'DELAY',
+                'FADE',
+                'CONFIG'
+            ]
+
+            encoder_property_names = [
+                'lfo2_rate',
+                'lfo2_wave',
+                'lfo2_delay',
+                'lfo2_fade',
+                'lfo2_config'
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/lfo2/rate',
+                '/lfo2/wave',
+                '/lfo2/delay',
+                '/lfo2/fade',
+                '/lfo2'
+            ]
+
+        elif section_name == 'reverb':
+            self.encoder_display_names = [
+                'SIZE',
+                'DECAY',
+                'FILTER',
+                'MIX',
+                ''
+            ]
+
+            encoder_property_names = [
+                'reverb_size',
+                'reverb_decay',
+                'reverb_filter',
+                'reverb_mix',
+                None
+            ]
+
+            self._encoder_property_osc_addresses = [
+                '/reverb/size',
+                '/reverb/decay',
+                '/reverb/filter',
+                '/reverb/mix',
+                None
+            ]
 
         else:
-            # This is the preset encoder
-            print(f'Preset Encoder Pos: {encoder_pos}')
-            if encoder_pos > 0:
-                self.load_next_preset()
-            elif encoder_pos < 0:
-                self.load_prev_preset()
+            raise Exception(f'Unknown section name: {section_name}')
 
-    def on_encoder_button_short_press_ended(self, encoder_num):
-        if encoder_num < self.preset_encoder_num:
-            # This is a parameter encoder
-            #
+        # Store the name of the newly-selected section
+        self.selected_section = section_name
 
-            # When an encoder button is pressed, cycle through the
-            # dict keys of the property that it is bound to,
-            # from value through each of the mod sources
+        # # Implement the encoder configuration
+        # for encoder_num in range(self.num_param_encoders):
+        #
+        #     # Remove any previous property binding for this encoder
+        #     if self._encoder_bindings[encoder_num]['property_name'] is not None:
+        #         self.unbind(**{
+        #             self._encoder_bindings[encoder_num]['property_name']: self._encoder_bindings[encoder_num][
+        #                 'function']})
+        #         self._encoder_bindings[encoder_num]['property_name'] = None
+        #         self._encoder_bindings[encoder_num]['function'] = None
+        #
+        #     # Get the new property name for the encoder
+        #     prop_name = encoder_property_names[encoder_num]
+        #
+        #     if prop_name is None:
+        #         # Clear the encoder displays
+        #         self.encoder_display_names[encoder_num] = ''
+        #         self.encoder_display_types[encoder_num] = ''
+        #         self.encoder_display_values[encoder_num] = ''
+        #
+        #     else:
+        #         prop_dict = getattr(self, prop_name)
+        #         prop_keys = list(prop_dict.keys())
+        #
+        #         # Reset the selected dict key for the property
+        #         self._encoder_property_dict_key[encoder_num] = prop_keys[0]
+        #
+        #         # Update the encoder's value type and value displays
+        #         #
+        #         key = self._encoder_property_dict_key[encoder_num]
+        #         if key == 'key_sync':
+        #             # Key Sync has two discrete values, displayed as strings.
+        #             #
+        #
+        #             # Set the encoder's value type display
+        #             self.encoder_display_types[encoder_num] = 'KEY SYNC'
+        #
+        #             # Get the current value for Key Sync
+        #             key_sync_int = prop_dict[key]
+        #
+        #             # Get the string representation
+        #             key_sync_string = self.string_for_lfo_key_sync(key_sync_int)
+        #
+        #             # Set the encoder's value display
+        #             self.encoder_display_values[encoder_num] = key_sync_string
+        #
+        #         elif key == 'type':
+        #             # LFO Type has four discrete values, displayed as strings
+        #             #
+        #
+        #             # Set the encoder's value type display
+        #             self.encoder_display_types[encoder_num] = 'TYPE'
+        #
+        #             # Get the current value for LFO Type
+        #             lfo_type_int = prop_dict[key]
+        #
+        #             # Get its string representation
+        #             lfo_type_string = self.string_for_lfo_type(lfo_type_int)
+        #
+        #             # Set the encoder's value display
+        #             self.encoder_display_values[encoder_num] = lfo_type_string
+        #
+        #         else:
+        #             # This is just a numerical value.
+        #             #
+        #             self.encoder_display_types[encoder_num] = key.upper()
+        #             self.encoder_display_values[encoder_num] = str(prop_dict[key])
+        #
+        #         # Bind a callback to the property so the encoder
+        #         # displays update whenever the property changes
+        #         if prop_name is not None:
+        #             bound_func = lambda _, prop_dict, encoder_num=encoder_num, prop_name=prop_name: self._encoder_bound_property_changed(encoder_num, prop_name, prop_dict)
+        #             self.bind(**{prop_name: bound_func})
+        #
+        #             # Store new binding info
+        #             self._encoder_bindings[encoder_num]['property_name'] = prop_name
+        #             self._encoder_bindings[encoder_num]['function'] = bound_func
+        #
+        #     # Update encoder LED color
+        #     self.update_encoder_led_color(encoder_num)
 
-            # Get the DictProperty for this encoder
-            prop_name = self._encoder_bindings[encoder_num]['property_name']
-            prop_dict = getattr(self, prop_name)
-            keys = list(prop_dict.keys())
+class ParamsGridModCell(ButtonBehavior, BoxLayout):
+    property_name = StringProperty('')
+    nymphes_property = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
+    name_label_font_size = NumericProperty(14)
+    section_name = StringProperty('')
 
-            # Get the index of the current key
-            i = keys.index(self._encoder_property_dict_key[encoder_num])
 
-            # Increment it but wrap around if we get past the bounds of the list
-            i = (i + 1) % len(keys)
+class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
+    property_name = StringProperty('')
+    nymphes_property = DictProperty({'value': 0})
+    name_label_font_size = NumericProperty(14)
+    section_name = StringProperty('')
 
-            # Get the new key
-            key = keys[i]
 
-            # Update the encoder's key
-            self._encoder_property_dict_key[encoder_num] = key
+class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
+    nymphes_property = DictProperty({'type': 0, 'key_sync': 0})
+    name_label_font_size = NumericProperty(14)
+    section_name = StringProperty('')
 
-            # Update the encoder's value type and value displays
-            #
-            if key == 'key_sync':
-                # Key Sync has two discrete values, displayed as strings.
-                #
 
-                # Set the encoder's value type display
-                self.encoder_display_types[encoder_num] = 'KEY SYNC'
+class ParamsGridPlaceholderCell(Widget):
+    pass
 
-                # Get the current value for Key Sync
-                key_sync_int = prop_dict[key]
 
-                # Get the string representation
-                key_sync_string = self.string_for_lfo_key_sync(key_sync_int)
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
-                # Set the encoder's value display
-                self.encoder_display_values[encoder_num] = key_sync_string
 
-            elif key == 'type':
-                # LFO Type has four discrete values, displayed as strings
-                #
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
-                # Set the encoder's value type display
-                self.encoder_display_types[encoder_num] = 'TYPE'
 
-                # Get the current value for LFO Type
-                lfo_type_int = prop_dict[key]
+Factory.register('LoadDialog', cls=LoadDialog)
+Factory.register('SaveDialog', cls=SaveDialog)
 
-                # Get its string representation
-                lfo_type_string = self.string_for_lfo_type(lfo_type_int)
 
-                # Set the encoder's value display
-                self.encoder_display_values[encoder_num] = lfo_type_string
+class ModAmountLine(Widget):
+    midi_val = NumericProperty(0) # This is 0 to 127
+    color_hex = StringProperty('#FFFFFFFF')
 
-            else:
-                # This is just a numerical property with values from 0 to 127
-                #
 
-                # Update the encoder type display
-                self.encoder_display_types[encoder_num] = key
+class PlayModeButton(ButtonBehavior, Label):
+    play_mode_name = StringProperty('')
 
-                # Update the encoder value display
-                self.encoder_display_values[encoder_num] = str(prop_dict[key])
 
-            # Also update the encoder's LED color
-            self.update_encoder_led_color(encoder_num)
+class PlayModeSectionBox(BoxLayout):
+    corner_radius = NumericProperty(20)
 
-            print(f'on_encoder_button_short_press_ended: {key}')
 
-        else:
-            # This is the preset encoder
-            print(f'Preset Encoder Short Pressed')
+class LegatoSectionBox(BoxLayout):
+    corner_radius = NumericProperty(20)
 
-    def on_encoder_button_long_press_started(self, encoder_num):
-        if encoder_num < self.preset_encoder_num:
-            # This is a parameter encoder
-            #
 
-            # When an encoder button is long pressed,
-            # reset its dictionary key to the first one
+class SectionRelativeLayout(RelativeLayout):
+    corner_radius = NumericProperty(12)
+    section_name = StringProperty('')
 
-            # Get the DictProperty for this encoder
-            prop_name = self._encoder_bindings[encoder_num]['property_name']
-            prop_dict = getattr(self, prop_name)
-            keys = list(prop_dict.keys())
 
-            # Get the new key
-            key = keys[0]
+class ParameterBox(ButtonBehavior, BoxLayout):
+    name = StringProperty('NAME')
+    value = NumericProperty(0)
+    lfo2 = NumericProperty(0)
+    wheel = NumericProperty(0)
+    velocity = NumericProperty(0)
+    aftertouch = NumericProperty(0)
 
-            # Update the encoder's key
-            self._encoder_property_dict_key[encoder_num] = key
+    def on_release(self):
+        # Create a popup
+        popup = ModParameterPopup(title=self.name)
+        popup.name = self.name
+        popup.value = self.value
+        popup.lfo2 = self.lfo2
+        popup.wheel = self.wheel
+        popup.velocity = self.velocity
+        popup.aftertouch = self.aftertouch
+        popup.open()
 
-            # Update the encoder's value type and value displays
-            #
-            if key == 'key_sync':
-                # Key Sync has two discrete values, displayed as strings.
-                #
 
-                # Set the encoder's value type display
-                self.encoder_display_types[encoder_num] = 'KEY SYNC'
+class ModParameterPopup(Popup):
+    name = StringProperty('NAME')
+    value = NumericProperty(0)
+    lfo2 = NumericProperty(0)
+    wheel = NumericProperty(0)
+    velocity = NumericProperty(0)
+    aftertouch = NumericProperty(0)
 
-                # Get the current value for Key Sync
-                key_sync_int = prop_dict[key]
+    def on_value_slider(self, new_value):
+        self.value = new_value
 
-                # Get the string representation
-                key_sync_string = self.string_for_lfo_key_sync(key_sync_int)
 
-                # Set the encoder's value display
-                self.encoder_display_values[encoder_num] = key_sync_string
-
-            elif key == 'type':
-                # LFO Type has four discrete values, displayed as strings
-                #
-
-                # Set the encoder's value type display
-                self.encoder_display_types[encoder_num] = 'TYPE'
-
-                # Get the current value for LFO Type
-                lfo_type_int = prop_dict[key]
-
-                # Get its string representation
-                lfo_type_string = self.string_for_lfo_type(lfo_type_int)
-
-                # Set the encoder's value display
-                self.encoder_display_values[encoder_num] = lfo_type_string
-
-            else:
-                # This is just a numerical property with values from 0 to 127
-                #
-
-                # Update the encoder type display
-                self.encoder_display_types[encoder_num] = key
-
-                # Update the encoder value display
-                self.encoder_display_values[encoder_num] = str(prop_dict[key])
-
-            # Also update the encoder's LED color
-            self.update_encoder_led_color(encoder_num)
-
-            print(f'on_encoder_button_long_press_started: {key}')
-
-        else:
-            # This is the preset encoder
-            print(f'Preset Encoder Long Pressed')
+class ModAmountsBox(BoxLayout):
+    lfo2 = NumericProperty(0)
+    wheel = NumericProperty(0)
+    velocity = NumericProperty(0)
+    aftertouch = NumericProperty(0)

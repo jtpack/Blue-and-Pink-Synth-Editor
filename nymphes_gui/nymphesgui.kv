@@ -13,9 +13,974 @@ ScreenManager:
                 pos: self.pos
                 size: self.size
 
+        FloatLayout:
+            # canvas.before:
+            #     Color:
+            #         rgba: C('#FF00FFFF')
+            #     Rectangle:
+            #         pos: self.pos
+            #         size: self.size
+
+            TopBar:
+                id: top_bar
+                pos_hint: {'top': 1, 'center_x': 0.5}
+                size_hint: None, None
+                width: root.width - sp(7) * 2
+                height: sp(45)
+
+            PlayModeSectionBox:
+                id: play_mode_box
+                pos_hint: {'x': sp(7) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            OscillatorSectionBox:
+                id: oscillator_section_box
+                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            FilterSectionBox:
+                id: filter_section_box
+                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            AmpEnvSectionBox:
+                id: amp_env_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            PitchFilterEnvSectionBox:
+                id: pitch_filter_env_section_box
+                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            PitchFilterLfoSectionBox:
+                id: lfo1_section_box
+                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            Lfo2SectionBox:
+                id: lfo2_section_box
+                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_env_section_box.y - sp(7)) / root.height}
+
+            ReverbSectionBox:
+                id: reverb_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
+
+            EncodersBar:
+                id: encoders_box
+                pos_hint: {'y': 0, 'center_x': 0.5}
+                size_hint: None, None
+                width: root.width - sp(7) * 2
+                height: self.minimum_height
+
+    Screen:
+        name: 'settings'
+
         BoxLayout:
             orientation: 'vertical'
 
-            Label:
-                text: 'Hello'
+            SettingsHeaderBox:
+                id: settings_header_box
 
+            GridLayout:
+                cols: 2
+
+                Label:
+                    text: 'MIDI Controller Input:'
+
+                Spinner:
+                    id: midi_controller_input_spinner
+                    text: 'Not Connected'
+                    # values: app.non_nymphes_midi_input_names
+                    on_text: app.on_midi_controller_input_spinner_text(self.text)
+
+                Label:
+                    text: 'MIDI Controller Output:'
+
+                Spinner:
+                    id: midi_controller_output_spinner
+                    text: 'Not Connected'
+                    # values: app.non_nymphes_midi_output_names
+                    on_text: app.on_midi_controller_output_spinner_text(self.text)
+
+
+<SettingsHeaderBox@BoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: '40sp'
+
+    Label:
+        text: 'Settings'
+
+    Label:
+        text: 'Nymphes Connected' if app.nymphes_connected else 'Nymphes Not Connected'
+
+    Button:
+        text: 'Dashboard'
+        on_release:
+            app.root.transition = SlideTransition(direction='right')
+            app.root.current = 'dashboard'
+
+
+<TopBar@RelativeLayout>
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            size: self.size
+            radius: [0, 0, sp(12), sp(12)]
+
+    BoxLayout:
+        orientation: 'horizontal'
+        id: preset_buttons_box
+        spacing: sp(10)
+        size_hint_x: None
+        width: self.minimum_width
+        pos_hint: {'center_x': 0.5}
+
+        PresetIncButton:
+            text: '<'
+            on_release: app.load_prev_preset()
+
+        TopBarSpinner:
+            values: app.presets_spinner_values
+            text: app.presets_spinner_text
+            on_text: app.preset_spinner_text_changed(self.values.index(self.text), self.text)
+
+        PresetIncButton:
+            text: '>'
+            on_release: app.load_next_preset()
+
+    # TopBarButton:
+    #     text: 'LOAD FILE'
+    #     on_release: app.show_load()
+
+    # TopBarButton:
+    #     text: 'SAVE FILE'
+    #     on_release: app.show_save()
+
+    TopBarButton:
+        id: midi_settings_button
+        pos_hint: {'right': 1.0}
+        on_release:
+            app.root.transition = SlideTransition(direction='left')
+            app.root.current = 'settings'
+        text: 'MIDI'
+
+<PresetIncButton@ButtonBehavior+Label>:
+    size_hint_x: None
+    width: sp(35)
+    font_size: sp(30)
+
+<TopBarSpinner@Spinner>:
+    size_hint: None, 1
+    width: sp(140)
+    padding: [sp(10), sp(1)]
+    background_color: C('#00000000')
+    option_cls: 'TopBarSpinnerOption'
+    font_size: sp(22)
+
+<TopBarSpinnerOption@SpinnerOption>:
+    padding: [sp(10), sp(0)]
+    font_size: sp(20)
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+
+<TopBarButton@ButtonBehavior+Label>:
+    size_hint: None, 1
+    width: sp(80)
+    font_size: sp(22)
+
+
+<EncodersBar@GridLayout>:
+    cols: 5
+
+    #pos_hint: {'bottom': 0}
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [sp(12), sp(12), 0, 0]
+
+#    # Header Row
+#    EncoderNameLabel:
+#        text: 'encoder'
+#
+#    EncoderNameLabel:
+#        text: 'encoder'
+#
+#    EncoderNameLabel:
+#        text: 'encoder'
+#
+#    EncoderNameLabel:
+#        text: 'encoder'
+#
+#    EncoderNameLabel:
+#        text: 'encoder'
+#
+#    # ValueType Row
+#    EncoderValueTypeLabel:
+#        text: app.encoder_display_types[0] if app.encoder_display_names[0] != '' else ''
+#
+#    EncoderValueTypeLabel:
+#        text: app.encoder_display_types[1] if app.encoder_display_names[1] != '' else ''
+#
+#    EncoderValueTypeLabel:
+#        text: app.encoder_display_types[2] if app.encoder_display_names[2] != '' else ''
+#
+#    EncoderValueTypeLabel:
+#        text: app.encoder_display_types[3] if app.encoder_display_names[3] != '' else ''
+#
+#    EncoderValueTypeLabel:
+#        text: app.encoder_display_types[4] if app.encoder_display_names[4] != '' else ''
+#
+#    # Value Row
+#    EncoderValueLabel:
+#        text: app.encoder_display_values[0]
+#
+#    EncoderValueLabel:
+#        text: app.encoder_display_values[1]
+#
+#    EncoderValueLabel:
+#        text: app.encoder_display_values[2]
+#
+#    EncoderValueLabel:
+#        text: app.encoder_display_values[3]
+#
+#    EncoderValueLabel:
+#        text: app.encoder_display_values[4]
+
+
+
+#
+# Dashboard Parameter Sections
+#
+
+<ParamsGridModCell>:
+    orientation: 'vertical'
+    on_press: app.select_section(self.section_name)
+    padding: [sp(0), sp(0), sp(0), sp(5)]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#00000000')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [sp(7)]
+
+    ParamNameLabel:
+        text: root.property_name
+        font_size: sp(root.name_label_font_size)
+
+    ParamValueLabel:
+        text: f"{round(root.nymphes_property['value'], 2)}"
+
+    ModAmountsBox:
+        size_hint_x: 0.75
+        pos_hint: {'center_x': 0.5}
+        lfo2: root.nymphes_property['lfo2']
+        wheel: root.nymphes_property['wheel']
+        velocity: root.nymphes_property['velocity']
+        aftertouch: root.nymphes_property['aftertouch']
+
+<ParamsGridNonModCell>:
+    orientation: 'vertical'
+    on_press: app.select_section(self.section_name)
+    padding: [sp(0), sp(0), sp(0), sp(5)]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#00000000')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [sp(7)]
+
+    ParamNameLabel:
+        id: param_name_label
+        text: root.property_name
+        font_size: sp(root.name_label_font_size)
+
+    ParamValueLabel:
+        id: param_value_label
+        text: f"{root.nymphes_property['value']}"
+
+    # A placeholder take up the empty space in the lower
+    # part of the cell
+    Widget:
+        size_hint: None, None
+        width: root.width
+        height: sp(root.height - param_name_label.height - param_value_label.height - root.padding[3])
+
+<ParamsGridLfoConfigCell>:
+    orientation: 'vertical'
+    on_press: app.select_section(self.section_name)
+    padding: [sp(0), sp(0), sp(0), sp(5)]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#00000000')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [sp(7)]
+
+    ParamNameLabel:
+        id: param_name_label
+        text: 'TYPE'
+        font_size: sp(root.name_label_font_size)
+
+    ParamValueLabel:
+        id: param_value_label1
+        font_size: sp(11)
+        text: 'BPM' if root.nymphes_property['type'] == 0 else 'LOW' if root.nymphes_property['type'] == 1 else 'HIGH' if root.nymphes_property['type'] == 2 else 'TRACK' if root.nymphes_property['type'] == 3 else ''
+
+    ParamValueLabel:
+        id: param_value_label2
+        font_size: sp(11)
+        text: "ON" if root.nymphes_property['key_sync'] == 1 else "OFF"
+
+    Widget:
+        size_hint: None, None
+        width: root.width
+        height: sp(root.height - param_name_label.height - param_value_label1.height - param_value_label2.height - root.padding[3])
+
+
+<ParamsGridModCell, ParamsGridNonModCell, ParamsGridPlaceholderCell, ParamsGridLfoConfigCell>:
+    size_hint: None, None
+    height: sp(72)
+    width: sp(40)
+
+
+<OscillatorSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: section_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    SectionTitleLabel:
+        id: section_title_label
+        text: 'OSCILLATOR'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': 1.0 - ((section_title_label.height + root.corner_radius * 0.5) / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        # Top Row
+        #
+        ParamsGridModCell:
+            property_name: 'PW'
+            nymphes_property: app.osc_pulsewidth
+            section_name: 'oscillator_top_row'
+
+        ParamsGridModCell:
+            property_name: 'GLD'
+            nymphes_property: app.pitch_glide
+            section_name: 'oscillator_top_row'
+
+        ParamsGridModCell:
+            property_name: 'DTN'
+            nymphes_property: app.pitch_detune
+            section_name: 'oscillator_top_row'
+
+        ParamsGridModCell:
+            property_name: 'CHD'
+            nymphes_property: app.pitch_chord
+            section_name: 'oscillator_top_row'
+
+        ParamsGridModCell:
+            property_name: 'EG'
+            nymphes_property: app.pitch_env_depth
+            section_name: 'oscillator_top_row'
+
+        # Bottom Row
+        #
+        ParamsGridModCell:
+            property_name: 'WAVE'
+            nymphes_property: app.osc_wave
+            section_name: 'oscillator_bottom_row'
+
+        ParamsGridModCell:
+            property_name: 'LVL'
+            nymphes_property: app.mix_osc
+            section_name: 'oscillator_bottom_row'
+
+        ParamsGridModCell:
+            property_name: 'SUB'
+            nymphes_property: app.mix_sub
+            section_name: 'oscillator_bottom_row'
+
+        ParamsGridModCell:
+            property_name: 'NOISE'
+            nymphes_property: app.mix_noise
+            section_name: 'oscillator_bottom_row'
+
+        ParamsGridModCell:
+            property_name: 'LFO'
+            nymphes_property: app.pitch_lfo1
+            section_name: 'oscillator_bottom_row'
+
+
+<FilterSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: section_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    SectionTitleLabel:
+        id: section_title_label
+        text: 'FILTER'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': 1.0 - ((section_title_label.height + root.corner_radius * 0.5) / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        # Top Row
+        #
+        ParamsGridModCell:
+            property_name: 'CUT'
+            nymphes_property: app.lpf_cutoff
+            section_name: 'filter_top_row'
+
+        ParamsGridModCell:
+            property_name: 'RES'
+            nymphes_property: app.lpf_resonance
+            section_name: 'filter_top_row'
+
+        ParamsGridModCell:
+            property_name: 'TRK'
+            nymphes_property: app.lpf_tracking
+            section_name: 'filter_top_row'
+
+        ParamsGridModCell:
+            property_name: 'EG'
+            nymphes_property: app.lpf_env_depth
+            section_name: 'filter_top_row'
+
+        ParamsGridModCell:
+            property_name: 'LFO'
+            nymphes_property: app.lpf_lfo1
+            section_name: 'filter_top_row'
+
+        # Bottom Row
+        #
+        ParamsGridModCell:
+            property_name: 'HPF'
+            nymphes_property: app.hpf_cutoff
+            section_name: 'filter_bottom_row'
+
+<AmpEnvSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: params_grid_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    ParamsGridTitleLabel:
+        id: params_grid_title_label
+        text: 'AMP EG'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': (params_grid_title_label.y / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        ParamsGridModCell:
+            property_name: 'ATT'
+            nymphes_property: app.amp_attack
+            section_name: 'amp'
+
+        ParamsGridModCell:
+            property_name: 'DEC'
+            nymphes_property: app.amp_decay
+            section_name: 'amp'
+
+        ParamsGridModCell:
+            property_name: 'SUS'
+            nymphes_property: app.amp_sustain
+            section_name: 'amp'
+
+        ParamsGridModCell:
+            property_name: 'REL'
+            nymphes_property: app.amp_release
+            section_name: 'amp'
+
+        ParamsGridNonModCell:
+            property_name: 'LVL'
+            nymphes_property: app.main_level
+            section_name: 'amp'
+
+
+<PitchFilterEnvSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: params_grid_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    ParamsGridTitleLabel:
+        id: params_grid_title_label
+        text: 'PITCH / FILTER EG'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': (params_grid_title_label.y / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        ParamsGridModCell:
+            property_name: 'ATT'
+            nymphes_property: app.pitch_filter_env_attack
+            section_name: 'pitch_filter_env'
+
+        ParamsGridModCell:
+            property_name: 'DEC'
+            nymphes_property: app.pitch_filter_env_decay
+            section_name: 'pitch_filter_env'
+
+        ParamsGridModCell:
+            property_name: 'SUS'
+            nymphes_property: app.pitch_filter_env_sustain
+            section_name: 'pitch_filter_env'
+
+        ParamsGridModCell:
+            property_name: 'REL'
+            nymphes_property: app.pitch_filter_env_release
+            section_name: 'pitch_filter_env'
+
+        ParamsGridPlaceholderCell
+
+<PitchFilterLfoSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: params_grid_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    ParamsGridTitleLabel:
+        id: params_grid_title_label
+        text: 'PITCH / FILTER LFO'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': (params_grid_title_label.y / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        ParamsGridModCell:
+            property_name: 'RATE'
+            nymphes_property: app.lfo1_rate
+            section_name: 'lfo1'
+
+        ParamsGridModCell:
+            property_name: 'WAVE'
+            nymphes_property: app.lfo1_wave
+            section_name: 'lfo1'
+
+        ParamsGridModCell:
+            property_name: 'DEL'
+            nymphes_property: app.lfo1_delay
+            section_name: 'lfo1'
+
+        ParamsGridModCell:
+            property_name: 'FADE'
+            nymphes_property: app.lfo1_fade
+            section_name: 'lfo1'
+
+        ParamsGridLfoConfigCell:
+            nymphes_property: app.lfo1_config
+            section_name: 'lfo1'
+
+<Lfo2SectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: params_grid_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    ParamsGridTitleLabel:
+        id: params_grid_title_label
+        text: 'LFO 2'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': (params_grid_title_label.y / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        ParamsGridModCell:
+            property_name: 'RATE'
+            nymphes_property: app.lfo2_rate
+            section_name: 'lfo2'
+
+        ParamsGridModCell:
+            property_name: 'WAVE'
+            nymphes_property: app.lfo2_wave
+            section_name: 'lfo2'
+
+        ParamsGridModCell:
+            property_name: 'DEL'
+            nymphes_property: app.lfo2_delay
+            section_name: 'lfo2'
+
+        ParamsGridModCell:
+            property_name: 'FADE'
+            nymphes_property: app.lfo2_fade
+            section_name: 'lfo2'
+
+        ParamsGridLfoConfigCell:
+            nymphes_property: app.lfo2_config
+            section_name: 'lfo2'
+
+
+<ReverbSectionBox@SectionRelativeLayout>:
+    size_hint: None, None
+    width: params_grid.width + sp(self.corner_radius)
+    height: params_grid_title_label.height + params_grid.height + sp(self.corner_radius)
+
+    ParamsGridTitleLabel:
+        id: params_grid_title_label
+        text: 'REVERB'
+        padding: [sp(0), sp(0), sp(0), sp(0)]
+        pos_hint: {'top': 1 - ((root.corner_radius * 0.5) / root.height), 'x': ((root.corner_radius * 0.5) / root.width)}
+
+    GridLayout:
+        id: params_grid
+        cols: 5
+        pos_hint: {'center_x': 0.5, 'top': (params_grid_title_label.y / root.height)}
+        size_hint: None, None
+        size: self.minimum_width, self.minimum_height
+        spacing: [sp(4), sp(2)]
+        padding: [sp(2)]
+
+        ParamsGridModCell:
+            property_name: 'SIZE'
+            nymphes_property: app.reverb_size
+            section_name: 'reverb'
+
+        ParamsGridModCell:
+            property_name: 'DEC'
+            nymphes_property: app.reverb_decay
+            section_name: 'reverb'
+
+        ParamsGridModCell:
+            property_name: 'FILT'
+            nymphes_property: app.reverb_filter
+            section_name: 'reverb'
+
+        ParamsGridModCell:
+            property_name: 'MIX'
+            nymphes_property: app.reverb_mix
+            section_name: 'reverb'
+
+        ParamsGridPlaceholderCell
+
+<PlayModeSectionBox>:
+    orientation: 'vertical'
+    corner_radius: 12
+    size_hint: None, None
+    width: self.minimum_width
+    height: self.minimum_height
+    padding: [sp(self.corner_radius * 0.25 + 5), sp(self.corner_radius * 0.25 + 5)]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            #pos: root.x - sp(root.outline_offset), root.y + sp(root.outline_offset)
+            size: root.width, root.height
+            radius: [sp(root.corner_radius)]
+
+    # Play Mode
+    PlayModeButton:
+        play_mode_name: 'POLY'
+
+    PlayModeButton:
+        play_mode_name: 'UNI-A'
+
+    PlayModeButton:
+        play_mode_name: 'UNI-B'
+
+    PlayModeButton:
+        play_mode_name: 'TRI'
+
+    PlayModeButton:
+        play_mode_name: 'DUO'
+
+    PlayModeButton:
+        play_mode_name: 'MONO'
+
+    LegatoButton:
+        text: 'LEGATO'
+        #state: 'down' if app.legato else 'normal'
+
+<LegatoSectionBox>:
+    orientation: 'vertical'
+    corner_radius: 12
+    size_hint: None, None
+    width: self.minimum_width
+    height: self.minimum_height
+
+     # Legato Button
+    LegatoButton:
+        text: 'LEGATO'
+        #state: 'down' if app.legato else 'normal'
+
+<SectionRelativeLayout>:
+    # Background
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+        RoundedRectangle:
+            size: self.size
+            radius: [sp(self.corner_radius)]
+
+<SectionTitleLabel@ButtonBehavior+Label>:
+    background_color: 0, 1, 0, 0.3
+    color: C('#06070FFF') # same as box outline
+    font_size: sp(12)
+    text_size: self.size
+    size_hint: None, None
+    width: sp(200)
+    height: sp(self.font_size * 2)
+    halign: 'left'
+    valign: 'middle'
+
+<ParamsGridTitleLabel@ButtonBehavior+Label>:
+    background_color: 0, 1, 0, 0.3
+    color: C('#06070FFF') # same as box outline
+    font_size: sp(12)
+    text_size: self.size
+    size_hint: None, None
+    width: sp(200)
+    height: sp(self.font_size * 2)
+    halign: 'left'
+    valign: 'middle'
+
+<ParamNameLabel@Label>:
+    background_color: 1, 1, 0, 0.7
+    color: C('#ECBFEBFF')
+    font_size: sp(14)
+    size_hint: None, None
+    size: self.parent.width, sp(22)
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    #padding: [sp(0), sp(0), sp(0), sp(0)]
+
+<ParamValueLabel@Label>:
+    background_color: 0, 1, 1, 0.7
+    color: C('#06070FFF')
+    font_size: sp(18)
+    size_hint: None, None
+    size: self.parent.width, sp(20)
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    #padding: [sp(0), sp(0), sp(0), sp(0)]
+
+<PlayModeButton>:
+    text: self.play_mode_name
+    size_hint: None, None
+    width: sp(50)
+    height: sp(47)
+    color: C('#ECBFEBFF') if app.play_mode_name == self.play_mode_name else C('#06070FFF')
+    font_size: sp(20) if app.play_mode_name == self.play_mode_name else sp(16)
+    on_release: app.set_play_mode_by_name(self.play_mode_name)
+
+<LegatoButton@ButtonBehavior+Label>:
+    text: 'LEGATO'
+    size_hint: None, None
+    width: sp(50)
+    height: sp(40)
+    color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
+    font_size: sp(15) if app.legato else sp(14)
+    on_release: app.set_legato(not app.legato)
+
+<EncoderNameLabel@Label>:
+    background_color: 1, 1, 0, 0.7
+    color: C('#ECBFEBFF')
+    font_size: sp(16)
+    size_hint: 1, None
+    height: self.texture_size[1]
+    #width: sp(50)
+    #height: self.texture_size[1]
+    #text_size: self.size
+    halign: 'center'
+    padding: [sp(0), sp(0), sp(0), sp(0)]
+
+<EncoderValueTypeLabel@Label>:
+    background_color: 0, 1, 1, 0.7
+    color: C('#06070FFF') # Same as dashboard background
+    size_hint: 1, None
+    font_size: sp(16)
+    height: self.texture_size[1]
+    text_size: self.size
+    halign: 'center'
+    padding: [sp(0), sp(0), sp(0), sp(0)]
+
+<EncoderValueLabel@Label>:
+    background_color: 0, 1, 1, 0.7
+    color: C('#06070FFF') # Same as dashboard background
+    size_hint: 1, None
+    font_size: sp(20)
+    height: self.texture_size[1]
+    text_size: self.size
+    halign: 'center'
+    padding: [sp(0), sp(0), sp(0), sp(0)]
+
+
+<BackgroundColor@Widget>:
+    background_color: 1, 1, 1, 0.3
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+<ModAmountsBox>:
+    orientation: 'horizontal'
+    spacing: sp(1)
+    size_hint: None, None
+    width: self.parent.width
+    height: sp(22)
+    padding: [sp(3), sp(0), sp(3), sp(0)]
+
+    canvas.before:
+        Color:
+            # rgba: C('#00000020') if root.lfo2 > 0 or root.wheel > 0 or root.velocity > 0 or root.aftertouch > 0 else C('#00000000')
+            rgba: C('#00000020')
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [sp(6)]
+
+    Lfo2ModAmountLine:
+        midi_val: root.lfo2
+
+    WheelModAmountLine:
+        midi_val: root.wheel
+
+    VelocityModAmountLine:
+        midi_val: root.velocity
+
+    AftertouchModAmountLine:
+        midi_val: root.aftertouch
+
+
+<ModAmountLine>:
+    canvas:
+        # # Line Background
+        # Color:
+        #     rgba: C('#0055D4FF') if root.midi_val > 0 else C('#00000000')
+
+        # RoundedRectangle:
+        #     pos: self.pos
+        #     size: self.size
+        #     radius: [sp(2)]
+
+        # Line Which Grows with the Value
+        Color:
+            rgba: C(root.color_hex) if root.midi_val > 0 else C('#00000000')
+
+        Rectangle:
+            pos: self.pos
+            size: self.size[0], (root.midi_val / 127.0) * (root.height - sp(2))
+            #radius: [sp(2)]
+
+<Lfo2ModAmountLine@ModAmountLine>:
+    color_hex: '#F51414FF'
+
+<WheelModAmountLine@ModAmountLine>:
+    color_hex: '#FDFF00FF'
+
+<VelocityModAmountLine@ModAmountLine>:
+    color_hex: '#00FF1FFF'
+
+<AftertouchModAmountLine@ModAmountLine>:
+    color_hex: '#2974FFFF'
+
+
+<ParamsGrid@GridLayout>:
+    cols: 3
+    size_hint: None, None
+    width: self.minimum_width
+    height: self.minimum_height
+    pos_hint: {'center_x': 0.5}
+    spacing: [sp(5), sp(2)]
+    padding: [sp(2)]
+
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: '/home/jtpack/nymphes_presets'
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>:
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: '/home/jtpack/nymphes_presets'
+            on_selection: text_input.text = self.selection and self.selection[0] or ''
+
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Save"
+                on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
