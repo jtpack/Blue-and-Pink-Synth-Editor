@@ -98,68 +98,294 @@ class NymphesGuiApp(App):
     # Nymphes Parameters
     #
 
+    osc_wave_value = NumericProperty(0)
+    osc_wave_lfo2 = NumericProperty(0)
+    osc_wave_mod_wheel = NumericProperty(0)
+    osc_wave_velocity = NumericProperty(0)
+    osc_wave_aftertouch = NumericProperty(0)
+
+    osc_pulsewidth_value = NumericProperty(21)
+    osc_pulsewidth_lfo2 = NumericProperty(0)
+    osc_pulsewidth_mod_wheel = NumericProperty(0)
+    osc_pulsewidth_velocity = NumericProperty(0)
+    osc_pulsewidth_aftertouch = NumericProperty(0)
+
+    osc_voice_mode_value = NumericProperty(0)
+    osc_legato_value = NumericProperty(0)
+
+    mix_osc_value = NumericProperty(0)
+    mix_osc_lfo2 = NumericProperty(0)
+    mix_osc_mod_wheel = NumericProperty(0)
+    mix_osc_velocity = NumericProperty(0)
+    mix_osc_aftertouch = NumericProperty(0)
+
+    mix_sub_value = NumericProperty(0)
+    mix_sub_lfo2 = NumericProperty(0)
+    mix_sub_mod_wheel = NumericProperty(0)
+    mix_sub_velocity = NumericProperty(0)
+    mix_sub_aftertouch = NumericProperty(0)
+
+    mix_noise_value = NumericProperty(0)
+    mix_noise_lfo2 = NumericProperty(0)
+    mix_noise_mod_wheel = NumericProperty(0)
+    mix_noise_velocity = NumericProperty(0)
+    mix_noise_aftertouch = NumericProperty(0)
+
+    mix_level_value = NumericProperty(0)
+
+    pitch_glide_value = NumericProperty(0)
+    pitch_glide_lfo2 = NumericProperty(0)
+    pitch_glide_mod_wheel = NumericProperty(0)
+    pitch_glide_velocity = NumericProperty(0)
+    pitch_glide_aftertouch = NumericProperty(0)
+
+    pitch_detune_value = NumericProperty(0)
+    pitch_detune_lfo2 = NumericProperty(0)
+    pitch_detune_mod_wheel = NumericProperty(0)
+    pitch_detune_velocity = NumericProperty(0)
+    pitch_detune_aftertouch = NumericProperty(0)
+
+    pitch_chord_value = NumericProperty(0)
+    pitch_chord_lfo2 = NumericProperty(0)
+    pitch_chord_mod_wheel = NumericProperty(0)
+    pitch_chord_velocity = NumericProperty(0)
+    pitch_chord_aftertouch = NumericProperty(0)
+
+    pitch_eg_value = NumericProperty(0)
+    pitch_eg_lfo2 = NumericProperty(0)
+    pitch_eg_mod_wheel = NumericProperty(0)
+    pitch_eg_velocity = NumericProperty(0)
+    pitch_eg_aftertouch = NumericProperty(0)
+
+    pitch_lfo1_value = NumericProperty(0)
+    pitch_lfo1_lfo2 = NumericProperty(0)
+    pitch_lfo1_mod_wheel = NumericProperty(0)
+    pitch_lfo1_velocity = NumericProperty(0)
+    pitch_lfo1_aftertouch = NumericProperty(0)
+
+    lpf_cutoff_value = NumericProperty(0)
+    lpf_cutoff_lfo2 = NumericProperty(0)
+    lpf_cutoff_mod_wheel = NumericProperty(0)
+    lpf_cutoff_velocity = NumericProperty(0)
+    lpf_cutoff_aftertouch = NumericProperty(0)
+
+    lpf_resonance_value = NumericProperty(0)
+    lpf_resonance_lfo2 = NumericProperty(0)
+    lpf_resonance_mod_wheel = NumericProperty(0)
+    lpf_resonance_velocity = NumericProperty(0)
+    lpf_resonance_aftertouch = NumericProperty(0)
+
+    lpf_tracking_value = NumericProperty(0)
+    lpf_tracking_lfo2 = NumericProperty(0)
+    lpf_tracking_mod_wheel = NumericProperty(0)
+    lpf_tracking_velocity = NumericProperty(0)
+    lpf_tracking_aftertouch = NumericProperty(0)
+
+    lpf_eg_value = NumericProperty(0)
+    lpf_eg_lfo2 = NumericProperty(0)
+    lpf_eg_mod_wheel = NumericProperty(0)
+    lpf_eg_velocity = NumericProperty(0)
+    lpf_eg_aftertouch = NumericProperty(0)
+
+    lpf_lfo1_value = NumericProperty(0)
+    lpf_lfo1_lfo2 = NumericProperty(0)
+    lpf_lfo1_mod_wheel = NumericProperty(0)
+    lpf_lfo1_velocity = NumericProperty(0)
+    lpf_lfo1_aftertouch = NumericProperty(0)
+
+    hpf_cutoff_value = NumericProperty(0)
+    hpf_cutoff_lfo2 = NumericProperty(0)
+    hpf_cutoff_mod_wheel = NumericProperty(0)
+    hpf_cutoff_velocity = NumericProperty(0)
+    hpf_cutoff_aftertouch = NumericProperty(0)
+
+    filter_eg_attack_value = NumericProperty(0)
+    filter_eg_attack_lfo2 = NumericProperty(0)
+    filter_eg_attack_mod_wheel = NumericProperty(0)
+    filter_eg_attack_velocity = NumericProperty(0)
+    filter_eg_attack_aftertouch = NumericProperty(0)
+
+    filter_eg_decay_value = NumericProperty(0)
+    filter_eg_decay_lfo2 = NumericProperty(0)
+    filter_eg_decay_mod_wheel = NumericProperty(0)
+    filter_eg_decay_velocity = NumericProperty(0)
+    filter_eg_decay_aftertouch = NumericProperty(0)
+
+    filter_eg_sustain_value = NumericProperty(0)
+    filter_eg_sustain_lfo2 = NumericProperty(0)
+    filter_eg_sustain_mod_wheel = NumericProperty(0)
+    filter_eg_sustain_velocity = NumericProperty(0)
+    filter_eg_sustain_aftertouch = NumericProperty(0)
+
+    filter_eg_release_value = NumericProperty(0)
+    filter_eg_release_lfo2 = NumericProperty(0)
+    filter_eg_release_mod_wheel = NumericProperty(0)
+    filter_eg_release_velocity = NumericProperty(0)
+    filter_eg_release_aftertouch = NumericProperty(0)
+
+    amp_eg_attack_value = NumericProperty(0)
+    amp_eg_attack_lfo2 = NumericProperty(0)
+    amp_eg_attack_mod_wheel = NumericProperty(0)
+    amp_eg_attack_velocity = NumericProperty(0)
+    amp_eg_attack_aftertouch = NumericProperty(0)
+
+    amp_eg_decay_value = NumericProperty(0)
+    amp_eg_decay_lfo2 = NumericProperty(0)
+    amp_eg_decay_mod_wheel = NumericProperty(0)
+    amp_eg_decay_velocity = NumericProperty(0)
+    amp_eg_decay_aftertouch = NumericProperty(0)
+
+    amp_eg_sustain_value = NumericProperty(0)
+    amp_eg_sustain_lfo2 = NumericProperty(0)
+    amp_eg_sustain_mod_wheel = NumericProperty(0)
+    amp_eg_sustain_velocity = NumericProperty(0)
+    amp_eg_sustain_aftertouch = NumericProperty(0)
+
+    amp_eg_release_value = NumericProperty(0)
+    amp_eg_release_lfo2 = NumericProperty(0)
+    amp_eg_release_mod_wheel = NumericProperty(0)
+    amp_eg_release_velocity = NumericProperty(0)
+    amp_eg_release_aftertouch = NumericProperty(0)
+
+    lfo1_rate_value = NumericProperty(0)
+    lfo1_rate_lfo2 = NumericProperty(0)
+    lfo1_rate_mod_wheel = NumericProperty(0)
+    lfo1_rate_velocity = NumericProperty(0)
+    lfo1_rate_aftertouch = NumericProperty(0)
+
+    lfo1_wave_value = NumericProperty(0)
+    lfo1_wave_lfo2 = NumericProperty(0)
+    lfo1_wave_mod_wheel = NumericProperty(0)
+    lfo1_wave_velocity = NumericProperty(0)
+    lfo1_wave_aftertouch = NumericProperty(0)
+
+    lfo1_delay_value = NumericProperty(0)
+    lfo1_delay_lfo2 = NumericProperty(0)
+    lfo1_delay_mod_wheel = NumericProperty(0)
+    lfo1_delay_velocity = NumericProperty(0)
+    lfo1_delay_aftertouch = NumericProperty(0)
+
+    lfo1_fade_value = NumericProperty(0)
+    lfo1_fade_lfo2 = NumericProperty(0)
+    lfo1_fade_mod_wheel = NumericProperty(0)
+    lfo1_fade_velocity = NumericProperty(0)
+    lfo1_fade_aftertouch = NumericProperty(0)
+
+    lfo1_type_value = NumericProperty(0)
+    lfo1_key_sync_value = NumericProperty(0)
+
+    lfo2_rate_value = NumericProperty(0)
+    lfo2_rate_lfo2 = NumericProperty(0)
+    lfo2_rate_mod_wheel = NumericProperty(0)
+    lfo2_rate_velocity = NumericProperty(0)
+    lfo2_rate_aftertouch = NumericProperty(0)
+
+    lfo2_wave_value = NumericProperty(0)
+    lfo2_wave_lfo2 = NumericProperty(0)
+    lfo2_wave_mod_wheel = NumericProperty(0)
+    lfo2_wave_velocity = NumericProperty(0)
+    lfo2_wave_aftertouch = NumericProperty(0)
+
+    lfo2_delay_value = NumericProperty(0)
+    lfo2_delay_lfo2 = NumericProperty(0)
+    lfo2_delay_mod_wheel = NumericProperty(0)
+    lfo2_delay_velocity = NumericProperty(0)
+    lfo2_delay_aftertouch = NumericProperty(0)
+
+    lfo2_fade_value = NumericProperty(0)
+    lfo2_fade_lfo2 = NumericProperty(0)
+    lfo2_fade_mod_wheel = NumericProperty(0)
+    lfo2_fade_velocity = NumericProperty(0)
+    lfo2_fade_aftertouch = NumericProperty(0)
+
+    lfo2_type_value = NumericProperty(0)
+    lfo2_key_sync_value = NumericProperty(0)
+
+    reverb_size_value = NumericProperty(0)
+    reverb_size_lfo2 = NumericProperty(0)
+    reverb_size_mod_wheel = NumericProperty(0)
+    reverb_size_velocity = NumericProperty(0)
+    reverb_size_aftertouch = NumericProperty(0)
+
+    reverb_decay_value = NumericProperty(0)
+    reverb_decay_lfo2 = NumericProperty(0)
+    reverb_decay_mod_wheel = NumericProperty(0)
+    reverb_decay_velocity = NumericProperty(0)
+    reverb_decay_aftertouch = NumericProperty(0)
+
+    reverb_filter_value = NumericProperty(0)
+    reverb_filter_lfo2 = NumericProperty(0)
+    reverb_filter_mod_wheel = NumericProperty(0)
+    reverb_filter_velocity = NumericProperty(0)
+    reverb_filter_aftertouch = NumericProperty(0)
+
+    reverb_mix_value = NumericProperty(0)
+    reverb_mix_lfo2 = NumericProperty(0)
+    reverb_mix_mod_wheel = NumericProperty(0)
+    reverb_mix_velocity = NumericProperty(0)
+    reverb_mix_aftertouch = NumericProperty(0)
+
+    chord_1_root_value = NumericProperty(0)
+    chord_1_semi_1_value = NumericProperty(0)
+    chord_1_semi_2_value = NumericProperty(0)
+    chord_1_semi_3_value = NumericProperty(0)
+    chord_1_semi_4_value = NumericProperty(0)
+    chord_1_semi_5_value = NumericProperty(0)
+
+    chord_2_root_value = NumericProperty(0)
+    chord_2_semi_1_value = NumericProperty(0)
+    chord_2_semi_2_value = NumericProperty(0)
+    chord_2_semi_3_value = NumericProperty(0)
+    chord_2_semi_4_value = NumericProperty(0)
+    chord_2_semi_5_value = NumericProperty(0)
+
+    chord_3_root_value = NumericProperty(0)
+    chord_3_semi_1_value = NumericProperty(0)
+    chord_3_semi_2_value = NumericProperty(0)
+    chord_3_semi_3_value = NumericProperty(0)
+    chord_3_semi_4_value = NumericProperty(0)
+    chord_3_semi_5_value = NumericProperty(0)
+
+    chord_4_root_value = NumericProperty(0)
+    chord_4_semi_1_value = NumericProperty(0)
+    chord_4_semi_2_value = NumericProperty(0)
+    chord_4_semi_3_value = NumericProperty(0)
+    chord_4_semi_4_value = NumericProperty(0)
+    chord_4_semi_5_value = NumericProperty(0)
+
+    chord_5_root_value = NumericProperty(0)
+    chord_5_semi_1_value = NumericProperty(0)
+    chord_5_semi_2_value = NumericProperty(0)
+    chord_5_semi_3_value = NumericProperty(0)
+    chord_5_semi_4_value = NumericProperty(0)
+    chord_5_semi_5_value = NumericProperty(0)
+
+    chord_6_root_value = NumericProperty(0)
+    chord_6_semi_1_value = NumericProperty(0)
+    chord_6_semi_2_value = NumericProperty(0)
+    chord_6_semi_3_value = NumericProperty(0)
+    chord_6_semi_4_value = NumericProperty(0)
+    chord_6_semi_5_value = NumericProperty(0)
+
+    chord_7_root_value = NumericProperty(0)
+    chord_7_semi_1_value = NumericProperty(0)
+    chord_7_semi_2_value = NumericProperty(0)
+    chord_7_semi_3_value = NumericProperty(0)
+    chord_7_semi_4_value = NumericProperty(0)
+    chord_7_semi_5_value = NumericProperty(0)
+
+    chord_8_root_value = NumericProperty(0)
+    chord_8_semi_1_value = NumericProperty(0)
+    chord_8_semi_2_value = NumericProperty(0)
+    chord_8_semi_3_value = NumericProperty(0)
+    chord_8_semi_4_value = NumericProperty(0)
+    chord_8_semi_5_value = NumericProperty(0)
+
     play_mode_name = StringProperty('POLY')
     legato = BooleanProperty(False)
     mod_source = NumericProperty(0)
     main_level = DictProperty({'value': 0})
 
-    # Oscillator
-    osc_wave = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    osc_pulsewidth = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Pitch
-    pitch_detune = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_glide = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_chord = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_env_depth = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_lfo1 = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Amp
-    amp_attack = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    amp_decay = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    amp_sustain = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    amp_release = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Mix
-    mix_osc = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    mix_sub = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    mix_noise = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Filter 1
-    lpf_cutoff = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lpf_resonance = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lpf_tracking = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Filter 2
-    lpf_lfo1 = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lpf_env_depth = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    hpf_cutoff = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # Pitch / Filter Envelope
-    pitch_filter_env_attack = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_filter_env_decay = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_filter_env_sustain = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    pitch_filter_env_release = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-
-    # LFO1 (Filter / Pitch)
-    lfo1_rate = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo1_wave = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo1_delay = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo1_fade = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo1_config = DictProperty({'type': 0, 'key_sync': 0})
-
-    # LFO2
-    lfo2_rate = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo2_wave = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo2_delay = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo2_fade = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    lfo2_config = DictProperty({'type': 0, 'key_sync': 0})
-
-    # Reverb
-    reverb_size = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    reverb_decay = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    reverb_filter = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
-    reverb_mix = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
 
     #
     # Preset File Handling
@@ -933,25 +1159,16 @@ class NymphesGuiApp(App):
             # This could be a Nymphes parameter message
 
             # Convert to a parameter name by skipping the
-            # first character and replacing all slashes
+            # first slash and replacing all other slashes
             # with periods
             param_name = address[1:].replace('/', '.')
 
             if param_name in NymphesPreset.all_param_names():
                 # This is a valid parameter name.
-                logger.debug(f'Received param name {param_name}')
+                # Store the new value.
+                setattr(self, param_name.replace('.', '_'), args[0])
 
-                # Get the components of the parameter
-                #
-                section = NymphesPreset.section_for_param(param_name)
-                feature = NymphesPreset.feature_for_param(param_name)
-                target = NymphesPreset.target_for_param(param_name)
-
-                # Get our property for the parameter
-                prop = getattr(self, f'{section}_{feature}')
-
-                # Set the value of the correct target of the property
-                prop[target] = args[0]
+                logger.debug(f'Received param name {param_name}: {args[0]}')
 
             else:
                 # This is an unrecognized OSC message
@@ -1215,9 +1432,6 @@ class NymphesGuiApp(App):
         :param args: A list of arguments
         :return:
         """
-
-        # print(f'on_encoder_osc_message: {address}, {[str(arg) + " " for arg in args]}')
-
         if address == '/client_registered':
             # We have just successfully registered as the encoders'
             # client.
@@ -1563,24 +1777,32 @@ class NymphesGuiApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
+
 class ParamsGridModCell(ButtonBehavior, BoxLayout):
-    property_name = StringProperty('')
-    nymphes_property = DictProperty({'value': 0, 'lfo2': 0, 'wheel': 0, 'velocity': 0, 'aftertouch': 0})
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
+    title = StringProperty('')
+    param_name_base = StringProperty('')
+    value_prop = NumericProperty(0)
+    lfo2_prop = NumericProperty(0)
+    mod_wheel_prop = NumericProperty(0)
+    velocity_prop = NumericProperty(0)
+    aftertouch_prop = NumericProperty(0)
+    value_prop_name = ObjectProperty()
 
 
 class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
-    property_name = StringProperty('')
-    nymphes_property = DictProperty({'value': 0})
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
+    title = StringProperty('')
+    value_prop = NumericProperty(0)
 
 
 class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
-    nymphes_property = DictProperty({'type': 0, 'key_sync': 0})
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
+    type_prop = NumericProperty(0)
+    key_sync_prop = NumericProperty(0)
 
 
 class ParamsGridPlaceholderCell(Widget):
@@ -1624,6 +1846,21 @@ class SectionRelativeLayout(RelativeLayout):
     section_name = StringProperty('')
 
 
+class SectionTitleLabel(ButtonBehavior, Label):
+    pass
+
+#class OscillatorSectionBox(SectionRelativeLayout):
+    # def __init__(self, **kwargs):
+    #     super(OscillatorSectionBox, self).__init__(**kwargs)
+    #
+    #     section_title_label = SectionTitleLabel(text='OSCILLATOR')
+    #     section_title_label.id = 'section_title_label'
+
+
+
+
+
+
 class ParameterBox(ButtonBehavior, BoxLayout):
     name = StringProperty('NAME')
     value = NumericProperty(0)
@@ -1657,7 +1894,7 @@ class ModParameterPopup(Popup):
 
 
 class ModAmountsBox(BoxLayout):
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
+    lfo2_prop = NumericProperty(0)
+    mod_wheel_prop = NumericProperty(0)
+    velocity_prop = NumericProperty(0)
+    aftertouch_prop = NumericProperty(0)
