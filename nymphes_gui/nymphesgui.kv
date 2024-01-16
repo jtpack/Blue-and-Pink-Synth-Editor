@@ -35,30 +35,30 @@ ScreenManager:
             OscillatorSectionBox:
                 id: oscillator_section_box
                 pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
-#
-#            FilterSectionBox:
-#                id: filter_section_box
-#                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
-#
-#            AmpEgSectionBox:
-#                id: amp_eg_section_box
-#                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
-#
-#            FilterEgSectionBox:
-#                id: filter_eg_section_box
-#                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
-#
-#            Lfo1SectionBox:
-#                id: lfo1_section_box
-#                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
-#
-#            Lfo2SectionBox:
-#                id: lfo2_section_box
-#                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
-#
-#            ReverbSectionBox:
-#                id: reverb_section_box
-#                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
+
+            FilterSectionBox:
+                id: filter_section_box
+                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            AmpEgSectionBox:
+                id: amp_eg_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            FilterEgSectionBox:
+                id: filter_eg_section_box
+                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            Lfo1SectionBox:
+                id: lfo1_section_box
+                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            Lfo2SectionBox:
+                id: lfo2_section_box
+                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
+
+            ReverbSectionBox:
+                id: reverb_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
 
 #            EncodersBar:
 #                id: encoders_box
@@ -273,7 +273,7 @@ ScreenManager:
         font_size: sp(root.name_label_font_size)
 
     ParamValueLabel:
-        text: str(round(getattr(app, root.param_name_base + '.value'), 2))
+        text: str(root.value_prop)
 
     ModAmountsBox:
         size_hint_x: 0.75
@@ -375,99 +375,94 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'PW'
-            param_name_base: 'osc.pulsewidth'
+            value_prop: app.osc_pulsewidth_value
+            lfo2_prop: app.osc_pulsewidth_lfo2
+            mod_wheel_prop: app.osc_pulsewidth_mod_wheel
+            velocity_prop: app.osc_pulsewidth_velocity
+            aftertouch_prop: app.osc_pulsewidth_aftertouch
 
-#        ParamsGridModCell:
-#            section_name: 'oscillator_top_row'
-#            title: 'GLD'
-#            param_name_base: 'pitch.glide'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_top_row'
-#            title: 'DTN'
-#            param_name_base: 'pitch.detune'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_top_row'
-#            title: 'CHD'
-#            param_name_base: 'pitch.chord'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_top_row'
-#            title: 'EG'
-#            param_name_base: 'pitch.eg'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        # Bottom Row
-#        #
-#        ParamsGridModCell:
-#            section_name: 'oscillator_bottom_row'
-#            title: 'WAVE'
-#            param_name_base: 'osc.wave'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_bottom_row'
-#            title: 'LVL'
-#            param_name_base: 'mix.osc'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_bottom_row'
-#            title: 'SUB'
-#            param_name_base: 'mix.sub'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_bottom_row'
-#            title: 'NOISE'
-#            param_name_base: 'mix.noise'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
-#
-#        ParamsGridModCell:
-#            section_name: 'oscillator_bottom_row'
-#            title: 'LFO'
-#            param_name_base: 'pitch.lfo1'
-#            value_prop: app.nymphes_params[self.param_name_base + '.value']
-#            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-#            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-#            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-#            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'GLD'
+            value_prop: app.pitch_glide_value
+            lfo2_prop: app.pitch_glide_lfo2
+            mod_wheel_prop: app.pitch_glide_mod_wheel
+            velocity_prop: app.pitch_glide_velocity
+            aftertouch_prop: app.pitch_glide_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'DTN'
+            value_prop: app.pitch_detune_value
+            lfo2_prop: app.pitch_detune_lfo2
+            mod_wheel_prop: app.pitch_detune_mod_wheel
+            velocity_prop: app.pitch_detune_velocity
+            aftertouch_prop: app.pitch_detune_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'CHD'
+            value_prop: app.pitch_chord_value
+            lfo2_prop: app.pitch_chord_lfo2
+            mod_wheel_prop: app.pitch_chord_mod_wheel
+            velocity_prop: app.pitch_chord_velocity
+            aftertouch_prop: app.pitch_chord_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'EG'
+            value_prop: app.pitch_eg_value
+            lfo2_prop: app.pitch_eg_lfo2
+            mod_wheel_prop: app.pitch_eg_mod_wheel
+            velocity_prop: app.pitch_eg_velocity
+            aftertouch_prop: app.pitch_eg_aftertouch
+
+        # Bottom Row
+        #
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'WAVE'
+            value_prop: app.osc_wave_value
+            lfo2_prop: app.osc_wave_lfo2
+            mod_wheel_prop: app.osc_wave_mod_wheel
+            velocity_prop: app.osc_wave_velocity
+            aftertouch_prop: app.osc_wave_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'LVL'
+            value_prop: app.mix_osc_value
+            lfo2_prop: app.mix_osc_lfo2
+            mod_wheel_prop: app.mix_osc_mod_wheel
+            velocity_prop: app.mix_osc_velocity
+            aftertouch_prop: app.mix_osc_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'SUB'
+            value_prop: app.mix_sub_value
+            lfo2_prop: app.mix_sub_lfo2
+            mod_wheel_prop: app.mix_sub_mod_wheel
+            velocity_prop: app.mix_sub_velocity
+            aftertouch_prop: app.mix_sub_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'NOISE'
+            value_prop: app.mix_noise_value
+            lfo2_prop: app.mix_noise_lfo2
+            mod_wheel_prop: app.mix_noise_mod_wheel
+            velocity_prop: app.mix_noise_velocity
+            aftertouch_prop: app.mix_noise_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'LFO'
+            value_prop: app.pitch_lfo1_value
+            lfo2_prop: app.pitch_lfo1_lfo2
+            mod_wheel_prop: app.pitch_lfo1_mod_wheel
+            velocity_prop: app.pitch_lfo1_velocity
+            aftertouch_prop: app.pitch_lfo1_aftertouch
 
 
 <FilterSectionBox@SectionRelativeLayout>:
@@ -495,64 +490,58 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'CUT'
-            param_name_base: 'lpf.cutoff'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lpf_cutoff_value
+            lfo2_prop: app.lpf_cutoff_lfo2
+            mod_wheel_prop: app.lpf_cutoff_mod_wheel
+            velocity_prop: app.lpf_cutoff_velocity
+            aftertouch_prop: app.lpf_cutoff_aftertouch
 
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'RES'
-            param_name_base: 'lpf.resonance'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lpf_resonance_value
+            lfo2_prop: app.lpf_resonance_lfo2
+            mod_wheel_prop: app.lpf_resonance_mod_wheel
+            velocity_prop: app.lpf_resonance_velocity
+            aftertouch_prop: app.lpf_resonance_aftertouch
 
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'TRK'
-            param_name_base: 'lpf.tracking'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lpf_tracking_value
+            lfo2_prop: app.lpf_tracking_lfo2
+            mod_wheel_prop: app.lpf_tracking_mod_wheel
+            velocity_prop: app.lpf_tracking_velocity
+            aftertouch_prop: app.lpf_tracking_aftertouch
 
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'EG'
-            param_name_base: 'lpf.eg'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lpf_eg_value
+            lfo2_prop: app.lpf_eg_lfo2
+            mod_wheel_prop: app.lpf_eg_mod_wheel
+            velocity_prop: app.lpf_eg_velocity
+            aftertouch_prop: app.lpf_eg_aftertouch
 
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'LFO'
-            param_name_base: 'lpf.lfo1'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lpf_lfo1_value
+            lfo2_prop: app.lpf_lfo1_lfo2
+            mod_wheel_prop: app.lpf_lfo1_mod_wheel
+            velocity_prop: app.lpf_lfo1_velocity
+            aftertouch_prop: app.lpf_lfo1_aftertouch
 
         # Bottom Row
         #
         ParamsGridModCell:
             section_name: 'filter_bottom_row'
             title: 'HPF'
-            param_name_base: 'hpf.cutoff'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.hpf_cutoff_value
+            lfo2_prop: app.hpf_cutoff_lfo2
+            mod_wheel_prop: app.hpf_cutoff_mod_wheel
+            velocity_prop: app.hpf_cutoff_velocity
+            aftertouch_prop: app.hpf_cutoff_aftertouch
 
 <AmpEgSectionBox@SectionRelativeLayout>:
     size_hint: None, None
@@ -577,47 +566,43 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'amp'
             title: 'ATT'
-            param_name_base: 'amp_eg.attack'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.amp_eg_attack_value
+            lfo2_prop: app.amp_eg_attack_lfo2
+            mod_wheel_prop: app.amp_eg_attack_mod_wheel
+            velocity_prop: app.amp_eg_attack_velocity
+            aftertouch_prop: app.amp_eg_attack_aftertouch
 
         ParamsGridModCell:
             section_name: 'amp'
             title: 'DEC'
-            param_name_base: 'amp_eg.decay'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.amp_eg_decay_value
+            lfo2_prop: app.amp_eg_decay_lfo2
+            mod_wheel_prop: app.amp_eg_decay_mod_wheel
+            velocity_prop: app.amp_eg_decay_velocity
+            aftertouch_prop: app.amp_eg_decay_aftertouch
 
         ParamsGridModCell:
             section_name: 'amp'
             title: 'SUS'
-            param_name_base: 'amp_eg.sustain'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.amp_eg_sustain_value
+            lfo2_prop: app.amp_eg_sustain_lfo2
+            mod_wheel_prop: app.amp_eg_sustain_mod_wheel
+            velocity_prop: app.amp_eg_sustain_velocity
+            aftertouch_prop: app.amp_eg_sustain_aftertouch
 
         ParamsGridModCell:
             section_name: 'amp'
             title: 'REL'
-            param_name_base: 'amp_eg.release'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.amp_eg_release_value
+            lfo2_prop: app.amp_eg_release_lfo2
+            mod_wheel_prop: app.amp_eg_release_mod_wheel
+            velocity_prop: app.amp_eg_release_velocity
+            aftertouch_prop: app.amp_eg_release_aftertouch
 
         ParamsGridNonModCell:
             section_name: 'amp'
             title: 'LVL'
-            value_prop: app.nymphes_params['mix.level.value']
+            value_prop: app.mix_level_value
 
 
 <FilterEgSectionBox@SectionRelativeLayout>:
@@ -643,42 +628,38 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'ATT'
-            param_name_base: 'filter_eg.attack'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.filter_eg_attack_value
+            lfo2_prop: app.filter_eg_attack_lfo2
+            mod_wheel_prop: app.filter_eg_attack_mod_wheel
+            velocity_prop: app.filter_eg_attack_velocity
+            aftertouch_prop: app.filter_eg_attack_aftertouch
 
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'DEC'
-            param_name_base: 'filter_eg.decay'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.filter_eg_decay_value
+            lfo2_prop: app.filter_eg_decay_lfo2
+            mod_wheel_prop: app.filter_eg_decay_mod_wheel
+            velocity_prop: app.filter_eg_decay_velocity
+            aftertouch_prop: app.filter_eg_decay_aftertouch
 
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'SUS'
-            param_name_base: 'filter_eg.sustain'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.filter_eg_sustain_value
+            lfo2_prop: app.filter_eg_sustain_lfo2
+            mod_wheel_prop: app.filter_eg_sustain_mod_wheel
+            velocity_prop: app.filter_eg_sustain_velocity
+            aftertouch_prop: app.filter_eg_sustain_aftertouch
 
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'REL'
-            param_name_base: 'filter_eg.release'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.filter_eg_release_value
+            lfo2_prop: app.filter_eg_release_lfo2
+            mod_wheel_prop: app.filter_eg_release_mod_wheel
+            velocity_prop: app.filter_eg_release_velocity
+            aftertouch_prop: app.filter_eg_release_aftertouch
 
         ParamsGridPlaceholderCell
 
@@ -705,47 +686,43 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'RATE'
-            param_name_base: 'lfo1.rate'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo1_rate_value
+            lfo2_prop: app.lfo1_rate_lfo2
+            mod_wheel_prop: app.lfo1_rate_mod_wheel
+            velocity_prop: app.lfo1_rate_velocity
+            aftertouch_prop: app.lfo1_rate_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'WAVE'
-            param_name_base: 'lfo1.wave'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo1_wave_value
+            lfo2_prop: app.lfo1_wave_lfo2
+            mod_wheel_prop: app.lfo1_wave_mod_wheel
+            velocity_prop: app.lfo1_wave_velocity
+            aftertouch_prop: app.lfo1_wave_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'DEL'
-            param_name_base: 'lfo1.delay'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo1_delay_value
+            lfo2_prop: app.lfo1_delay_lfo2
+            mod_wheel_prop: app.lfo1_delay_mod_wheel
+            velocity_prop: app.lfo1_delay_velocity
+            aftertouch_prop: app.lfo1_delay_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'FADE'
-            param_name_base: 'lfo1.fade'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo1_fade_value
+            lfo2_prop: app.lfo1_fade_lfo2
+            mod_wheel_prop: app.lfo1_fade_mod_wheel
+            velocity_prop: app.lfo1_fade_velocity
+            aftertouch_prop: app.lfo1_fade_aftertouch
 
         ParamsGridLfoConfigCell:
             section_name: 'lfo1'
-            type_prop: app.nymphes_params['lfo1.type.value']
-            key_sync_prop: app.nymphes_params['lfo1.key_sync.value']
+            type_prop: app.lfo1_type_value
+            key_sync_prop: app.lfo1_key_sync_value
 
 <Lfo2SectionBox@SectionRelativeLayout>:
     size_hint: None, None
@@ -768,49 +745,45 @@ ScreenManager:
         padding: [sp(2)]
 
         ParamsGridModCell:
-            title: 'RATE'
             section_name: 'lfo2'
-            param_name_base: 'lfo2.rate'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            title: 'RATE'
+            value_prop: app.lfo2_rate_value
+            lfo2_prop: app.lfo2_rate_lfo2
+            mod_wheel_prop: app.lfo2_rate_mod_wheel
+            velocity_prop: app.lfo2_rate_velocity
+            aftertouch_prop: app.lfo2_rate_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'WAVE'
-            param_name_base: 'lfo2.wave'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo2_wave_value
+            lfo2_prop: app.lfo2_wave_lfo2
+            mod_wheel_prop: app.lfo2_wave_mod_wheel
+            velocity_prop: app.lfo2_wave_velocity
+            aftertouch_prop: app.lfo2_wave_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'DEL'
-            param_name_base: 'lfo2.delay'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo2_delay_value
+            lfo2_prop: app.lfo2_delay_lfo2
+            mod_wheel_prop: app.lfo2_delay_mod_wheel
+            velocity_prop: app.lfo2_delay_velocity
+            aftertouch_prop: app.lfo2_delay_aftertouch
 
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'FADE'
-            param_name_base: 'lfo2.fade'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo2_fade_value
+            lfo2_prop: app.lfo2_fade_lfo2
+            mod_wheel_prop: app.lfo2_fade_mod_wheel
+            velocity_prop: app.lfo2_fade_velocity
+            aftertouch_prop: app.lfo2_fade_aftertouch
 
         ParamsGridLfoConfigCell:
             section_name: 'lfo2'
-            type_prop: app.nymphes_params['lfo2.type.value']
-            key_sync_prop: app.nymphes_params['lfo2.key_sync.value']
+            type_prop: app.lfo2_type_value
+            key_sync_prop: app.lfo2_key_sync_value
 
 
 <ReverbSectionBox@SectionRelativeLayout>:
@@ -836,42 +809,38 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'SIZE'
-            param_name_base: 'reverb.size'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.reverb_size_value
+            lfo2_prop: app.reverb_size_lfo2
+            mod_wheel_prop: app.reverb_size_mod_wheel
+            velocity_prop: app.reverb_size_velocity
+            aftertouch_prop: app.reverb_size_aftertouch
 
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'DEC'
-            param_name_base: 'reverb.decay'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.reverb_decay_value
+            lfo2_prop: app.reverb_decay_lfo2
+            mod_wheel_prop: app.reverb_decay_mod_wheel
+            velocity_prop: app.reverb_decay_velocity
+            aftertouch_prop: app.reverb_decay_aftertouch
 
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'FILT'
-            param_name_base: 'reverb.filter'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.reverb_filter_value
+            lfo2_prop: app.reverb_filter_lfo2
+            mod_wheel_prop: app.reverb_filter_mod_wheel
+            velocity_prop: app.reverb_filter_velocity
+            aftertouch_prop: app.reverb_filter_aftertouch
 
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'MIX'
-            param_name_base: 'reverb.mix'
-            value_prop: app.nymphes_params[self.param_name_base + '.value']
-            lfo2_prop: app.nymphes_params[self.param_name_base + '.lfo2']
-            mod_wheel_prop: app.nymphes_params[self.param_name_base + '.mod_wheel']
-            velocity_prop: app.nymphes_params[self.param_name_base + '.velocity']
-            aftertouch_prop: app.nymphes_params[self.param_name_base + '.aftertouch']
+            value_prop: app.lfo1_delay_value
+            lfo2_prop: app.lfo1_delay_lfo2
+            mod_wheel_prop: app.lfo1_delay_mod_wheel
+            velocity_prop: app.lfo1_delay_velocity
+            aftertouch_prop: app.lfo1_delay_aftertouch
 
         ParamsGridPlaceholderCell
 
@@ -973,7 +942,7 @@ ScreenManager:
 <ParamValueLabel@Label>:
     background_color: 0, 1, 1, 0.7
     color: C('#06070FFF')
-    font_size: sp(18)
+    font_size: sp(14)
     size_hint: None, None
     size: self.parent.width, sp(20)
     text_size: self.size

@@ -66,6 +66,8 @@ logger.addHandler(console_handler)
 
 class NymphesGuiApp(App):
 
+
+
     @staticmethod
     def presets_spinner_values_list():
         """
@@ -385,7 +387,6 @@ class NymphesGuiApp(App):
     legato = BooleanProperty(False)
     mod_source = NumericProperty(0)
     main_level = DictProperty({'value': 0})
-
 
     #
     # Preset File Handling
@@ -1164,9 +1165,38 @@ class NymphesGuiApp(App):
             param_name = address[1:].replace('/', '.')
 
             if param_name in NymphesPreset.all_param_names():
+                #
                 # This is a valid parameter name.
-                # Store the new value.
-                setattr(self, param_name.replace('.', '_'), args[0])
+                #
+
+                # Convert the value based on its type
+                if NymphesPreset.type_for_param_name(param_name) == float:
+                    #
+                    # This is a float value parameter.
+                    #
+
+                    # Use a float to represent the value
+                    # only if needed to capture it.
+                    # Otherwise use an int.
+                    #
+                    float_value = round(args[0], NymphesPreset.float_precision_num_decimals)
+                    int_value = int(args[0])
+
+                    if float_value - int_value >= (1.0 / NymphesPreset.float_precision_num_decimals):
+                        # We need to use the float value
+                        value = float_value
+                    else:
+                        # We can use the int value
+                        value = int_value
+
+                else:
+                    #
+                    # This is an integer value
+                    #
+                    value = int(args[0])
+
+                # Set our property for this parameter
+                setattr(self, param_name.replace('.', '_'), value)
 
                 logger.debug(f'Received param name {param_name}: {args[0]}')
 
@@ -1778,17 +1808,18 @@ class NymphesGuiApp(App):
         #     self.update_encoder_led_color(encoder_num)
 
 
+
+
 class ParamsGridModCell(ButtonBehavior, BoxLayout):
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
-    param_name_base = StringProperty('')
+
     value_prop = NumericProperty(0)
     lfo2_prop = NumericProperty(0)
     mod_wheel_prop = NumericProperty(0)
     velocity_prop = NumericProperty(0)
     aftertouch_prop = NumericProperty(0)
-    value_prop_name = ObjectProperty()
 
 
 class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
