@@ -20,53 +20,18 @@ import threading
 import configparser
 from pathlib import Path
 import netifaces
-import logging
-from logging.handlers import RotatingFileHandler
+# import logging
+# from logging.handlers import RotatingFileHandler
+from kivy.logger import Logger, LOG_LEVELS
+Logger.setLevel(LOG_LEVELS["debug"])
 import subprocess
 from nymphes_osc.NymphesPreset import NymphesPreset
 
 kivy.require('2.1.0')
 Config.read('app_config.ini')
 
-#
-# Logger Config
-#
-
-# Create logs directory if necessary
-logs_directory_path = Path(Path(__file__).resolve().parent / 'logs/')
-if not logs_directory_path.exists():
-    logs_directory_path.mkdir()
-
-# Get the root logger
-root_logger = logging.getLogger()
-
-# Formatter for logs
-log_formatter = logging.Formatter(
-    '%(asctime)s.%(msecs)03d - NymphesGUI  - %(levelname)s - %(message)s',
-    datefmt='%Y-%d-%m %H:%M:%S'
-)
-
-# Handler for logging to files
-file_handler = RotatingFileHandler(
-    logs_directory_path / 'nymphes_gui.txt',
-    maxBytes=1024,
-    backupCount=3
-)
-file_handler.setFormatter(log_formatter)
-
-# Handler for logging to the console
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(log_formatter)
-
-# Get the logger for this module
-logger = logging.getLogger(__name__)
-logger.addHandler(file_handler)
-logger.addHandler(console_handler)
-
 
 class NymphesGuiApp(App):
-
-
 
     @staticmethod
     def presets_spinner_values_list():
@@ -395,11 +360,8 @@ class NymphesGuiApp(App):
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
 
-    def __init__(self, log_level=logging.INFO, **kwargs):
+    def __init__(self, **kwargs):
         super(NymphesGuiApp, self).__init__(**kwargs)
-
-        # Set logger level
-        logger.setLevel(log_level)
 
         #
         # Encoder Properties
@@ -512,7 +474,7 @@ class NymphesGuiApp(App):
         try:
             self._encoder_osc_client = SimpleUDPClient(self._encoder_osc_outgoing_host, self._encoder_osc_outgoing_port)
         except Exception as e:
-            logger.warning(f'Failed to create Encoders OSC client ({e})')
+            Logger.warning(f'Failed to create Encoders OSC client ({e})')
             
         self._start_encoder_osc_server()
 
@@ -552,7 +514,7 @@ class NymphesGuiApp(App):
             #
 
             self._nymphes_osc_incoming_host = config['NYMPHES_OSC']['incoming host']
-            logger.info(f'Using incoming host from config file for Nymphes OSC communication: {self._nymphes_osc_incoming_host}')
+            Logger.info(f'Using incoming host from config file for Nymphes OSC communication: {self._nymphes_osc_incoming_host}')
 
         else:
             #
@@ -562,7 +524,7 @@ class NymphesGuiApp(App):
 
             in_host = self._get_local_ip_address()
             self._nymphes_osc_incoming_host = in_host
-            logger.info(f'Using detected local ip address for NYMPHES_OSC communication: {in_host}')
+            Logger.info(f'Using detected local ip address for NYMPHES_OSC communication: {in_host}')
 
         self._nymphes_osc_incoming_port = int(config['NYMPHES_OSC']['incoming port'])
 
@@ -579,7 +541,7 @@ class NymphesGuiApp(App):
             #
 
             self._encoder_osc_incoming_host = config['ENCODER_OSC']['incoming host']
-            logger.info(f'Using incoming host from config file for Encoder OSC communication: {self._encoder_osc_incoming_host}')
+            Logger.info(f'Using incoming host from config file for Encoder OSC communication: {self._encoder_osc_incoming_host}')
 
         else:
             #
@@ -589,7 +551,7 @@ class NymphesGuiApp(App):
 
             in_host = self._get_local_ip_address()
             self._encoder_osc_incoming_host = in_host
-            logger.info(f'Using detected local ip address for Encoder OSC communication: {in_host}')
+            Logger.info(f'Using detected local ip address for Encoder OSC communication: {in_host}')
 
         self._encoder_osc_incoming_port = int(config['ENCODER_OSC']['incoming port'])
 
@@ -602,7 +564,7 @@ class NymphesGuiApp(App):
             self._presets_folder_path = None
 
     def _reload_config_file(self):
-        logger.info(f'Reloading config file at {self._config_file_path}')
+        Logger.info(f'Reloading config file at {self._config_file_path}')
         self._load_config_file(self._config_file_path)
 
     def _create_config_file(self, filepath):
@@ -625,7 +587,7 @@ class NymphesGuiApp(App):
         with open(filepath, 'w') as config_file:
             config.write(config_file)
 
-        logger.info(f'Created config file at {filepath}')
+        Logger.info(f'Created config file at {filepath}')
 
     @staticmethod
     def _get_local_ip_address():
@@ -651,7 +613,7 @@ class NymphesGuiApp(App):
                         return ip_address
 
             except Exception as e:
-                logger.warning(f'Failed to detect local IP address ({e})')
+                Logger.warning(f'Failed to detect local IP address ({e})')
 
                 # Default to localhost
                 return '127.0.0.1'
@@ -672,7 +634,7 @@ class NymphesGuiApp(App):
         self._nymphes_osc_server_thread = threading.Thread(target=self._nymphes_osc_server.serve_forever)
         self._nymphes_osc_server_thread.start()
 
-        logger.info(f'Started Nymphes OSC Server at {self._nymphes_osc_incoming_host}:{self._nymphes_osc_incoming_port}')
+        Logger.info(f'Started Nymphes OSC Server at {self._nymphes_osc_incoming_host}:{self._nymphes_osc_incoming_port}')
 
     def _stop_nymphes_osc_server(self):
         """
@@ -685,7 +647,7 @@ class NymphesGuiApp(App):
             self._nymphes_osc_server = None
             self._nymphes_osc_server_thread.join()
             self._nymphes_osc_server_thread = None
-            logger.info('Stopped Nymphes OSC Server')
+            Logger.info('Stopped Nymphes OSC Server')
 
     def _start_encoder_osc_server(self):
         """
@@ -700,7 +662,7 @@ class NymphesGuiApp(App):
         self._encoder_osc_server_thread = threading.Thread(target=self._encoder_osc_server.serve_forever)
         self._encoder_osc_server_thread.start()
 
-        logger.info(f'Started Encoder OSC Server at {self._encoder_osc_incoming_host}:{self._encoder_osc_incoming_port}')
+        Logger.info(f'Started Encoder OSC Server at {self._encoder_osc_incoming_host}:{self._encoder_osc_incoming_port}')
 
     def _stop_encoder_osc_server(self):
         """
@@ -713,7 +675,7 @@ class NymphesGuiApp(App):
             self._encoder_osc_server = None
             self._encoder_osc_server_thread.join()
             self._encoder_osc_server_thread = None
-            logger.info('Stopped Encoder OSC Server')
+            Logger.info('Stopped Encoder OSC Server')
 
     def _register_as_nymphes_osc_client(self):
         """
@@ -725,7 +687,7 @@ class NymphesGuiApp(App):
         # To connect to the nymphes_osc server, we need
         # to send it a /register_host OSC message
         # with the port we are listening on.
-        logger.info(f'Registering as client with nymphes-osc server at {self._nymphes_osc_outgoing_host}:{self._nymphes_osc_outgoing_port}...')
+        Logger.info(f'Registering as client with nymphes-osc server at {self._nymphes_osc_outgoing_host}:{self._nymphes_osc_outgoing_port}...')
         self._send_nymphes_osc('/register_client', self._nymphes_osc_incoming_port)
 
     def _register_as_encoders_osc_client(self):
@@ -735,7 +697,7 @@ class NymphesGuiApp(App):
         :return:
         """
         if self._encoder_osc_client is not None:
-            logger.info(f'Registering as client with Encoders server at {self._encoder_osc_outgoing_host}:{self._encoder_osc_outgoing_port}...')
+            Logger.info(f'Registering as client with Encoders server at {self._encoder_osc_outgoing_host}:{self._encoder_osc_outgoing_port}...')
             self._send_encoder_osc('/register_client', self._encoder_osc_incoming_port)
 
     def _send_nymphes_osc(self, address, *args):
@@ -751,7 +713,7 @@ class NymphesGuiApp(App):
         msg = msg.build()
         self._nymphes_osc_client.send(msg)
 
-        logger.debug(f'send_nymphes_osc: {address}, {[str(arg) + " " for arg in args]}')
+        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) + " " for arg in args]}')
 
     def _send_encoder_osc(self, address, *args):
         """
@@ -767,7 +729,7 @@ class NymphesGuiApp(App):
             msg = msg.build()
             self._encoder_osc_client.send(msg)
 
-            logger.debug(f'send_encoder_osc: {address}, {[str(arg) + " " for arg in args]}')
+            Logger.debug(f'send_encoder_osc: {address}, {[str(arg) + " " for arg in args]}')
 
     def _on_nymphes_osc_message(self, address, *args):
         """
@@ -787,7 +749,7 @@ class NymphesGuiApp(App):
             # We are connected to nymphes_osc
             self._connected_to_nymphes_osc = True
 
-            logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address} ({host_name}:{port})')
 
         elif address == '/client_unregistered':
             # Get the hostname and port
@@ -798,7 +760,7 @@ class NymphesGuiApp(App):
             # We are no longer connected to nymphes-osc
             self._connected_to_nymphes_osc = False
 
-            logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address} ({host_name}:{port})')
 
         elif address == '/nymphes_connected':
             #
@@ -812,7 +774,7 @@ class NymphesGuiApp(App):
             # Update app state
             self._nymphes_connected = True
 
-            logger.info(f'{address} (input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port})')
+            Logger.info(f'{address} (input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port})')
 
         elif address == '/nymphes_disconnected':
             #
@@ -824,7 +786,7 @@ class NymphesGuiApp(App):
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            logger.info(f'{address}')
+            Logger.info(f'{address}')
 
         elif address == '/recalled_preset':
             #
@@ -846,14 +808,14 @@ class NymphesGuiApp(App):
             # Update the preset spinner's text
             self.presets_spinner_text = NymphesGuiApp.presets_spinner_values_list()[self._curr_preset_index]
 
-            logger.info(f'{address} ({self._curr_preset_type} {self._curr_preset_bank_and_number[0]}{self._curr_preset_bank_and_number[1]})')
+            Logger.info(f'{address} ({self._curr_preset_type} {self._curr_preset_bank_and_number[0]}{self._curr_preset_bank_and_number[1]})')
 
         elif address == '/received_current_preset_from_midi_input_port':
             port_name = str(args[0])
             self._curr_preset_type = str(args[1])
             self._curr_preset_bank_and_number = str(args[2]), int(args[3])
 
-            logger.info(
+            Logger.info(
                 f'{address} ({port_name}: {self._curr_preset_type} {self._curr_preset_bank_and_number[0]}{self._curr_preset_bank_and_number[1]})')
 
         elif address == '/loaded_file_into_current_preset':
@@ -866,7 +828,7 @@ class NymphesGuiApp(App):
             self._curr_preset_type = None
             self._curr_preset_bank_and_number = None, None
 
-            logger.info(f'{address}: {self._curr_preset_filepath}')
+            Logger.info(f'{address}: {self._curr_preset_filepath}')
 
         elif address == '/saved_current_preset_to_file':
             #
@@ -876,7 +838,7 @@ class NymphesGuiApp(App):
             # Get the filepath and store it
             self._curr_preset_filepath = Path(args[0])
 
-            logger.info(f'{address}: {self._curr_preset_filepath}')
+            Logger.info(f'{address}: {self._curr_preset_filepath}')
 
         elif address == '/saved_memory_slot_to_file':
             #
@@ -891,7 +853,7 @@ class NymphesGuiApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
 
         elif address == '/loaded_file_into_nymphes_memory_slot':
             #
@@ -907,7 +869,7 @@ class NymphesGuiApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
 
         elif address == '/loaded_current_preset_into_nymphes_memory_slot':
             #
@@ -920,13 +882,13 @@ class NymphesGuiApp(App):
             bank_name = str(args[1])
             preset_number = int(args[2])
 
-            logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
 
         elif address == '/requested_preset_dump':
             #
             # A full preset dump has been requested
             #
-            logger.info(f'{address}')
+            Logger.info(f'{address}')
 
         elif address == '/received_preset_dump_from_nymphes':
             #
@@ -939,7 +901,7 @@ class NymphesGuiApp(App):
             bank_name = str(args[1])
             preset_number = int(args[2])
 
-            logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
 
         elif address == '/loaded_preset_dump_from_midi_input_into_nymphes_memory_slot':
             #
@@ -955,7 +917,7 @@ class NymphesGuiApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
 
         elif address == '/midi_input_detected':
             #
@@ -969,7 +931,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_inputs:
                 self._detected_midi_inputs.append(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/midi_input_no_longer_detected':
             #
@@ -983,7 +945,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_inputs:
                 self._detected_midi_inputs.remove(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
                 
         elif address == '/detected_midi_inputs':
             #
@@ -998,7 +960,7 @@ class NymphesGuiApp(App):
             # Replace our list of detected MIDI inputs
             self._detected_midi_inputs = port_names
 
-            logger.info(f'{address} {args}')
+            Logger.info(f'{address} {args}')
 
         elif address == '/midi_input_connected':
             #
@@ -1012,7 +974,7 @@ class NymphesGuiApp(App):
             if port_name not in self._connected_midi_inputs:
                 self._connected_midi_inputs.append(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/midi_input_disconnected':
             #
@@ -1026,7 +988,7 @@ class NymphesGuiApp(App):
             if port_name in self._connected_midi_inputs:
                 self._connected_midi_inputs.remove(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/connected_midi_inputs':
             #
@@ -1041,7 +1003,7 @@ class NymphesGuiApp(App):
             # Replace our list of connected MIDI inputs
             self._connected_midi_inputs = port_names
 
-            logger.info(f'{address} {args}')
+            Logger.info(f'{address} {args}')
 
         elif address == '/midi_output_detected':
             #
@@ -1055,7 +1017,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_outputs:
                 self._detected_midi_outputs.append(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/midi_output_no_longer_detected':
             #
@@ -1069,7 +1031,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_outputs:
                 self._detected_midi_outputs.remove(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/detected_midi_outputs':
             #
@@ -1084,7 +1046,7 @@ class NymphesGuiApp(App):
             # Replace our list of detected MIDI outputs
             self._detected_midi_outputs = port_names
 
-            logger.info(f'{address} {args}')
+            Logger.info(f'{address} {args}')
 
         elif address == '/midi_output_connected':
             #
@@ -1098,7 +1060,7 @@ class NymphesGuiApp(App):
             if port_name not in self._connected_midi_outputs:
                 self._connected_midi_outputs.append(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/midi_output_disconnected':
             #
@@ -1112,7 +1074,7 @@ class NymphesGuiApp(App):
             if port_name in self._connected_midi_outputs:
                 self._connected_midi_outputs.remove(port_name)
 
-            logger.info(f'{address} {port_name}')
+            Logger.info(f'{address} {port_name}')
 
         elif address == '/connected_midi_outputs':
             #
@@ -1127,34 +1089,34 @@ class NymphesGuiApp(App):
             # Replace our list of connected MIDI outputs
             self._connected_midi_outputs = port_names
 
-            logger.info(f'{address} {args}')
+            Logger.info(f'{address} {args}')
 
         elif address == '/mod_wheel':
             self._mod_wheel = int(args[0])
-            logger.debug(f'{address}: {self._mod_wheel}')
+            Logger.debug(f'{address}: {self._mod_wheel}')
 
         elif address == '/velocity':
             self._velocity = int(args[0])
-            logger.debug(f'{address}: {self._velocity}')
+            Logger.debug(f'{address}: {self._velocity}')
 
         elif address == '/aftertouch':
             self._aftertouch = int(args[0])
-            logger.debug(f'{address}: {self._aftertouch}')
+            Logger.debug(f'{address}: {self._aftertouch}')
             
         elif address == '/sustain_pedal':
             self._sustain_pedal = int(args[0])
-            logger.debug(f'{address}: {self._sustain_pedal}')
+            Logger.debug(f'{address}: {self._sustain_pedal}')
 
         elif address == '/nymphes_midi_channel_changed':
             self._nymphes_midi_channel = int(args[0])
-            logger.debug(f'{address}: {self._nymphes_midi_channel}')
+            Logger.debug(f'{address}: {self._nymphes_midi_channel}')
 
         elif address == '/status':
-            logger.info(f'{address}: {args[0]}')
+            Logger.info(f'{address}: {args[0]}')
 
         elif address == '/legato':
             self._legato = bool(args[0])
-            logger.debug(f'{address}: {self._legato}')
+            Logger.debug(f'{address}: {self._legato}')
 
         else:
             # This could be a Nymphes parameter message
@@ -1198,11 +1160,11 @@ class NymphesGuiApp(App):
                 # Set our property for this parameter
                 setattr(self, param_name.replace('.', '_'), value)
 
-                logger.debug(f'Received param name {param_name}: {args[0]}')
+                Logger.debug(f'Received param name {param_name}: {args[0]}')
 
             else:
                 # This is an unrecognized OSC message
-                logger.warning(f'Received unhandled OSC message: {address}')
+                Logger.warning(f'Received unhandled OSC message: {address}')
 
     def _on_encoder_osc_message(self, address, *args):
         """
@@ -1211,7 +1173,7 @@ class NymphesGuiApp(App):
         :param args: A list of arguments
         :return:
         """
-        logger.debug(f'Received OSC Message from Encoders device: {address}, {[str(arg) + " " for arg in args]}')
+        Logger.debug(f'Received OSC Message from Encoders device: {address}, {[str(arg) + " " for arg in args]}')
 
         # App Status Messages
         #
@@ -1224,7 +1186,7 @@ class NymphesGuiApp(App):
             # We are connected to the Encoder device
             self._connected_to_encoders = True
 
-            logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address} ({host_name}:{port})')
 
         elif address == '/client_unregistered':
             # Get the hostname and port
@@ -1235,7 +1197,7 @@ class NymphesGuiApp(App):
             # We are no longer connected to the Encoders device
             self._connected_to_encoders = False
 
-            logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address} ({host_name}:{port})')
 
     def _start_nymphes_osc_subprocess(self):
         """
@@ -1258,17 +1220,17 @@ class NymphesGuiApp(App):
                 text=True
             )
 
-            logger.info('Started the nymphes_osc subprocess')
+            Logger.info('Started the nymphes_osc subprocess')
 
         except Exception as e:
-            logger.critical(f'Failed to start the nymphes_osc subprocess')
+            Logger.critical(f'Failed to start the nymphes_osc subprocess')
 
     def _stop_nymphes_osc_subprocess(self):
         """
         Stop the nymphes_osc subprocess if it is running
         :return:
         """
-        logger.info('Stopping the nymphes_osc subprocess')
+        Logger.info('Stopping the nymphes_osc subprocess')
         if self._nymphes_osc_subprocess is not None:
             if self._nymphes_osc_subprocess.poll() is None:
                 self._nymphes_osc_subprocess.terminate()
@@ -1279,7 +1241,7 @@ class NymphesGuiApp(App):
         The app is about to close.
         :return:
         """
-        logger.info('on_stop')
+        Logger.info('on_stop')
 
         # Stop the OSC servers
         self._stop_nymphes_osc_server()
@@ -1808,6 +1770,33 @@ class NymphesGuiApp(App):
         #     self.update_encoder_led_color(encoder_num)
 
 
+class ParamValueLabel(Label):
+    def on_touch_down(self, touch):
+        if super(ParamValueLabel, self).on_touch_down(touch):
+            return True
+
+        if touch.button == 'scrollup':
+            Logger.debug('Mouse wheel up')
+            return True
+
+        elif touch.button == 'scrolldown':
+            Logger.debug('Mouse wheel down')
+            return True
+
+        return False
+
+    # def on_touch_up(self, touch):
+    #     if super(ParamValueLabel, self).on_touch_up(touch):
+    #         return True
+    #
+    #     if 'button' in touch.profile and touch.button.find('scroll') != -1:
+    #         Logger.debug('Mouse wheel up')
+    #         return True
+    #
+    #     return False
+
+    # def on_scroll(self, instance, x, y, dx, dy):
+    #     Logger.debug(f'{self.text} on_scroll: dx {dx} dy {dy}')
 
 
 class ParamsGridModCell(ButtonBehavior, BoxLayout):
