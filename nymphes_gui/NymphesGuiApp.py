@@ -1769,18 +1769,32 @@ class NymphesGuiApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
+    def label_clicked(self, label, curr_text):
+        label.text = 'sddsf'
 
-class ParamValueLabel(Label):
+        print(f'label_clicked {curr_text}')
+
+class ParamValueLabel(ButtonBehavior, Label):
+    curr_value = NumericProperty(0)
+    section_name = StringProperty('')
+
+    def __init__(self, **kwargs):
+        super(ParamValueLabel, self).__init__(**kwargs)
+
+        print(self.section_name)
+
     def on_touch_down(self, touch):
         if super(ParamValueLabel, self).on_touch_down(touch):
             return True
 
         if touch.button == 'scrollup':
             Logger.debug('Mouse wheel up')
+            self.curr_value += 1
             return True
 
         elif touch.button == 'scrolldown':
             Logger.debug('Mouse wheel down')
+            self.curr_value -= 1
             return True
 
         return False
