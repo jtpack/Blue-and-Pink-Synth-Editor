@@ -33,7 +33,6 @@ Config.read('app_config.ini')
 
 class NymphesGuiApp(App):
 
-    @staticmethod
     def presets_spinner_values_list():
         """
         Returns a list of text values for the presets spinner to show.
