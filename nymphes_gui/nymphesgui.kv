@@ -274,8 +274,8 @@ ScreenManager:
 
     ParamValueLabel:
         text: str(root.value_prop)
-        section_name: 'hello'
-        on_touch_down: app.label_clicked(self, self.section_name)
+        param_name: root.param_name
+        on_press: app.label_clicked(self, self.section_name, self.param_name)
 
     ModAmountsBox:
         size_hint_x: 0.75
@@ -377,6 +377,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'PW'
+            param_name: 'osc.pulsewidth.value'
             value_prop: app.osc_pulsewidth_value
             lfo2_prop: app.osc_pulsewidth_lfo2
             mod_wheel_prop: app.osc_pulsewidth_mod_wheel

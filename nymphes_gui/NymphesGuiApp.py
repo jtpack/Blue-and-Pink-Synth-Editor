@@ -1211,8 +1211,8 @@ class NymphesGuiApp(App):
                          '--client_host', self._nymphes_osc_incoming_host,
                          '--client_port', str(self._nymphes_osc_incoming_port),
                          '--midi_channel', str(self._nymphes_midi_channel),
-                         '--osc_log_level', 'WARNING',
-                         '--midi_log_level', 'WARNING']
+                         '--osc_log_level', 'warning',
+                         '--midi_log_level', 'warning']
             command = ['python', '-m', 'nymphes_osc'] + arguments
             self._nymphes_osc_subprocess = subprocess.Popen(
                 command,
@@ -1297,7 +1297,7 @@ class NymphesGuiApp(App):
         return index
 
     def preset_spinner_text_changed(self, preset_index, preset_text):
-        print(f'preset_spinner_text_changed: {preset_index}')
+        Logger.debug(f'preset_spinner_text_changed: {preset_index}')
         self.load_preset_by_index(preset_index)
 
     @staticmethod
@@ -1387,14 +1387,14 @@ class NymphesGuiApp(App):
     def load(self, path, filename):
         self.dismiss_popup()
 
-        print(f'load path: {path}, filename: {filename}')
+        Logger.debug(f'load path: {path}, filename: {filename}')
 
         # Send message to nymphes controller to load the preset file
         # TODO: Fix this
         self._send_nymphes_osc('/load_preset_file', filename)
 
     def save(self, path, filename):
-        print(f'save path: {path}, filename: {filename}')
+        Logger.debug(f'save path: {path}, filename: {filename}')
 
         self.dismiss_popup()
 
@@ -1427,12 +1427,12 @@ class NymphesGuiApp(App):
             # We have just successfully registered as the encoders'
             # client.
             self._connected_to_encoders = True
-            print("Connected to Encoders")
+            info("Connected to Encoders")
 
         elif address == '/client_removed':
             # We are no longer the encoders' client
             self._connected_to_encoders = False
-            print("Disconnected from Encoders")
+            info("Disconnected from Encoders")
 
         elif address == '/encoder_pos':
             # An encoder's position has been sent
@@ -1453,7 +1453,7 @@ class NymphesGuiApp(App):
             pass
 
         else:
-            print(f'Received unrecognized OSC Message: {address}')
+            Logger.warning(f'Received unrecognized OSC Message: {address}')
 
     def select_section(self, section_name):
         if section_name == 'oscillator_top_row':
@@ -1768,31 +1768,25 @@ class NymphesGuiApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
-    def label_clicked(self, label, curr_text):
-        label.text = 'sddsf'
-
-        print(f'label_clicked {curr_text}')
+    def label_clicked(self, label, section_name, param_name):
+        Logger.debug(f'label_clicked {section_name}, {param_name}')
 
 class ParamValueLabel(ButtonBehavior, Label):
     curr_value = NumericProperty(0)
     section_name = StringProperty('')
-
-    def __init__(self, **kwargs):
-        super(ParamValueLabel, self).__init__(**kwargs)
-
-        print(self.section_name)
+    param_name = StringProperty('')
 
     def on_touch_down(self, touch):
         if super(ParamValueLabel, self).on_touch_down(touch):
             return True
 
         if touch.button == 'scrollup':
-            Logger.debug('Mouse wheel up')
+            Logger.debug(f'Mouse wheel up: {self.param_name}')
             self.curr_value += 1
             return True
 
         elif touch.button == 'scrolldown':
-            Logger.debug('Mouse wheel down')
+            Logger.debug(f'Mouse wheel down: {self.param_name}')
             self.curr_value -= 1
             return True
 
@@ -1816,6 +1810,7 @@ class ParamsGridModCell(ButtonBehavior, BoxLayout):
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
+    param_name = StringProperty('')
 
     value_prop = NumericProperty(0)
     lfo2_prop = NumericProperty(0)
