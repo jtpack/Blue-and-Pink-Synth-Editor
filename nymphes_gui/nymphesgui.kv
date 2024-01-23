@@ -258,7 +258,6 @@ ScreenManager:
 
 <ParamsGridModCell>:
     orientation: 'vertical'
-    on_press: app.select_section(self.section_name)
     padding: [sp(0), sp(0), sp(0), sp(5)]
     canvas.before:
         Color:
@@ -275,7 +274,6 @@ ScreenManager:
     ParamValueLabel:
         text: str(root.value_prop)
         param_name: root.param_name
-        on_press: app.label_clicked(self, self.section_name, self.param_name)
 
     ModAmountsBox:
         size_hint_x: 0.75
@@ -287,7 +285,7 @@ ScreenManager:
 
 <ParamsGridNonModCell>:
     orientation: 'vertical'
-    on_press: app.select_section(self.section_name)
+    #on_press: app.select_section(self.section_name)
     padding: [sp(0), sp(0), sp(0), sp(5)]
     canvas.before:
         Color:
@@ -377,7 +375,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'PW'
-            param_name: 'osc.pulsewidth.value'
+            param_name: 'osc.pulsewidth'
             value_prop: app.osc_pulsewidth_value
             lfo2_prop: app.osc_pulsewidth_lfo2
             mod_wheel_prop: app.osc_pulsewidth_mod_wheel
@@ -387,6 +385,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'GLD'
+            param_name: 'pitch.glide'
             value_prop: app.pitch_glide_value
             lfo2_prop: app.pitch_glide_lfo2
             mod_wheel_prop: app.pitch_glide_mod_wheel
@@ -396,6 +395,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'DTN'
+            param_name: 'pitch.detune'
             value_prop: app.pitch_detune_value
             lfo2_prop: app.pitch_detune_lfo2
             mod_wheel_prop: app.pitch_detune_mod_wheel
@@ -405,6 +405,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'CHD'
+            param_name: 'pitch.chord'
             value_prop: app.pitch_chord_value
             lfo2_prop: app.pitch_chord_lfo2
             mod_wheel_prop: app.pitch_chord_mod_wheel
@@ -414,6 +415,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_top_row'
             title: 'EG'
+            param_name: 'pitch.eg'
             value_prop: app.pitch_eg_value
             lfo2_prop: app.pitch_eg_lfo2
             mod_wheel_prop: app.pitch_eg_mod_wheel
@@ -425,6 +427,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
             title: 'WAVE'
+            param_name: 'osc.wave'
             value_prop: app.osc_wave_value
             lfo2_prop: app.osc_wave_lfo2
             mod_wheel_prop: app.osc_wave_mod_wheel
@@ -434,6 +437,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
             title: 'LVL'
+            param_name: 'mix.osc'
             value_prop: app.mix_osc_value
             lfo2_prop: app.mix_osc_lfo2
             mod_wheel_prop: app.mix_osc_mod_wheel
@@ -443,6 +447,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
             title: 'SUB'
+            param_name: 'mix.sub'
             value_prop: app.mix_sub_value
             lfo2_prop: app.mix_sub_lfo2
             mod_wheel_prop: app.mix_sub_mod_wheel
@@ -452,6 +457,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
             title: 'NOISE'
+            param_name: 'mix.noise'
             value_prop: app.mix_noise_value
             lfo2_prop: app.mix_noise_lfo2
             mod_wheel_prop: app.mix_noise_mod_wheel
@@ -461,6 +467,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
             title: 'LFO'
+            param_name: 'pitch.lfo1'
             value_prop: app.pitch_lfo1_value
             lfo2_prop: app.pitch_lfo1_lfo2
             mod_wheel_prop: app.pitch_lfo1_mod_wheel
@@ -952,6 +959,8 @@ ScreenManager:
     halign: 'center'
     valign: 'middle'
     #padding: [sp(0), sp(0), sp(0), sp(0)]
+    on_press: app.label_clicked(self.parent.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
 
 <PlayModeButton>:
     text: self.play_mode_name

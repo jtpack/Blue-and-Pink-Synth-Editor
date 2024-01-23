@@ -26,6 +26,7 @@ from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["debug"])
 import subprocess
 from nymphes_osc.NymphesPreset import NymphesPreset
+from functools import partial
 
 kivy.require('2.1.0')
 Config.read('app_config.ini')
@@ -1768,29 +1769,81 @@ class NymphesGuiApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
-    def label_clicked(self, label, section_name, param_name):
-        Logger.debug(f'label_clicked {section_name}, {param_name}')
+    def label_clicked(self, param_name):
+        Logger.debug(f'label_clicked: {param_name}')
+
+    def label_touched(self, label, param_name):
+        Logger.debug(f'label_touched: {label}, {param_name}')
+        
+    def increment_param(self, param_name, amount):
+        Logger.debug(f'increment_param: {param_name} {amount}')
+
+        # Convert the parameter name to the name
+        # of our corresponding property
+        property_name = param_name.replace('.', '_')
+
+        # Get the property's current value
+        curr_val = getattr(self, property_name)
+
+        # Calculate the new value
+        new_val = curr_val + amount
+
+        # If the increment was an integer, then
+        # round the new value to the nearest int
+        if isinstance(amount, int):
+            new_val = int(round(new_val))
+
+        # Make sure the value is within the correct bounds
+        min_val = NymphesPreset.min_val_for_param_name(param_name)
+        max_val = NymphesPreset.max_val_for_param_name(param_name)
+
+        if new_val < min_val:
+            new_val = min_val
+
+        if new_val > max_val:
+            new_val = max_val
+
+        # Update the property's value
+        setattr(self, property_name, new_val)
+
+        # Send an OSC message for this parameter with the new value
+        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', new_val)
+
 
 class ParamValueLabel(ButtonBehavior, Label):
-    curr_value = NumericProperty(0)
     section_name = StringProperty('')
     param_name = StringProperty('')
 
-    def on_touch_down(self, touch):
-        if super(ParamValueLabel, self).on_touch_down(touch):
-            return True
+    def handle_touch(self, device, button):
+        if device == 'mouse':
+            if button == 'scrollup':
+                App.get_running_app().increment_param(self.param_name + '.value', 1)
+            elif button == 'scrolldown':
+                App.get_running_app().increment_param(self.param_name + '.value', -1)
 
-        if touch.button == 'scrollup':
-            Logger.debug(f'Mouse wheel up: {self.param_name}')
-            self.curr_value += 1
-            return True
+            else:
+                Logger.debug(f'{self.param_name} {device} {button}')
 
-        elif touch.button == 'scrolldown':
-            Logger.debug(f'Mouse wheel down: {self.param_name}')
-            self.curr_value -= 1
-            return True
 
-        return False
+    # def on_touch_down(self, touch):
+    #     if super(ParamValueLabel, self).on_touch_down(touch):
+    #         return True
+    #
+    #     Logger.debug(f'{touch.device} {touch.button}')
+    #
+    #     if touch.device == 'mouse':
+    #         if touch.button == 'scrollup':
+    #             app = App.get_running_app()
+    #             app.increment_param(self.param_name)
+    #             self.curr_value += 1
+    #             return True
+    #
+    #         elif touch.button == 'scrolldown':
+    #             app = App.get_running_app()
+    #             app.decrement_param(self.param_name)
+    #             return True
+    #
+    #     return False
 
     # def on_touch_up(self, touch):
     #     if super(ParamValueLabel, self).on_touch_up(touch):
@@ -1806,7 +1859,7 @@ class ParamValueLabel(ButtonBehavior, Label):
     #     Logger.debug(f'{self.text} on_scroll: dx {dx} dy {dy}')
 
 
-class ParamsGridModCell(ButtonBehavior, BoxLayout):
+class ParamsGridModCell(BoxLayout):
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
