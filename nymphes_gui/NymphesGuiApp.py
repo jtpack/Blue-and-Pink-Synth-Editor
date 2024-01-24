@@ -492,6 +492,56 @@ class NymphesGuiApp(App):
         # Select the oscillator section at the start
         self.select_section('oscillator_top_row')
 
+    def set_play_mode_by_name(self, play_mode_name):
+        """
+        Used to set the play mode by name instead of using a number.
+        Possible names are:
+        POLY
+        UNI-A
+        UNI-B
+        TRI
+        DUO
+        MONO
+        """
+
+        if play_mode_name == 'POLY':
+            play_mode_int = 0
+
+        elif play_mode_name == 'UNI-A':
+            play_mode_int = 1
+
+        elif play_mode_name == 'UNI-B':
+            play_mode_int = 2
+
+        elif play_mode_name == 'TRI':
+            play_mode_int = 3
+
+        elif play_mode_name == 'DUO':
+            play_mode_int = 4
+
+        elif play_mode_name == 'MONO':
+            play_mode_int = 5
+
+        else:
+            raise Exception(f'Invalid play mode string: {play_mode_name}')
+
+        # Update the current play mode
+        self.play_mode_name = play_mode_name
+
+        # Send the command to the Nymphes
+        self._send_nymphes_osc('/osc/voice_mode/value', play_mode_int)
+
+    def set_legato(self, enable_legato):
+        """
+        enable_legato should be a bool
+        """
+
+        # Update the property
+        self.legato = enable_legato
+
+        # Send the command to the Nymphes
+        self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
+
     def _load_config_file(self, filepath):
         """
         Load the contents of the specified config txt file.
@@ -1774,8 +1824,31 @@ class NymphesGuiApp(App):
 
     def label_touched(self, label, param_name):
         Logger.debug(f'label_touched: {label}, {param_name}')
-        
-    def increment_param(self, param_name, amount):
+
+    def set_prop_value(self, prop_name, value):
+        # Update the property's value
+        setattr(self, prop_name, value)
+
+        # Send an OSC message for this parameter with the new value
+        self._send_nymphes_osc(f'/{prop_name.replace("_", "/")}', value)
+
+    def get_prop_value_for_param_name(self, param_name):
+        # Convert the parameter name to the name
+        # of our corresponding property
+        property_name = param_name.replace('.', '_')
+
+        # Get the property's current value
+        return getattr(self, property_name)
+
+    def set_prop_value_for_param_name(self, param_name, value):
+        # Convert the parameter name to the name
+        # of our corresponding property
+        property_name = param_name.replace('.', '_')
+
+        # Set the property's value
+        self.set_prop_value(property_name, value)
+
+    def increment_prop_value_for_param_name(self, param_name, amount):
         Logger.debug(f'increment_param: {param_name} {amount}')
 
         # Convert the parameter name to the name
@@ -1803,27 +1876,81 @@ class NymphesGuiApp(App):
         if new_val > max_val:
             new_val = max_val
 
-        # Update the property's value
-        setattr(self, property_name, new_val)
-
-        # Send an OSC message for this parameter with the new value
-        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', new_val)
+        # Set the property's value
+        self.set_prop_value(property_name, new_val)
 
 
 class ParamValueLabel(ButtonBehavior, Label):
     section_name = StringProperty('')
     param_name = StringProperty('')
+    drag_start_pos = NumericProperty(0)
 
     def handle_touch(self, device, button):
         if device == 'mouse':
             if button == 'scrollup':
-                App.get_running_app().increment_param(self.param_name + '.value', 1)
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', 1)
             elif button == 'scrolldown':
-                App.get_running_app().increment_param(self.param_name + '.value', -1)
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', -1)
+
+        else:
+            Logger.debug(f'{self.param_name} {device} {button}')
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos) and touch.button == 'left':
+            touch.grab(self)
+
+            # Store the starting y position of the touch
+            self.drag_start_pos = int(touch.pos[1])
+
+            return True
+        return super(ParamValueLabel, self).on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        if touch.grab_current == self:
+            # Get the current y position
+            curr_pos = int(touch.pos[1])
+
+            # Calculate the distance from the starting drag position
+            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+            # Get the current value of the property and the min and max limits
+            # for the parameter
+            param_name = self.param_name + '.value'
+            curr_val = App.get_running_app().get_prop_value_for_param_name(param_name)
+            min_val = NymphesPreset.min_val_for_param_name(param_name)
+            max_val = NymphesPreset.max_val_for_param_name(param_name)
+
+            # Scale the drag distance and use as the increment
+            increment_amount = round(curr_drag_distance * 0.1)
+
+            # Calculate new value and make sure we don't exceed the
+            # value's bounds
+            new_val = curr_val + increment_amount
+            if min_val <= new_val <= max_val:
+                # Set the parameter to the new value
+                App.get_running_app().set_prop_value_for_param_name(param_name, new_val)
 
             else:
-                Logger.debug(f'{self.param_name} {device} {button}')
+                if new_val < min_val:
+                    # Set the parameter to the min value
+                    App.get_running_app().set_prop_value_for_param_name(param_name, min_val)
 
+                elif new_val > max_val:
+                    # Set the parameter to the max value
+                    App.get_running_app().set_prop_value_for_param_name(param_name, max_val)
+
+            # Reset the drag start position to the current position
+            self.drag_start_pos = curr_pos
+
+            return True
+
+        return super(ParamValueLabel, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if touch.grab_current == self:
+            touch.ungrab(self)
+            return True
+        return super(ParamValueLabel, self).on_touch_up(touch)
 
     # def on_touch_down(self, touch):
     #     if super(ParamValueLabel, self).on_touch_down(touch):
@@ -1876,6 +2003,7 @@ class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
     name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
+    param_name = StringProperty('')
     value_prop = NumericProperty(0)
 
 

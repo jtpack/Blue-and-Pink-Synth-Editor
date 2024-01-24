@@ -36,29 +36,29 @@ ScreenManager:
                 id: oscillator_section_box
                 pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-#            FilterSectionBox:
-#                id: filter_section_box
-#                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
-#
-#            AmpEgSectionBox:
-#                id: amp_eg_section_box
-#                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
-#
-#            FilterEgSectionBox:
-#                id: filter_eg_section_box
-#                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
-#
-#            Lfo1SectionBox:
-#                id: lfo1_section_box
-#                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
-#
-#            Lfo2SectionBox:
-#                id: lfo2_section_box
-#                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
-#
-#            ReverbSectionBox:
-#                id: reverb_section_box
-#                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
+            FilterSectionBox:
+                id: filter_section_box
+                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            AmpEgSectionBox:
+                id: amp_eg_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+            FilterEgSectionBox:
+                id: filter_eg_section_box
+                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            Lfo1SectionBox:
+                id: lfo1_section_box
+                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+
+            Lfo2SectionBox:
+                id: lfo2_section_box
+                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
+
+            ReverbSectionBox:
+                id: reverb_section_box
+                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
 
 #            EncodersBar:
 #                id: encoders_box
@@ -302,7 +302,8 @@ ScreenManager:
 
     ParamValueLabel:
         id: param_value_label
-        text: str(round(root.value_prop, 2))
+        param_name: root.param_name
+        text: str(root.value_prop)
 
     # A placeholder take up the empty space in the lower
     # part of the cell
@@ -331,10 +332,12 @@ ScreenManager:
     ParamValueLabel:
         id: param_value_label1
         font_size: sp(11)
+        param_name: root.section_name + 'type.value'
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
 
     ParamValueLabel:
         id: param_value_label2
+        param_name: root.section_name + 'key_sync.value'
         font_size: sp(11)
         text: "ON" if root.key_sync_prop == 1 else "OFF"
 
@@ -500,6 +503,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'CUT'
+            param_name: 'lpf.cutoff'
             value_prop: app.lpf_cutoff_value
             lfo2_prop: app.lpf_cutoff_lfo2
             mod_wheel_prop: app.lpf_cutoff_mod_wheel
@@ -509,6 +513,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'RES'
+            param_name: 'lpf.resonance'
             value_prop: app.lpf_resonance_value
             lfo2_prop: app.lpf_resonance_lfo2
             mod_wheel_prop: app.lpf_resonance_mod_wheel
@@ -518,6 +523,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'TRK'
+            param_name: 'lpf.cutoff'
             value_prop: app.lpf_tracking_value
             lfo2_prop: app.lpf_tracking_lfo2
             mod_wheel_prop: app.lpf_tracking_mod_wheel
@@ -527,6 +533,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'EG'
+            param_name: 'lpf.eg'
             value_prop: app.lpf_eg_value
             lfo2_prop: app.lpf_eg_lfo2
             mod_wheel_prop: app.lpf_eg_mod_wheel
@@ -536,6 +543,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_top_row'
             title: 'LFO'
+            param_name: 'lpf.lfo1'
             value_prop: app.lpf_lfo1_value
             lfo2_prop: app.lpf_lfo1_lfo2
             mod_wheel_prop: app.lpf_lfo1_mod_wheel
@@ -547,6 +555,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'filter_bottom_row'
             title: 'HPF'
+            param_name: 'hpf.cutoff'
             value_prop: app.hpf_cutoff_value
             lfo2_prop: app.hpf_cutoff_lfo2
             mod_wheel_prop: app.hpf_cutoff_mod_wheel
@@ -576,6 +585,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'amp'
             title: 'ATT'
+            param_name: 'amp_eg.attack'
             value_prop: app.amp_eg_attack_value
             lfo2_prop: app.amp_eg_attack_lfo2
             mod_wheel_prop: app.amp_eg_attack_mod_wheel
@@ -585,6 +595,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'amp'
             title: 'DEC'
+            param_name: 'amp_eg.decay'
             value_prop: app.amp_eg_decay_value
             lfo2_prop: app.amp_eg_decay_lfo2
             mod_wheel_prop: app.amp_eg_decay_mod_wheel
@@ -594,6 +605,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'amp'
             title: 'SUS'
+            param_name: 'amp_eg.sustain'
             value_prop: app.amp_eg_sustain_value
             lfo2_prop: app.amp_eg_sustain_lfo2
             mod_wheel_prop: app.amp_eg_sustain_mod_wheel
@@ -603,6 +615,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'amp'
             title: 'REL'
+            param_name: 'amp_eg.release'
             value_prop: app.amp_eg_release_value
             lfo2_prop: app.amp_eg_release_lfo2
             mod_wheel_prop: app.amp_eg_release_mod_wheel
@@ -612,6 +625,7 @@ ScreenManager:
         ParamsGridNonModCell:
             section_name: 'amp'
             title: 'LVL'
+            param_name: 'mix.level'
             value_prop: app.mix_level_value
 
 
@@ -638,6 +652,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'ATT'
+            param_name: 'filter_eg.attack'
             value_prop: app.filter_eg_attack_value
             lfo2_prop: app.filter_eg_attack_lfo2
             mod_wheel_prop: app.filter_eg_attack_mod_wheel
@@ -647,6 +662,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'DEC'
+            param_name: 'filter_eg.decay'
             value_prop: app.filter_eg_decay_value
             lfo2_prop: app.filter_eg_decay_lfo2
             mod_wheel_prop: app.filter_eg_decay_mod_wheel
@@ -656,6 +672,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'SUS'
+            param_name: 'filter_eg.sustain'
             value_prop: app.filter_eg_sustain_value
             lfo2_prop: app.filter_eg_sustain_lfo2
             mod_wheel_prop: app.filter_eg_sustain_mod_wheel
@@ -665,6 +682,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'pitch_filter_env'
             title: 'REL'
+            param_name: 'filter_eg.release'
             value_prop: app.filter_eg_release_value
             lfo2_prop: app.filter_eg_release_lfo2
             mod_wheel_prop: app.filter_eg_release_mod_wheel
@@ -696,6 +714,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'RATE'
+            param_name: 'lfo1.rate'
             value_prop: app.lfo1_rate_value
             lfo2_prop: app.lfo1_rate_lfo2
             mod_wheel_prop: app.lfo1_rate_mod_wheel
@@ -705,6 +724,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'WAVE'
+            param_name: 'lfo1.wave'
             value_prop: app.lfo1_wave_value
             lfo2_prop: app.lfo1_wave_lfo2
             mod_wheel_prop: app.lfo1_wave_mod_wheel
@@ -714,6 +734,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'DEL'
+            param_name: 'lfo1.delay'
             value_prop: app.lfo1_delay_value
             lfo2_prop: app.lfo1_delay_lfo2
             mod_wheel_prop: app.lfo1_delay_mod_wheel
@@ -723,6 +744,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo1'
             title: 'FADE'
+            param_name: 'lfo1.fade'
             value_prop: app.lfo1_fade_value
             lfo2_prop: app.lfo1_fade_lfo2
             mod_wheel_prop: app.lfo1_fade_mod_wheel
@@ -757,6 +779,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'RATE'
+            param_name: 'lfo2.rate'
             value_prop: app.lfo2_rate_value
             lfo2_prop: app.lfo2_rate_lfo2
             mod_wheel_prop: app.lfo2_rate_mod_wheel
@@ -766,6 +789,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'WAVE'
+            param_name: 'lfo2.wave'
             value_prop: app.lfo2_wave_value
             lfo2_prop: app.lfo2_wave_lfo2
             mod_wheel_prop: app.lfo2_wave_mod_wheel
@@ -775,6 +799,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'DEL'
+            param_name: 'lfo2.delay'
             value_prop: app.lfo2_delay_value
             lfo2_prop: app.lfo2_delay_lfo2
             mod_wheel_prop: app.lfo2_delay_mod_wheel
@@ -784,6 +809,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'lfo2'
             title: 'FADE'
+            param_name: 'lfo2.fade'
             value_prop: app.lfo2_fade_value
             lfo2_prop: app.lfo2_fade_lfo2
             mod_wheel_prop: app.lfo2_fade_mod_wheel
@@ -819,6 +845,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'SIZE'
+            param_name: 'reverb.size'
             value_prop: app.reverb_size_value
             lfo2_prop: app.reverb_size_lfo2
             mod_wheel_prop: app.reverb_size_mod_wheel
@@ -828,6 +855,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'DEC'
+            param_name: 'reverb.decay'
             value_prop: app.reverb_decay_value
             lfo2_prop: app.reverb_decay_lfo2
             mod_wheel_prop: app.reverb_decay_mod_wheel
@@ -837,6 +865,7 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'FILT'
+            param_name: 'reverb.filter'
             value_prop: app.reverb_filter_value
             lfo2_prop: app.reverb_filter_lfo2
             mod_wheel_prop: app.reverb_filter_mod_wheel
@@ -846,11 +875,12 @@ ScreenManager:
         ParamsGridModCell:
             section_name: 'reverb'
             title: 'MIX'
-            value_prop: app.lfo1_delay_value
-            lfo2_prop: app.lfo1_delay_lfo2
-            mod_wheel_prop: app.lfo1_delay_mod_wheel
-            velocity_prop: app.lfo1_delay_velocity
-            aftertouch_prop: app.lfo1_delay_aftertouch
+            param_name: 'reverb.mix'
+            value_prop: app.reverb_mix_value
+            lfo2_prop: app.reverb_mix_lfo2
+            mod_wheel_prop: app.reverb_mix_mod_wheel
+            velocity_prop: app.reverb_mix_velocity
+            aftertouch_prop: app.reverb_mix_aftertouch
 
         ParamsGridPlaceholderCell
 
@@ -960,7 +990,9 @@ ScreenManager:
     valign: 'middle'
     #padding: [sp(0), sp(0), sp(0), sp(0)]
     on_press: app.label_clicked(self.parent.param_name)
-    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    on_touch_down:
+        if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+        #if self.collide_point(*args[1].pos) and args[1].button == 'left': self.handle_drag(args[1])
 
 <PlayModeButton>:
     text: self.play_mode_name
