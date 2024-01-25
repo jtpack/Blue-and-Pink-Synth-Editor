@@ -12,6 +12,7 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.factory import Factory
+from kivy.core.window import Window
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
@@ -362,6 +363,17 @@ class NymphesGuiApp(App):
 
     def __init__(self, **kwargs):
         super(NymphesGuiApp, self).__init__(**kwargs)
+
+        # Bind keyboard events
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
+        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
+
+        # Keep track of currently held modifier keys
+        self._shift_key_held = False
+        self._caps_lock_key_on = False
+
+        # This can be either 'int' or 'float'
+        self._increment_mode = 'int'
 
         #
         # Encoder Properties
@@ -1878,6 +1890,32 @@ class NymphesGuiApp(App):
 
         # Set the property's value
         self.set_prop_value(property_name, new_val)
+
+    def _keyboard_closed(self):
+        Logger.debug('Keyboard Closed')
+        self._keyboard.unbind(on_key_down=self._on_key_down)
+        self._keyboard.unbind(on_key_up=self._on_key_up)
+        self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        Logger.debug(f'on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+
+        # Check for either of the shift keys
+        left_shift_key_code = 304
+        right_shift_key_code = 303
+        if keycode in [left_shift_key_code, right_shift_key_code] or 'shift' in modifiers:
+            Logger.debug('Shift key pressed')
+            self._shift_key_held = True
+
+
+    def _on_key_up(self, keyboard, keycode):
+        Logger.debug(f'on_key_up: {keyboard}, {keycode}')
+
+        # Check for either of the shift keys
+        left_shift_key_code = 304
+        right_shift_key_code = 303
+        if keycode[0] in [left_shift_key_code, right_shift_key_code]:
+            Logger.debug('Shift key released')
 
 
 class ParamValueLabel(ButtonBehavior, Label):
