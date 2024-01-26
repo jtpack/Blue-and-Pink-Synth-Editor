@@ -278,6 +278,7 @@ ScreenManager:
     ModAmountsBox:
         size_hint_x: 0.75
         pos_hint: {'center_x': 0.5}
+        param_name: root.param_name
         lfo2_prop: root.lfo2_prop
         mod_wheel_prop: root.mod_wheel_prop
         velocity_prop: root.velocity_prop
@@ -332,12 +333,12 @@ ScreenManager:
     ParamValueLabel:
         id: param_value_label1
         font_size: sp(11)
-        param_name: root.section_name + 'type.value'
+        param_name: root.section_name + '.type'
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
 
     ParamValueLabel:
         id: param_value_label2
-        param_name: root.section_name + 'key_sync.value'
+        param_name: root.section_name + '.key_sync'
         font_size: sp(11)
         text: "ON" if root.key_sync_prop == 1 else "OFF"
 
@@ -989,10 +990,8 @@ ScreenManager:
     halign: 'center'
     valign: 'middle'
     #padding: [sp(0), sp(0), sp(0), sp(0)]
-    on_press: app.label_clicked(self.parent.param_name)
-    on_touch_down:
-        if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-        #if self.collide_point(*args[1].pos) and args[1].button == 'left': self.handle_drag(args[1])
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
 
 <PlayModeButton>:
     text: self.play_mode_name
@@ -1073,15 +1072,23 @@ ScreenManager:
             radius: [sp(6)]
 
     Lfo2ModAmountLine:
+        param_name: root.param_name
+        mod_type: 'lfo2'
         midi_val: root.lfo2_prop
 
     WheelModAmountLine:
+        param_name: root.param_name
+        mod_type: 'mod_wheel'
         midi_val: root.mod_wheel_prop
 
     VelocityModAmountLine:
+        param_name: root.param_name
+        mod_type: 'velocity'
         midi_val: root.velocity_prop
 
     AftertouchModAmountLine:
+        param_name: root.param_name
+        mod_type: 'aftertouch'
         midi_val: root.aftertouch_prop
 
 
@@ -1104,6 +1111,9 @@ ScreenManager:
             pos: self.pos
             size: self.size[0], (root.midi_val / 127.0) * (root.height - sp(2))
             #radius: [sp(2)]
+
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
 
 <Lfo2ModAmountLine@ModAmountLine>:
     color_hex: '#F51414FF'
