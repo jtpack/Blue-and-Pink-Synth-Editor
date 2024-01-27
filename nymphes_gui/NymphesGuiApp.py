@@ -2392,3 +2392,20 @@ class ModAmountsBox(BoxLayout):
     mod_wheel_prop = NumericProperty(0)
     velocity_prop = NumericProperty(0)
     aftertouch_prop = NumericProperty(0)
+
+
+class VoiceModeBox(BoxLayout):
+    num_voice_modes = NumericProperty(6)
+    corner_radius = NumericProperty(0)
+
+
+class LegatoBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class LeftBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class TopBar(BoxLayout):
+    corner_radius = NumericProperty(0)
