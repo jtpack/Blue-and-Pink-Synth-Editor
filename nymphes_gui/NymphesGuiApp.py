@@ -1,12 +1,12 @@
-import kivy
-from kivy.app import App
 from kivy.config import Config
+Config.read('app_config.ini')
+from kivy.app import App
+import kivy
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.widget import Widget
-from kivy.config import Config
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty, DictProperty, BooleanProperty, ListProperty
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
@@ -30,7 +30,7 @@ from nymphes_osc.NymphesPreset import NymphesPreset
 from functools import partial
 
 kivy.require('2.1.0')
-Config.read('app_config.ini')
+
 
 
 class NymphesGuiApp(App):
@@ -349,7 +349,7 @@ class NymphesGuiApp(App):
     chord_8_semi_4_value = NumericProperty(0)
     chord_8_semi_5_value = NumericProperty(0)
 
-    play_mode_name = StringProperty('POLY')
+    voice_mode_name = StringProperty('POLY')
     legato = BooleanProperty(False)
     mod_source = NumericProperty(0)
     main_level = DictProperty({'value': 0})
@@ -523,9 +523,9 @@ class NymphesGuiApp(App):
         # Select the oscillator section at the start
         self.select_section('oscillator_top_row')
 
-    def set_play_mode_by_name(self, play_mode_name):
+    def set_voice_mode_by_name(self, voice_mode_name):
         """
-        Used to set the play mode by name instead of using a number.
+        Used to set the voice mode by name instead of using a number.
         Possible names are:
         POLY
         UNI-A
@@ -535,32 +535,32 @@ class NymphesGuiApp(App):
         MONO
         """
 
-        if play_mode_name == 'POLY':
-            play_mode_int = 0
+        if voice_mode_name == 'POLY':
+            voice_mode_int = 0
 
-        elif play_mode_name == 'UNI-A':
-            play_mode_int = 1
+        elif voice_mode_name == 'UNI-A':
+            voice_mode_int = 1
 
-        elif play_mode_name == 'UNI-B':
-            play_mode_int = 2
+        elif voice_mode_name == 'UNI-B':
+            voice_mode_int = 2
 
-        elif play_mode_name == 'TRI':
-            play_mode_int = 3
+        elif voice_mode_name == 'TRI':
+            voice_mode_int = 3
 
-        elif play_mode_name == 'DUO':
-            play_mode_int = 4
+        elif voice_mode_name == 'DUO':
+            voice_mode_int = 4
 
-        elif play_mode_name == 'MONO':
-            play_mode_int = 5
+        elif voice_mode_name == 'MONO':
+            voice_mode_int = 5
 
         else:
-            raise Exception(f'Invalid play mode string: {play_mode_name}')
+            raise Exception(f'Invalid voice mode string: {voice_mode_name}')
 
-        # Update the current play mode
-        self.play_mode_name = play_mode_name
+        # Update the current voice mode
+        self.voice_mode_name = voice_mode_name
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/voice_mode/value', play_mode_int)
+        self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
 
     def set_legato(self, enable_legato):
         """
@@ -1198,6 +1198,35 @@ class NymphesGuiApp(App):
         elif address == '/legato':
             self._legato = bool(args[0])
             Logger.debug(f'{address}: {self._legato}')
+
+        elif address == '/osc/voice_mode/value':
+            voice_mode = int(args[0])
+
+            # Store the new voice mode as an int
+            self.osc_voice_mode_value = voice_mode
+
+            # Get the name of the voice mode
+            if voice_mode == 0:
+                voice_mode_name = 'POLY'
+
+            elif voice_mode == 1:
+                voice_mode_name = 'UNI-A'
+
+            elif voice_mode == 2:
+                voice_mode_name = 'UNI-B'
+
+            elif voice_mode == 3:
+                voice_mode_name = 'TRI'
+
+            elif voice_mode == 4:
+                voice_mode_name = 'DUO'
+
+            elif voice_mode == 5:
+                voice_mode_name = 'MONO'
+
+            # Update the voice mode name property
+            # used by the UI
+            self.voice_mode_name = voice_mode_name
 
         else:
             # This could be a Nymphes parameter message
@@ -2293,11 +2322,11 @@ class ModAmountLine(ButtonBehavior, Widget):
         return super(ModAmountLine, self).on_touch_up(touch)
 
 
-class PlayModeButton(ButtonBehavior, Label):
-    play_mode_name = StringProperty('')
+class VoiceModeButton(ButtonBehavior, Label):
+    voice_mode_name = StringProperty('')
 
 
-class PlayModeSectionBox(BoxLayout):
+class VoiceModeSectionBox(BoxLayout):
     corner_radius = NumericProperty(20)
 
 

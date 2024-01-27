@@ -26,19 +26,19 @@ ScreenManager:
                 pos_hint: {'top': 1, 'center_x': 0.5}
                 size_hint: 0.98, 0.1
 
-            PlayModeSectionBox:
-                id: play_mode_box
+            VoiceModeSectionBox:
+                id: voice_mode_box
                 pos_hint: {'x': 0.01, 'center_y': 0.5}
                 size_hint: 0.1, 0.78
 
             GridLayout:
                 cols: 3
-                pos_hint: {'x': play_mode_box.right, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+                pos_hint: {'x': voice_mode_box.right, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
 
                 OscillatorSectionBox:
                     id: oscillator_section_box
-                    #pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+                    #pos_hint: {'x': (voice_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
                 FilterSectionBox:
                     id: filter_section_box
@@ -926,7 +926,7 @@ ScreenManager:
 
         ParamsGridPlaceholderCell
 
-<PlayModeSectionBox>:
+<VoiceModeSectionBox>:
     orientation: 'vertical'
     corner_radius: 12
     size_hint: None, None
@@ -945,23 +945,23 @@ ScreenManager:
             radius: [sp(root.corner_radius)]
 
     # Play Mode
-    PlayModeButton:
-        play_mode_name: 'POLY'
+    VoiceModeButton:
+        voice_mode_name: 'POLY'
 
-    PlayModeButton:
-        play_mode_name: 'UNI-A'
+    VoiceModeButton:
+        voice_mode_name: 'UNI-A'
 
-    PlayModeButton:
-        play_mode_name: 'UNI-B'
+    VoiceModeButton:
+        voice_mode_name: 'UNI-B'
 
-    PlayModeButton:
-        play_mode_name: 'TRI'
+    VoiceModeButton:
+        voice_mode_name: 'TRI'
 
-    PlayModeButton:
-        play_mode_name: 'DUO'
+    VoiceModeButton:
+        voice_mode_name: 'DUO'
 
-    PlayModeButton:
-        play_mode_name: 'MONO'
+    VoiceModeButton:
+        voice_mode_name: 'MONO'
 
     LegatoButton:
         text: 'LEGATO'
@@ -1034,14 +1034,14 @@ ScreenManager:
     on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
 
-<PlayModeButton>:
-    text: self.play_mode_name
+<VoiceModeButton>:
+    text: self.voice_mode_name
     size_hint: None, None
     width: sp(50)
     height: sp(47)
-    color: C('#ECBFEBFF') if app.play_mode_name == self.play_mode_name else C('#06070FFF')
-    font_size: sp(20) if app.play_mode_name == self.play_mode_name else sp(16)
-    on_release: app.set_play_mode_by_name(self.play_mode_name)
+    color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
+    font_size: sp(20) if app.voice_mode_name == self.voice_mode_name else sp(16)
+    on_release: app.set_voice_mode_by_name(self.voice_mode_name)
 
 <LegatoButton@ButtonBehavior+Label>:
     text: 'LEGATO'
