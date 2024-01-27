@@ -165,28 +165,28 @@ ScreenManager:
 
 <PresetIncButton@ButtonBehavior+Label>:
     size_hint_x: None
-    width: sp(35)
-    font_size: sp(30)
+    width: sp((35 / 480) * Window.height)
+    font_size: sp((30 / 480) * Window.height)
 
 <TopBarSpinner@Spinner>:
     size_hint: None, 1
-    width: sp(140)
-    padding: [sp(10), sp(1)]
+    width: sp((140 / 480) * Window.height)
+    padding: [sp((10 / 480) * Window.height), sp((1 / 480) * Window.height)]
     background_color: C('#00000000')
     option_cls: 'TopBarSpinnerOption'
-    font_size: sp(22)
+    font_size: sp((22 / 480) * Window.height)
 
 <TopBarSpinnerOption@SpinnerOption>:
-    padding: [sp(10), sp(0)]
-    font_size: sp(20)
+    padding: [sp((10 / 480) * Window.height), sp(0)]
+    font_size: sp((20 / 480) * Window.height)
     text_size: self.size
     halign: 'left'
     valign: 'middle'
 
 <TopBarButton@ButtonBehavior+Label>:
     size_hint: None, 1
-    width: sp(80)
-    font_size: sp(22)
+    width: sp((80 / 480) * Window.height)
+    font_size: sp((22 / 480) * Window.height)
 
 
 <EncodersBar@GridLayout>:
