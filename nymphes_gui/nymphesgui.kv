@@ -24,37 +24,42 @@ ScreenManager:
             TopBar:
                 id: top_bar
                 pos_hint: {'top': 1, 'center_x': 0.5}
-                size_hint: None, None
-                width: root.width - sp(7) * 2
-                height: sp(45)
+                size_hint: 0.98, 0.1
 
             PlayModeSectionBox:
                 id: play_mode_box
-                pos_hint: {'x': sp(7) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+                pos_hint: {'x': 0.01, 'center_y': 0.5}
+                size_hint: 0.1, 0.78
 
-            OscillatorSectionBox:
-                id: oscillator_section_box
-                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+            GridLayout:
+                cols: 3
+                pos_hint: {'x': play_mode_box.right, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-            FilterSectionBox:
-                id: filter_section_box
-                pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-            AmpEgSectionBox:
-                id: amp_eg_section_box
-                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+                OscillatorSectionBox:
+                    id: oscillator_section_box
+                    #pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-            Lfo1SectionBox:
-                id: lfo1_section_box
-                pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
+                FilterSectionBox:
+                    id: filter_section_box
+                    #pos_hint: {'x': (oscillator_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-            Lfo2SectionBox:
-                id: lfo2_section_box
-                pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
+                Lfo1SectionBox:
+                    id: lfo1_section_box
+                    #pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
 
-            ReverbSectionBox:
-                id: reverb_section_box
-                pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
+                AmpEgSectionBox:
+                    id: amp_eg_section_box
+                    #pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
+
+
+                Lfo2SectionBox:
+                    id: lfo2_section_box
+                    #pos_hint: {'x': (lfo1_section_box.right + sp(7)) / root.width, 'top': (amp_eg_section_box.y - sp(7)) / root.height}
+
+                ReverbSectionBox:
+                    id: reverb_section_box
+                    #pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': (lfo2_section_box.y - sp(7)) / root.height}
 
 #            EncodersBar:
 #                id: encoders_box
