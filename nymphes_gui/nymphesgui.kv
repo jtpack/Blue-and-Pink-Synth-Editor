@@ -44,10 +44,6 @@ ScreenManager:
                 id: amp_eg_section_box
                 pos_hint: {'x': (filter_section_box.right + sp(7)) / root.width, 'top': 1.0 - (top_bar.height / root.height) - (sp(7) / root.height)}
 
-            FilterEgSectionBox:
-                id: filter_eg_section_box
-                pos_hint: {'x': (play_mode_box.right + sp(7)) / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
-
             Lfo1SectionBox:
                 id: lfo1_section_box
                 pos_hint: {'x': filter_section_box.x / root.width, 'top': (oscillator_section_box.y - sp(7)) / root.height}
@@ -562,6 +558,46 @@ ScreenManager:
             mod_wheel_prop: app.hpf_cutoff_mod_wheel
             velocity_prop: app.hpf_cutoff_velocity
             aftertouch_prop: app.hpf_cutoff_aftertouch
+            
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'ATT'
+            param_name: 'filter_eg.attack'
+            value_prop: app.filter_eg_attack_value
+            lfo2_prop: app.filter_eg_attack_lfo2
+            mod_wheel_prop: app.filter_eg_attack_mod_wheel
+            velocity_prop: app.filter_eg_attack_velocity
+            aftertouch_prop: app.filter_eg_attack_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'DEC'
+            param_name: 'filter_eg.decay'
+            value_prop: app.filter_eg_decay_value
+            lfo2_prop: app.filter_eg_decay_lfo2
+            mod_wheel_prop: app.filter_eg_decay_mod_wheel
+            velocity_prop: app.filter_eg_decay_velocity
+            aftertouch_prop: app.filter_eg_decay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'SUS'
+            param_name: 'filter_eg.sustain'
+            value_prop: app.filter_eg_sustain_value
+            lfo2_prop: app.filter_eg_sustain_lfo2
+            mod_wheel_prop: app.filter_eg_sustain_mod_wheel
+            velocity_prop: app.filter_eg_sustain_velocity
+            aftertouch_prop: app.filter_eg_sustain_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'REL'
+            param_name: 'filter_eg.release'
+            value_prop: app.filter_eg_release_value
+            lfo2_prop: app.filter_eg_release_lfo2
+            mod_wheel_prop: app.filter_eg_release_mod_wheel
+            velocity_prop: app.filter_eg_release_velocity
+            aftertouch_prop: app.filter_eg_release_aftertouch
 
 <AmpEgSectionBox@SectionRelativeLayout>:
     size_hint: None, None

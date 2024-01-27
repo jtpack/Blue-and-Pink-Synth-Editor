@@ -372,7 +372,7 @@ class NymphesGuiApp(App):
         super(NymphesGuiApp, self).__init__(**kwargs)
 
         # Bind keyboard events
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
         self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
 
         # Keep track of currently held modifier keys
