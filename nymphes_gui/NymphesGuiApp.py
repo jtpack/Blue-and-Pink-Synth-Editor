@@ -5,6 +5,7 @@ import kivy
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty, DictProperty, BooleanProperty, ListProperty
@@ -2154,10 +2155,10 @@ class ParamValueLabel(ButtonBehavior, Label):
             if App.get_running_app().float_mode:
                 # Use the minimum increment defined by
                 # NymphesPreset's float precision property
-                increment = round(curr_drag_distance * 0.1, NymphesPreset.float_precision_num_decimals)
+                increment = round(curr_drag_distance * 0.2, NymphesPreset.float_precision_num_decimals)
 
             else:
-                increment = int(round(curr_drag_distance * 0.1))
+                increment = int(round(curr_drag_distance * 0.2))
 
             # Increment the property's value
             App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
@@ -2178,7 +2179,6 @@ class ParamValueLabel(ButtonBehavior, Label):
 
 
 class ParamsGridModCell(BoxLayout):
-    name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
     param_name = StringProperty('')
@@ -2188,21 +2188,22 @@ class ParamsGridModCell(BoxLayout):
     mod_wheel_prop = NumericProperty(0)
     velocity_prop = NumericProperty(0)
     aftertouch_prop = NumericProperty(0)
+    corner_radius = NumericProperty(0)
 
 
 class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
-    name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     title = StringProperty('')
     param_name = StringProperty('')
     value_prop = NumericProperty(0)
+    corner_radius = NumericProperty(0)
 
 
 class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
-    name_label_font_size = NumericProperty(14)
     section_name = StringProperty('')
     type_prop = NumericProperty(0)
     key_sync_prop = NumericProperty(0)
+    corner_radius = NumericProperty(0)
 
 
 class ParamsGridPlaceholderCell(Widget):
@@ -2339,8 +2340,7 @@ class SectionRelativeLayout(RelativeLayout):
     section_name = StringProperty('')
 
 
-class SectionTitleLabel(ButtonBehavior, Label):
-    pass
+
 
 #class OscillatorSectionBox(SectionRelativeLayout):
     # def __init__(self, **kwargs):
@@ -2394,6 +2394,10 @@ class ModAmountsBox(BoxLayout):
     aftertouch_prop = NumericProperty(0)
 
 
+class MainControlsBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
     corner_radius = NumericProperty(0)
@@ -2409,3 +2413,29 @@ class LeftBar(BoxLayout):
 
 class TopBar(BoxLayout):
     corner_radius = NumericProperty(0)
+
+
+class ControlSectionsGrid(GridLayout):
+    corner_radius = NumericProperty(0)
+
+
+class ControlSection(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class SectionTitleLabel(ButtonBehavior, Label):
+    pass
+
+
+class ParamsGrid(GridLayout):
+    corner_radius = NumericProperty(0)
+
+
+class ParamsGridCell(BoxLayout):
+    corner_radius = NumericProperty(0)
+    param_title = StringProperty('')
+    value_prop = ObjectProperty()
+
+
+class ParamNameLabel(Label):
+    pass

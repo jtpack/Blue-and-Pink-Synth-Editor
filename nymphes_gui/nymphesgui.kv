@@ -3,124 +3,36 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 
 ScreenManager:
-    Screen:
-        name: 'dashboard'
+    DashboardScreen
 
-        canvas.before:
-            Color:
-                rgba: C('#000000FF')
-            Rectangle:
-                pos: self.pos
-                size: self.size
 
-        BoxLayout:
-            orientation: 'vertical'
-            padding: (self.height * 0.015, 0, self.height * 0.015, self.height * 0.015)
-            spacing: self.height * 0.015
+<DashboardScreen@Screen>:
+    name: 'dashboard'
 
-            # Top Bar
-            TopBar:
-                size_hint: 1, 1/9
-                corner_radius: root.height * 0.015
+    canvas.before:
+        Color:
+            rgba: C('#101010FF')
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
-            # Box to Contain Voice Mode Bar
-            # and Control Sections
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint: 1, 8/9
-                padding: (self.height * 0.015, 0, self.height * 0.015, self.height * 0.015)
-                spacing: self.height * 0.015
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
 
-                canvas.before:
-                    Color:
-                        rgba: C('#0000FFFF')
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
+        # Top Bar
+        TopBar:
+            size_hint: 1, 1/9
+            corner_radius: root.height * 0.015
 
-                # Left Bar
-                LeftBar:
-                    size_hint: 1/8, 1
-                    corner_radius: root.height * 0.015
-
-                # Grid Containing Control Sections
-                GridLayout:
-                    cols: 3
-                    id: control_sections_grid
-                    size_hint: 7/8, 1
-
-                    canvas.before:
-                        Color:
-                            rgba: C('#00FFFFFF')
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-
-                    # Top Row
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#0F1F00FF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
-
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#0F1F99FF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
-
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#FF1F00FF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
-
-                    # Bottom Row
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#99FF00FF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
-
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#00FF99FF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
-
-                    Widget:
-                        canvas.before:
-                            Color:
-                                rgba: C('#FF1FFFFF')
-                            Rectangle:
-                                pos: self.pos
-                                size: self.size
-
-                        size_hint: (control_sections_grid.width / control_sections_grid.cols, control_sections_grid.height / 2)
+        MainControlsBox:
+            corner_radius: root.height * 0.015
 
 <TopBar>:
     orientation: 'horizontal'
-    padding: [sp(self.corner_radius * 0.25), sp(self.corner_radius * 0.25)]
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    spacing: self.parent.spacing
 
     canvas.before:
         Color:
@@ -129,12 +41,68 @@ ScreenManager:
         RoundedRectangle:
             pos: root.pos
             size: root.width, root.height
-            radius: [0, 0, sp(root.corner_radius), sp(root.corner_radius)]
+            radius: [0, 0, root.corner_radius, root.corner_radius]
+
+<MainControlsBox>:
+    orientation: 'horizontal'
+    spacing: self.parent.spacing
+
+#    canvas.before:
+#        Color:
+#            rgba: C('#0000FFFF')
+#        Rectangle:
+#            pos: self.pos
+#            size: self.size
+
+    LeftBar:
+        size_hint: 1/12, 1
+
+    ControlSectionsGrid:
+        cols: 2
+        spacing: self.parent.spacing
+        corner_radius: self.parent.corner_radius
+
+#        canvas.before:
+#            Color:
+#                rgba: C('#00FFFFFF')
+#            Rectangle:
+#                pos: self.pos
+#                size: self.size
+
+        # Top Row
+        OscillatorControlSection:
+            size_hint_y: 2/4
+
+        FilterControlSection:
+            size_hint_y: 2/4
+
+        # Middle Row
+        AmpControlSection:
+            size_hint_y: 1/4
+
+        Lfo1ControlSection:
+            size_hint_y: 1/5
+
+        # Bottom Row
+        ReverbControlSection:
+            size_hint_y: 1/4
+
+        Lfo2ControlSection:
+            size_hint_y: 1/4
+
 
 <LeftBar>:
     orientation: 'vertical'
-    spacing: self.parent.height * 0.015
     id: left_bar
+    corner_radius: self.parent.corner_radius
+    spacing: self.parent.spacing
+
+#    canvas.before:
+#        Color:
+#            rgba: C('#F000F0FF')
+#        Rectangle:
+#            pos: self.pos
+#            size: self.size
 
     # Voice Mode Box
     VoiceModeBox:
@@ -148,7 +116,7 @@ ScreenManager:
 
 <VoiceModeBox>:
     orientation: 'vertical'
-    padding: [sp(self.corner_radius * 0.25), sp(self.corner_radius * 0.25)]
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
 
     canvas.before:
         Color:
@@ -157,7 +125,7 @@ ScreenManager:
         RoundedRectangle:
             pos: root.pos
             size: root.width, root.height
-            radius: [sp(root.corner_radius)]
+            radius: [root.corner_radius]
 
     VoiceModeButton:
         voice_mode_name: 'POLY'
@@ -181,11 +149,11 @@ ScreenManager:
     text: self.voice_mode_name
     size_hint: 1, 1 / self.parent.num_voice_modes
     color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
-    font_size: (self.height * 0.5) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.4)
+    font_size: (self.height * 0.30) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.275)
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
 
 <LegatoBox>:
-    padding: [sp(self.corner_radius * 0.25), sp(self.corner_radius * 0.25)]
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
 
     canvas.before:
         Color:
@@ -194,7 +162,7 @@ ScreenManager:
         RoundedRectangle:
             pos: root.pos
             size: root.width, root.height
-            radius: [sp(root.corner_radius)]
+            radius: [root.corner_radius]
 
     LegatoButton
 
@@ -202,5 +170,710 @@ ScreenManager:
     text: 'LEGATO'
     size_hint: 1, 1
     color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
-    font_size: (self.height * 0.5) if app.legato else (self.height * 0.4)
+    font_size: (self.height * 0.275) if app.legato else (self.height * 0.25)
     on_release: app.set_legato(not app.legato)
+
+
+<ControlSection>:
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
+
+
+<SectionTitleLabel>:
+    background_color: 0, 1, 0, 0.3
+    color: C('#06070FFF')
+    font_size: self.width * 0.05
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+
+
+<ParamNameLabel>:
+    background_color: 1, 1, 0, 0.7
+    color: C('#ECBFEBFF')
+    font_size: self.width * 0.3
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+
+
+<ParamValueLabel>:
+    background_color: 0, 1, 1, 0.7
+    color: C('#06070FFF')
+    font_size: self.width * 0.35
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+
+
+<OscillatorControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'OSCILLATOR'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+#        canvas.before:
+#            Color:
+#                rgba: C('#0F00FFFF')
+#            Rectangle:
+#                pos: self.pos
+#                size: self.size
+
+        # Top Row
+        #
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'PW'
+            param_name: 'osc.pulsewidth'
+            value_prop: app.osc_pulsewidth_value
+            lfo2_prop: app.osc_pulsewidth_lfo2
+            mod_wheel_prop: app.osc_pulsewidth_mod_wheel
+            velocity_prop: app.osc_pulsewidth_velocity
+            aftertouch_prop: app.osc_pulsewidth_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'GLD'
+            param_name: 'pitch.glide'
+            value_prop: app.pitch_glide_value
+            lfo2_prop: app.pitch_glide_lfo2
+            mod_wheel_prop: app.pitch_glide_mod_wheel
+            velocity_prop: app.pitch_glide_velocity
+            aftertouch_prop: app.pitch_glide_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'DTN'
+            param_name: 'pitch.detune'
+            value_prop: app.pitch_detune_value
+            lfo2_prop: app.pitch_detune_lfo2
+            mod_wheel_prop: app.pitch_detune_mod_wheel
+            velocity_prop: app.pitch_detune_velocity
+            aftertouch_prop: app.pitch_detune_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'CHD'
+            param_name: 'pitch.chord'
+            value_prop: app.pitch_chord_value
+            lfo2_prop: app.pitch_chord_lfo2
+            mod_wheel_prop: app.pitch_chord_mod_wheel
+            velocity_prop: app.pitch_chord_velocity
+            aftertouch_prop: app.pitch_chord_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_top_row'
+            title: 'EG'
+            param_name: 'pitch.eg'
+            value_prop: app.pitch_eg_value
+            lfo2_prop: app.pitch_eg_lfo2
+            mod_wheel_prop: app.pitch_eg_mod_wheel
+            velocity_prop: app.pitch_eg_velocity
+            aftertouch_prop: app.pitch_eg_aftertouch
+
+        # Bottom Row
+        #
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'WAVE'
+            param_name: 'osc.wave'
+            value_prop: app.osc_wave_value
+            lfo2_prop: app.osc_wave_lfo2
+            mod_wheel_prop: app.osc_wave_mod_wheel
+            velocity_prop: app.osc_wave_velocity
+            aftertouch_prop: app.osc_wave_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'LVL'
+            param_name: 'mix.osc'
+            value_prop: app.mix_osc_value
+            lfo2_prop: app.mix_osc_lfo2
+            mod_wheel_prop: app.mix_osc_mod_wheel
+            velocity_prop: app.mix_osc_velocity
+            aftertouch_prop: app.mix_osc_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'SUB'
+            param_name: 'mix.sub'
+            value_prop: app.mix_sub_value
+            lfo2_prop: app.mix_sub_lfo2
+            mod_wheel_prop: app.mix_sub_mod_wheel
+            velocity_prop: app.mix_sub_velocity
+            aftertouch_prop: app.mix_sub_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'NOISE'
+            param_name: 'mix.noise'
+            value_prop: app.mix_noise_value
+            lfo2_prop: app.mix_noise_lfo2
+            mod_wheel_prop: app.mix_noise_mod_wheel
+            velocity_prop: app.mix_noise_velocity
+            aftertouch_prop: app.mix_noise_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'oscillator_bottom_row'
+            title: 'LFO'
+            param_name: 'pitch.lfo1'
+            value_prop: app.pitch_lfo1_value
+            lfo2_prop: app.pitch_lfo1_lfo2
+            mod_wheel_prop: app.pitch_lfo1_mod_wheel
+            velocity_prop: app.pitch_lfo1_velocity
+            aftertouch_prop: app.pitch_lfo1_aftertouch
+
+<FilterControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'FILTER'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+#        canvas.before:
+#            Color:
+#                rgba: C('#0F00FFFF')
+#            Rectangle:
+#                pos: self.pos
+#                size: self.size
+
+        # Top Row
+        #
+        ParamsGridModCell:
+            section_name: 'filter_top_row'
+            title: 'CUT'
+            param_name: 'lpf.cutoff'
+            value_prop: app.lpf_cutoff_value
+            lfo2_prop: app.lpf_cutoff_lfo2
+            mod_wheel_prop: app.lpf_cutoff_mod_wheel
+            velocity_prop: app.lpf_cutoff_velocity
+            aftertouch_prop: app.lpf_cutoff_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_top_row'
+            title: 'RES'
+            param_name: 'lpf.resonance'
+            value_prop: app.lpf_resonance_value
+            lfo2_prop: app.lpf_resonance_lfo2
+            mod_wheel_prop: app.lpf_resonance_mod_wheel
+            velocity_prop: app.lpf_resonance_velocity
+            aftertouch_prop: app.lpf_resonance_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_top_row'
+            title: 'TRK'
+            param_name: 'lpf.cutoff'
+            value_prop: app.lpf_tracking_value
+            lfo2_prop: app.lpf_tracking_lfo2
+            mod_wheel_prop: app.lpf_tracking_mod_wheel
+            velocity_prop: app.lpf_tracking_velocity
+            aftertouch_prop: app.lpf_tracking_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_top_row'
+            title: 'EG'
+            param_name: 'lpf.eg'
+            value_prop: app.lpf_eg_value
+            lfo2_prop: app.lpf_eg_lfo2
+            mod_wheel_prop: app.lpf_eg_mod_wheel
+            velocity_prop: app.lpf_eg_velocity
+            aftertouch_prop: app.lpf_eg_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_top_row'
+            title: 'LFO'
+            param_name: 'lpf.lfo1'
+            value_prop: app.lpf_lfo1_value
+            lfo2_prop: app.lpf_lfo1_lfo2
+            mod_wheel_prop: app.lpf_lfo1_mod_wheel
+            velocity_prop: app.lpf_lfo1_velocity
+            aftertouch_prop: app.lpf_lfo1_aftertouch
+
+        # Bottom Row
+        #
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'ATT'
+            param_name: 'filter_eg.attack'
+            value_prop: app.filter_eg_attack_value
+            lfo2_prop: app.filter_eg_attack_lfo2
+            mod_wheel_prop: app.filter_eg_attack_mod_wheel
+            velocity_prop: app.filter_eg_attack_velocity
+            aftertouch_prop: app.filter_eg_attack_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'DEC'
+            param_name: 'filter_eg.decay'
+            value_prop: app.filter_eg_decay_value
+            lfo2_prop: app.filter_eg_decay_lfo2
+            mod_wheel_prop: app.filter_eg_decay_mod_wheel
+            velocity_prop: app.filter_eg_decay_velocity
+            aftertouch_prop: app.filter_eg_decay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'SUS'
+            param_name: 'filter_eg.sustain'
+            value_prop: app.filter_eg_sustain_value
+            lfo2_prop: app.filter_eg_sustain_lfo2
+            mod_wheel_prop: app.filter_eg_sustain_mod_wheel
+            velocity_prop: app.filter_eg_sustain_velocity
+            aftertouch_prop: app.filter_eg_sustain_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'REL'
+            param_name: 'filter_eg.release'
+            value_prop: app.filter_eg_release_value
+            lfo2_prop: app.filter_eg_release_lfo2
+            mod_wheel_prop: app.filter_eg_release_mod_wheel
+            velocity_prop: app.filter_eg_release_velocity
+            aftertouch_prop: app.filter_eg_release_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'filter_bottom_row'
+            title: 'HPF'
+            param_name: 'hpf.cutoff'
+            value_prop: app.hpf_cutoff_value
+            lfo2_prop: app.hpf_cutoff_lfo2
+            mod_wheel_prop: app.hpf_cutoff_mod_wheel
+            velocity_prop: app.hpf_cutoff_velocity
+            aftertouch_prop: app.hpf_cutoff_aftertouch
+
+<Lfo1ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'LFO1'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+        # Top Row
+        ParamsGridModCell:
+            section_name: 'lfo1'
+            title: 'RATE'
+            param_name: 'lfo1.rate'
+            value_prop: app.lfo1_rate_value
+            lfo2_prop: app.lfo1_rate_lfo2
+            mod_wheel_prop: app.lfo1_rate_mod_wheel
+            velocity_prop: app.lfo1_rate_velocity
+            aftertouch_prop: app.lfo1_rate_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo1'
+            title: 'WAVE'
+            param_name: 'lfo1.wave'
+            value_prop: app.lfo1_wave_value
+            lfo2_prop: app.lfo1_wave_lfo2
+            mod_wheel_prop: app.lfo1_wave_mod_wheel
+            velocity_prop: app.lfo1_wave_velocity
+            aftertouch_prop: app.lfo1_wave_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo1'
+            title: 'DEL'
+            param_name: 'lfo1.delay'
+            value_prop: app.lfo1_delay_value
+            lfo2_prop: app.lfo1_delay_lfo2
+            mod_wheel_prop: app.lfo1_delay_mod_wheel
+            velocity_prop: app.lfo1_delay_velocity
+            aftertouch_prop: app.lfo1_delay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo1'
+            title: 'FADE'
+            param_name: 'lfo1.fade'
+            value_prop: app.lfo1_fade_value
+            lfo2_prop: app.lfo1_fade_lfo2
+            mod_wheel_prop: app.lfo1_fade_mod_wheel
+            velocity_prop: app.lfo1_fade_velocity
+            aftertouch_prop: app.lfo1_fade_aftertouch
+
+        ParamsGridLfoConfigCell:
+            section_name: 'lfo1'
+            type_prop: app.lfo1_type_value
+            key_sync_prop: app.lfo1_key_sync_value
+
+
+<AmpControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'AMP'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+        ParamsGridModCell:
+            section_name: 'amp'
+            title: 'ATT'
+            param_name: 'amp_eg.attack'
+            value_prop: app.amp_eg_attack_value
+            lfo2_prop: app.amp_eg_attack_lfo2
+            mod_wheel_prop: app.amp_eg_attack_mod_wheel
+            velocity_prop: app.amp_eg_attack_velocity
+            aftertouch_prop: app.amp_eg_attack_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'amp'
+            title: 'DEC'
+            param_name: 'amp_eg.decay'
+            value_prop: app.amp_eg_decay_value
+            lfo2_prop: app.amp_eg_decay_lfo2
+            mod_wheel_prop: app.amp_eg_decay_mod_wheel
+            velocity_prop: app.amp_eg_decay_velocity
+            aftertouch_prop: app.amp_eg_decay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'amp'
+            title: 'SUS'
+            param_name: 'amp_eg.sustain'
+            value_prop: app.amp_eg_sustain_value
+            lfo2_prop: app.amp_eg_sustain_lfo2
+            mod_wheel_prop: app.amp_eg_sustain_mod_wheel
+            velocity_prop: app.amp_eg_sustain_velocity
+            aftertouch_prop: app.amp_eg_sustain_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'amp'
+            title: 'REL'
+            param_name: 'amp_eg.release'
+            value_prop: app.amp_eg_release_value
+            lfo2_prop: app.amp_eg_release_lfo2
+            mod_wheel_prop: app.amp_eg_release_mod_wheel
+            velocity_prop: app.amp_eg_release_velocity
+            aftertouch_prop: app.amp_eg_release_aftertouch
+
+        ParamsGridNonModCell:
+            section_name: 'amp'
+            title: 'LVL'
+            param_name: 'mix.level'
+            value_prop: app.mix_level_value
+
+
+<ReverbControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'REVERB'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+        ParamsGridModCell:
+            section_name: 'reverb'
+            title: 'SIZE'
+            param_name: 'reverb.size'
+            value_prop: app.reverb_size_value
+            lfo2_prop: app.reverb_size_lfo2
+            mod_wheel_prop: app.reverb_size_mod_wheel
+            velocity_prop: app.reverb_size_velocity
+            aftertouch_prop: app.reverb_size_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'reverb'
+            title: 'DEC'
+            param_name: 'reverb.decay'
+            value_prop: app.reverb_decay_value
+            lfo2_prop: app.reverb_decay_lfo2
+            mod_wheel_prop: app.reverb_decay_mod_wheel
+            velocity_prop: app.reverb_decay_velocity
+            aftertouch_prop: app.reverb_decay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'reverb'
+            title: 'FILT'
+            param_name: 'reverb.filter'
+            value_prop: app.reverb_filter_value
+            lfo2_prop: app.reverb_filter_lfo2
+            mod_wheel_prop: app.reverb_filter_mod_wheel
+            velocity_prop: app.reverb_filter_velocity
+            aftertouch_prop: app.reverb_filter_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'reverb'
+            title: 'MIX'
+            param_name: 'reverb.mix'
+            value_prop: app.reverb_mix_value
+            lfo2_prop: app.reverb_mix_lfo2
+            mod_wheel_prop: app.reverb_mix_mod_wheel
+            velocity_prop: app.reverb_mix_velocity
+            aftertouch_prop: app.reverb_mix_aftertouch
+
+        Widget:
+            size_hint: 1, 1
+
+<Lfo2ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'LFO2'
+
+    ParamsGrid:
+        size_hint: 1, 5/6
+
+        # Top Row
+        ParamsGridModCell:
+            section_name: 'lfo2'
+            title: 'RATE'
+            param_name: 'lfo2.rate'
+            value_prop: app.lfo2_rate_value
+            lfo2_prop: app.lfo2_rate_lfo2
+            mod_wheel_prop: app.lfo2_rate_mod_wheel
+            velocity_prop: app.lfo2_rate_velocity
+            aftertouch_prop: app.lfo2_rate_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo2'
+            title: 'WAVE'
+            param_name: 'lfo2.wave'
+            value_prop: app.lfo2_wave_value
+            lfo2_prop: app.lfo2_wave_lfo2
+            mod_wheel_prop: app.lfo2_wave_mod_wheel
+            velocity_prop: app.lfo2_wave_velocity
+            aftertouch_prop: app.lfo2_wave_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo2'
+            title: 'DEL'
+            param_name: 'lfo2.delay'
+            value_prop: app.lfo2_delay_value
+            lfo2_prop: app.lfo2_delay_lfo2
+            mod_wheel_prop: app.lfo2_delay_mod_wheel
+            velocity_prop: app.lfo2_delay_velocity
+            aftertouch_prop: app.lfo2_delay_aftertouch
+
+        ParamsGridModCell:
+            section_name: 'lfo2'
+            title: 'FADE'
+            param_name: 'lfo2.fade'
+            value_prop: app.lfo2_fade_value
+            lfo2_prop: app.lfo2_fade_lfo2
+            mod_wheel_prop: app.lfo2_fade_mod_wheel
+            velocity_prop: app.lfo2_fade_velocity
+            aftertouch_prop: app.lfo2_fade_aftertouch
+
+        ParamsGridLfoConfigCell:
+            section_name: 'lfo2'
+            type_prop: app.lfo2_type_value
+            key_sync_prop: app.lfo2_key_sync_value
+
+<ParamsGrid>:
+    cols: 5
+    corner_radius: self.width * 0.03
+    spacing: self.width * 0.01
+
+
+<ParamsGridModCell>:
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+
+    ParamValueLabel:
+        text: str(root.value_prop)
+        param_name: root.param_name
+
+    ModAmountsBox:
+        size_hint_x: 0.9
+        pos_hint: {'center_x': 0.5}
+
+        param_name: root.param_name
+        lfo2_prop: root.lfo2_prop
+        mod_wheel_prop: root.mod_wheel_prop
+        velocity_prop: root.velocity_prop
+        aftertouch_prop: root.aftertouch_prop
+
+
+<ModAmountsBox>:
+    orientation: 'horizontal'
+    spacing: self.height * 0.05
+    size_hint: 1, 1
+
+#    canvas.before:
+#        Color:
+#            # rgba: C('#00000020') if root.lfo2 > 0 or root.wheel > 0 or root.velocity > 0 or root.aftertouch > 0 else C('#00000000')
+#            rgba: C('#00000020')
+#        RoundedRectangle:
+#            pos: self.pos
+#            size: self.size
+#            radius: [self.height * 0.01]
+
+    Lfo2ModAmountLine:
+        param_name: root.param_name
+        mod_type: 'lfo2'
+        midi_val: root.lfo2_prop
+
+    WheelModAmountLine:
+        param_name: root.param_name
+        mod_type: 'mod_wheel'
+        midi_val: root.mod_wheel_prop
+
+    VelocityModAmountLine:
+        param_name: root.param_name
+        mod_type: 'velocity'
+        midi_val: root.velocity_prop
+
+    AftertouchModAmountLine:
+        param_name: root.param_name
+        mod_type: 'aftertouch'
+        midi_val: root.aftertouch_prop
+
+
+<ModAmountLine>:
+    canvas:
+        # Line Background
+
+        Color:
+            rgba: C('#1E6AD9FF')
+
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.width * 0.5]
+
+        # Line Which Grows with the Value
+        Color:
+            rgba: C(root.color_hex) if root.midi_val > 0 else C('#00000000')
+
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size[0], (root.midi_val / 127.0) * (root.height - root.height * 0.01)
+            radius: [self.width * 0.5]
+
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+
+<Lfo2ModAmountLine@ModAmountLine>:
+    color_hex: '#F51414FF'
+
+<WheelModAmountLine@ModAmountLine>:
+    color_hex: '#FDFF00FF'
+
+<VelocityModAmountLine@ModAmountLine>:
+    color_hex: '#00FF1FFF'
+
+<AftertouchModAmountLine@ModAmountLine>:
+    color_hex: '#0000FFFF'
+
+<ParamsGridLfoConfigCell>:
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    on_press: app.select_section(self.section_name)
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        font_size: self.width * 0.2
+        text: 'TYPE'
+
+    ParamValueLabel:
+        font_size: self.width * 0.2
+        param_name: root.section_name + '.type'
+        text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
+
+    ParamNameLabel:
+        font_size: self.width * 0.2
+        text: 'SYNC'
+
+    ParamValueLabel:
+        font_size: self.width * 0.2
+        param_name: root.section_name + '.key_sync'
+        text: "ON" if root.key_sync_prop == 1 else "OFF"
+
+<ParamsGridNonModCell>:
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    #on_press: app.select_section(self.section_name)
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+
+    ParamValueLabel:
+        text: str(root.value_prop)
+        param_name: root.param_name
+
+    # A placeholder take up the empty space in the lower
+    # part of the cell
+    Widget
