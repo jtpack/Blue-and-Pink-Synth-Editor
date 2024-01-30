@@ -198,7 +198,18 @@ ScreenManager:
     valign: 'middle'
 
 
-<ParamValueLabel>:
+<FloatParamValueLabel>:
+    background_color: 0, 1, 1, 0.7
+    color: C('#06070FFF')
+    font_size: self.width * 0.35
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+
+
+<IntParamValueLabel>:
     background_color: 0, 1, 1, 0.7
     color: C('#06070FFF')
     font_size: self.width * 0.35
@@ -711,8 +722,8 @@ ScreenManager:
     ParamNameLabel:
         text: root.title
 
-    ParamValueLabel:
-        text: str(root.value_prop)
+    FloatParamValueLabel:
+        text: str(float(root.value_prop))
         param_name: root.param_name
 
     ModAmountsBox:
@@ -814,7 +825,7 @@ ScreenManager:
         font_size: self.width * 0.2
         text: 'TYPE'
 
-    ParamValueLabel:
+    IntParamValueLabel:
         font_size: self.width * 0.2
         param_name: root.section_name + '.type'
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
@@ -823,7 +834,7 @@ ScreenManager:
         font_size: self.width * 0.2
         text: 'SYNC'
 
-    ParamValueLabel:
+    IntParamValueLabel:
         font_size: self.width * 0.2
         param_name: root.section_name + '.key_sync'
         text: "ON" if root.key_sync_prop == 1 else "OFF"
@@ -844,10 +855,10 @@ ScreenManager:
     ParamNameLabel:
         text: root.title
 
-    ParamValueLabel:
-        text: str(root.value_prop)
+    FloatParamValueLabel:
+        text: str(float(root.value_prop))
         param_name: root.param_name
 
-    # A placeholder take up the empty space in the lower
+    # A placeholder to take up the empty space in the lower
     # part of the cell
     Widget

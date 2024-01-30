@@ -67,232 +67,232 @@ class NymphesGuiApp(App):
     # Nymphes Parameters
     #
 
-    osc_wave_value = NumericProperty(0)
-    osc_wave_lfo2 = NumericProperty(0)
-    osc_wave_mod_wheel = NumericProperty(0)
-    osc_wave_velocity = NumericProperty(0)
-    osc_wave_aftertouch = NumericProperty(0)
+    osc_wave_value = NumericProperty(0.0)
+    osc_wave_lfo2 = NumericProperty(0.0)
+    osc_wave_mod_wheel = NumericProperty(0.0)
+    osc_wave_velocity = NumericProperty(0.0)
+    osc_wave_aftertouch = NumericProperty(0.0)
 
     osc_pulsewidth_value = NumericProperty(21)
-    osc_pulsewidth_lfo2 = NumericProperty(0)
-    osc_pulsewidth_mod_wheel = NumericProperty(0)
-    osc_pulsewidth_velocity = NumericProperty(0)
-    osc_pulsewidth_aftertouch = NumericProperty(0)
+    osc_pulsewidth_lfo2 = NumericProperty(0.0)
+    osc_pulsewidth_mod_wheel = NumericProperty(0.0)
+    osc_pulsewidth_velocity = NumericProperty(0.0)
+    osc_pulsewidth_aftertouch = NumericProperty(0.0)
 
-    osc_voice_mode_value = NumericProperty(0)
-    osc_legato_value = NumericProperty(0)
+    osc_voice_mode_value = NumericProperty(0.0)
+    osc_legato_value = NumericProperty(0.0)
 
-    mix_osc_value = NumericProperty(0)
-    mix_osc_lfo2 = NumericProperty(0)
-    mix_osc_mod_wheel = NumericProperty(0)
-    mix_osc_velocity = NumericProperty(0)
-    mix_osc_aftertouch = NumericProperty(0)
+    mix_osc_value = NumericProperty(0.0)
+    mix_osc_lfo2 = NumericProperty(0.0)
+    mix_osc_mod_wheel = NumericProperty(0.0)
+    mix_osc_velocity = NumericProperty(0.0)
+    mix_osc_aftertouch = NumericProperty(0.0)
 
-    mix_sub_value = NumericProperty(0)
-    mix_sub_lfo2 = NumericProperty(0)
-    mix_sub_mod_wheel = NumericProperty(0)
-    mix_sub_velocity = NumericProperty(0)
-    mix_sub_aftertouch = NumericProperty(0)
+    mix_sub_value = NumericProperty(0.0)
+    mix_sub_lfo2 = NumericProperty(0.0)
+    mix_sub_mod_wheel = NumericProperty(0.0)
+    mix_sub_velocity = NumericProperty(0.0)
+    mix_sub_aftertouch = NumericProperty(0.0)
 
-    mix_noise_value = NumericProperty(0)
-    mix_noise_lfo2 = NumericProperty(0)
-    mix_noise_mod_wheel = NumericProperty(0)
-    mix_noise_velocity = NumericProperty(0)
-    mix_noise_aftertouch = NumericProperty(0)
+    mix_noise_value = NumericProperty(0.0)
+    mix_noise_lfo2 = NumericProperty(0.0)
+    mix_noise_mod_wheel = NumericProperty(0.0)
+    mix_noise_velocity = NumericProperty(0.0)
+    mix_noise_aftertouch = NumericProperty(0.0)
 
-    mix_level_value = NumericProperty(0)
+    mix_level_value = NumericProperty(0.0)
 
-    pitch_glide_value = NumericProperty(0)
-    pitch_glide_lfo2 = NumericProperty(0)
-    pitch_glide_mod_wheel = NumericProperty(0)
-    pitch_glide_velocity = NumericProperty(0)
-    pitch_glide_aftertouch = NumericProperty(0)
+    pitch_glide_value = NumericProperty(0.0)
+    pitch_glide_lfo2 = NumericProperty(0.0)
+    pitch_glide_mod_wheel = NumericProperty(0.0)
+    pitch_glide_velocity = NumericProperty(0.0)
+    pitch_glide_aftertouch = NumericProperty(0.0)
 
-    pitch_detune_value = NumericProperty(0)
-    pitch_detune_lfo2 = NumericProperty(0)
-    pitch_detune_mod_wheel = NumericProperty(0)
-    pitch_detune_velocity = NumericProperty(0)
-    pitch_detune_aftertouch = NumericProperty(0)
+    pitch_detune_value = NumericProperty(0.0)
+    pitch_detune_lfo2 = NumericProperty(0.0)
+    pitch_detune_mod_wheel = NumericProperty(0.0)
+    pitch_detune_velocity = NumericProperty(0.0)
+    pitch_detune_aftertouch = NumericProperty(0.0)
 
-    pitch_chord_value = NumericProperty(0)
-    pitch_chord_lfo2 = NumericProperty(0)
-    pitch_chord_mod_wheel = NumericProperty(0)
-    pitch_chord_velocity = NumericProperty(0)
-    pitch_chord_aftertouch = NumericProperty(0)
+    pitch_chord_value = NumericProperty(0.0)
+    pitch_chord_lfo2 = NumericProperty(0.0)
+    pitch_chord_mod_wheel = NumericProperty(0.0)
+    pitch_chord_velocity = NumericProperty(0.0)
+    pitch_chord_aftertouch = NumericProperty(0.0)
 
-    pitch_eg_value = NumericProperty(0)
-    pitch_eg_lfo2 = NumericProperty(0)
-    pitch_eg_mod_wheel = NumericProperty(0)
-    pitch_eg_velocity = NumericProperty(0)
-    pitch_eg_aftertouch = NumericProperty(0)
+    pitch_eg_value = NumericProperty(0.0)
+    pitch_eg_lfo2 = NumericProperty(0.0)
+    pitch_eg_mod_wheel = NumericProperty(0.0)
+    pitch_eg_velocity = NumericProperty(0.0)
+    pitch_eg_aftertouch = NumericProperty(0.0)
 
-    pitch_lfo1_value = NumericProperty(0)
-    pitch_lfo1_lfo2 = NumericProperty(0)
-    pitch_lfo1_mod_wheel = NumericProperty(0)
-    pitch_lfo1_velocity = NumericProperty(0)
-    pitch_lfo1_aftertouch = NumericProperty(0)
+    pitch_lfo1_value = NumericProperty(0.0)
+    pitch_lfo1_lfo2 = NumericProperty(0.0)
+    pitch_lfo1_mod_wheel = NumericProperty(0.0)
+    pitch_lfo1_velocity = NumericProperty(0.0)
+    pitch_lfo1_aftertouch = NumericProperty(0.0)
 
-    lpf_cutoff_value = NumericProperty(0)
-    lpf_cutoff_lfo2 = NumericProperty(0)
-    lpf_cutoff_mod_wheel = NumericProperty(0)
-    lpf_cutoff_velocity = NumericProperty(0)
-    lpf_cutoff_aftertouch = NumericProperty(0)
+    lpf_cutoff_value = NumericProperty(0.0)
+    lpf_cutoff_lfo2 = NumericProperty(0.0)
+    lpf_cutoff_mod_wheel = NumericProperty(0.0)
+    lpf_cutoff_velocity = NumericProperty(0.0)
+    lpf_cutoff_aftertouch = NumericProperty(0.0)
 
-    lpf_resonance_value = NumericProperty(0)
-    lpf_resonance_lfo2 = NumericProperty(0)
-    lpf_resonance_mod_wheel = NumericProperty(0)
-    lpf_resonance_velocity = NumericProperty(0)
-    lpf_resonance_aftertouch = NumericProperty(0)
+    lpf_resonance_value = NumericProperty(0.0)
+    lpf_resonance_lfo2 = NumericProperty(0.0)
+    lpf_resonance_mod_wheel = NumericProperty(0.0)
+    lpf_resonance_velocity = NumericProperty(0.0)
+    lpf_resonance_aftertouch = NumericProperty(0.0)
 
-    lpf_tracking_value = NumericProperty(0)
-    lpf_tracking_lfo2 = NumericProperty(0)
-    lpf_tracking_mod_wheel = NumericProperty(0)
-    lpf_tracking_velocity = NumericProperty(0)
-    lpf_tracking_aftertouch = NumericProperty(0)
+    lpf_tracking_value = NumericProperty(0.0)
+    lpf_tracking_lfo2 = NumericProperty(0.0)
+    lpf_tracking_mod_wheel = NumericProperty(0.0)
+    lpf_tracking_velocity = NumericProperty(0.0)
+    lpf_tracking_aftertouch = NumericProperty(0.0)
 
-    lpf_eg_value = NumericProperty(0)
-    lpf_eg_lfo2 = NumericProperty(0)
-    lpf_eg_mod_wheel = NumericProperty(0)
-    lpf_eg_velocity = NumericProperty(0)
-    lpf_eg_aftertouch = NumericProperty(0)
+    lpf_eg_value = NumericProperty(0.0)
+    lpf_eg_lfo2 = NumericProperty(0.0)
+    lpf_eg_mod_wheel = NumericProperty(0.0)
+    lpf_eg_velocity = NumericProperty(0.0)
+    lpf_eg_aftertouch = NumericProperty(0.0)
 
-    lpf_lfo1_value = NumericProperty(0)
-    lpf_lfo1_lfo2 = NumericProperty(0)
-    lpf_lfo1_mod_wheel = NumericProperty(0)
-    lpf_lfo1_velocity = NumericProperty(0)
-    lpf_lfo1_aftertouch = NumericProperty(0)
+    lpf_lfo1_value = NumericProperty(0.0)
+    lpf_lfo1_lfo2 = NumericProperty(0.0)
+    lpf_lfo1_mod_wheel = NumericProperty(0.0)
+    lpf_lfo1_velocity = NumericProperty(0.0)
+    lpf_lfo1_aftertouch = NumericProperty(0.0)
 
-    hpf_cutoff_value = NumericProperty(0)
-    hpf_cutoff_lfo2 = NumericProperty(0)
-    hpf_cutoff_mod_wheel = NumericProperty(0)
-    hpf_cutoff_velocity = NumericProperty(0)
-    hpf_cutoff_aftertouch = NumericProperty(0)
+    hpf_cutoff_value = NumericProperty(0.0)
+    hpf_cutoff_lfo2 = NumericProperty(0.0)
+    hpf_cutoff_mod_wheel = NumericProperty(0.0)
+    hpf_cutoff_velocity = NumericProperty(0.0)
+    hpf_cutoff_aftertouch = NumericProperty(0.0)
 
-    filter_eg_attack_value = NumericProperty(0)
-    filter_eg_attack_lfo2 = NumericProperty(0)
-    filter_eg_attack_mod_wheel = NumericProperty(0)
-    filter_eg_attack_velocity = NumericProperty(0)
-    filter_eg_attack_aftertouch = NumericProperty(0)
+    filter_eg_attack_value = NumericProperty(0.0)
+    filter_eg_attack_lfo2 = NumericProperty(0.0)
+    filter_eg_attack_mod_wheel = NumericProperty(0.0)
+    filter_eg_attack_velocity = NumericProperty(0.0)
+    filter_eg_attack_aftertouch = NumericProperty(0.0)
 
-    filter_eg_decay_value = NumericProperty(0)
-    filter_eg_decay_lfo2 = NumericProperty(0)
-    filter_eg_decay_mod_wheel = NumericProperty(0)
-    filter_eg_decay_velocity = NumericProperty(0)
-    filter_eg_decay_aftertouch = NumericProperty(0)
+    filter_eg_decay_value = NumericProperty(0.0)
+    filter_eg_decay_lfo2 = NumericProperty(0.0)
+    filter_eg_decay_mod_wheel = NumericProperty(0.0)
+    filter_eg_decay_velocity = NumericProperty(0.0)
+    filter_eg_decay_aftertouch = NumericProperty(0.0)
 
-    filter_eg_sustain_value = NumericProperty(0)
-    filter_eg_sustain_lfo2 = NumericProperty(0)
-    filter_eg_sustain_mod_wheel = NumericProperty(0)
-    filter_eg_sustain_velocity = NumericProperty(0)
-    filter_eg_sustain_aftertouch = NumericProperty(0)
+    filter_eg_sustain_value = NumericProperty(0.0)
+    filter_eg_sustain_lfo2 = NumericProperty(0.0)
+    filter_eg_sustain_mod_wheel = NumericProperty(0.0)
+    filter_eg_sustain_velocity = NumericProperty(0.0)
+    filter_eg_sustain_aftertouch = NumericProperty(0.0)
 
-    filter_eg_release_value = NumericProperty(0)
-    filter_eg_release_lfo2 = NumericProperty(0)
-    filter_eg_release_mod_wheel = NumericProperty(0)
-    filter_eg_release_velocity = NumericProperty(0)
-    filter_eg_release_aftertouch = NumericProperty(0)
+    filter_eg_release_value = NumericProperty(0.0)
+    filter_eg_release_lfo2 = NumericProperty(0.0)
+    filter_eg_release_mod_wheel = NumericProperty(0.0)
+    filter_eg_release_velocity = NumericProperty(0.0)
+    filter_eg_release_aftertouch = NumericProperty(0.0)
 
-    amp_eg_attack_value = NumericProperty(0)
-    amp_eg_attack_lfo2 = NumericProperty(0)
-    amp_eg_attack_mod_wheel = NumericProperty(0)
-    amp_eg_attack_velocity = NumericProperty(0)
-    amp_eg_attack_aftertouch = NumericProperty(0)
+    amp_eg_attack_value = NumericProperty(0.0)
+    amp_eg_attack_lfo2 = NumericProperty(0.0)
+    amp_eg_attack_mod_wheel = NumericProperty(0.0)
+    amp_eg_attack_velocity = NumericProperty(0.0)
+    amp_eg_attack_aftertouch = NumericProperty(0.0)
 
-    amp_eg_decay_value = NumericProperty(0)
-    amp_eg_decay_lfo2 = NumericProperty(0)
-    amp_eg_decay_mod_wheel = NumericProperty(0)
-    amp_eg_decay_velocity = NumericProperty(0)
-    amp_eg_decay_aftertouch = NumericProperty(0)
+    amp_eg_decay_value = NumericProperty(0.0)
+    amp_eg_decay_lfo2 = NumericProperty(0.0)
+    amp_eg_decay_mod_wheel = NumericProperty(0.0)
+    amp_eg_decay_velocity = NumericProperty(0.0)
+    amp_eg_decay_aftertouch = NumericProperty(0.0)
 
-    amp_eg_sustain_value = NumericProperty(0)
-    amp_eg_sustain_lfo2 = NumericProperty(0)
-    amp_eg_sustain_mod_wheel = NumericProperty(0)
-    amp_eg_sustain_velocity = NumericProperty(0)
-    amp_eg_sustain_aftertouch = NumericProperty(0)
+    amp_eg_sustain_value = NumericProperty(0.0)
+    amp_eg_sustain_lfo2 = NumericProperty(0.0)
+    amp_eg_sustain_mod_wheel = NumericProperty(0.0)
+    amp_eg_sustain_velocity = NumericProperty(0.0)
+    amp_eg_sustain_aftertouch = NumericProperty(0.0)
 
-    amp_eg_release_value = NumericProperty(0)
-    amp_eg_release_lfo2 = NumericProperty(0)
-    amp_eg_release_mod_wheel = NumericProperty(0)
-    amp_eg_release_velocity = NumericProperty(0)
-    amp_eg_release_aftertouch = NumericProperty(0)
+    amp_eg_release_value = NumericProperty(0.0)
+    amp_eg_release_lfo2 = NumericProperty(0.0)
+    amp_eg_release_mod_wheel = NumericProperty(0.0)
+    amp_eg_release_velocity = NumericProperty(0.0)
+    amp_eg_release_aftertouch = NumericProperty(0.0)
 
-    lfo1_rate_value = NumericProperty(0)
-    lfo1_rate_lfo2 = NumericProperty(0)
-    lfo1_rate_mod_wheel = NumericProperty(0)
-    lfo1_rate_velocity = NumericProperty(0)
-    lfo1_rate_aftertouch = NumericProperty(0)
+    lfo1_rate_value = NumericProperty(0.0)
+    lfo1_rate_lfo2 = NumericProperty(0.0)
+    lfo1_rate_mod_wheel = NumericProperty(0.0)
+    lfo1_rate_velocity = NumericProperty(0.0)
+    lfo1_rate_aftertouch = NumericProperty(0.0)
 
-    lfo1_wave_value = NumericProperty(0)
-    lfo1_wave_lfo2 = NumericProperty(0)
-    lfo1_wave_mod_wheel = NumericProperty(0)
-    lfo1_wave_velocity = NumericProperty(0)
-    lfo1_wave_aftertouch = NumericProperty(0)
+    lfo1_wave_value = NumericProperty(0.0)
+    lfo1_wave_lfo2 = NumericProperty(0.0)
+    lfo1_wave_mod_wheel = NumericProperty(0.0)
+    lfo1_wave_velocity = NumericProperty(0.0)
+    lfo1_wave_aftertouch = NumericProperty(0.0)
 
-    lfo1_delay_value = NumericProperty(0)
-    lfo1_delay_lfo2 = NumericProperty(0)
-    lfo1_delay_mod_wheel = NumericProperty(0)
-    lfo1_delay_velocity = NumericProperty(0)
-    lfo1_delay_aftertouch = NumericProperty(0)
+    lfo1_delay_value = NumericProperty(0.0)
+    lfo1_delay_lfo2 = NumericProperty(0.0)
+    lfo1_delay_mod_wheel = NumericProperty(0.0)
+    lfo1_delay_velocity = NumericProperty(0.0)
+    lfo1_delay_aftertouch = NumericProperty(0.0)
 
-    lfo1_fade_value = NumericProperty(0)
-    lfo1_fade_lfo2 = NumericProperty(0)
-    lfo1_fade_mod_wheel = NumericProperty(0)
-    lfo1_fade_velocity = NumericProperty(0)
-    lfo1_fade_aftertouch = NumericProperty(0)
+    lfo1_fade_value = NumericProperty(0.0)
+    lfo1_fade_lfo2 = NumericProperty(0.0)
+    lfo1_fade_mod_wheel = NumericProperty(0.0)
+    lfo1_fade_velocity = NumericProperty(0.0)
+    lfo1_fade_aftertouch = NumericProperty(0.0)
 
     lfo1_type_value = NumericProperty(0)
     lfo1_key_sync_value = NumericProperty(0)
 
-    lfo2_rate_value = NumericProperty(0)
-    lfo2_rate_lfo2 = NumericProperty(0)
-    lfo2_rate_mod_wheel = NumericProperty(0)
-    lfo2_rate_velocity = NumericProperty(0)
-    lfo2_rate_aftertouch = NumericProperty(0)
+    lfo2_rate_value = NumericProperty(0.0)
+    lfo2_rate_lfo2 = NumericProperty(0.0)
+    lfo2_rate_mod_wheel = NumericProperty(0.0)
+    lfo2_rate_velocity = NumericProperty(0.0)
+    lfo2_rate_aftertouch = NumericProperty(0.0)
 
-    lfo2_wave_value = NumericProperty(0)
-    lfo2_wave_lfo2 = NumericProperty(0)
-    lfo2_wave_mod_wheel = NumericProperty(0)
-    lfo2_wave_velocity = NumericProperty(0)
-    lfo2_wave_aftertouch = NumericProperty(0)
+    lfo2_wave_value = NumericProperty(0.0)
+    lfo2_wave_lfo2 = NumericProperty(0.0)
+    lfo2_wave_mod_wheel = NumericProperty(0.0)
+    lfo2_wave_velocity = NumericProperty(0.0)
+    lfo2_wave_aftertouch = NumericProperty(0.0)
 
-    lfo2_delay_value = NumericProperty(0)
-    lfo2_delay_lfo2 = NumericProperty(0)
-    lfo2_delay_mod_wheel = NumericProperty(0)
-    lfo2_delay_velocity = NumericProperty(0)
-    lfo2_delay_aftertouch = NumericProperty(0)
+    lfo2_delay_value = NumericProperty(0.0)
+    lfo2_delay_lfo2 = NumericProperty(0.0)
+    lfo2_delay_mod_wheel = NumericProperty(0.0)
+    lfo2_delay_velocity = NumericProperty(0.0)
+    lfo2_delay_aftertouch = NumericProperty(0.0)
 
-    lfo2_fade_value = NumericProperty(0)
-    lfo2_fade_lfo2 = NumericProperty(0)
-    lfo2_fade_mod_wheel = NumericProperty(0)
-    lfo2_fade_velocity = NumericProperty(0)
-    lfo2_fade_aftertouch = NumericProperty(0)
+    lfo2_fade_value = NumericProperty(0.0)
+    lfo2_fade_lfo2 = NumericProperty(0.0)
+    lfo2_fade_mod_wheel = NumericProperty(0.0)
+    lfo2_fade_velocity = NumericProperty(0.0)
+    lfo2_fade_aftertouch = NumericProperty(0.0)
 
     lfo2_type_value = NumericProperty(0)
     lfo2_key_sync_value = NumericProperty(0)
 
-    reverb_size_value = NumericProperty(0)
-    reverb_size_lfo2 = NumericProperty(0)
-    reverb_size_mod_wheel = NumericProperty(0)
-    reverb_size_velocity = NumericProperty(0)
-    reverb_size_aftertouch = NumericProperty(0)
+    reverb_size_value = NumericProperty(0.0)
+    reverb_size_lfo2 = NumericProperty(0.0)
+    reverb_size_mod_wheel = NumericProperty(0.0)
+    reverb_size_velocity = NumericProperty(0.0)
+    reverb_size_aftertouch = NumericProperty(0.0)
 
-    reverb_decay_value = NumericProperty(0)
-    reverb_decay_lfo2 = NumericProperty(0)
-    reverb_decay_mod_wheel = NumericProperty(0)
-    reverb_decay_velocity = NumericProperty(0)
-    reverb_decay_aftertouch = NumericProperty(0)
+    reverb_decay_value = NumericProperty(0.0)
+    reverb_decay_lfo2 = NumericProperty(0.0)
+    reverb_decay_mod_wheel = NumericProperty(0.0)
+    reverb_decay_velocity = NumericProperty(0.0)
+    reverb_decay_aftertouch = NumericProperty(0.0)
 
-    reverb_filter_value = NumericProperty(0)
-    reverb_filter_lfo2 = NumericProperty(0)
-    reverb_filter_mod_wheel = NumericProperty(0)
-    reverb_filter_velocity = NumericProperty(0)
-    reverb_filter_aftertouch = NumericProperty(0)
+    reverb_filter_value = NumericProperty(0.0)
+    reverb_filter_lfo2 = NumericProperty(0.0)
+    reverb_filter_mod_wheel = NumericProperty(0.0)
+    reverb_filter_velocity = NumericProperty(0.0)
+    reverb_filter_aftertouch = NumericProperty(0.0)
 
-    reverb_mix_value = NumericProperty(0)
-    reverb_mix_lfo2 = NumericProperty(0)
-    reverb_mix_mod_wheel = NumericProperty(0)
-    reverb_mix_velocity = NumericProperty(0)
-    reverb_mix_aftertouch = NumericProperty(0)
+    reverb_mix_value = NumericProperty(0.0)
+    reverb_mix_lfo2 = NumericProperty(0.0)
+    reverb_mix_mod_wheel = NumericProperty(0.0)
+    reverb_mix_velocity = NumericProperty(0.0)
+    reverb_mix_aftertouch = NumericProperty(0.0)
 
     chord_1_root_value = NumericProperty(0)
     chord_1_semi_1_value = NumericProperty(0)
@@ -363,8 +363,7 @@ class NymphesGuiApp(App):
     savefile = ObjectProperty(None)
 
     # If True then increment float value parameters using
-    # the floating point precision defined in NymphesPreset.
-    # If False then increment using integer values.
+    # float values.
     float_mode = BooleanProperty(False)
 
     invert_mouse_wheel = BooleanProperty(True)
@@ -377,9 +376,10 @@ class NymphesGuiApp(App):
         self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
 
         # Keep track of currently held modifier keys
-        self._shift_key_held = False
+        self._shift_key_pressed = False
         self._caps_lock_key_on = False
-        self._meta_key_held = False
+        self._meta_key_pressed = False
+        self._alt_key_pressed = False
 
         # Get notified when the window resizes so we can maintain
         # aspect ratio
@@ -795,7 +795,7 @@ class NymphesGuiApp(App):
         msg = msg.build()
         self._nymphes_osc_client.send(msg)
 
-        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) + " " for arg in args]}')
+        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) for arg in args]}')
 
     def _send_encoder_osc(self, address, *args):
         """
@@ -1247,20 +1247,7 @@ class NymphesGuiApp(App):
                     #
                     # This is a float value parameter.
                     #
-
-                    # Use a float to represent the value
-                    # only if needed to capture it.
-                    # Otherwise use an int.
-                    #
-                    float_value = round(args[0], NymphesPreset.float_precision_num_decimals)
-                    int_value = int(args[0])
-
-                    if float_value - int_value >= (1.0 / NymphesPreset.float_precision_num_decimals):
-                        # We need to use the float value
-                        value = float_value
-                    else:
-                        # We can use the int value
-                        value = int_value
+                    value = round(args[0], NymphesPreset.float_precision_num_decimals)
 
                 else:
                     #
@@ -1917,23 +1904,9 @@ class NymphesGuiApp(App):
         min_val = NymphesPreset.min_val_for_param_name(param_name)
         max_val = NymphesPreset.max_val_for_param_name(param_name)
 
-        if param_type == float and self.float_mode:
-            # This is a float parameter and we are in float
-            # mode, so apply the increment amount and round
-            # using the precision amount in NymphesPreset
-            new_val = round(curr_val + amount, NymphesPreset.float_precision_num_decimals)
-
-            # Keep within the min and max value range
-            if new_val < min_val:
-                new_val = min_val
-
-            if new_val > max_val:
-                new_val = max_val
-
-        else:
-            # Apply the increment amount, then round
-            # with zero decimal places and convert to
-            # int
+        if not self.float_mode or param_type == int:
+            # Apply the increment amount, then round with zero
+            # decimal places and convert to int
             new_val = int(round(curr_val + amount))
 
             # Keep within the min and max value range
@@ -1943,8 +1916,27 @@ class NymphesGuiApp(App):
             if new_val > max_val:
                 new_val = int(max_val)
 
-        # Set the property's value
-        self.set_prop_value_for_param_name(param_name, new_val)
+            # Set the property's value only if the new value is different
+            # than the current value
+            if new_val != curr_val:
+                self.set_prop_value_for_param_name(param_name, new_val)
+
+        else:
+            # Apply the increment amount and round using the precision
+            # specified in NymphesPreset
+            new_val = round(curr_val + amount, NymphesPreset.float_precision_num_decimals)
+
+            # Keep within the min and max value range
+            if new_val < min_val:
+                new_val = min_val
+
+            if new_val > max_val:
+                new_val = max_val
+
+            # Set the property's value only if the new value is different
+            # than the current value
+            if not self.float_equals(curr_val, new_val, NymphesPreset.float_precision_num_decimals):
+                self.set_prop_value_for_param_name(param_name, new_val)
 
     def _keyboard_closed(self):
         Logger.debug('Keyboard Closed')
@@ -1960,16 +1952,24 @@ class NymphesGuiApp(App):
         right_shift_key_code = 303
         if keycode in [left_shift_key_code, right_shift_key_code] or 'shift' in modifiers:
             Logger.debug('Shift key pressed')
-            self._shift_key_held = True
+            self._shift_key_pressed = True
 
         # Check for the meta key (CMD on macOS)
-        left_cmd_key_code = 309
-        right_cmd_key_code = 1073742055
-        if keycode in [left_shift_key_code, right_shift_key_code] or 'meta' in modifiers:
+        left_meta_key_code = 309
+        right_meta_key_code = 1073742055
+        if keycode in [left_meta_key_code, right_meta_key_code] or 'meta' in modifiers:
             Logger.debug('meta key pressed')
-            self._meta_key_held = True
+            self._meta_key_pressed = True
 
-            # When the meta key is held, enable float mode
+        # Check for the Alt key (Alt/Option on macOS)
+        left_alt_key_code = 308
+        right_alt_key_code = 307
+        if keycode in [left_alt_key_code, right_alt_key_code] or 'alt' in modifiers:
+            Logger.debug('alt key pressed')
+            self._alt_key_pressed = True
+
+            # When the alt key is pressed, enable float mode
+            Logger.debug('Float Mode Enabled')
             self.float_mode = True
 
     def _on_key_up(self, keyboard, keycode):
@@ -1980,15 +1980,24 @@ class NymphesGuiApp(App):
         right_shift_key_code = 303
         if keycode[0] in [left_shift_key_code, right_shift_key_code]:
             Logger.debug('Shift key released')
+            self._shift_key_pressed = False
 
         # Check for the meta key (CMD on macOS)
-        left_cmd_key_code = 309
-        right_cmd_key_code = 1073742055
-        if keycode[0] in [left_cmd_key_code, right_cmd_key_code]:
+        left_meta_key_code = 309
+        right_meta_key_code = 1073742055
+        if keycode[0] in [left_meta_key_code, right_meta_key_code]:
             Logger.debug('meta key released')
-            self._meta_key_held = False
+            self._meta_key_pressed = False
 
-            # When the meta key is held, enable float mode
+        # Check for the Alt key (Alt/Option on macOS)
+        left_alt_key_code = 308
+        right_alt_key_code = 307
+        if keycode[0] in [left_alt_key_code, right_alt_key_code]:
+            Logger.debug('alt key released')
+            self._alt_key_pressed = False
+
+            # When the alt key is released, disable float mode
+            Logger.debug('Float Mode Disabled')
             self.float_mode = False
 
     def _on_window_resize(self, instance, width, height):
@@ -2081,8 +2090,22 @@ class NymphesGuiApp(App):
                 # Resize the window, using the scaling
                 Window.size = (width / scaling, new_height / scaling)
 
+    @staticmethod
+    def float_equals(first_value, second_value, num_decimals):
+        """
+        Uses a limited amount of precision to determine
+        whether the supplied float values are equal
+        :param first_value:
+        :param second_value:
+        :param num_decimals: int
+        :return: True if the two values are equal. False if not.
+        """
+        v1 = int(round(first_value, num_decimals) * pow(10, num_decimals))
+        v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
+        return v1 == v2
 
-class ParamValueLabel(ButtonBehavior, Label):
+
+class FloatParamValueLabel(ButtonBehavior, Label):
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
@@ -2098,11 +2121,11 @@ class ParamValueLabel(ButtonBehavior, Label):
                 direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
                 if App.get_running_app().float_mode:
-                    # Use the minimum increment defined by
+                    # We are in float mode, so use the minimum increment defined by
                     # NymphesPreset's float precision property
                     increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
                 else:
-                    # We are not in float mode, so increment by 1
                     increment = int(direction)
 
                 # Increment the property
@@ -2112,11 +2135,11 @@ class ParamValueLabel(ButtonBehavior, Label):
                 direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
                 if App.get_running_app().float_mode:
-                    # Use the minimum decrement defined by
+                    # We are in float mode, so use the minimum decrement defined by
                     # NymphesPreset's float precision property
                     increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
                 else:
-                    # We are not in float mode, so decrement by 1
                     increment = int(direction)
 
                 # Increment the property
@@ -2137,7 +2160,8 @@ class ParamValueLabel(ButtonBehavior, Label):
             self.drag_start_pos = int(touch.pos[1])
 
             return True
-        return super(ParamValueLabel, self).on_touch_down(touch)
+
+        return super(FloatParamValueLabel, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
         #
@@ -2155,10 +2179,10 @@ class ParamValueLabel(ButtonBehavior, Label):
             if App.get_running_app().float_mode:
                 # Use the minimum increment defined by
                 # NymphesPreset's float precision property
-                increment = round(curr_drag_distance * 0.2, NymphesPreset.float_precision_num_decimals)
+                increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
 
             else:
-                increment = int(round(curr_drag_distance * 0.2))
+                increment = int(round(curr_drag_distance * (1/3)))
 
             # Increment the property's value
             App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
@@ -2168,15 +2192,87 @@ class ParamValueLabel(ButtonBehavior, Label):
 
             return True
 
-        return super(ParamValueLabel, self).on_touch_move(touch)
+        return super(FloatParamValueLabel, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
         if touch.grab_current == self:
             touch.ungrab(self)
             return True
-        return super(ParamValueLabel, self).on_touch_up(touch)
+        return super(FloatParamValueLabel, self).on_touch_up(touch)
 
 
+class IntParamValueLabel(ButtonBehavior, Label):
+    section_name = StringProperty('')
+    param_name = StringProperty('')
+    drag_start_pos = NumericProperty(0)
+
+    def handle_touch(self, device, button):
+        #
+        # Mouse Wheel
+        #
+
+        Logger.debug(f'{self.param_name} {device} {button}')
+        if device == 'mouse':
+            if button == 'scrollup':
+                increment = -1 if App.get_running_app().invert_mouse_wheel else 1
+
+                # Increment the property
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+
+            elif button == 'scrolldown':
+                increment = 1 if App.get_running_app().invert_mouse_wheel else -1
+
+                # Increment the property
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+
+        else:
+            Logger.debug(f'{self.param_name} {device} {button}')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+
+        if self.collide_point(*touch.pos) and touch.button == 'left':
+            touch.grab(self)
+
+            # Store the starting y position of the touch
+            self.drag_start_pos = int(touch.pos[1])
+
+            return True
+        return super(IntParamValueLabel, self).on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        #
+        # This is called when the mouse drags
+        #
+
+        if touch.grab_current == self:
+            # Get the current y position
+            curr_pos = int(touch.pos[1])
+
+            # Calculate the distance from the starting drag position
+            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+            # Scale the drag distance and use as the increment
+            increment = int(round(curr_drag_distance * 0.2))
+
+            # Increment the property's value
+            App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+
+            # Reset the drag start position to the current position
+            self.drag_start_pos = curr_pos
+
+            return True
+
+        return super(IntParamValueLabel, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if touch.grab_current == self:
+            touch.ungrab(self)
+            return True
+        return super(IntParamValueLabel, self).on_touch_up(touch)
+    
 
 class ParamsGridModCell(BoxLayout):
     section_name = StringProperty('')
@@ -2247,6 +2343,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                     # Use the minimum increment defined by
                     # NymphesPreset's float precision property
                     increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
                 else:
                     # We are not in float mode, so increment by 1
                     increment = int(direction)
@@ -2261,6 +2358,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                     # Use the minimum decrement defined by
                     # NymphesPreset's float precision property
                     increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
                 else:
                     # We are not in float mode, so decrement by 1
                     increment = int(direction)
