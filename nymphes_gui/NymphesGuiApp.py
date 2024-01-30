@@ -1961,16 +1961,16 @@ class NymphesGuiApp(App):
             Logger.debug('meta key pressed')
             self._meta_key_pressed = True
 
+            # Enable float mode
+            Logger.debug('Float Mode Enabled')
+            self.float_mode = True
+
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
         right_alt_key_code = 307
         if keycode in [left_alt_key_code, right_alt_key_code] or 'alt' in modifiers:
             Logger.debug('alt key pressed')
             self._alt_key_pressed = True
-
-            # When the alt key is pressed, enable float mode
-            Logger.debug('Float Mode Enabled')
-            self.float_mode = True
 
     def _on_key_up(self, keyboard, keycode):
         Logger.debug(f'on_key_up: {keyboard}, {keycode}')
@@ -1989,16 +1989,16 @@ class NymphesGuiApp(App):
             Logger.debug('meta key released')
             self._meta_key_pressed = False
 
+            # Disable float mode
+            Logger.debug('Float Mode Disabled')
+            self.float_mode = False
+
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
         right_alt_key_code = 307
         if keycode[0] in [left_alt_key_code, right_alt_key_code]:
             Logger.debug('alt key released')
             self._alt_key_pressed = False
-
-            # When the alt key is released, disable float mode
-            Logger.debug('Float Mode Disabled')
-            self.float_mode = False
 
     def _on_window_resize(self, instance, width, height):
         #
@@ -2399,7 +2399,7 @@ class ModAmountLine(ButtonBehavior, Widget):
             if App.get_running_app().float_mode:
                 # Use the minimum increment defined by
                 # NymphesPreset's float precision property
-                increment = round(curr_drag_distance * 0.5, NymphesPreset.float_precision_num_decimals)
+                increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
 
             else:
                 increment = int(round(curr_drag_distance * 0.5))
