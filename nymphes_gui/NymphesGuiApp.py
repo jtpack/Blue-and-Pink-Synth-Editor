@@ -424,7 +424,6 @@ class NymphesGuiApp(App):
         #
         # Nymphes Synthesizer State
         #
-        self._nymphes_connected = False
 
         # The MIDI channel used when communicating with Nymphes.
         # This is non-zero-referenced, so 1 is channel 1.
@@ -507,7 +506,7 @@ class NymphesGuiApp(App):
             self._encoder_osc_client = SimpleUDPClient(self._encoder_osc_outgoing_host, self._encoder_osc_outgoing_port)
         except Exception as e:
             Logger.warning(f'Failed to create Encoders OSC client ({e})')
-            
+
         self._start_encoder_osc_server()
 
         #
@@ -854,7 +853,7 @@ class NymphesGuiApp(App):
             self._nymphes_output_port = str(args[1])
 
             # Update app state
-            self._nymphes_connected = True
+            self.nymphes_connected = True
 
             Logger.info(f'{address} (input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port})')
 
@@ -864,7 +863,7 @@ class NymphesGuiApp(App):
             #
 
             # Update app state
-            self._nymphes_connected = False
+            self.nymphes_connected = False
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
@@ -1028,17 +1027,17 @@ class NymphesGuiApp(App):
                 self._detected_midi_inputs.remove(port_name)
 
             Logger.info(f'{address} {port_name}')
-                
+
         elif address == '/detected_midi_inputs':
             #
             # A full list of detected MIDI input ports has been sent
             #
-        
+
             # Get the port names
             port_names = []
             for arg in args:
                 port_names.append(str(arg))
-                
+
             # Replace our list of detected MIDI inputs
             self._detected_midi_inputs = port_names
 
@@ -1184,7 +1183,7 @@ class NymphesGuiApp(App):
         elif address == '/aftertouch':
             self._aftertouch = int(args[0])
             Logger.debug(f'{address}: {self._aftertouch}')
-            
+
         elif address == '/sustain_pedal':
             self._sustain_pedal = int(args[0])
             Logger.debug(f'{address}: {self._sustain_pedal}')
@@ -1456,13 +1455,13 @@ class NymphesGuiApp(App):
                          preset_info['preset_type'])
 
     def load_preset(self, bank_name, preset_num, preset_type):
-        # TODO: Fix this
         self._send_nymphes_osc(
-            '/load_preset',
+            '/recall_preset',
+            preset_type,
             bank_name,
-            preset_num,
-            preset_type
+            preset_num
         )
+        # TODO: Fix this
 
     #
     # Preset File Handling
@@ -1498,20 +1497,20 @@ class NymphesGuiApp(App):
         self.dismiss_popup()
 
     def load_next_preset(self):
-        if self.curr_preset_index is None:
+        if self._curr_preset_index is None:
             # No preset was loaded, so choose the first one
             preset_index = 0
         else:
-            preset_index = (self.curr_preset_index + 1) % len(NymphesGuiApp.presets_spinner_values_list())
+            preset_index = (self._curr_preset_index + 1) % len(NymphesGuiApp.presets_spinner_values_list())
 
         self.load_preset_by_index(preset_index)
 
     def load_prev_preset(self):
-        if self.curr_preset_index is None or self.curr_preset_index == 0:
+        if self._curr_preset_index is None or self._curr_preset_index == 0:
             # Choose the last preset
             preset_index = len(NymphesGuiApp.presets_spinner_values_list()) - 1
         else:
-            preset_index = self.curr_preset_index - 1
+            preset_index = self._curr_preset_index - 1
 
         self.load_preset_by_index(preset_index)
 
@@ -2114,91 +2113,91 @@ class FloatParamValueLabel(ButtonBehavior, Label):
         #
         # Mouse Wheel
         #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-        Logger.debug(f'{self.param_name} {device} {button}')
-        if device == 'mouse':
-            if button == 'scrollup':
-                direction = -1 if App.get_running_app().invert_mouse_wheel else 1
+                    if App.get_running_app().float_mode:
+                        # We are in float mode, so use the minimum increment defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
-                if App.get_running_app().float_mode:
-                    # We are in float mode, so use the minimum increment defined by
-                    # NymphesPreset's float precision property
-                    increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                    else:
+                        increment = int(direction)
 
-                else:
-                    increment = int(direction)
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+                elif button == 'scrolldown':
+                    direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-            elif button == 'scrolldown':
-                direction = 1 if App.get_running_app().invert_mouse_wheel else -1
+                    if App.get_running_app().float_mode:
+                        # We are in float mode, so use the minimum decrement defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
-                if App.get_running_app().float_mode:
-                    # We are in float mode, so use the minimum decrement defined by
-                    # NymphesPreset's float precision property
-                    increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                    else:
+                        increment = int(direction)
 
-                else:
-                    increment = int(direction)
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-        else:
-            Logger.debug(f'{self.param_name} {device} {button}')
+            else:
+                Logger.debug(f'{self.param_name} {device} {button}')
 
     def on_touch_down(self, touch):
         #
         # This is called when the mouse is clicked
         #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
 
-        if self.collide_point(*touch.pos) and touch.button == 'left':
-            touch.grab(self)
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
 
-            # Store the starting y position of the touch
-            self.drag_start_pos = int(touch.pos[1])
+                return True
 
-            return True
-
-        return super(FloatParamValueLabel, self).on_touch_down(touch)
+            return super(FloatParamValueLabel, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
         #
         # This is called when the mouse drags
         #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
 
-        if touch.grab_current == self:
-            # Get the current y position
-            curr_pos = int(touch.pos[1])
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
-            # Calculate the distance from the starting drag position
-            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+                # Scale the drag distance and use as the increment
+                if App.get_running_app().float_mode:
+                    # Use the minimum increment defined by
+                    # NymphesPreset's float precision property
+                    increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
 
-            # Scale the drag distance and use as the increment
-            if App.get_running_app().float_mode:
-                # Use the minimum increment defined by
-                # NymphesPreset's float precision property
-                increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
+                else:
+                    increment = int(round(curr_drag_distance * (1/3)))
 
-            else:
-                increment = int(round(curr_drag_distance * (1/3)))
+                # Increment the property's value
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-            # Increment the property's value
-            App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
 
-            # Reset the drag start position to the current position
-            self.drag_start_pos = curr_pos
+                return True
 
-            return True
-
-        return super(FloatParamValueLabel, self).on_touch_move(touch)
+            return super(FloatParamValueLabel, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        if touch.grab_current == self:
-            touch.ungrab(self)
-            return True
-        return super(FloatParamValueLabel, self).on_touch_up(touch)
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(FloatParamValueLabel, self).on_touch_up(touch)
 
 
 class IntParamValueLabel(ButtonBehavior, Label):
@@ -2210,68 +2209,68 @@ class IntParamValueLabel(ButtonBehavior, Label):
         #
         # Mouse Wheel
         #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    increment = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-        Logger.debug(f'{self.param_name} {device} {button}')
-        if device == 'mouse':
-            if button == 'scrollup':
-                increment = -1 if App.get_running_app().invert_mouse_wheel else 1
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+                elif button == 'scrolldown':
+                    increment = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-            elif button == 'scrolldown':
-                increment = 1 if App.get_running_app().invert_mouse_wheel else -1
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-        else:
-            Logger.debug(f'{self.param_name} {device} {button}')
+            else:
+                Logger.debug(f'{self.param_name} {device} {button}')
 
     def on_touch_down(self, touch):
         #
         # This is called when the mouse is clicked
         #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
 
-        if self.collide_point(*touch.pos) and touch.button == 'left':
-            touch.grab(self)
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
 
-            # Store the starting y position of the touch
-            self.drag_start_pos = int(touch.pos[1])
-
-            return True
-        return super(IntParamValueLabel, self).on_touch_down(touch)
+                return True
+            return super(IntParamValueLabel, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
         #
         # This is called when the mouse drags
         #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
 
-        if touch.grab_current == self:
-            # Get the current y position
-            curr_pos = int(touch.pos[1])
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
-            # Calculate the distance from the starting drag position
-            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+                # Scale the drag distance and use as the increment
+                increment = int(round(curr_drag_distance * 0.2))
 
-            # Scale the drag distance and use as the increment
-            increment = int(round(curr_drag_distance * 0.2))
+                # Increment the property's value
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
 
-            # Increment the property's value
-            App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
 
-            # Reset the drag start position to the current position
-            self.drag_start_pos = curr_pos
+                return True
 
-            return True
-
-        return super(IntParamValueLabel, self).on_touch_move(touch)
+            return super(IntParamValueLabel, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        if touch.grab_current == self:
-            touch.ungrab(self)
-            return True
-        return super(IntParamValueLabel, self).on_touch_up(touch)
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(IntParamValueLabel, self).on_touch_up(touch)
     
 
 class ParamsGridModCell(BoxLayout):
@@ -2333,92 +2332,92 @@ class ModAmountLine(ButtonBehavior, Widget):
         #
         # Mouse Wheel
         #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-        Logger.debug(f'{self.param_name} {device} {button}')
-        if device == 'mouse':
-            if button == 'scrollup':
-                direction = -1 if App.get_running_app().invert_mouse_wheel else 1
+                    if App.get_running_app().float_mode:
+                        # Use the minimum increment defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
-                if App.get_running_app().float_mode:
-                    # Use the minimum increment defined by
-                    # NymphesPreset's float precision property
-                    increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                    else:
+                        # We are not in float mode, so increment by 1
+                        increment = int(direction)
 
-                else:
-                    # We are not in float mode, so increment by 1
-                    increment = int(direction)
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
+                elif button == 'scrolldown':
+                    direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-            elif button == 'scrolldown':
-                direction = 1 if App.get_running_app().invert_mouse_wheel else -1
+                    if App.get_running_app().float_mode:
+                        # Use the minimum decrement defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
-                if App.get_running_app().float_mode:
-                    # Use the minimum decrement defined by
-                    # NymphesPreset's float precision property
-                    increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                    else:
+                        # We are not in float mode, so decrement by 1
+                        increment = int(direction)
 
-                else:
-                    # We are not in float mode, so decrement by 1
-                    increment = int(direction)
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
 
-                # Increment the property
-                App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
-
-        else:
-            Logger.debug(f'{self.param_name} {device} {button}')
+            else:
+                Logger.debug(f'{self.param_name} {device} {button}')
 
     def on_touch_down(self, touch):
         #
         # This is called when the mouse is clicked
         #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
 
-        if self.collide_point(*touch.pos) and touch.button == 'left':
-            touch.grab(self)
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
 
-            # Store the starting y position of the touch
-            self.drag_start_pos = int(touch.pos[1])
-
-            return True
-        return super(ModAmountLine, self).on_touch_down(touch)
+                return True
+            return super(ModAmountLine, self).on_touch_down(touch)
 
     def on_touch_move(self, touch):
         #
         # This is called when the mouse drags
         #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
 
-        if touch.grab_current == self:
-            # Get the current y position
-            curr_pos = int(touch.pos[1])
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
-            # Calculate the distance from the starting drag position
-            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+                # Scale the drag distance and use as the increment
+                if App.get_running_app().float_mode:
+                    # Use the minimum increment defined by
+                    # NymphesPreset's float precision property
+                    increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
 
-            # Scale the drag distance and use as the increment
-            if App.get_running_app().float_mode:
-                # Use the minimum increment defined by
-                # NymphesPreset's float precision property
-                increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
+                else:
+                    increment = int(round(curr_drag_distance * 0.5))
 
-            else:
-                increment = int(round(curr_drag_distance * 0.5))
+                # Increment the property's value
+                App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
 
-            # Increment the property's value
-            App.get_running_app().increment_prop_value_for_param_name(f'{self.param_name}.{self.mod_type}', increment)
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
 
-            # Reset the drag start position to the current position
-            self.drag_start_pos = curr_pos
+                return True
 
-            return True
-
-        return super(ModAmountLine, self).on_touch_move(touch)
+            return super(ModAmountLine, self).on_touch_move(touch)
 
     def on_touch_up(self, touch):
-        if touch.grab_current == self:
-            touch.ungrab(self)
-            return True
-        return super(ModAmountLine, self).on_touch_up(touch)
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(ModAmountLine, self).on_touch_up(touch)
 
 
 class VoiceModeButton(ButtonBehavior, Label):

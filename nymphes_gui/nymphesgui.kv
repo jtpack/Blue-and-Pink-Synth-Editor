@@ -11,7 +11,7 @@ ScreenManager:
 
     canvas.before:
         Color:
-            rgba: C('#101010FF')
+            rgba: C('#092042FF')
         Rectangle:
             pos: self.pos
             size: self.size
@@ -42,6 +42,19 @@ ScreenManager:
             pos: root.pos
             size: root.width, root.height
             radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    PresetIncButton:
+        text: '<'
+        on_release: app.load_prev_preset()
+
+    TopBarSpinner:
+        values: app.presets_spinner_values
+        text: app.presets_spinner_text
+        on_text: app.preset_spinner_text_changed(self.values.index(self.text), self.text)
+
+    PresetIncButton:
+        text: '>'
+        on_release: app.load_next_preset()
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -151,6 +164,8 @@ ScreenManager:
     color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
     font_size: (self.height * 0.30) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.275)
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
+    disabled: not app.nymphes_connected
+
 
 <LegatoBox>:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
@@ -172,6 +187,7 @@ ScreenManager:
     color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
     font_size: (self.height * 0.275) if app.legato else (self.height * 0.25)
     on_release: app.set_legato(not app.legato)
+    disabled: not app.nymphes_connected
 
 
 <ControlSection>:
@@ -182,7 +198,7 @@ ScreenManager:
 
 <SectionTitleLabel>:
     background_color: 0, 1, 0, 0.3
-    color: C('#06070FFF')
+    color: C('#092042FF')
     font_size: self.width * 0.05
     text_size: self.size
     halign: 'left'
@@ -207,6 +223,7 @@ ScreenManager:
     valign: 'middle'
     on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
 
 
 <IntParamValueLabel>:
@@ -218,6 +235,7 @@ ScreenManager:
     valign: 'middle'
     on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
 
 
 <OscillatorControlSection@ControlSection>:
@@ -795,6 +813,8 @@ ScreenManager:
 
     on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
+
 
 <Lfo2ModAmountLine@ModAmountLine>:
     color_hex: '#F51414FF'
@@ -862,3 +882,41 @@ ScreenManager:
     # A placeholder to take up the empty space in the lower
     # part of the cell
     Widget
+
+
+<PresetIncButton@ButtonBehavior+Label>:
+    size_hint_x: 1/10
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    disabled: not app.nymphes_connected
+
+
+<TopBarSpinner@Spinner>:
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#00000000')
+    option_cls: 'TopBarSpinnerOption'
+    disabled: not app.nymphes_connected
+
+<TopBarSpinnerOption@SpinnerOption>:
+    size_hint_x: 1/10
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+
+<TopBarButton@ButtonBehavior+Label>:
+    size_hint_x: 1/10
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    disabled: not app.nymphes_connected
