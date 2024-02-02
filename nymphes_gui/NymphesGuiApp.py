@@ -73,7 +73,7 @@ class NymphesGuiApp(App):
     osc_wave_velocity = NumericProperty(0.0)
     osc_wave_aftertouch = NumericProperty(0.0)
 
-    osc_pulsewidth_value = NumericProperty(21)
+    osc_pulsewidth_value = NumericProperty(0.0)
     osc_pulsewidth_lfo2 = NumericProperty(0.0)
     osc_pulsewidth_mod_wheel = NumericProperty(0.0)
     osc_pulsewidth_velocity = NumericProperty(0.0)
