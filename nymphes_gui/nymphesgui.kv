@@ -44,17 +44,36 @@ ScreenManager:
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
     PresetIncButton:
-        text: '<'
+        size_hint_x: 1/10
+        text: '-'
         on_release: app.load_prev_preset()
 
     TopBarSpinner:
+        size_hint_x: 1/4
         values: app.presets_spinner_values
         text: app.presets_spinner_text
-        on_text: app.preset_spinner_text_changed(self.values.index(self.text), self.text)
+        on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
 
     PresetIncButton:
-        text: '>'
+        size_hint_x: 1/10
+        text: '+'
         on_release: app.load_next_preset()
+
+    Widget:
+        size_hint_x: 1/6
+
+    TopBarButton:
+        size_hint_x: 1/6
+        text: 'LOAD'
+        on_release: app.show_load_dialog()
+
+    TopBarButton:
+        size_hint_x: 1/6
+        text: 'SAVE'
+        on_release: app.show_save_dialog()
+
+    Widget:
+        size_hint_x: 1/6
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -203,6 +222,7 @@ ScreenManager:
     text_size: self.size
     halign: 'left'
     valign: 'middle'
+    disabled: not app.nymphes_connected
 
 
 <ParamNameLabel>:
@@ -885,7 +905,6 @@ ScreenManager:
 
 
 <PresetIncButton@ButtonBehavior+Label>:
-    size_hint_x: 1/10
     color: C('#092042FF')
     font_size: self.height * 0.5
     text_size: self.size
@@ -904,19 +923,81 @@ ScreenManager:
     option_cls: 'TopBarSpinnerOption'
     disabled: not app.nymphes_connected
 
+
 <TopBarSpinnerOption@SpinnerOption>:
-    size_hint_x: 1/10
     color: C('#092042FF')
-    font_size: self.height * 0.5
+    font_size: self.height * 0.75
     text_size: self.size
-    halign: 'left'
+    size_hint_x: 1/2
+    halign: 'center'
     valign: 'middle'
+    background_color: C('#1D60C5F5')
+    background_normal: ''
 
 <TopBarButton@ButtonBehavior+Label>:
-    size_hint_x: 1/10
+    size_hint_x: 1/6
     color: C('#092042FF')
-    font_size: self.height * 0.5
+    font_size: self.height * 0.4
     text_size: self.size
     halign: 'center'
     valign: 'middle'
     disabled: not app.nymphes_connected
+
+
+<LoadDialog>:
+    orientation: 'vertical'
+    FileChooserListView:
+        id: filechooser
+        path: app.preset_files_directory_path
+    BoxLayout:
+        size_hint_y: 1/8
+        Button:
+            text_size: self.size
+            font_size: self.height * 0.3
+            halign: 'center'
+            valign: 'middle'
+            text: "CANCEL"
+            on_release: root.cancel()
+
+        Button:
+            text_size: self.size
+            font_size: self.height * 0.3
+            halign: 'center'
+            valign: 'middle'
+            text: "OK"
+            on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>:
+    text_input: text_input
+    orientation: "vertical"
+    FileChooserListView:
+        id: filechooser
+        path: app.preset_files_directory_path
+        on_selection: text_input.text = self.selection and self.selection[0] or ''
+
+    TextInput:
+        id: text_input
+        text_size: self.size
+        font_size: self.height * 0.3
+        halign: 'left'
+        valign: 'middle'
+        size_hint_y: 1/8
+        multiline: False
+
+    BoxLayout:
+        size_hint_y: 1/8
+        Button:
+            text_size: self.size
+            font_size: self.height * 0.3
+            halign: 'center'
+            valign: 'middle'
+            text: "CANCEL"
+            on_release: root.cancel()
+
+        Button:
+            text_size: self.size
+            font_size: self.height * 0.3
+            halign: 'center'
+            valign: 'middle'
+            text: "OK"
+            on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
