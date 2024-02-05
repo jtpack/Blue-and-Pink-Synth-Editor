@@ -25,7 +25,7 @@ import netifaces
 # import logging
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["debug"])
+Logger.setLevel(LOG_LEVELS["info"])
 import subprocess
 from nymphes_osc.NymphesPreset import NymphesPreset
 from functools import partial
@@ -62,6 +62,10 @@ class NymphesGuiApp(App):
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
     preset_files_directory_path = StringProperty('')
+
+    # This is used to track what is currently loaded.
+    # Valid values: 'init', 'file', 'preset_slot'
+    curr_preset_type = StringProperty('')
 
     selected_section = StringProperty('')
 
@@ -437,10 +441,6 @@ class NymphesGuiApp(App):
         self._sustain_pedal = 0
         self._legato = False
 
-        # If a preset file was loaded, or we have saved a preset file,
-        # then this will be a Path object
-        self._curr_filepath = None
-
         # Names of Detected MIDI Ports (Including Nymphes Ports)
         self._detected_midi_inputs = []
         self._detected_midi_outputs = []
@@ -453,17 +453,22 @@ class NymphesGuiApp(App):
         self._nymphes_input_port = None
         self._nymphes_output_port = None
 
+        # If a preset file was loaded, or we have saved a preset file,
+        # then this will be a Path object
+        self._curr_preset_file_path = None
+
+        # TODO: Remove this
         # Once a preset has been loaded, this will be
         # either 'user' or 'factory'
-        self._curr_preset_type = None
+        self._curr_preset_slot_type = None
 
+        # TODO: Remove this
         # Once a preset has been loaded, this will contain
         # the bank name ('A' to 'G') and preset number (1 to 7)
-        self._curr_preset_bank_and_number = (None, None)
+        self._curr_preset_slot_bank_and_number = (None, None)
 
         # Used for Presets Spinner
         self._curr_presets_spinner_index = 0
-
 
         #
         # Preset File Handling
@@ -877,89 +882,108 @@ class NymphesGuiApp(App):
             # The Nymphes synthesizer has just loaded a preset
             #
 
-            # Get the preset type, bank and number
-            #
-            self._curr_preset_type = str(args[0])
-            self._curr_preset_bank_and_number = str(args[1]), int(args[2])
+            # Update the current preset type
+            self.curr_preset_type = 'preset_slot'
+
+            # Store preset slot info
+            self._curr_preset_slot_type = str(args[0])
+            self._curr_preset_slot_bank_and_number = str(args[1]), int(args[2])
 
             # Get the spinner index for the current preset
             self._curr_presets_spinner_index = 2 + NymphesGuiApp.index_from_preset_info(
-                bank_name=self._curr_preset_bank_and_number[0],
-                preset_num=self._curr_preset_bank_and_number[1],
-                preset_type=self._curr_preset_type
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
             )
 
             # Update the preset spinner's text
             if self.presets_spinner_text != presets_spinner_values_list()[self._curr_presets_spinner_index]:
                 self.presets_spinner_text = presets_spinner_values_list()[self._curr_presets_spinner_index]
 
-            Logger.info(f'{address} ({self._curr_preset_type} {self._curr_preset_bank_and_number[0]}{self._curr_preset_bank_and_number[1]})')
+            Logger.info(f'{address} ({self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]})')
 
         elif address == '/loaded_preset_dump_from_midi_input_port':
             port_name = str(args[0])
-            self._curr_preset_type = str(args[1])
-            self._curr_preset_bank_and_number = str(args[2]), int(args[3])
+            self._curr_preset_slot_type = str(args[1])
+            self._curr_preset_slot_bank_and_number = str(args[2]), int(args[3])
 
             Logger.info(
-                f'{address} ({port_name}: {self._curr_preset_type} {self._curr_preset_bank_and_number[0]}{self._curr_preset_bank_and_number[1]})')
+                f'{address} ({port_name}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]})')
 
         elif address == '/loaded_file':
             #
             # A preset file was loaded
             #
 
-            # Get the filepath and store it
-            self._curr_filepath = Path(args[0])
-            self._curr_preset_type = None
-            self._curr_preset_bank_and_number = None, None
+            # Update the current preset type
+            self.curr_preset_type = 'file'
 
-            Logger.info(f'{address}: {self._curr_filepath}')
+            # Store the path to the file
+            self._curr_preset_file_path = Path(args[0])
 
-            # Replace the first item in the spinner values list
-            # with the new file's name
-            Clock.schedule_once(lambda dt: self._set_first_presets_spinner_option_on_main_thread(dt, self._curr_filepath.stem), 0)
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Update the presets spinner.
+            # This also sets the spinner's current text
+            # and updates self._curr_presets_spinner_index.
+            self._replace_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
+
+            Logger.info(f'{address}: {self._curr_preset_file_path}')
 
         elif address == '/loaded_init_file':
             #
             # The init preset file was loaded
             #
 
-            # Get the filepath and store it
-            self._curr_preset_type = None
-            self._curr_preset_bank_and_number = None, None
+            # Update the current preset type
+            self.curr_preset_type = 'init'
+
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Update the presets spinner
+            self.presets_spinner_text = 'init'
+            self._curr_presets_spinner_index = 1
 
             Logger.info(f'{address}: {str(args[0])}')
-
-            # Update the preset spinner text
-            self.presets_spinner_text = Path(args[0]).stem
-            self._curr_presets_spinner_index = 1
 
         elif address == '/saved_to_file':
             #
             # The current settings have been saved to a preset file
             #
 
-            # Get the filepath and store it
-            self._curr_filepath = Path(args[0])
+            # Update the current preset type
+            self.curr_preset_type = 'file'
 
-            # Replace the first item in the spinner values list
-            # with the new file's name, but do it on the main thread
-            Clock.schedule_once(lambda dt: self._set_first_presets_spinner_option_on_main_thread(dt, self._curr_filepath.stem), 0)
+            # Store the path to the file
+            self._curr_preset_file_path = Path(args[0])
+
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Update the presets spinner.
+            # This also sets the spinner's current text
+            # and updates self._curr_presets_spinner_index.
+            self._replace_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
+
+            Logger.info(f'{address}: {self._curr_preset_file_path}')
 
         elif address == '/saved_preset_to_file':
             #
             # A Nymphes preset slot has been saved to a file
             #
 
-            # Get the filepath
-            file_path = Path(args[0])
-
             # Get the preset info
+            filepath = str(args[0])
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            Logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
         elif address == '/loaded_file_to_preset':
             #
@@ -967,20 +991,20 @@ class NymphesGuiApp(App):
             # preset slots
             #
 
-            # Get the filepath
-            file_path = Path(args[0])
-
             # Get the preset info
+            filepath = Path(args[0])
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            Logger.info(f'{address}: {file_path} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
         elif address == '/saved_to_preset':
             #
             # The current settings have been saved into one of
-            # Nymphes' preset slots
+            # Nymphes' preset slots. We will not make the preset
+            # active however, because Nymphes has not actually
+            # loaded the new preset.
             #
 
             # Get the preset info
@@ -1531,20 +1555,28 @@ class NymphesGuiApp(App):
             self._send_nymphes_osc('/save_to_file', filepath)
 
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
+        Logger.debug(f'presets_spinner_text_changed: {spinner_index}, {spinner_text}')
         if self._curr_presets_spinner_index != spinner_index:
             # Store the new index
             self._curr_presets_spinner_index = spinner_index
 
-            Logger.debug(f'presets_spinner_text_changed: {spinner_index}, {spinner_text}')
-
             if spinner_index == 0:
-                if self._curr_filepath is not None:
-                    # Reload the most recent preset file
-                    self._send_nymphes_osc('/load_file', str(self._curr_filepath))
+                # This is the most recent preset file.
+                if self._curr_preset_file_path is not None:
+                    if self.curr_preset_type != 'file':
+                        # We are reloading this file
+                        self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+
+                else:
+                    # No file has been loaded or saved,
+                    # so just load the init file.
+                    self._send_nymphes_osc('/load_init_file')
+
 
             elif spinner_index == 1:
-                # Load the init preset file
-                self._send_nymphes_osc('/load_init_file')
+                if self.curr_preset_type != 'init':
+                    # Load the init preset file
+                    self._send_nymphes_osc('/load_init_file')
 
             else:
                 # This is a preset slot
@@ -1556,9 +1588,9 @@ class NymphesGuiApp(App):
             self._send_nymphes_osc('/load_init_file')
 
         elif self._curr_presets_spinner_index + 1 >= len(presets_spinner_values_list()):
-            if self._curr_filepath is not None:
+            if self._curr_preset_info['filepath'] is not None:
                 # Reload the most recent preset file
-                self._send_nymphes_osc('/load_file', str(self._curr_filepath))
+                self._send_nymphes_osc('/load_file', str(self._curr_preset_info['filepath']))
 
             else:
                 # There's no file to load, so load the init preset file
@@ -1574,9 +1606,9 @@ class NymphesGuiApp(App):
             self._send_nymphes_osc('/load_init_file')
 
         elif self._curr_presets_spinner_index - 1 == 0:
-            if self._curr_filepath is not None:
+            if self._curr_preset_info['filepath'] is not None:
                 # Reload the most recent preset file
-                self._send_nymphes_osc('/load_file', str(self._curr_filepath))
+                self._send_nymphes_osc('/load_file', str(self._curr_preset_info['filepath']))
 
             else:
                 # No file has been loaded.
@@ -2166,7 +2198,7 @@ class NymphesGuiApp(App):
                 # Resize the window, using the scaling
                 Window.size = (width / scaling, new_height / scaling)
 
-    def _set_first_presets_spinner_option_on_main_thread(self, _, new_text):
+    def _set_presets_spinner_first_option_on_main_thread(self, new_option_text):
         """
         Replace the first item in the self.presets_spinner_values ListProperty
         with new_text and update the spinner text, but do it on the Main thread.
@@ -2175,11 +2207,41 @@ class NymphesGuiApp(App):
         :param new_text: str
         :return:
         """
-        self.presets_spinner_values[0] = new_text
 
-        # Update the preset spinner text
-        self.presets_spinner_text = new_text
-        self._curr_presets_spinner_index = 0
+        Clock.schedule_once(lambda dt: work_func(dt, new_option_text), 0)
+
+        def work_func(_, new_text):
+            self.presets_spinner_values[0] = new_text
+
+            # Update the preset spinner text
+            self.presets_spinner_text = new_text
+            self._curr_presets_spinner_index = 0
+
+    def _replace_presets_spinner_first_option_on_main_thread(self, new_option_text):
+        """
+        Replace the first item in the self.presets_spinner_values ListProperty
+        with new_text and update the spinner text, but do it on the Main thread.
+        This is needed if the change occurs in response to an OSC message on a
+        background thread.
+        :param new_text: str
+        :return:
+        """
+
+        Clock.schedule_once(lambda dt: work_func(dt, new_option_text), 0)
+
+        def work_func(_, new_text):
+            self.presets_spinner_values[0] = new_text
+
+            # Update the preset spinner text
+            self.presets_spinner_text = new_text
+            self._curr_presets_spinner_index = 0
+
+    def reload(self):
+        """
+        Reloads the current preset
+        :return:
+        """
+
 
 
     @staticmethod

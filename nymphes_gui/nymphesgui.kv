@@ -64,8 +64,16 @@ ScreenManager:
 
     TopBarButton:
         size_hint_x: 1/6
+        text: 'RELOAD'
+        on_release: app.reload()
+        disabled: not app.nymphes_connected or app.curr_preset_type == ''
+#        app.show_load_dialog()
+
+    TopBarButton:
+        size_hint_x: 1/6
         text: 'LOAD'
         on_release: app.show_load_dialog()
+        disabled: not app.nymphes_connected
 
     TopBarButton:
         size_hint_x: 1/6
@@ -924,9 +932,10 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 
+#TODO: Fix font_size. It doesn't work properly.
 <TopBarSpinnerOption@SpinnerOption>:
     color: C('#092042FF')
-    font_size: self.height * 0.75
+    font_size: self.height * 0.5
     text_size: self.size
     size_hint_x: 1/2
     halign: 'center'
