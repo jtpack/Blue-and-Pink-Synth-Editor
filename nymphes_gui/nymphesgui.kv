@@ -935,9 +935,10 @@ ScreenManager:
 #TODO: Fix font_size. It doesn't work properly.
 <TopBarSpinnerOption@SpinnerOption>:
     color: C('#092042FF')
-    font_size: self.height * 0.5
+    font_size: app.curr_height * 1/25
     text_size: self.size
-    size_hint_x: 1/2
+    size_hint_y: None
+    height: app.curr_height * 1/20
     halign: 'center'
     valign: 'middle'
     background_color: C('#1D60C5F5')
