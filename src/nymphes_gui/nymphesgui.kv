@@ -67,18 +67,14 @@ ScreenManager:
         text: 'RELOAD'
         on_release: app.reload()
         disabled: not app.nymphes_connected or app.curr_preset_type == ''
-#        app.show_load_dialog()
 
-    TopBarButton:
+    TopBarSpinner:
         size_hint_x: 1/6
-        text: 'LOAD'
-        on_release: app.show_load_dialog()
-        disabled: not app.nymphes_connected
-
-    TopBarButton:
-        size_hint_x: 1/6
-        text: 'SAVE'
-        on_release: app.show_save_dialog()
+        font_size: self.height * 0.4
+        text: 'FILE'
+        values: ['FILE', 'LOAD', 'SAVE', 'SAVE AS']
+        sync_height: True
+        on_text: app.file_spinner_text_changed(self, self.values.index(self.text), self.text)
 
     Widget:
         size_hint_x: 1/6
@@ -932,7 +928,6 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 
-#TODO: Fix font_size. It doesn't work properly.
 <TopBarSpinnerOption@SpinnerOption>:
     color: C('#092042FF')
     font_size: app.curr_height * 1/25

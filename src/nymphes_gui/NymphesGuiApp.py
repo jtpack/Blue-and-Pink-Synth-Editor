@@ -1,9 +1,10 @@
+from pathlib import Path
 from kivy.config import Config
-Config.read('app_config.ini')
+Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
+
 from kivy.app import App
 import kivy
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.behaviors import ButtonBehavior
@@ -20,15 +21,14 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
 import threading
 import configparser
-from pathlib import Path
+
 import netifaces
 # import logging
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["info"])
 import subprocess
-from nymphes_osc.NymphesPreset import NymphesPreset
-from functools import partial
+from src.nymphes_osc.NymphesPreset import NymphesPreset
 
 kivy.require('2.1.0')
 
@@ -890,19 +890,20 @@ class NymphesGuiApp(App):
             self._curr_preset_slot_type = str(args[0])
             self._curr_preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.debug('test')
-
-            # Get the spinner index for the current preset
-            preset_slot_start_index = 1 if len(self.presets_spinner_values) == 99 else 1
-            self._curr_presets_spinner_index = preset_slot_start_index + NymphesGuiApp.index_from_preset_info(
+            # Get the index of the loaded preset
+            preset_slot_index = NymphesGuiApp.index_from_preset_info(
                 bank_name=self._curr_preset_slot_bank_and_number[0],
                 preset_num=self._curr_preset_slot_bank_and_number[1],
                 preset_type=self._curr_preset_slot_type
             )
 
+            # Calculate the index within the presets spinner options
+            preset_slot_start_index = 1 if len(self.presets_spinner_values) == 99 else 2
+            self._curr_presets_spinner_index = preset_slot_start_index + preset_slot_index
+
             # Update the preset spinner's text
-            if self.presets_spinner_text != presets_spinner_values_list()[self._curr_presets_spinner_index]:
-                self.presets_spinner_text = presets_spinner_values_list()[self._curr_presets_spinner_index]
+            if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
+                self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
 
             Logger.info(f'{address} ({self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]})')
 
@@ -1520,18 +1521,18 @@ class NymphesGuiApp(App):
         self._popup.dismiss()
 
     def show_load_dialog(self):
-        content = LoadDialog(load=self.load_file, cancel=self.dismiss_popup)
+        content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_save_dialog(self):
-        content = SaveDialog(save=self.save_file, cancel=self.dismiss_popup)
+        content = SaveDialog(save=self.on_file_save_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.open()
 
-    def load_file(self, path, filepaths):
+    def on_file_load_dialog(self, path, filepaths):
         self.dismiss_popup()
 
         if len(filepaths) > 0:
@@ -1540,7 +1541,7 @@ class NymphesGuiApp(App):
             # Send message to nymphes controller to load the preset file
             self._send_nymphes_osc('/load_file', filepaths[0])
 
-    def save_file(self, directory_path, filepath):
+    def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
         self.dismiss_popup()
 
@@ -1555,6 +1556,8 @@ class NymphesGuiApp(App):
 
             # Reconstruct the full path
             filepath = directory_path + '/' + filename
+
+            Logger.info(f'Saving preset to {self._curr_preset_file_path}')
 
             # Send message to nymphes controller to load the preset file
             self._send_nymphes_osc('/save_to_file', filepath)
@@ -1658,7 +1661,7 @@ class NymphesGuiApp(App):
 
             else:
                 # Load the previous preset
-                self._curr_presets_spinner_index = self._curr_presets_spinner_index - 1
+                self._curr_presets_spinner_index -= 1
                 self.load_preset_by_index(self._curr_presets_spinner_index - 1)
 
         else:
@@ -2297,8 +2300,49 @@ class NymphesGuiApp(App):
         Reloads the current preset
         :return:
         """
+        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
+            self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
+        elif self.curr_preset_type == 'init':
+            self._send_nymphes_osc('/load_init_file')
 
+        elif self.curr_preset_type == 'preset_slot':
+            # Get the index of the last preset slot that was loaded
+            preset_slot_index = self.index_from_preset_info(
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
+            )
+
+            # Load the preset
+            self.load_preset_by_index(preset_slot_index)
+
+    def file_spinner_text_changed(self, spinner, index, text):
+        if text == 'LOAD':
+            # Show the file load dialog
+            self.show_load_dialog()
+
+        elif text == 'SAVE AS':
+            # Prompt the user for a file name and location
+            self.show_save_dialog()
+
+        elif text == 'SAVE':
+            if self.curr_preset_type == 'file':
+                # The current preset is a file, so we are updating it.
+                Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
+                self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+
+            else:
+                # The current preset is either init or a preset slot,
+                # so prompt the user to choose a file name and location
+                self.show_save_dialog()
+
+        else:
+            return
+
+        # Reset the spinner back to the first option, which we
+        # are using as a title
+        spinner.text = 'FILE'
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):

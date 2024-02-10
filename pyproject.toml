@@ -18,7 +18,11 @@ keywords = ["MIDI", "OSC", "Nymphes"]
 dependencies = [
     "python-osc",
     "netifaces",
-    "kivy[base]"
+    "kivy[base]",
+    "mido",
+    "python-rtmidi",
+    "protobuf",
+    "zeroconf"
 ]
 requires-python = ">=3.9"
 

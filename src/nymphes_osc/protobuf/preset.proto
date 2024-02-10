@@ -1,0 +1,149 @@
+syntax = "proto2";
+
+package proto;
+
+message basic_inputs
+{
+    required float wave = 1;
+    required float lvl = 2;
+    required float sub = 3;
+    required float noise = 4;
+    required float osc_lfo = 5;
+    required float cut = 6;
+    required float reson = 7;
+    required float cut_eg = 8;
+    required float a1 = 9;
+    required float d1 = 10;
+    required float s1 = 11;
+    required float r1 = 12;
+    required float lfo_rate = 13;
+    required float lfo_wave = 14;
+    required float pw = 15;
+    required float glide = 16;
+    required float dtune = 17;
+    required float chord = 18;
+    required float osc_eg = 19;
+    required float hpf = 20;
+    required float track = 21;
+    required float cut_lfo = 22;
+    required float a2 = 23;
+    required float d2 = 24;
+    required float s2 = 25;
+    required float r2 = 26;
+    required float lfo_delay = 27;
+    required float lfo_fade = 28;
+}
+
+message reverb_inputs
+{
+    required float size = 1;
+    required float decay = 2;
+    required float filter = 3;
+    required float mix = 4;
+}
+
+enum lfo_speed_mode {
+    bpm = 0;
+    slow = 1;
+    fast = 2;
+    tracking = 3;
+}
+
+enum lfo_sync_mode {
+    free = 0;
+    key_synced = 1;
+}
+
+message lfo_settings
+{
+    required lfo_speed_mode lfo_1_speed_mode = 1;
+    required lfo_sync_mode lfo_1_sync_mode = 2;
+    required lfo_speed_mode lfo_2_speed_mode = 3;
+    required lfo_sync_mode lfo_2_sync_mode = 4;
+}
+
+message chord_info 
+{
+    required int32 root = 1;
+    required int32 semi_1 = 2;
+    required int32 semi_2 = 3;
+    required int32 semi_3 = 4;
+    required int32 semi_4 = 5;
+    required int32 semi_5 = 6;
+}
+
+enum voice_mode
+{
+    poly = 0;
+    uni_6 = 1;
+    uni_4 = 2;
+    uni_3 = 3;
+    uni_2 = 4;
+    mono = 5;
+}
+
+message extra_lfo_2_parameters
+{
+    required float lfo_1_rate = 1;
+    required float lfo_1_wave = 2;
+    required float lfo_1_delay = 3;
+    required float lfo_1_fade = 4;
+    required float lfo_2_rate = 5;
+    required float lfo_2_wave = 6;
+    required float lfo_2_delay = 7;
+    required float lfo_2_fade = 8;
+
+    // new -> make optional
+
+    optional float reverb_size = 9;
+    optional float reverb_decay = 10;
+    optional float reverb_filter = 11;
+    optional float reverb_mix = 12;
+}
+
+message extra_modulation_parameters
+{
+    required float lfo_2_rate = 1;
+    required float lfo_2_wave = 2;
+    required float lfo_2_delay = 3;
+    required float lfo_2_fade = 4;
+
+    // new -> make optional
+
+    optional float reverb_size = 5;
+    optional float reverb_decay = 6;
+    optional float reverb_filter = 7;
+    optional float reverb_mix = 8;
+}
+
+message preset 
+{
+   required basic_inputs main = 1;
+   required reverb_inputs reverb = 2;
+   required basic_inputs lfo_2 = 3;
+   required basic_inputs mod_w = 4;
+   required basic_inputs velo = 5;
+   required basic_inputs after = 6;
+
+   required lfo_settings lfo_settings = 7;
+
+   required bool legato = 8;
+
+   required voice_mode voice_mode = 9;
+
+   required chord_info chord_1 = 10;
+   required chord_info chord_2 = 11;
+   required chord_info chord_3 = 12;
+   required chord_info chord_4 = 13;
+   required chord_info chord_5 = 14;
+   required chord_info chord_6 = 15;
+   required chord_info chord_7 = 16;
+   required chord_info chord_8 = 17;
+
+   required extra_lfo_2_parameters extra_lfo_2 = 18;
+   required extra_modulation_parameters extra_mod_w = 19;
+   required extra_modulation_parameters extra_velo = 20;
+   required extra_modulation_parameters extra_after = 21;
+
+   required float amp_level = 22;
+}

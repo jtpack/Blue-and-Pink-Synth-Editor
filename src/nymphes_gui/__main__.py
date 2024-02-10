@@ -1,5 +1,4 @@
-import logging
-from nymphes_gui.NymphesGuiApp import NymphesGuiApp
+from src.nymphes_gui.NymphesGuiApp import NymphesGuiApp
 
 
 def main():
