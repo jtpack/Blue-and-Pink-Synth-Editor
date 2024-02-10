@@ -26,7 +26,7 @@ import netifaces
 # import logging
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["info"])
+Logger.setLevel(LOG_LEVELS["debug"])
 import subprocess
 from src.nymphes_osc.NymphesPreset import NymphesPreset
 
@@ -381,8 +381,7 @@ class NymphesGuiApp(App):
         super(NymphesGuiApp, self).__init__(**kwargs)
 
         # Bind keyboard events
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
-        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
+        self._bind_keyboard_events()
 
         # Keep track of currently held modifier keys
         self._shift_key_pressed = False
@@ -1524,16 +1523,24 @@ class NymphesGuiApp(App):
         content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
+        self._popup.bind(on_open=self._on_popup_open)
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def show_save_dialog(self):
         content = SaveDialog(save=self.on_file_save_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
+        self._popup.bind(on_open=self._on_popup_open)
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
-    def on_file_load_dialog(self, path, filepaths):
+    def on_file_load_dialog(self, path=None, filepaths=[]):
+        # Close the file load dialog
         self.dismiss_popup()
+
+        # Re-bind keyboard events
+        self._bind_keyboard_events()
 
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')
@@ -2175,6 +2182,33 @@ class NymphesGuiApp(App):
             Logger.debug('alt key released')
             self._alt_key_pressed = False
 
+        # File Open
+        if keycode[1] == 'o' and self._meta_key_pressed:
+            # Show the file load dialog
+            self.show_load_dialog()
+
+        # File Save / Save As
+        if keycode[1] == 's' and self._meta_key_pressed and self._alt_key_pressed:
+            #
+            # Save As
+            #
+
+            # Show the file save dialog
+            self.show_save_dialog()
+
+        elif keycode[1] == 's' and self._meta_key_pressed:
+            #
+            # Save
+            #
+
+            if self.curr_preset_type == 'file':
+                # A file is currently loaded. Update it.
+                self.update_current_preset_file()
+
+            else:
+                # Show the file save dialog
+                self.show_save_dialog()
+
     def _on_window_resize(self, instance, width, height):
         #
         # The window has just been resized.
@@ -2318,7 +2352,7 @@ class NymphesGuiApp(App):
             self.load_preset_by_index(preset_slot_index)
 
     def file_spinner_text_changed(self, spinner, index, text):
-        if text == 'LOAD':
+        if text == 'OPEN':
             # Show the file load dialog
             self.show_load_dialog()
 
@@ -2329,8 +2363,7 @@ class NymphesGuiApp(App):
         elif text == 'SAVE':
             if self.curr_preset_type == 'file':
                 # The current preset is a file, so we are updating it.
-                Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
-                self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+                self.update_current_preset_file()
 
             else:
                 # The current preset is either init or a preset slot,
@@ -2343,6 +2376,37 @@ class NymphesGuiApp(App):
         # Reset the spinner back to the first option, which we
         # are using as a title
         spinner.text = 'FILE'
+
+    def update_current_preset_file(self):
+        """
+        Save the current settings to the currently-loaded or saved
+        preset file, updating it.
+        """
+        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
+            Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
+            self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+
+    def _bind_keyboard_events(self):
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
+        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
+
+    def _on_popup_open(self, popup_instance):
+        # Bind keyboard events for the popup
+        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._keyboard_closed, popup_instance)
+        popup_instance.content._keyboard.bind(
+            on_key_down=popup_instance.content._on_key_down,
+            on_key_up=popup_instance.content._on_key_up
+        )
+
+    def _on_popup_dismiss(self, popup_instance):
+        # Unbind keyboard events from the popup
+        if popup_instance.content._keyboard is not None:
+            popup_instance.content._keyboard.unbind(on_key_down=popup_instance.content._on_key_down)
+            popup_instance.content._keyboard.unbind(on_key_up=popup_instance.content._on_key_up)
+            popup_instance.content._keyboard = None
+
+        # Rebind keyboard events for the app itself
+        self._bind_keyboard_events()
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -2564,11 +2628,73 @@ class LoadDialog(BoxLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
+    def __init__(self, **kwargs):
+        super(LoadDialog, self).__init__(**kwargs)
+        self._keyboard = None
+
+    def _keyboard_closed(self):
+        Logger.debug('LoadDialog Keyboard Closed')
+        if self._keyboard is not None:
+            self._keyboard.unbind(on_key_down=self._on_key_down)
+            self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        Logger.debug(f'LoadDialog on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+
+    def _on_key_up(self, keyboard, keycode):
+        Logger.debug(f'LoadDialog on_key_up: {keyboard}, {keycode}')
+
+        # Handle Enter Key
+        # This is the same as clicking the OK button
+        enter_keycode = 13
+        numpad_enter_keycode = 271
+
+        if keycode[0] in [enter_keycode, numpad_enter_keycode]:
+            self.load(self.ids.filechooser.path, self.ids.filechooser.selection)
+
+        # Handle escape key
+        # This is the same as clicking the Cancel button
+        escape_keycode = 27
+        if keycode[0] in [escape_keycode]:
+            App.get_running_app().dismiss_popup()
+
 
 class SaveDialog(BoxLayout):
     save = ObjectProperty(None)
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
+    
+    def __init__(self, **kwargs):
+        super(SaveDialog, self).__init__(**kwargs)
+        self._keyboard = None
+
+    def _keyboard_closed(self):
+        Logger.debug('SaveDialog Keyboard Closed')
+        # if self._keyboard is not None:
+        #     self._keyboard.unbind(on_key_down=self._on_key_down)
+        #     self._keyboard.unbind(on_key_up=self._on_key_up)
+        #     self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        Logger.debug(f'SaveDialog on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+
+    def _on_key_up(self, keyboard, keycode):
+        Logger.debug(f'SaveDialog on_key_up: {keyboard}, {keycode}')
+
+        # Handle Enter Key
+        # This is the same as clicking the OK button
+        enter_keycode = 13
+        numpad_enter_keycode = 271
+
+        if keycode[0] in [enter_keycode, numpad_enter_keycode]:
+            self.save(self.ids.filechooser.path, self.ids.filechooser.path + '/' + self.ids.text_input.text)
+
+        # Handle escape key
+        # This is the same as clicking the Cancel button
+        escape_keycode = 27
+        if keycode[0] in [escape_keycode]:
+            App.get_running_app().dismiss_popup()
 
 
 Factory.register('LoadDialog', cls=LoadDialog)
