@@ -3468,12 +3468,17 @@ class NymphesPreset:
             # Only include parameters contained in a preset,
             # not NymphesPreset metadata.
             #
+
             if param_name in NymphesPreset.all_param_names():
                 # Get the protobuf preset name for this parameter
+
                 protobuf_preset_name = NymphesPreset._protobuf_preset_name_for_param_name(param_name)
 
                 # Set the value
-                NymphesPreset._set_protobuf_preset_value(p, protobuf_preset_name, value)
+                set_val = NymphesPreset._set_protobuf_preset_value(p, protobuf_preset_name, value)
+
+                if protobuf_preset_name == 'voice_mode':
+                    print(f'voice_mode: {set_val}')
 
         # Return the protobuf preset
         return p

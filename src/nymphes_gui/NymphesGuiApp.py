@@ -380,6 +380,9 @@ class NymphesGuiApp(App):
     def __init__(self, **kwargs):
         super(NymphesGuiApp, self).__init__(**kwargs)
 
+        # Set the app title
+        self.title = "nymphes-gui"
+
         # Bind keyboard events
         self._bind_keyboard_events()
 
