@@ -26,9 +26,9 @@ import netifaces
 # import logging
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["debug"])
+#Logger.setLevel(LOG_LEVELS["debug"])
 import subprocess
-from src.nymphes_osc.NymphesPreset import NymphesPreset
+from nymphes_midi.NymphesPreset import NymphesPreset
 
 kivy.require('2.1.0')
 
@@ -717,7 +717,7 @@ class NymphesGuiApp(App):
         self._nymphes_osc_server_thread = threading.Thread(target=self._nymphes_osc_server.serve_forever)
         self._nymphes_osc_server_thread.start()
 
-        Logger.info(f'Started Nymphes OSC Server at {self._nymphes_osc_incoming_host}:{self._nymphes_osc_incoming_port}')
+        Logger.info(f'Started OSC Server: Listening for nymphes-osc at {self._nymphes_osc_incoming_host}:{self._nymphes_osc_incoming_port}')
 
     def _stop_nymphes_osc_server(self):
         """
@@ -730,7 +730,7 @@ class NymphesGuiApp(App):
             self._nymphes_osc_server = None
             self._nymphes_osc_server_thread.join()
             self._nymphes_osc_server_thread = None
-            Logger.info('Stopped Nymphes OSC Server')
+            Logger.info('Stopped OSC Server: No longer listening for nymphes-osc')
 
     def _start_encoder_osc_server(self):
         """
@@ -745,7 +745,7 @@ class NymphesGuiApp(App):
         self._encoder_osc_server_thread = threading.Thread(target=self._encoder_osc_server.serve_forever)
         self._encoder_osc_server_thread.start()
 
-        Logger.info(f'Started Encoder OSC Server at {self._encoder_osc_incoming_host}:{self._encoder_osc_incoming_port}')
+        Logger.info(f'Started OSC Server: Listening for encoders at {self._encoder_osc_incoming_host}:{self._encoder_osc_incoming_port}')
 
     def _stop_encoder_osc_server(self):
         """
@@ -758,7 +758,7 @@ class NymphesGuiApp(App):
             self._encoder_osc_server = None
             self._encoder_osc_server_thread.join()
             self._encoder_osc_server_thread = None
-            Logger.info('Stopped Encoder OSC Server')
+            Logger.info('Stopped OSC Server: No longer listening for encoders')
 
     def _register_as_nymphes_osc_client(self):
         """
@@ -832,7 +832,7 @@ class NymphesGuiApp(App):
             # We are connected to nymphes_osc
             self._connected_to_nymphes_osc = True
 
-            Logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address}: {host_name}:{port}')
 
         elif address == '/client_unregistered':
             # Get the hostname and port
@@ -843,7 +843,7 @@ class NymphesGuiApp(App):
             # We are no longer connected to nymphes-osc
             self._connected_to_nymphes_osc = False
 
-            Logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address}: {host_name}:{port}')
 
         elif address == '/presets_directory_path':
             # Get the path
@@ -852,7 +852,7 @@ class NymphesGuiApp(App):
             # Store it
             self.preset_files_directory_path = str(path)
 
-            Logger.info(f'{address} path: {path}')
+            Logger.info(f'{address}: {path}')
 
         elif address == '/nymphes_connected':
             #
@@ -866,7 +866,7 @@ class NymphesGuiApp(App):
             # Update app state
             self.nymphes_connected = True
 
-            Logger.info(f'{address} (input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port})')
+            Logger.info(f'{address}: input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port}')
 
         elif address == '/nymphes_disconnected':
             #
@@ -878,7 +878,7 @@ class NymphesGuiApp(App):
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            Logger.info(f'{address}')
+            Logger.info(f'{address}:')
 
         elif address == '/loaded_preset':
             #
@@ -907,7 +907,7 @@ class NymphesGuiApp(App):
             if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
                 self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
 
-            Logger.info(f'{address} ({self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]})')
+            Logger.info(f'{address}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}')
 
         elif address == '/loaded_preset_dump_from_midi_input_port':
             port_name = str(args[0])
@@ -915,7 +915,7 @@ class NymphesGuiApp(App):
             self._curr_preset_slot_bank_and_number = str(args[2]), int(args[3])
 
             Logger.info(
-                f'{address} ({port_name}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]})')
+                f'{address}: {port_name}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}')
 
         elif address == '/loaded_file':
             #
@@ -1026,7 +1026,7 @@ class NymphesGuiApp(App):
             #
             # A full preset dump has been requested
             #
-            Logger.info(f'{address}')
+            Logger.info(f'{address}:')
 
         elif address == '/received_preset_dump_from_nymphes':
             #
@@ -1069,7 +1069,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_inputs:
                 self._detected_midi_inputs.append(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_input_no_longer_detected':
             #
@@ -1083,7 +1083,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_inputs:
                 self._detected_midi_inputs.remove(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/detected_midi_inputs':
             #
@@ -1098,7 +1098,7 @@ class NymphesGuiApp(App):
             # Replace our list of detected MIDI inputs
             self._detected_midi_inputs = port_names
 
-            Logger.info(f'{address} {args}')
+            Logger.info(f'{address}: {args}')
 
         elif address == '/midi_input_connected':
             #
@@ -1112,7 +1112,7 @@ class NymphesGuiApp(App):
             if port_name not in self._connected_midi_inputs:
                 self._connected_midi_inputs.append(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_input_disconnected':
             #
@@ -1126,7 +1126,7 @@ class NymphesGuiApp(App):
             if port_name in self._connected_midi_inputs:
                 self._connected_midi_inputs.remove(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/connected_midi_inputs':
             #
@@ -1141,7 +1141,7 @@ class NymphesGuiApp(App):
             # Replace our list of connected MIDI inputs
             self._connected_midi_inputs = port_names
 
-            Logger.info(f'{address} {args}')
+            Logger.info(f'{address}: {args}')
 
         elif address == '/midi_output_detected':
             #
@@ -1155,7 +1155,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_outputs:
                 self._detected_midi_outputs.append(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_output_no_longer_detected':
             #
@@ -1169,7 +1169,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_outputs:
                 self._detected_midi_outputs.remove(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/detected_midi_outputs':
             #
@@ -1184,7 +1184,7 @@ class NymphesGuiApp(App):
             # Replace our list of detected MIDI outputs
             self._detected_midi_outputs = port_names
 
-            Logger.info(f'{address} {args}')
+            Logger.info(f'{address}: {args}')
 
         elif address == '/midi_output_connected':
             #
@@ -1198,7 +1198,7 @@ class NymphesGuiApp(App):
             if port_name not in self._connected_midi_outputs:
                 self._connected_midi_outputs.append(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_output_disconnected':
             #
@@ -1212,7 +1212,7 @@ class NymphesGuiApp(App):
             if port_name in self._connected_midi_outputs:
                 self._connected_midi_outputs.remove(port_name)
 
-            Logger.info(f'{address} {port_name}')
+            Logger.info(f'{address}: {port_name}')
 
         elif address == '/connected_midi_outputs':
             #
@@ -1227,7 +1227,7 @@ class NymphesGuiApp(App):
             # Replace our list of connected MIDI outputs
             self._connected_midi_outputs = port_names
 
-            Logger.info(f'{address} {args}')
+            Logger.info(f'{address}: {args}')
 
         elif address == '/mod_wheel':
             self._mod_wheel = int(args[0])
@@ -1340,7 +1340,7 @@ class NymphesGuiApp(App):
             # We are connected to the Encoder device
             self._connected_to_encoders = True
 
-            Logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address}: {host_name}:{port}')
 
         elif address == '/client_unregistered':
             # Get the hostname and port
@@ -1351,7 +1351,7 @@ class NymphesGuiApp(App):
             # We are no longer connected to the Encoders device
             self._connected_to_encoders = False
 
-            Logger.info(f'{address} ({host_name}:{port})')
+            Logger.info(f'{address}: {host_name}:{port}')
 
     def _start_nymphes_osc_subprocess(self):
         """

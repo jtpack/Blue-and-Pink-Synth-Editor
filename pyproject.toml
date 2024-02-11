@@ -19,9 +19,6 @@ dependencies = [
     "python-osc",
     "netifaces",
     "kivy[base]",
-    "mido",
-    "python-rtmidi",
-    "protobuf",
     "zeroconf"
 ]
 requires-python = ">=3.9"
