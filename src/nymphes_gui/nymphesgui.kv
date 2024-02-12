@@ -4,6 +4,7 @@
 
 ScreenManager:
     DashboardScreen
+    SettingsScreen
 
 
 <DashboardScreen@Screen>:
@@ -28,6 +29,53 @@ ScreenManager:
 
         MainControlsBox:
             corner_radius: root.height * 0.015
+
+
+<SettingsScreen@Screen>:
+    name: 'settings'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        SettingsTopBar:
+            size_hint: 1, 1/9
+            corner_radius: root.height * 0.015
+
+        MainSettingsBox:
+            corner_radius: root.height * 0.015
+
+
+
+<SettingsTopBar>:
+    orientation: 'horizontal'
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    spacing: self.parent.spacing
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    TopBarButton:
+        on_release:
+            app.root.transition = SlideTransition(direction='right')
+            app.root.current = 'dashboard'
+        text: 'BACK'
+
 
 <TopBar>:
     orientation: 'horizontal'
@@ -78,6 +126,13 @@ ScreenManager:
 
     Widget:
         size_hint_x: 1/6
+
+    TopBarButton:
+        id: midi_settings_button
+        on_release:
+            app.root.transition = SlideTransition(direction='left')
+            app.root.current = 'settings'
+        text: 'SETTINGS'
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -819,7 +874,7 @@ ScreenManager:
         # Line Background
 
         Color:
-            rgba: C('#1E6AD9FF')
+            rgba: C('#257CFFFF')
 
         RoundedRectangle:
             pos: self.pos
@@ -1006,3 +1061,35 @@ ScreenManager:
             valign: 'middle'
             text: "OK"
             on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
+
+
+<MainSettingsBox>:
+    orientation: 'vertical'
+    spacing: self.parent.spacing
+
+    MidiInputSection
+
+
+<MidiInputSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    SectionTitleLabel:
+        size_hint: 1, 1/6
+        text: 'MIDI INPUTS'
+
+    GridLayout:
+        cols: 2
+
+        Label:
+            text: 'Arturia MicroLab'
+
+        CheckBox:
+            size_hint_x: 1/20
+            active: True

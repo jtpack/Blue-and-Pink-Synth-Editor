@@ -2879,6 +2879,10 @@ class MainControlsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
+class MainSettingsBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
     corner_radius = NumericProperty(0)
@@ -2893,6 +2897,10 @@ class LeftBar(BoxLayout):
 
 
 class TopBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class SettingsTopBar(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
