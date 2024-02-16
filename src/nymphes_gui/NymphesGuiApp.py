@@ -68,6 +68,15 @@ class NymphesGuiApp(App):
     curr_preset_type = StringProperty('')
 
     selected_section = StringProperty('')
+    midi_inputs_spinner_values = ListProperty(['Not Connected'])
+    midi_inputs_spinner_1_curr_value = StringProperty('Not Connected')
+    midi_inputs_spinner_2_curr_value = StringProperty('Not Connected')
+    midi_inputs_spinner_3_curr_value = StringProperty('Not Connected')
+    
+    midi_outputs_spinner_values = ListProperty(['Not Connected'])
+    midi_outputs_spinner_1_curr_value = StringProperty('Not Connected')
+    midi_outputs_spinner_2_curr_value = StringProperty('Not Connected')
+    midi_outputs_spinner_3_curr_value = StringProperty('Not Connected')
 
     #
     # Nymphes Parameters
@@ -1069,6 +1078,12 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_inputs:
                 self._detected_midi_inputs.append(port_name)
 
+            # Add it to the midi inputs spinner value list
+            if port_name not in self.midi_inputs_spinner_values:
+                new_values = self.midi_inputs_spinner_values[:]
+                new_values.append(port_name)
+                self.set_midi_inputs_spinner_values_on_main_thread(new_values)
+
             Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_input_no_longer_detected':
@@ -1082,6 +1097,12 @@ class NymphesGuiApp(App):
             # Remove it from our list of detected MIDI input ports
             if port_name in self._detected_midi_inputs:
                 self._detected_midi_inputs.remove(port_name)
+
+            # Remove it from the MIDI inputs spinner value list
+            if port_name in self.midi_inputs_spinner_values:
+                new_values = self.midi_inputs_spinner_values[:]
+                new_values.remove(port_name)
+                self.set_midi_inputs_spinner_values_on_main_thread()
 
             Logger.info(f'{address}: {port_name}')
 
@@ -1097,6 +1118,11 @@ class NymphesGuiApp(App):
 
             # Replace our list of detected MIDI inputs
             self._detected_midi_inputs = port_names
+
+            # Replace the MIDI Inputs spinner values list
+            new_values = ['Not Connected']
+            new_values.extend(port_names)
+            self.set_midi_inputs_spinner_values_on_main_thread(new_values)
 
             Logger.info(f'{address}: {args}')
 
@@ -1155,6 +1181,12 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_outputs:
                 self._detected_midi_outputs.append(port_name)
 
+            # Add it to the midi outputs spinner value list
+            if port_name not in self.midi_outputs_spinner_values:
+                new_values = self.midi_outputs_spinner_values[:]
+                new_values.append(port_name)
+                self.set_midi_outputs_spinner_values_on_main_thread(new_values)
+
             Logger.info(f'{address}: {port_name}')
 
         elif address == '/midi_output_no_longer_detected':
@@ -1169,6 +1201,12 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_outputs:
                 self._detected_midi_outputs.remove(port_name)
 
+            # Remove it from the MIDI outputs spinner value list
+            if port_name in self.midi_outputs_spinner_values:
+                new_values = self.midi_outputs_spinner_values[:]
+                new_values.remove(port_name)
+                self.set_midi_outputs_spinner_values_on_main_thread()
+                
             Logger.info(f'{address}: {port_name}')
 
         elif address == '/detected_midi_outputs':
@@ -1183,6 +1221,11 @@ class NymphesGuiApp(App):
 
             # Replace our list of detected MIDI outputs
             self._detected_midi_outputs = port_names
+
+            # Replace the MIDI Outputs spinner values list
+            new_values = ['Not Connected']
+            new_values.extend(port_names)
+            self.set_midi_outputs_spinner_values_on_main_thread(new_values)
 
             Logger.info(f'{address}: {args}')
 
@@ -1711,12 +1754,12 @@ class NymphesGuiApp(App):
             # We have just successfully registered as the encoders'
             # client.
             self._connected_to_encoders = True
-            info("Connected to Encoders")
+            Logger.info("Connected to Encoders")
 
         elif address == '/client_removed':
             # We are no longer the encoders' client
             self._connected_to_encoders = False
-            info("Disconnected from Encoders")
+            Logger.info("Disconnected from Encoders")
 
         elif address == '/encoder_pos':
             # An encoder's position has been sent
@@ -2410,6 +2453,115 @@ class NymphesGuiApp(App):
 
         # Rebind keyboard events for the app itself
         self._bind_keyboard_events()
+
+    def midi_inputs_spinner_1_text_changed(self, text):
+
+        if self.midi_inputs_spinner_1_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_1_curr_value)
+
+            # Update the current value
+            self.midi_inputs_spinner_1_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_inputs_spinner_1_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_1_curr_value)
+
+    def midi_inputs_spinner_2_text_changed(self, text):
+
+        if self.midi_inputs_spinner_2_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_2_curr_value)
+
+            # Update the current value
+            self.midi_inputs_spinner_2_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_inputs_spinner_2_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_2_curr_value)
+
+    def midi_inputs_spinner_3_text_changed(self, text):
+
+        if self.midi_inputs_spinner_3_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_3_curr_value)
+
+            # Update the current value
+            self.midi_inputs_spinner_3_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_inputs_spinner_3_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_3_curr_value)
+
+    def set_midi_inputs_spinner_values_on_main_thread(self, values):
+        Clock.schedule_once(lambda dt: work_func(dt, values), 0)
+
+        def work_func(_, new_values):
+            self.midi_inputs_spinner_values = new_values
+
+    def midi_outputs_spinner_1_text_changed(self, text):
+
+        if self.midi_outputs_spinner_1_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_1_curr_value)
+
+            # Update the current value
+            self.midi_outputs_spinner_1_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_outputs_spinner_1_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_1_curr_value)
+
+    def midi_outputs_spinner_2_text_changed(self, text):
+
+        if self.midi_outputs_spinner_2_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_2_curr_value)
+
+            # Update the current value
+            self.midi_outputs_spinner_2_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_outputs_spinner_2_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_2_curr_value)
+
+    def midi_outputs_spinner_3_text_changed(self, text):
+
+        if self.midi_outputs_spinner_3_curr_value != 'Not Connected':
+            # Disconnect from the currently-selected port
+            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_3_curr_value)
+
+            # Update the current value
+            self.midi_outputs_spinner_3_curr_value = 'Not Connected'
+
+        if text != 'Not Connected':
+            # Update the current value to the new port name
+            self.midi_outputs_spinner_3_curr_value = text
+
+            # Connect to the new port
+            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_3_curr_value)
+
+    def set_midi_outputs_spinner_values_on_main_thread(self, values):
+        Clock.schedule_once(lambda dt: work_func(dt, values), 0)
+
+        def work_func(_, new_values):
+            self.midi_outputs_spinner_values = new_values
+
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):

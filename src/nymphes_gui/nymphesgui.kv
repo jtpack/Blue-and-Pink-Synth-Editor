@@ -54,6 +54,8 @@ ScreenManager:
         MainSettingsBox:
             corner_radius: root.height * 0.015
 
+        Widget
+
 
 
 <SettingsTopBar>:
@@ -1064,13 +1066,14 @@ ScreenManager:
 
 
 <MainSettingsBox>:
-    orientation: 'vertical'
+    orientation: 'horizontal'
     spacing: self.parent.spacing
 
-    MidiInputSection
+    MidiInputPortsSection
+    MidiOutputPortsSection
 
 
-<MidiInputSection@ControlSection>:
+<MidiInputPortsSection@ControlSection>:
     canvas.before:
         Color:
             rgba: C('#257CFFFF')
@@ -1080,16 +1083,117 @@ ScreenManager:
             size: root.width, root.height
             radius: [root.corner_radius]
 
-    SectionTitleLabel:
-        size_hint: 1, 1/6
-        text: 'MIDI INPUTS'
+    BoxLayout:
+        orientation: 'vertical'
 
-    GridLayout:
-        cols: 2
+        SectionTitleLabel:
+            size_hint: 1, 1/12
+            text: 'MIDI INPUTS'
 
-        Label:
-            text: 'Arturia MicroLab'
+        GridLayout:
+            cols: 2
 
-        CheckBox:
-            size_hint_x: 1/20
-            active: True
+            MidiPortLabel:
+                text: 'PORT 1'
+
+            MidiPortSpinner:
+                values: app.midi_inputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_inputs_spinner_1_text_changed(self.text)
+
+            MidiPortLabel:
+                text: 'PORT 2'
+
+            MidiPortSpinner:
+                values: app.midi_inputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_inputs_spinner_2_text_changed(self.text)
+
+            MidiPortLabel:
+                text: 'PORT 3'
+
+            MidiPortSpinner:
+                values: app.midi_inputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_inputs_spinner_3_text_changed(self.text)
+
+<MidiOutputPortsSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            size_hint: 1, 1/12
+            text: 'MIDI OUTPUTS'
+
+        GridLayout:
+            cols: 2
+
+            MidiPortLabel:
+                text: 'PORT 1'
+
+            MidiPortSpinner:
+                values: app.midi_outputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_outputs_spinner_1_text_changed(self.text)
+
+            MidiPortLabel:
+                text: 'PORT 2'
+
+            MidiPortSpinner:
+                values: app.midi_outputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_outputs_spinner_2_text_changed(self.text)
+
+            MidiPortLabel:
+                text: 'PORT 3'
+
+            MidiPortSpinner:
+                values: app.midi_outputs_spinner_values
+                text: 'Not Connected'
+                on_text: app.midi_outputs_spinner_3_text_changed(self.text)
+
+        
+<MidiPortLabel@Label>:
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    size_hint_x: None
+    width: app.curr_width * 1/16
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#00000000')
+
+
+<MidiPortSpinner@Spinner>:
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#00000000')
+    option_cls: 'MidiPortSpinnerOption'
+
+
+<MidiPortSpinnerOption@SpinnerOption>:
+    color: C('#092042FF')
+    font_size: app.curr_height * 1/25
+    text_size: self.size
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#1D60C5F5')
+    background_normal: ''
