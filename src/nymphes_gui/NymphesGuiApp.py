@@ -1102,7 +1102,7 @@ class NymphesGuiApp(App):
             if port_name in self.midi_inputs_spinner_values:
                 new_values = self.midi_inputs_spinner_values[:]
                 new_values.remove(port_name)
-                self.set_midi_inputs_spinner_values_on_main_thread()
+                self.set_midi_inputs_spinner_values_on_main_thread(new_values)
 
             Logger.info(f'{address}: {port_name}')
 
@@ -1205,7 +1205,7 @@ class NymphesGuiApp(App):
             if port_name in self.midi_outputs_spinner_values:
                 new_values = self.midi_outputs_spinner_values[:]
                 new_values.remove(port_name)
-                self.set_midi_outputs_spinner_values_on_main_thread()
+                self.set_midi_outputs_spinner_values_on_main_thread(new_values)
                 
             Logger.info(f'{address}: {port_name}')
 
