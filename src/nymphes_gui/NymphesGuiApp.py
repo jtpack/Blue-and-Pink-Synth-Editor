@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
 
@@ -61,7 +62,7 @@ class NymphesGuiApp(App):
     midi_controller_output_connected = BooleanProperty(False)
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
-    preset_files_directory_path = StringProperty('')
+    presets_directory_path = StringProperty(str(Path(os.path.expanduser('~')) / 'nymphes_presets'))
 
     # This is used to track what is currently loaded.
     # Valid values: 'init', 'file', 'preset_slot'
@@ -69,14 +70,10 @@ class NymphesGuiApp(App):
 
     selected_section = StringProperty('')
     midi_inputs_spinner_values = ListProperty(['Not Connected'])
-    midi_inputs_spinner_1_curr_value = StringProperty('Not Connected')
-    midi_inputs_spinner_2_curr_value = StringProperty('Not Connected')
-    midi_inputs_spinner_3_curr_value = StringProperty('Not Connected')
+    midi_inputs_spinner_curr_value = StringProperty('Not Connected')
     
     midi_outputs_spinner_values = ListProperty(['Not Connected'])
-    midi_outputs_spinner_1_curr_value = StringProperty('Not Connected')
-    midi_outputs_spinner_2_curr_value = StringProperty('Not Connected')
-    midi_outputs_spinner_3_curr_value = StringProperty('Not Connected')
+    midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     #
     # Nymphes Parameters
@@ -859,7 +856,7 @@ class NymphesGuiApp(App):
             path = Path(args[0])
 
             # Store it
-            self.preset_files_directory_path = str(path)
+            self.presets_directory_path = str(path)
 
             Logger.info(f'{address}: {path}')
 
@@ -1167,6 +1164,11 @@ class NymphesGuiApp(App):
             # Replace our list of connected MIDI inputs
             self._connected_midi_inputs = port_names
 
+            if len(self._connected_midi_inputs) > 0:
+                # Set the MIDI input spinner's value to
+                # the first port
+                self.midi_inputs_spinner_curr_value = self._connected_midi_inputs[0]
+
             Logger.info(f'{address}: {args}')
 
         elif address == '/midi_output_detected':
@@ -1269,6 +1271,11 @@ class NymphesGuiApp(App):
 
             # Replace our list of connected MIDI outputs
             self._connected_midi_outputs = port_names
+            
+            if len(self._connected_midi_outputs) > 0:
+                # Set the MIDI output spinner's value to
+                # the first port
+                self.midi_outputs_spinner_curr_value = self._connected_midi_outputs[0]
 
             Logger.info(f'{address}: {args}')
 
@@ -1409,8 +1416,9 @@ class NymphesGuiApp(App):
                          '--client_host', self._nymphes_osc_incoming_host,
                          '--client_port', str(self._nymphes_osc_incoming_port),
                          '--midi_channel', str(self._nymphes_midi_channel),
-                         '--osc_log_level', 'warning',
-                         '--midi_log_level', 'warning']
+                         '--osc_log_level', 'info',
+                         '--midi_log_level', 'info',
+                         '--presets_directory_path', self.presets_directory_path]
             command = ['python', '-m', 'nymphes_osc'] + arguments
             self._nymphes_osc_subprocess = subprocess.Popen(
                 command,
@@ -2454,53 +2462,21 @@ class NymphesGuiApp(App):
         # Rebind keyboard events for the app itself
         self._bind_keyboard_events()
 
-    def midi_inputs_spinner_1_text_changed(self, text):
+    def midi_inputs_spinner_text_changed(self, text):
 
-        if self.midi_inputs_spinner_1_curr_value != 'Not Connected':
+        if self.midi_inputs_spinner_curr_value != 'Not Connected':
             # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_1_curr_value)
+            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_curr_value)
 
             # Update the current value
-            self.midi_inputs_spinner_1_curr_value = 'Not Connected'
+            self.midi_inputs_spinner_curr_value = 'Not Connected'
 
         if text != 'Not Connected':
             # Update the current value to the new port name
-            self.midi_inputs_spinner_1_curr_value = text
+            self.midi_inputs_spinner_curr_value = text
 
             # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_1_curr_value)
-
-    def midi_inputs_spinner_2_text_changed(self, text):
-
-        if self.midi_inputs_spinner_2_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_2_curr_value)
-
-            # Update the current value
-            self.midi_inputs_spinner_2_curr_value = 'Not Connected'
-
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_inputs_spinner_2_curr_value = text
-
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_2_curr_value)
-
-    def midi_inputs_spinner_3_text_changed(self, text):
-
-        if self.midi_inputs_spinner_3_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_3_curr_value)
-
-            # Update the current value
-            self.midi_inputs_spinner_3_curr_value = 'Not Connected'
-
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_inputs_spinner_3_curr_value = text
-
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_3_curr_value)
+            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_curr_value)
 
     def set_midi_inputs_spinner_values_on_main_thread(self, values):
         Clock.schedule_once(lambda dt: work_func(dt, values), 0)
@@ -2508,53 +2484,21 @@ class NymphesGuiApp(App):
         def work_func(_, new_values):
             self.midi_inputs_spinner_values = new_values
 
-    def midi_outputs_spinner_1_text_changed(self, text):
+    def midi_outputs_spinner_text_changed(self, text):
 
-        if self.midi_outputs_spinner_1_curr_value != 'Not Connected':
+        if self.midi_outputs_spinner_curr_value != 'Not Connected':
             # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_1_curr_value)
+            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_curr_value)
 
             # Update the current value
-            self.midi_outputs_spinner_1_curr_value = 'Not Connected'
+            self.midi_outputs_spinner_curr_value = 'Not Connected'
 
         if text != 'Not Connected':
             # Update the current value to the new port name
-            self.midi_outputs_spinner_1_curr_value = text
+            self.midi_outputs_spinner_curr_value = text
 
             # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_1_curr_value)
-
-    def midi_outputs_spinner_2_text_changed(self, text):
-
-        if self.midi_outputs_spinner_2_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_2_curr_value)
-
-            # Update the current value
-            self.midi_outputs_spinner_2_curr_value = 'Not Connected'
-
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_outputs_spinner_2_curr_value = text
-
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_2_curr_value)
-
-    def midi_outputs_spinner_3_text_changed(self, text):
-
-        if self.midi_outputs_spinner_3_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_3_curr_value)
-
-            # Update the current value
-            self.midi_outputs_spinner_3_curr_value = 'Not Connected'
-
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_outputs_spinner_3_curr_value = text
-
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_3_curr_value)
+            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_curr_value)
 
     def set_midi_outputs_spinner_values_on_main_thread(self, values):
         Clock.schedule_once(lambda dt: work_func(dt, values), 0)
