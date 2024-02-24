@@ -6,3 +6,4 @@ dist/
 build/
 nymphes_gui.egg-info/
 src/nymphes_gui/config.txt
+nymphes-osc

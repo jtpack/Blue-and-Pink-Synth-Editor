@@ -33,6 +33,7 @@ from nymphes_midi.NymphesPreset import NymphesPreset
 
 kivy.require('2.1.0')
 
+app_version_string = '0.1.0 (BETA)'
 
 def presets_spinner_values_list():
     """
@@ -62,7 +63,6 @@ class NymphesGuiApp(App):
     midi_controller_output_connected = BooleanProperty(False)
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
-    presets_directory_path = StringProperty(str(Path(os.path.expanduser('~')) / 'nymphes_presets'))
 
     # This is used to track what is currently loaded.
     # Valid values: 'init', 'file', 'preset_slot'
@@ -387,7 +387,7 @@ class NymphesGuiApp(App):
         super(NymphesGuiApp, self).__init__(**kwargs)
 
         # Set the app title
-        self.title = "nymphes-gui"
+        self.title = f'NymphesEdit {app_version_string}'
 
         # Bind keyboard events
         self._bind_keyboard_events()
@@ -485,14 +485,33 @@ class NymphesGuiApp(App):
         self._popup = None
 
         #
-        # Get Configuration From config.txt
+        # Prep data folder and get Configuration From config.txt
         #
 
-        # Get the parent folder of this python file
-        curr_dir = Path(__file__).resolve().parent
+        # Set path to data folder
+        self._data_folder_path = Path(os.path.expanduser('~')) / 'nymphes-gui-data/'
 
-        # Build path to config file
-        self._config_file_path = curr_dir / 'config.txt'
+        # Make sure it exists
+        if not self._data_folder_path.exists():
+            try:
+                self._data_folder_path.mkdir()
+                Logger.info(f'Created data folder at {self._data_folder_path}')
+
+            except Exception as e:
+                Logger.critical(f'Failed to create data folder at {self._data_folder_path} ({e})')
+
+        # Path for presets folder
+        self._presets_directory_path = self._data_folder_path / 'presets'
+        if not self._presets_directory_path.exists():
+            try:
+                self._presets_directory_path.mkdir()
+                Logger.info(f'Created presets folder at {self._presets_directory_path}')
+
+            except Exception as e:
+                Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
+
+        # Path to config file
+        self._config_file_path = self._data_folder_path / 'config.txt'
 
         # Create a config file if one doesn't exist
         if not Path(self._config_file_path).exists():
@@ -673,10 +692,14 @@ class NymphesGuiApp(App):
             'incoming port': '5001'}
 
         # Write to a new config file
-        with open(filepath, 'w') as config_file:
-            config.write(config_file)
+        try:
+            with open(filepath, 'w') as config_file:
+                config.write(config_file)
 
-        Logger.info(f'Created config file at {filepath}')
+            Logger.info(f'Created config file at {filepath}')
+
+        except Exception as e:
+            Logger.critical(f'Failed to create config file at {filepath} ({e})')
 
     @staticmethod
     def _get_local_ip_address():
@@ -702,7 +725,7 @@ class NymphesGuiApp(App):
                         return ip_address
 
             except Exception as e:
-                Logger.warning(f'Failed to detect local IP address ({e})')
+                Logger.critical(f'Failed to detect local IP address ({e})')
 
                 # Default to localhost
                 return '127.0.0.1'
@@ -856,7 +879,7 @@ class NymphesGuiApp(App):
             path = Path(args[0])
 
             # Store it
-            self.presets_directory_path = str(path)
+            self._presets_directory_path = str(path)
 
             Logger.info(f'{address}: {path}')
 
@@ -1411,15 +1434,18 @@ class NymphesGuiApp(App):
         :return:
         """
         try:
-            arguments = ['--server_host', self._nymphes_osc_outgoing_host,
-                         '--server_port', str(self._nymphes_osc_outgoing_port),
-                         '--client_host', self._nymphes_osc_incoming_host,
-                         '--client_port', str(self._nymphes_osc_incoming_port),
-                         '--midi_channel', str(self._nymphes_midi_channel),
-                         '--osc_log_level', 'info',
-                         '--midi_log_level', 'info',
-                         '--presets_directory_path', self.presets_directory_path]
-            command = ['python', '-m', 'nymphes_osc'] + arguments
+            arguments = [
+                '--server_host', self._nymphes_osc_outgoing_host,
+                '--server_port', str(self._nymphes_osc_outgoing_port),
+                '--client_host', self._nymphes_osc_incoming_host,
+                '--client_port', str(self._nymphes_osc_incoming_port),
+                '--midi_channel', str(self._nymphes_midi_channel),
+                '--osc_log_level', 'info',
+                '--midi_log_level', 'info',
+                '--presets_directory_path', self._presets_directory_path
+            ]
+            nymphes_osc_path = str(Path(__file__).resolve().parent.parent.parent / 'nymphes-osc')
+            command = [nymphes_osc_path] + arguments
             self._nymphes_osc_subprocess = subprocess.Popen(
                 command,
                 text=True
@@ -1428,7 +1454,7 @@ class NymphesGuiApp(App):
             Logger.info('Started the nymphes_osc subprocess')
 
         except Exception as e:
-            Logger.critical(f'Failed to start the nymphes_osc subprocess')
+            Logger.critical(f'Failed to start the nymphes_osc subprocess ({e})')
 
     def _stop_nymphes_osc_subprocess(self):
         """
