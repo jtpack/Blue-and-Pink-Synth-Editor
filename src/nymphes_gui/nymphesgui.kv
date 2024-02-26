@@ -1069,8 +1069,8 @@ ScreenManager:
     orientation: 'horizontal'
     spacing: self.parent.spacing
 
-    MidiInputPortsSection
-    MidiOutputPortsSection
+    MidiInputPortsGrid:
+        midi_ports: app.midi_inputs_grid_names
 
 
 <MidiInputPortsSection@ControlSection>:

@@ -16,6 +16,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
+from kivy.uix.checkbox import CheckBox
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
@@ -55,12 +56,10 @@ class NymphesGuiApp(App):
     mod_wheel = NumericProperty(0)
     velocity = NumericProperty(0)
     aftertouch = NumericProperty(0)
-    non_nymphes_midi_input_names = ListProperty([])
-    non_nymphes_midi_output_names = ListProperty([])
-    midi_controller_input_name = StringProperty('Not Connected')
-    midi_controller_input_connected = BooleanProperty(False)
-    midi_controller_output_name = StringProperty('Not Connected')
-    midi_controller_output_connected = BooleanProperty(False)
+
+    midi_inputs_grid_names = ListProperty([])
+    midi_outputs_grid_names = ListProperty([])
+
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
 
@@ -69,10 +68,10 @@ class NymphesGuiApp(App):
     curr_preset_type = StringProperty('')
 
     selected_section = StringProperty('')
-    midi_inputs_spinner_values = ListProperty(['Not Connected'])
+    midi_inputs_grid_names = ListProperty([])
     midi_inputs_spinner_curr_value = StringProperty('Not Connected')
     
-    midi_outputs_spinner_values = ListProperty(['Not Connected'])
+    midi_outputs_grid_names = ListProperty([])
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     #
@@ -450,17 +449,17 @@ class NymphesGuiApp(App):
         self._sustain_pedal = 0
         self._legato = False
 
-        # Names of Detected MIDI Ports (Including Nymphes Ports)
+        # Names of Connected Nymphes MIDI Ports
+        self._nymphes_input_port = None
+        self._nymphes_output_port = None
+
+        # Names of Detected MIDI Ports (including Nymphes)
         self._detected_midi_inputs = []
         self._detected_midi_outputs = []
 
         # Names of Connected Non-Nymphes MIDI Ports
         self._connected_midi_inputs = []
         self._connected_midi_outputs = []
-
-        # Names of Connected Nymphes MIDI Ports
-        self._nymphes_input_port = None
-        self._nymphes_output_port = None
 
         # If a preset file was loaded, or we have saved a preset file,
         # then this will be a Path object
@@ -489,7 +488,7 @@ class NymphesGuiApp(App):
         #
 
         # Set path to data folder
-        self._data_folder_path = Path(os.path.expanduser('~')) / 'nymphes-gui-data/'
+        self._data_folder_path = Path(os.path.expanduser('~')) / 'nymphes_gui_data/'
 
         # Make sure it exists
         if not self._data_folder_path.exists():
@@ -1099,10 +1098,10 @@ class NymphesGuiApp(App):
                 self._detected_midi_inputs.append(port_name)
 
             # Add it to the midi inputs spinner value list
-            if port_name not in self.midi_inputs_spinner_values:
-                new_values = self.midi_inputs_spinner_values[:]
+            if port_name not in self.midi_inputs_grid_names:
+                new_values = self.midi_inputs_grid_names[:]
                 new_values.append(port_name)
-                self.set_midi_inputs_spinner_values_on_main_thread(new_values)
+                self.set_midi_inputs_grid_names_on_main_thread(new_values)
 
             Logger.info(f'{address}: {port_name}')
 
@@ -1119,10 +1118,10 @@ class NymphesGuiApp(App):
                 self._detected_midi_inputs.remove(port_name)
 
             # Remove it from the MIDI inputs spinner value list
-            if port_name in self.midi_inputs_spinner_values:
-                new_values = self.midi_inputs_spinner_values[:]
+            if port_name in self.midi_inputs_grid_names:
+                new_values = self.midi_inputs_grid_names[:]
                 new_values.remove(port_name)
-                self.set_midi_inputs_spinner_values_on_main_thread(new_values)
+                self.set_midi_inputs_grid_names_on_main_thread(new_values)
 
             Logger.info(f'{address}: {port_name}')
 
@@ -1140,9 +1139,9 @@ class NymphesGuiApp(App):
             self._detected_midi_inputs = port_names
 
             # Replace the MIDI Inputs spinner values list
-            new_values = ['Not Connected']
+            new_values = []
             new_values.extend(port_names)
-            self.set_midi_inputs_spinner_values_on_main_thread(new_values)
+            self.set_midi_inputs_grid_names_on_main_thread(new_values)
 
             Logger.info(f'{address}: {args}')
 
@@ -1207,10 +1206,10 @@ class NymphesGuiApp(App):
                 self._detected_midi_outputs.append(port_name)
 
             # Add it to the midi outputs spinner value list
-            if port_name not in self.midi_outputs_spinner_values:
-                new_values = self.midi_outputs_spinner_values[:]
+            if port_name not in self.midi_outputs_grid_names:
+                new_values = self.midi_outputs_grid_names[:]
                 new_values.append(port_name)
-                self.set_midi_outputs_spinner_values_on_main_thread(new_values)
+                self.set_midi_outputs_grid_names_on_main_thread(new_values)
 
             Logger.info(f'{address}: {port_name}')
 
@@ -1227,10 +1226,10 @@ class NymphesGuiApp(App):
                 self._detected_midi_outputs.remove(port_name)
 
             # Remove it from the MIDI outputs spinner value list
-            if port_name in self.midi_outputs_spinner_values:
-                new_values = self.midi_outputs_spinner_values[:]
+            if port_name in self.midi_outputs_grid_names:
+                new_values = self.midi_outputs_grid_names[:]
                 new_values.remove(port_name)
-                self.set_midi_outputs_spinner_values_on_main_thread(new_values)
+                self.set_midi_outputs_grid_names_on_main_thread(new_values)
                 
             Logger.info(f'{address}: {port_name}')
 
@@ -1248,9 +1247,9 @@ class NymphesGuiApp(App):
             self._detected_midi_outputs = port_names
 
             # Replace the MIDI Outputs spinner values list
-            new_values = ['Not Connected']
+            new_values = []
             new_values.extend(port_names)
-            self.set_midi_outputs_spinner_values_on_main_thread(new_values)
+            self.set_midi_outputs_grid_names_on_main_thread(new_values)
 
             Logger.info(f'{address}: {args}')
 
@@ -2504,11 +2503,11 @@ class NymphesGuiApp(App):
             # Connect to the new port
             self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_curr_value)
 
-    def set_midi_inputs_spinner_values_on_main_thread(self, values):
+    def set_midi_inputs_grid_names_on_main_thread(self, values):
         Clock.schedule_once(lambda dt: work_func(dt, values), 0)
 
         def work_func(_, new_values):
-            self.midi_inputs_spinner_values = new_values
+            self.midi_inputs_grid_names = new_values
 
     def midi_outputs_spinner_text_changed(self, text):
 
@@ -2526,11 +2525,11 @@ class NymphesGuiApp(App):
             # Connect to the new port
             self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_curr_value)
 
-    def set_midi_outputs_spinner_values_on_main_thread(self, values):
+    def set_midi_outputs_grid_names_on_main_thread(self, values):
         Clock.schedule_once(lambda dt: work_func(dt, values), 0)
 
         def work_func(_, new_values):
-            self.midi_outputs_spinner_values = new_values
+            self.midi_outputs_grid_names = new_values
 
 
     @staticmethod
@@ -3050,3 +3049,31 @@ class ParamsGridCell(BoxLayout):
 
 class ParamNameLabel(Label):
     pass
+
+
+class MidiInputPortsGrid(GridLayout):
+    midi_ports = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super(MidiInputPortsGrid, self).__init__(**kwargs)
+        self.cols = 2
+        self.bind(midi_ports=self.update_grid)
+
+    def update_grid(self, instance, value):
+        print(f'update grid: self.midi_ports: {self.midi_ports}')
+        print(f'update grid: value: {value}')
+
+        # Remove all old rows
+        self.clear_widgets()
+
+        # Create a row for each entry in midi_ports
+        for port_name in self.midi_ports:
+            # Add the label
+            self.add_widget(Label(text=port_name))
+
+            # Add a checkbox
+            self.add_widget(CheckBox())
+
+
+
+
