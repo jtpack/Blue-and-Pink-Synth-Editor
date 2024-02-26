@@ -3051,11 +3051,11 @@ class ParamNameLabel(Label):
     pass
 
 
-class MidiInputPortsGrid(GridLayout):
+class MidiPortsGrid(GridLayout):
     midi_ports = ListProperty([])
 
     def __init__(self, **kwargs):
-        super(MidiInputPortsGrid, self).__init__(**kwargs)
+        super(MidiPortsGrid, self).__init__(**kwargs)
         self.cols = 2
         self.bind(midi_ports=self.update_grid)
 
@@ -3069,11 +3069,13 @@ class MidiInputPortsGrid(GridLayout):
         # Create a row for each entry in midi_ports
         for port_name in self.midi_ports:
             # Add the label
-            self.add_widget(Label(text=port_name))
+            self.add_widget(MidiPortLabel(text=port_name))
 
             # Add a checkbox
-            self.add_widget(CheckBox())
+            self.add_widget(MidiPortCheckBox())
 
+class MidiPortLabel(Label):
+    pass
 
-
-
+class MidiPortCheckBox(CheckBox):
+    pass

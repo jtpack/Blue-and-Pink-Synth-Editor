@@ -43,8 +43,8 @@ ScreenManager:
 
     BoxLayout:
         orientation: 'vertical'
-        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
-        spacing: root.height * 0.008
+        padding: (app.curr_height * 0.008, 0, app.curr_height * 0.008, app.curr_height * 0.008)
+        spacing: app.curr_height * 0.008
 
         # Top Bar
         SettingsTopBar:
@@ -52,9 +52,17 @@ ScreenManager:
             corner_radius: root.height * 0.015
 
         MainSettingsBox:
+            size_hint: 1, 8/9
             corner_radius: root.height * 0.015
 
-        Widget
+        Widget:
+            canvas.before:
+                Color:
+                    rgba: C('#00FF0050')
+
+                Rectangle:
+                    pos: self.pos
+                    size: self.width, self.height
 
 
 
@@ -134,7 +142,7 @@ ScreenManager:
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
-        text: 'SETTINGS'
+        text: 'MIDI'
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -274,7 +282,6 @@ ScreenManager:
     orientation: 'vertical'
     corner_radius: self.parent.corner_radius
     padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
-
 
 <SectionTitleLabel>:
     background_color: 0, 1, 0, 0.3
@@ -1069,11 +1076,14 @@ ScreenManager:
     orientation: 'horizontal'
     spacing: self.parent.spacing
 
-    MidiInputPortsGrid:
-        midi_ports: app.midi_inputs_grid_names
+    MidiInputPortsSection
+    MidiOutputPortsSection
+
 
 
 <MidiInputPortsSection@ControlSection>:
+    spacing: self.parent.spacing
+
     canvas.before:
         Color:
             rgba: C('#257CFFFF')
@@ -1090,18 +1100,22 @@ ScreenManager:
             size_hint: 1, 1/12
             text: 'MIDI INPUTS'
 
-        GridLayout:
-            cols: 2
+        MidiPortsGrid:
+            midi_ports: app.midi_inputs_grid_names
 
-            MidiPortLabel:
-                text: 'PORT 1'
+#        Widget:
+#            canvas.before:
+#                Color:
+#                    rgba: C('#FF000050')
+#
+#                Rectangle:
+#                    pos: self.pos
+#                    size: self.width, self.height
 
-            MidiPortSpinner:
-                values: app.midi_inputs_spinner_values
-                text: 'Not Connected'
-                on_text: app.midi_inputs_spinner_text_changed(self.text)
 
 <MidiOutputPortsSection@ControlSection>:
+    spacing: self.parent.spacing
+
     canvas.before:
         Color:
             rgba: C('#257CFFFF')
@@ -1118,49 +1132,59 @@ ScreenManager:
             size_hint: 1, 1/12
             text: 'MIDI OUTPUTS'
 
-        GridLayout:
-            cols: 2
+        MidiPortsGrid:
+            midi_ports: app.midi_outputs_grid_names
 
-            MidiPortLabel:
-                text: 'PORT 1'
+#        Widget:
+#            canvas.before:
+#                Color:
+#                    rgba: C('#FF000050')
+#
+#                Rectangle:
+#                    pos: self.pos
+#                    size: self.width, self.height
 
-            MidiPortSpinner:
-                values: app.midi_outputs_spinner_values
-                text: 'Not Connected'
-                on_text: app.midi_outputs_spinner_text_changed(self.text)
-        
-<MidiPortLabel@Label>:
-    size_hint_y: None
-    height: app.curr_height * 1/20
+
+<MidiPortsGrid>:
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
+
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+
+<MidiPortLabel>:
+    canvas.before:
+        Color:
+            rgba: C('#FFFFFF50')
+
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
     size_hint_x: None
-    width: app.curr_width * 1/16
-    color: C('#092042FF')
-    font_size: self.height * 0.5
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    background_color: C('#00000000')
-
-
-<MidiPortSpinner@Spinner>:
+    width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
     size_hint_y: None
     height: app.curr_height * 1/20
     color: C('#092042FF')
     font_size: self.height * 0.5
     text_size: self.size
-    halign: 'center'
+    halign: 'left'
     valign: 'middle'
     background_color: C('#00000000')
-    option_cls: 'MidiPortSpinnerOption'
 
+<MidiPortCheckBox>:
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
 
-<MidiPortSpinnerOption@SpinnerOption>:
-    color: C('#092042FF')
-    font_size: app.curr_height * 1/25
-    text_size: self.size
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+    size_hint_x: None
+    width: (app.curr_width * 1/16) - app.curr_height * 0.012
     size_hint_y: None
     height: app.curr_height * 1/20
-    halign: 'center'
-    valign: 'middle'
-    background_color: C('#1D60C5F5')
-    background_normal: ''
