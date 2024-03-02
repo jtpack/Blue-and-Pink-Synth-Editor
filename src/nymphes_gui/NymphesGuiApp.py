@@ -612,6 +612,10 @@ class NymphesGuiApp(App):
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
 
+    def set_float_mode(self, enable_float_mode):
+        # Update the property
+        self.float_mode = enable_float_mode
+
     def _load_config_file(self, filepath):
         """
         Load the contents of the specified config txt file.
@@ -3014,6 +3018,8 @@ class VoiceModeBox(BoxLayout):
 class LegatoBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
+class FloatModeBox(BoxLayout):
+    corner_radius = NumericProperty(0)
 
 class LeftBar(BoxLayout):
     corner_radius = NumericProperty(0)

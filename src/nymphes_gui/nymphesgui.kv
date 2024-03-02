@@ -209,13 +209,19 @@ ScreenManager:
 
     # Voice Mode Box
     VoiceModeBox:
-        size_hint: 1, 6/7
+        size_hint: 1, 5/7
         corner_radius: root.corner_radius
 
     LegatoBox:
         size_hint: 1, 1/7
         corner_radius: root.corner_radius
         text: 'LEGATO'
+
+    FloatModeBox:
+        size_hint: 1, 1/7
+        corner_radius: root.corner_radius
+        text: 'FLOAT'
+
 
 <VoiceModeBox>:
     orientation: 'vertical'
@@ -279,6 +285,30 @@ ScreenManager:
     on_release: app.set_legato(not app.legato)
     disabled: not app.nymphes_connected
 
+<FloatModeBox>:
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    FloatModeButton
+
+<FloatModeButton@ButtonBehavior+Label>:
+    text: 'FLOAT MODE'
+    size_hint: 1, 1
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    color: C('#ECBFEBFF') if app.float_mode else C('#06070FFF')
+    font_size: (self.height * 0.275) if app.float_mode else (self.height * 0.25)
+    on_release: app.set_float_mode(not app.float_mode)
+    disabled: not app.nymphes_connected
 
 <ControlSection>:
     orientation: 'vertical'
