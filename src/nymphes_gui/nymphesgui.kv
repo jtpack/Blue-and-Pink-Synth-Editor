@@ -1133,6 +1133,19 @@ ScreenManager:
             size_hint: 1, 1/12
             text: 'MIDI INPUTS'
 
+        GridLayout:
+            cols: 2
+
+            MidiPortColumnHeaderLabel:
+                text: 'Name'
+                size_hint_x: None
+                width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+
+            MidiPortColumnHeaderLabel:
+                text: 'Enabled'
+                size_hint_x: None
+                width: (app.curr_width * 1/16) - app.curr_height * 0.012
+
         MidiPortsGrid:
             midi_ports: app.midi_inputs_grid_names
 
@@ -1164,6 +1177,19 @@ ScreenManager:
         SectionTitleLabel:
             size_hint: 1, 1/12
             text: 'MIDI OUTPUTS'
+
+        GridLayout:
+            cols: 2
+
+            MidiPortColumnHeaderLabel:
+                text: 'Name'
+                size_hint_x: None
+                width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+
+            MidiPortColumnHeaderLabel:
+                text: 'Enabled'
+                size_hint_x: None
+                width: (app.curr_width * 1/16) - app.curr_height * 0.012
 
         MidiPortsGrid:
             midi_ports: app.midi_outputs_grid_names
@@ -1221,3 +1247,13 @@ ScreenManager:
     width: (app.curr_width * 1/16) - app.curr_height * 0.012
     size_hint_y: None
     height: app.curr_height * 1/20
+
+<MidiPortColumnHeaderLabel@Label>:
+    size_hint_y: None
+    height: app.curr_height * 1/30
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
