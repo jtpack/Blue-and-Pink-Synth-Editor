@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 a = Analysis(
-    ['run.py'],
+    ['src/nymphes_gui/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[
@@ -12,7 +12,7 @@ a = Analysis(
         ('src/nymphes_gui/nymphesgui.kv', 'src/nymphes_gui'),
         ('nymphes-osc', '.')
     ],
-    hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc')],
+    hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -26,7 +26,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='run',
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

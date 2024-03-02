@@ -1,5 +1,8 @@
+import logging
 from pathlib import Path
 import os
+from multiprocessing import Process, set_start_method, freeze_support
+
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
 
@@ -29,8 +32,10 @@ import netifaces
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
 #Logger.setLevel(LOG_LEVELS["debug"])
-import subprocess
 from nymphes_midi.NymphesPreset import NymphesPreset
+from nymphes_osc.NymphesOSC import NymphesOSC
+
+import time
 
 kivy.require('2.1.0')
 
@@ -421,7 +426,7 @@ class NymphesGuiApp(App):
         #
         # nymphes-osc properties
         #
-        self._nymphes_osc_subprocess = None
+        self._nymphes_osc_child_process = None
 
         self._nymphes_osc_incoming_host = None
         self._nymphes_osc_incoming_port = None
@@ -526,8 +531,8 @@ class NymphesGuiApp(App):
 
         Logger.debug(f'Window size: {self.curr_width}, {self.curr_height}')
 
-        # Start the nymphes_osc subprocess
-        self._start_nymphes_osc_subprocess()
+        # Start the nymphes_osc child process
+        self._start_nymphes_osc_child_process()
 
         #
         # Start OSC Communication
@@ -1425,46 +1430,63 @@ class NymphesGuiApp(App):
 
             Logger.info(f'{address}: {host_name}:{port}')
 
-    def _start_nymphes_osc_subprocess(self):
+    def _start_nymphes_osc_child_process(self):
         """
-        Start the nymphes_osc subprocess, which handles all
+        Start the nymphes_osc child process, which handles all
         communication with the Nymphes synthesizer and with
         which we communicate with via OSC.
         :return:
         """
         try:
-            arguments = [
-                '--server_host', self._nymphes_osc_outgoing_host,
-                '--server_port', str(self._nymphes_osc_outgoing_port),
-                '--client_host', self._nymphes_osc_incoming_host,
-                '--client_port', str(self._nymphes_osc_incoming_port),
-                '--midi_channel', str(self._nymphes_midi_channel),
-                '--osc_log_level', 'info',
-                '--midi_log_level', 'info',
-                '--presets_directory_path', self._presets_directory_path
-            ]
-            nymphes_osc_path = str(Path(__file__).resolve().parent.parent.parent / 'nymphes-osc')
-            command = [nymphes_osc_path] + arguments
-            self._nymphes_osc_subprocess = subprocess.Popen(
-                command,
-                text=True
+            Logger.info('Starting nymphes-osc child process...')
+            self._nymphes_osc_child_process = NymphesOscProcess(
+                server_host=self._nymphes_osc_outgoing_host,
+                server_port=self._nymphes_osc_outgoing_port,
+                client_host=self._nymphes_osc_incoming_host,
+                client_port=self._nymphes_osc_incoming_port,
+                nymphes_midi_channel=self._nymphes_midi_channel,
+                osc_log_level=logging.DEBUG,
+                midi_log_level=logging.DEBUG,
+                presets_directory_path=self._presets_directory_path
             )
 
-            Logger.info('Started the nymphes_osc subprocess')
+            self._nymphes_osc_child_process.start()
+
+
+            #
+            #
+            # arguments = [
+            #     '--server_host', self._nymphes_osc_outgoing_host,
+            #     '--server_port', str(self._nymphes_osc_outgoing_port),
+            #     '--client_host', self._nymphes_osc_incoming_host,
+            #     '--client_port', str(self._nymphes_osc_incoming_port),
+            #     '--midi_channel', str(self._nymphes_midi_channel),
+            #     '--osc_log_level', 'info',
+            #     '--midi_log_level', 'info',
+            #     '--presets_directory_path', self._presets_directory_path
+            # ]
+            # nymphes_osc_path = str(Path(__file__).resolve().parent.parent.parent / 'nymphes-osc')
+            # command = [nymphes_osc_path] + arguments
+            # self._nymphes_osc_child_process = subprocess.Popen(
+            #     command,
+            #     text=True
+            # )
+
+            Logger.info('Started the nymphes_osc child process')
 
         except Exception as e:
-            Logger.critical(f'Failed to start the nymphes_osc subprocess ({e})')
+            Logger.critical(f'Failed to start the nymphes_osc child process ({e})')
 
-    def _stop_nymphes_osc_subprocess(self):
+    def _stop_nymphes_osc_child_process(self):
         """
-        Stop the nymphes_osc subprocess if it is running
+        Stop the nymphes_osc child process if it is running
         :return:
         """
-        Logger.info('Stopping the nymphes_osc subprocess')
-        if self._nymphes_osc_subprocess is not None:
-            if self._nymphes_osc_subprocess.poll() is None:
-                self._nymphes_osc_subprocess.terminate()
-                self._nymphes_osc_subprocess.wait()
+        Logger.info('Stopping the nymphes_osc child process...')
+        if self._nymphes_osc_child_process is not None:
+            self._nymphes_osc_child_process.kill()
+            self._nymphes_osc_child_process.join()
+            self._nymphes_osc_child_process = None
 
     def on_stop(self):
         """
@@ -1477,8 +1499,8 @@ class NymphesGuiApp(App):
         self._stop_nymphes_osc_server()
         self._stop_encoder_osc_server()
 
-        # Stop the nymphes_osc subprocess
-        self._stop_nymphes_osc_subprocess()
+        # Stop the nymphes_osc child process
+        self._stop_nymphes_osc_child_process()
 
     @staticmethod
     def parse_preset_index(preset_index):
@@ -3079,3 +3101,42 @@ class MidiPortLabel(Label):
 
 class MidiPortCheckBox(CheckBox):
     pass
+
+class NymphesOscProcess(Process):
+
+    def __init__(self, server_host, server_port, client_host, client_port, nymphes_midi_channel, osc_log_level, midi_log_level, presets_directory_path):
+        super(NymphesOscProcess, self).__init__()
+
+        self.nymphes_osc_object = None
+
+        self.server_host = server_host
+        self.server_port = server_port
+        self.client_host = client_host
+        self.client_port = client_port
+        self.nymphes_midi_channel = nymphes_midi_channel
+        self.osc_log_level = osc_log_level
+        self.midi_log_level = midi_log_level
+        self.presets_directory_path = presets_directory_path
+
+    def run(self):
+        # Create the nymphes-osc object
+        self.nymphes_osc_object = NymphesOSC(
+            nymphes_midi_channel=self.nymphes_midi_channel,
+            server_host=self.server_host,
+            server_port=self.server_port,
+            client_host=self.client_host,
+            client_port=self.client_port,
+            use_mdns=False,
+            osc_log_level=self.osc_log_level,
+            midi_log_level=self.midi_log_level,
+            presets_directory_path=self.presets_directory_path
+        )
+
+        # Start updating
+        try:
+            while True:
+                self.nymphes_osc_object.update()
+                time.sleep(0.0001)
+        except KeyboardInterrupt:
+            Logger.warning(f'nymphes-osc is about to close')
+            self.nymphes_osc_object.stop_osc_server()
