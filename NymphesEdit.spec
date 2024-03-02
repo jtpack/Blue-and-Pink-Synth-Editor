@@ -9,8 +9,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('src/nymphes_gui/app_config.ini', 'src/nymphes_gui'),
-        ('src/nymphes_gui/nymphesgui.kv', 'src/nymphes_gui'),
-        ('nymphes-osc', '.')
+        ('src/nymphes_gui/nymphesgui.kv', 'src/nymphes_gui')
     ],
     hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],

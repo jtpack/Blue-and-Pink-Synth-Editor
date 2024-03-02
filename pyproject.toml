@@ -19,7 +19,8 @@ dependencies = [
     "python-osc",
     "netifaces",
     "kivy[base]",
-    "zeroconf"
+    "zeroconf",
+    "pyinstaller"
 ]
 requires-python = ">=3.9"
 
