@@ -126,13 +126,15 @@ ScreenManager:
         on_release: app.reload()
         disabled: not app.nymphes_connected or app.curr_preset_type == ''
 
-    TopBarSpinner:
+    TopBarButton:
         size_hint_x: 1/6
-        font_size: self.height * 0.4
-        text: 'FILE'
-        values: ['FILE', 'OPEN', 'SAVE', 'SAVE AS']
-        sync_height: True
-        on_text: app.file_spinner_text_changed(self, self.values.index(self.text), self.text)
+        text: 'OPEN'
+        on_release: app.show_load_dialog()
+
+    TopBarButton:
+        size_hint_x: 1/6
+        text: 'SAVE'
+        on_release: app.show_save_dialog()
 
     Widget:
         size_hint_x: 1/6
@@ -1017,7 +1019,7 @@ ScreenManager:
     orientation: 'vertical'
     FileChooserListView:
         id: filechooser
-        path: app.preset_files_directory_path
+        path: str(app._presets_directory_path)
     BoxLayout:
         size_hint_y: 1/8
         Button:
@@ -1041,11 +1043,12 @@ ScreenManager:
     orientation: "vertical"
     FileChooserListView:
         id: filechooser
-        path: app.preset_files_directory_path
+        path: str(app._presets_directory_path)
         on_selection: text_input.text = self.selection and self.selection[0] or ''
 
     TextInput:
         id: text_input
+        text: root.default_filename
         text_size: self.size
         font_size: self.height * 0.3
         halign: 'left'

@@ -983,6 +983,7 @@ class NymphesGuiApp(App):
             # Reset current preset slot info
             self._curr_preset_slot_type = None
             self._curr_preset_slot_bank_and_number = None
+            self._curr_preset_file_path = None
 
             # Update the presets spinner
             # Select the init option
@@ -1629,7 +1630,11 @@ class NymphesGuiApp(App):
         self._popup.open()
 
     def show_save_dialog(self):
-        content = SaveDialog(save=self.on_file_save_dialog, cancel=self.dismiss_popup)
+        content = SaveDialog(
+            save=self.on_file_save_dialog,
+            cancel=self.dismiss_popup,
+            default_filename=self._curr_preset_file_path.stem if self._curr_preset_file_path is not None else ''
+        )
         self._popup = Popup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
@@ -2452,32 +2457,6 @@ class NymphesGuiApp(App):
             # Load the preset
             self.load_preset_by_index(preset_slot_index)
 
-    def file_spinner_text_changed(self, spinner, index, text):
-        if text == 'OPEN':
-            # Show the file load dialog
-            self.show_load_dialog()
-
-        elif text == 'SAVE AS':
-            # Prompt the user for a file name and location
-            self.show_save_dialog()
-
-        elif text == 'SAVE':
-            if self.curr_preset_type == 'file':
-                # The current preset is a file, so we are updating it.
-                self.update_current_preset_file()
-
-            else:
-                # The current preset is either init or a preset slot,
-                # so prompt the user to choose a file name and location
-                self.show_save_dialog()
-
-        else:
-            return
-
-        # Reset the spinner back to the first option, which we
-        # are using as a title
-        spinner.text = 'FILE'
-
     def update_current_preset_file(self):
         """
         Save the current settings to the currently-loaded or saved
@@ -2810,6 +2789,7 @@ class SaveDialog(BoxLayout):
     save = ObjectProperty(None)
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
+    default_filename = StringProperty('')
     
     def __init__(self, **kwargs):
         super(SaveDialog, self).__init__(**kwargs)
