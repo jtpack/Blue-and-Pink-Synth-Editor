@@ -31,7 +31,7 @@ import netifaces
 # import logging
 # from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
-#Logger.setLevel(LOG_LEVELS["debug"])
+Logger.setLevel(LOG_LEVELS["debug"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 from nymphes_osc.NymphesOSC import NymphesOSC
 
@@ -64,6 +64,12 @@ class NymphesGuiApp(App):
 
     midi_inputs_grid_names = ListProperty([])
     midi_outputs_grid_names = ListProperty([])
+
+    connected_midi_input_names = ListProperty([])
+    connected_midi_output_names = ListProperty([])
+
+    nymphes_input_name = StringProperty('')
+    nymphes_output_name = StringProperty('')
 
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
@@ -458,11 +464,15 @@ class NymphesGuiApp(App):
         self._nymphes_input_port = None
         self._nymphes_output_port = None
 
-        # Names of Detected MIDI Ports (including Nymphes)
+        # Names of detected Nymphes MIDI ports
+        self._detected_nymphes_midi_inputs = []
+        self._detected_nymphes_midi_outputs = []
+
+        # Names of Detected MIDI Ports
         self._detected_midi_inputs = []
         self._detected_midi_outputs = []
 
-        # Names of Connected Non-Nymphes MIDI Ports
+        # Names of Connected MIDI Ports
         self._connected_midi_inputs = []
         self._connected_midi_outputs = []
 
@@ -866,10 +876,10 @@ class NymphesGuiApp(App):
             host_name = str(args[0])
             port = int(args[1])
 
+            Logger.info(f'{address}: {host_name}:{port}')
+
             # We are connected to nymphes_osc
             self._connected_to_nymphes_osc = True
-
-            Logger.info(f'{address}: {host_name}:{port}')
 
         elif address == '/client_unregistered':
             # Get the hostname and port
@@ -877,57 +887,151 @@ class NymphesGuiApp(App):
             host_name = str(args[0])
             port = int(args[1])
 
+            Logger.info(f'{address}: {host_name}:{port}')
+
             # We are no longer connected to nymphes-osc
             self._connected_to_nymphes_osc = False
-
-            Logger.info(f'{address}: {host_name}:{port}')
 
         elif address == '/presets_directory_path':
             # Get the path
             path = Path(args[0])
 
+            Logger.info(f'{address}: {path}')
+
             # Store it
             self._presets_directory_path = str(path)
 
-            Logger.info(f'{address}: {path}')
+        elif address == '/nymphes_midi_input_detected':
+            #
+            # A Nymphes MIDI input port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected Nymphes MIDI input ports
+            if port_name not in self._detected_nymphes_midi_inputs:
+                self._detected_nymphes_midi_inputs.append(port_name)
+                self.add_midi_input_grid_name_on_main_thread(port_name)
+
+            # Try automatically connecting to the first Nymphes if we
+            # now have both an input and output port
+            if not self.nymphes_connected:
+                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
+                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
+                    self._send_nymphes_osc(
+                        '/connect_nymphes',
+                        self._detected_nymphes_midi_inputs[0],
+                        self._detected_nymphes_midi_outputs[0]
+                    )
+
+        elif address == '/nymphes_midi_input_no_longer_detected':
+            #
+            # A previously-detected Nymphes MIDI input port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected Nymphes MIDI input ports
+            if port_name in self._detected_nymhes_midi_inputs:
+                self._detected_nymhes_midi_inputs.remove(port_name)
+                self.remove_midi_input_grid_name_on_main_thread(port_name)
+            
+        elif address == '/nymphes_midi_output_detected':
+            #
+            # A Nymphes MIDI output port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected Nymphes MIDI output ports
+            if port_name not in self._detected_nymphes_midi_outputs:
+                self._detected_nymphes_midi_outputs.append(port_name)
+                self.add_midi_output_grid_name_on_main_thread(port_name)
+
+            # Try automatically connecting to the first Nymphes if we
+            # now have both an input and output port
+            if not self.nymphes_connected:
+                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
+                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
+                    self._send_nymphes_osc(
+                        '/connect_nymphes',
+                        self._detected_nymphes_midi_inputs[0],
+                        self._detected_nymphes_midi_outputs[0]
+                    )
+
+        elif address == '/nymphes_midi_output_no_longer_detected':
+            #
+            # A previously-detected Nymphes MIDI output port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected Nymphes MIDI output ports
+            if port_name in self._detected_nymhes_midi_outputs:
+                self._detected_nymhes_midi_outputs.remove(port_name)
+                self.remove_midi_output_grid_name_on_main_thread(port_name)
 
         elif address == '/nymphes_connected':
             #
             # nymphes_midi has connected to a Nymphes synthesizer
             #
+            input_port = str(args[0])
+            output_port = str(args[1])
+
+            Logger.info(f'{address}: input_port: {input_port}, output_port: {output_port}')
 
             # Get the names of the MIDI input and output ports
-            self._nymphes_input_port = str(args[0])
-            self._nymphes_output_port = str(args[1])
+            self._nymphes_input_port = input_port
+            self._nymphes_output_port = output_port
+            
+            self.set_nymphes_input_name_on_main_thread(input_port)
+            self.set_nymphes_output_name_on_main_thread(output_port)
 
             # Update app state
             self.nymphes_connected = True
-
-            Logger.info(f'{address}: input_port: {self._nymphes_input_port}, output_port: {self._nymphes_output_port}')
 
         elif address == '/nymphes_disconnected':
             #
             # nymphes_midi is no longer connected to a Nymphes synthesizer
             #
 
+            Logger.info(f'{address}')
+
             # Update app state
             self.nymphes_connected = False
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            Logger.info(f'{address}:')
+            self.set_nymphes_input_name_on_main_thread('')
+            self.set_nymphes_output_name_on_main_thread('')
 
         elif address == '/loaded_preset':
             #
             # The Nymphes synthesizer has just loaded a preset
             #
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
+
+            Logger.info(f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
             # Update the current preset type
             self.curr_preset_type = 'preset_slot'
 
             # Store preset slot info
-            self._curr_preset_slot_type = str(args[0])
-            self._curr_preset_slot_bank_and_number = str(args[1]), int(args[2])
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
             # Get the index of the loaded preset
             preset_slot_index = NymphesGuiApp.index_from_preset_info(
@@ -944,26 +1048,29 @@ class NymphesGuiApp(App):
             if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
                 self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
 
-            Logger.info(f'{address}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}')
-
         elif address == '/loaded_preset_dump_from_midi_input_port':
             port_name = str(args[0])
-            self._curr_preset_slot_type = str(args[1])
-            self._curr_preset_slot_bank_and_number = str(args[2]), int(args[3])
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.info(
-                f'{address}: {port_name}: {self._curr_preset_slot_type} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}')
+            Logger.info(f'{address}: {port_name}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
         elif address == '/loaded_file':
             #
             # A preset file was loaded
             #
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
 
             # Update the current preset type
             self.curr_preset_type = 'file'
 
             # Store the path to the file
-            self._curr_preset_file_path = Path(args[0])
+            self._curr_preset_file_path = filepath
 
             # Reset current preset slot info
             self._curr_preset_slot_type = None
@@ -974,12 +1081,13 @@ class NymphesGuiApp(App):
             # and updates self._curr_presets_spinner_index.
             self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
 
-            Logger.info(f'{address}: {self._curr_preset_file_path}')
 
         elif address == '/loaded_init_file':
             #
             # The init preset file was loaded
             #
+
+            Logger.info(f'{address}: {str(args[0])}')
 
             # Update the current preset type
             self.curr_preset_type = 'init'
@@ -994,18 +1102,19 @@ class NymphesGuiApp(App):
             self.presets_spinner_text = 'init'
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
 
-            Logger.info(f'{address}: {str(args[0])}')
-
         elif address == '/saved_to_file':
             #
             # The current settings have been saved to a preset file
             #
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
 
             # Update the current preset type
             self.curr_preset_type = 'file'
 
             # Store the path to the file
-            self._curr_preset_file_path = Path(args[0])
+            self._curr_preset_file_path = filepath
 
             # Reset current preset slot info
             self._curr_preset_slot_type = None
@@ -1015,8 +1124,6 @@ class NymphesGuiApp(App):
             # This also sets the spinner's current text
             # and updates self._curr_presets_spinner_index.
             self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
-
-            Logger.info(f'{address}: {self._curr_preset_file_path}')
 
         elif address == '/saved_preset_to_file':
             #
@@ -1103,17 +1210,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Add it to our list of detected MIDI input ports
             if port_name not in self._detected_midi_inputs:
                 self._detected_midi_inputs.append(port_name)
-
-            # Add it to the midi inputs spinner value list
-            if port_name not in self.midi_inputs_grid_names:
-                new_values = self.midi_inputs_grid_names[:]
-                new_values.append(port_name)
-                self.set_midi_inputs_grid_names_on_main_thread(new_values)
-
-            Logger.info(f'{address}: {port_name}')
+                self.add_midi_input_grid_name_on_main_thread(port_name)
 
         elif address == '/midi_input_no_longer_detected':
             #
@@ -1123,37 +1225,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Remove it from our list of detected MIDI input ports
             if port_name in self._detected_midi_inputs:
                 self._detected_midi_inputs.remove(port_name)
-
-            # Remove it from the MIDI inputs spinner value list
-            if port_name in self.midi_inputs_grid_names:
-                new_values = self.midi_inputs_grid_names[:]
-                new_values.remove(port_name)
-                self.set_midi_inputs_grid_names_on_main_thread(new_values)
-
-            Logger.info(f'{address}: {port_name}')
-
-        elif address == '/detected_midi_inputs':
-            #
-            # A full list of detected MIDI input ports has been sent
-            #
-
-            # Get the port names
-            port_names = []
-            for arg in args:
-                port_names.append(str(arg))
-
-            # Replace our list of detected MIDI inputs
-            self._detected_midi_inputs = port_names
-
-            # Replace the MIDI Inputs spinner values list
-            new_values = []
-            new_values.extend(port_names)
-            self.set_midi_inputs_grid_names_on_main_thread(new_values)
-
-            Logger.info(f'{address}: {args}')
+                self.remove_midi_input_grid_name_on_main_thread(port_name)
 
         elif address == '/midi_input_connected':
             #
@@ -1163,11 +1240,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Add it to our list of connected MIDI input ports
             if port_name not in self._connected_midi_inputs:
                 self._connected_midi_inputs.append(port_name)
-
-            Logger.info(f'{address}: {port_name}')
+                self.add_connected_midi_input_name_on_main_thread(port_name)
 
         elif address == '/midi_input_disconnected':
             #
@@ -1177,31 +1255,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Remove it from our list of connected MIDI input ports
             if port_name in self._connected_midi_inputs:
                 self._connected_midi_inputs.remove(port_name)
-
-            Logger.info(f'{address}: {port_name}')
-
-        elif address == '/connected_midi_inputs':
-            #
-            # A full list of connected MIDI input ports has been sent
-            #
-
-            # Get the port names
-            port_names = []
-            for arg in args:
-                port_names.append(str(arg))
-
-            # Replace our list of connected MIDI inputs
-            self._connected_midi_inputs = port_names
-
-            if len(self._connected_midi_inputs) > 0:
-                # Set the MIDI input spinner's value to
-                # the first port
-                self.midi_inputs_spinner_curr_value = self._connected_midi_inputs[0]
-
-            Logger.info(f'{address}: {args}')
+                self.remove_connected_midi_input_name_on_main_thread(port_name)
 
         elif address == '/midi_output_detected':
             #
@@ -1211,17 +1270,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Add it to our list of detected MIDI output ports
             if port_name not in self._detected_midi_outputs:
                 self._detected_midi_outputs.append(port_name)
-
-            # Add it to the midi outputs spinner value list
-            if port_name not in self.midi_outputs_grid_names:
-                new_values = self.midi_outputs_grid_names[:]
-                new_values.append(port_name)
-                self.set_midi_outputs_grid_names_on_main_thread(new_values)
-
-            Logger.info(f'{address}: {port_name}')
+                self.add_midi_output_grid_name_on_main_thread(port_name)
 
         elif address == '/midi_output_no_longer_detected':
             #
@@ -1231,37 +1285,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Remove it from our list of detected MIDI output ports
             if port_name in self._detected_midi_outputs:
                 self._detected_midi_outputs.remove(port_name)
-
-            # Remove it from the MIDI outputs spinner value list
-            if port_name in self.midi_outputs_grid_names:
-                new_values = self.midi_outputs_grid_names[:]
-                new_values.remove(port_name)
-                self.set_midi_outputs_grid_names_on_main_thread(new_values)
-                
-            Logger.info(f'{address}: {port_name}')
-
-        elif address == '/detected_midi_outputs':
-            #
-            # A full list of detected MIDI output ports has been sent
-            #
-
-            # Get the port names
-            port_names = []
-            for arg in args:
-                port_names.append(str(arg))
-
-            # Replace our list of detected MIDI outputs
-            self._detected_midi_outputs = port_names
-
-            # Replace the MIDI Outputs spinner values list
-            new_values = []
-            new_values.extend(port_names)
-            self.set_midi_outputs_grid_names_on_main_thread(new_values)
-
-            Logger.info(f'{address}: {args}')
+                self.remove_midi_output_grid_name_on_main_thread(port_name)
 
         elif address == '/midi_output_connected':
             #
@@ -1271,11 +1300,12 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Add it to our list of connected MIDI output ports
             if port_name not in self._connected_midi_outputs:
                 self._connected_midi_outputs.append(port_name)
-
-            Logger.info(f'{address}: {port_name}')
+                self.add_connected_midi_output_name_on_main_thread(port_name)
 
         elif address == '/midi_output_disconnected':
             #
@@ -1285,58 +1315,51 @@ class NymphesGuiApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
+            Logger.info(f'{address}: {port_name}')
+
             # Remove it from our list of connected MIDI output ports
             if port_name in self._connected_midi_outputs:
                 self._connected_midi_outputs.remove(port_name)
-
-            Logger.info(f'{address}: {port_name}')
-
-        elif address == '/connected_midi_outputs':
-            #
-            # A full list of connected MIDI output ports has been sent
-            #
-
-            # Get the port names
-            port_names = []
-            for arg in args:
-                port_names.append(str(arg))
-
-            # Replace our list of connected MIDI outputs
-            self._connected_midi_outputs = port_names
-            
-            if len(self._connected_midi_outputs) > 0:
-                # Set the MIDI output spinner's value to
-                # the first port
-                self.midi_outputs_spinner_curr_value = self._connected_midi_outputs[0]
-
-            Logger.info(f'{address}: {args}')
+                self.remove_connected_midi_output_name_on_main_thread(port_name)
 
         elif address == '/mod_wheel':
-            self._mod_wheel = int(args[0])
-            Logger.debug(f'{address}: {self._mod_wheel}')
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._mod_wheel = val
 
         elif address == '/velocity':
-            self._velocity = int(args[0])
-            Logger.debug(f'{address}: {self._velocity}')
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._velocity = val
 
         elif address == '/aftertouch':
-            self._aftertouch = int(args[0])
-            Logger.debug(f'{address}: {self._aftertouch}')
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._aftertouch = val
 
         elif address == '/sustain_pedal':
-            self._sustain_pedal = int(args[0])
-            Logger.debug(f'{address}: {self._sustain_pedal}')
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._sustain_pedal = val
 
         elif address == '/nymphes_midi_channel_changed':
-            self._nymphes_midi_channel = int(args[0])
-            Logger.debug(f'{address}: {self._nymphes_midi_channel}')
+            midi_channel = int(args[0])
+            Logger.debug(f'{address}: {midi_channel}')
+
+            self._nymphes_midi_channel = midi_channel
 
         elif address == '/status':
             Logger.info(f'{address}: {args[0]}')
 
         elif address == '/legato':
-            self._legato = bool(args[0])
-            Logger.debug(f'{address}: {self._legato}')
+            val = bool(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._legato = val
 
         elif address == '/osc/voice_mode/value':
             voice_mode = int(args[0])
@@ -1393,10 +1416,10 @@ class NymphesGuiApp(App):
                     #
                     value = int(args[0])
 
+                Logger.debug(f'Received param name {param_name}: {args[0]}')
+
                 # Set our property for this parameter
                 setattr(self, param_name.replace('.', '_'), value)
-
-                Logger.debug(f'Received param name {param_name}: {args[0]}')
 
             else:
                 # This is an unrecognized OSC message
@@ -1450,8 +1473,8 @@ class NymphesGuiApp(App):
                 client_host=self._nymphes_osc_incoming_host,
                 client_port=self._nymphes_osc_incoming_port,
                 nymphes_midi_channel=self._nymphes_midi_channel,
-                osc_log_level=logging.DEBUG,
-                midi_log_level=logging.DEBUG,
+                osc_log_level=logging.WARNING,
+                midi_log_level=logging.WARNING,
                 presets_directory_path=self._presets_directory_path
             )
 
@@ -2492,50 +2515,94 @@ class NymphesGuiApp(App):
         # Rebind keyboard events for the app itself
         self._bind_keyboard_events()
 
-    def midi_inputs_spinner_text_changed(self, text):
+    def set_nymphes_input_name_on_main_thread(self, port_name):
+        Logger.debug(f'set_nymphes_input_name_on_main_thread: {port_name}')
 
-        if self.midi_inputs_spinner_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_input', self.midi_inputs_spinner_curr_value)
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
-            # Update the current value
-            self.midi_inputs_spinner_curr_value = 'Not Connected'
+        def work_func(_, new_port_name):
+            self.nymphes_input_name = new_port_name
+            
+    def set_nymphes_output_name_on_main_thread(self, port_name):
+        Logger.debug(f'set_nymphes_output_name_on_main_thread: {port_name}')
 
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_inputs_spinner_curr_value = text
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_input', self.midi_inputs_spinner_curr_value)
+        def work_func(_, new_port_name):
+            self.nymphes_output_name = new_port_name
+        
 
-    def set_midi_inputs_grid_names_on_main_thread(self, values):
-        Clock.schedule_once(lambda dt: work_func(dt, values), 0)
+    def add_midi_input_grid_name_on_main_thread(self, port_name):
+        Logger.debug(f'add_midi_input_grid_name_on_main_thread: {port_name}')
 
-        def work_func(_, new_values):
-            self.midi_inputs_grid_names = new_values
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
-    def midi_outputs_spinner_text_changed(self, text):
+        def work_func(_, new_port_name):
+            self.midi_inputs_grid_names.append(new_port_name)
+            self.midi_inputs_grid_names.sort()
 
-        if self.midi_outputs_spinner_curr_value != 'Not Connected':
-            # Disconnect from the currently-selected port
-            self._send_nymphes_osc('/disconnect_midi_output', self.midi_outputs_spinner_curr_value)
+    def remove_midi_input_grid_name_on_main_thread(self, port_name):
+        Logger.debug(f'remove_midi_input_grid_name_on_main_thread: {port_name}')
 
-            # Update the current value
-            self.midi_outputs_spinner_curr_value = 'Not Connected'
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
-        if text != 'Not Connected':
-            # Update the current value to the new port name
-            self.midi_outputs_spinner_curr_value = text
+        def work_func(_, new_port_name):
+            if new_port_name in self.midi_inputs_grid_names:
+                self.midi_inputs_grid_names.remove(new_port_name)
 
-            # Connect to the new port
-            self._send_nymphes_osc('/connect_midi_output', self.midi_outputs_spinner_curr_value)
+    def add_midi_output_grid_name_on_main_thread(self, port_name):
+        Logger.debug(f'add_midi_output_grid_name_on_main_thread: {port_name}')
 
-    def set_midi_outputs_grid_names_on_main_thread(self, values):
-        Clock.schedule_once(lambda dt: work_func(dt, values), 0)
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
-        def work_func(_, new_values):
-            self.midi_outputs_grid_names = new_values
+        def work_func(_, new_port_name):
+            self.midi_outputs_grid_names.append(new_port_name)
+            self.midi_outputs_grid_names.sort()
 
+    def remove_midi_output_grid_name_on_main_thread(self, port_name):
+        Logger.debug(f'remove_midi_output_grid_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            if new_port_name in self.midi_outputs_grid_names:
+                self.midi_outputs_grid_names.remove(new_port_name)
+
+    def add_connected_midi_input_name_on_main_thread(self, port_name):
+        Logger.debug(f'add_connected_midi_input_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            self.connected_midi_input_names.append(new_port_name)
+            self.connected_midi_input_names.sort()
+
+    def remove_connected_midi_input_name_on_main_thread(self, port_name):
+        Logger.debug(f'remove_connected_midi_input_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            if new_port_name in self.connected_midi_input_names:
+                self.connected_midi_input_names.remove(new_port_name)
+                
+    def add_connected_midi_output_name_on_main_thread(self, port_name):
+        Logger.debug(f'add_connected_midi_output_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            self.connected_midi_output_names.append(new_port_name)
+            self.connected_midi_output_names.sort()
+
+    def remove_connected_midi_output_name_on_main_thread(self, port_name):
+        Logger.debug(f'remove_connected_midi_output_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            if new_port_name in self.connected_midi_output_names:
+                self.connected_midi_output_names.remove(new_port_name)
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3059,17 +3126,17 @@ class ParamNameLabel(Label):
     pass
 
 
-class MidiPortsGrid(GridLayout):
+class MidiInputPortsGrid(GridLayout):
     midi_ports = ListProperty([])
 
     def __init__(self, **kwargs):
-        super(MidiPortsGrid, self).__init__(**kwargs)
-        self.cols = 2
+        super(MidiInputPortsGrid, self).__init__(**kwargs)
+        self.cols = 3
         self.bind(midi_ports=self.update_grid)
 
     def update_grid(self, instance, value):
-        print(f'update grid: self.midi_ports: {self.midi_ports}')
-        print(f'update grid: value: {value}')
+        print(f'MidiInputPortsGrid update grid: self.midi_ports: {self.midi_ports}')
+        print(f'MidiInputPortsGrid update grid: value: {value}')
 
         # Remove all old rows
         self.clear_widgets()
@@ -3080,13 +3147,51 @@ class MidiPortsGrid(GridLayout):
             self.add_widget(MidiPortLabel(text=port_name))
 
             # Add a checkbox
-            self.add_widget(MidiPortCheckBox())
+            self.add_widget(NymphesInputPortCheckBox(port_name=port_name))
+
+            # Add a checkbox
+            self.add_widget(MidiInputPortCheckBox(port_name=port_name))
+            
+class MidiOutputPortsGrid(GridLayout):
+    midi_ports = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super(MidiOutputPortsGrid, self).__init__(**kwargs)
+        self.cols = 3
+        self.bind(midi_ports=self.update_grid)
+
+    def update_grid(self, instance, value):
+        print(f'MidiOutputPortsGrid update grid: self.midi_ports: {self.midi_ports}')
+        print(f'MidiOutputPortsGrid update grid: value: {value}')
+
+        # Remove all old rows
+        self.clear_widgets()
+
+        # Create a row for each entry in midi_ports
+        for port_name in self.midi_ports:
+            # Add the label
+            self.add_widget(MidiPortLabel(text=port_name))
+
+            # Add a checkbox
+            self.add_widget(NymphesOutputPortCheckBox(port_name=port_name))
+
+            # Add a checkbox
+            self.add_widget(MidiOutputPortCheckBox(port_name=port_name))
 
 class MidiPortLabel(Label):
     pass
 
-class MidiPortCheckBox(CheckBox):
-    pass
+class MidiInputPortCheckBox(CheckBox):
+    port_name = StringProperty('')
+
+class MidiOutputPortCheckBox(CheckBox):
+    port_name = StringProperty('')
+
+class NymphesInputPortCheckBox(CheckBox):
+    port_name = StringProperty('')
+
+class NymphesOutputPortCheckBox(CheckBox):
+    port_name = StringProperty('')
 
 class NymphesOscProcess(Process):
 

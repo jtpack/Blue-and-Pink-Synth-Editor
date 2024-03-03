@@ -58,5 +58,5 @@ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 When the build finishes, the executable will be found in the dist folder.
 - On macOS this will be dist/NymphesEdit.app
   - You can ignore the dist/NymphesEdit folder.
-- On Windows, you need both dist/NymphesEdit.exe and dist/_internal,
+- On Windows, you need both dist/NymphesEdit.exe and the dist/_internal folder.
 

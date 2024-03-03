@@ -51,18 +51,26 @@ ScreenManager:
             size_hint: 1, 1/9
             corner_radius: root.height * 0.015
 
+
+
         MainSettingsBox:
+            orientation: 'horizontal'
+            spacing: app.curr_height * 0.008
             size_hint: 1, 8/9
             corner_radius: root.height * 0.015
 
-        Widget:
-            canvas.before:
-                Color:
-                    rgba: C('#00FF0050')
+            MidiInputPortsSection
+            MidiOutputPortsSection
 
-                Rectangle:
-                    pos: self.pos
-                    size: self.width, self.height
+#        Widget:
+#            size_hint_y: 1/9
+#            canvas.before:
+#                Color:
+#                    rgba: C('#00FF0050')
+#
+#                Rectangle:
+#                    pos: self.pos
+#                    size: self.width, self.height
 
 
 
@@ -130,11 +138,13 @@ ScreenManager:
         size_hint_x: 1/6
         text: 'OPEN'
         on_release: app.show_load_dialog()
+        disabled: not app.nymphes_connected
 
     TopBarButton:
         size_hint_x: 1/6
         text: 'SAVE'
         on_release: app.show_save_dialog()
+        disabled: not app.nymphes_connected
 
     Widget:
         size_hint_x: 1/6
@@ -1042,7 +1052,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    disabled: not app.nymphes_connected
 
 
 <LoadDialog>:
@@ -1105,15 +1114,6 @@ ScreenManager:
             on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
 
 
-<MainSettingsBox>:
-    orientation: 'horizontal'
-    spacing: self.parent.spacing
-
-    MidiInputPortsSection
-    MidiOutputPortsSection
-
-
-
 <MidiInputPortsSection@ControlSection>:
     spacing: self.parent.spacing
 
@@ -1134,29 +1134,25 @@ ScreenManager:
             text: 'MIDI INPUTS'
 
         GridLayout:
-            cols: 2
+            cols: 3
 
             MidiPortColumnHeaderLabel:
                 text: 'Name'
                 size_hint_x: None
-                width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
 
-            MidiPortColumnHeaderLabel:
+            MidiPortCheckBoxColumnHeaderLabel:
+                text: 'Nymphes'
+                size_hint_x: None
+                width: (app.curr_width * 1/16) - app.curr_height * 0.012
+
+            MidiPortCheckBoxColumnHeaderLabel:
                 text: 'Enabled'
                 size_hint_x: None
                 width: (app.curr_width * 1/16) - app.curr_height * 0.012
 
-        MidiPortsGrid:
-            midi_ports: app.midi_inputs_grid_names
-
-#        Widget:
-#            canvas.before:
-#                Color:
-#                    rgba: C('#FF000050')
-#
-#                Rectangle:
-#                    pos: self.pos
-#                    size: self.width, self.height
+            MidiInputPortsGrid:
+                midi_ports: app.midi_inputs_grid_names
 
 
 <MidiOutputPortsSection@ControlSection>:
@@ -1179,32 +1175,42 @@ ScreenManager:
             text: 'MIDI OUTPUTS'
 
         GridLayout:
-            cols: 2
+            cols: 3
 
             MidiPortColumnHeaderLabel:
                 text: 'Name'
                 size_hint_x: None
-                width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
 
-            MidiPortColumnHeaderLabel:
+            MidiPortCheckBoxColumnHeaderLabel:
+                text: 'Nymphes'
+                size_hint_x: None
+                width: (app.curr_width * 1/16) - app.curr_height * 0.012
+
+            MidiPortCheckBoxColumnHeaderLabel:
                 text: 'Enabled'
                 size_hint_x: None
                 width: (app.curr_width * 1/16) - app.curr_height * 0.012
 
-        MidiPortsGrid:
-            midi_ports: app.midi_outputs_grid_names
+            MidiOutputPortsGrid:
+                midi_ports: app.midi_outputs_grid_names
 
-#        Widget:
-#            canvas.before:
-#                Color:
-#                    rgba: C('#FF000050')
-#
-#                Rectangle:
-#                    pos: self.pos
-#                    size: self.width, self.height
+<MidiInputPortsGrid>:
+    row_default_height: app.curr_height * 1/20
+    row_force_default: True
 
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
 
-<MidiPortsGrid>:
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+<MidiOutputPortsGrid>:
+    row_default_height: app.curr_height * 1/20
+    row_force_default: True
+
     canvas.before:
         Color:
             rgba: C('#0000FF50')
@@ -1224,7 +1230,7 @@ ScreenManager:
             size: self.width, self.height
 
     size_hint_x: None
-    width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+    width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
     size_hint_y: None
     height: app.curr_height * 1/20
     color: C('#092042FF')
@@ -1234,7 +1240,7 @@ ScreenManager:
     valign: 'middle'
     background_color: C('#00000000')
 
-<MidiPortCheckBox>:
+<NymphesInputPortCheckBox>:
     canvas.before:
         Color:
             rgba: C('#0000FF50')
@@ -1247,6 +1253,53 @@ ScreenManager:
     width: (app.curr_width * 1/16) - app.curr_height * 0.012
     size_hint_y: None
     height: app.curr_height * 1/20
+    active: self.port_name == app.nymphes_input_name
+
+<NymphesOutputPortCheckBox>:
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
+
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+    size_hint_x: None
+    width: (app.curr_width * 1/16) - app.curr_height * 0.012
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    active: self.port_name == app.nymphes_output_name
+
+
+<MidiInputPortCheckBox>:
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
+
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+    size_hint_x: None
+    width: (app.curr_width * 1/16) - app.curr_height * 0.012
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    active: self.port_name in app.connected_midi_input_names
+    
+<MidiOutputPortCheckBox>:
+    canvas.before:
+        Color:
+            rgba: C('#0000FF50')
+
+        Rectangle:
+            pos: self.pos
+            size: self.width, self.height
+
+    size_hint_x: None
+    width: (app.curr_width * 1/16) - app.curr_height * 0.012
+    size_hint_y: None
+    height: app.curr_height * 1/20
+    active: self.port_name in app.connected_midi_output_names
 
 <MidiPortColumnHeaderLabel@Label>:
     size_hint_y: None
@@ -1255,5 +1308,15 @@ ScreenManager:
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
+
+<MidiPortCheckBoxColumnHeaderLabel@Label>:
+    size_hint_y: None
+    height: app.curr_height * 1/30
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
     valign: 'middle'
     background_color: C('#00000000')
