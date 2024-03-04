@@ -54,13 +54,22 @@ ScreenManager:
 
 
         MainSettingsBox:
-            orientation: 'horizontal'
+            orientation: 'vertical'
             spacing: app.curr_height * 0.008
             size_hint: 1, 8/9
             corner_radius: root.height * 0.015
 
-            MidiInputPortsSection
-            MidiOutputPortsSection
+            NymphesPortsSection:
+                size_hint: 1, 1/8
+
+            MidiSettingsBox:
+                size_hint: 1, 7/8
+                orientation: 'horizontal'
+                spacing: self.parent.spacing
+                corner_radius: self.parent.corner_radius
+
+                MidiInputPortsSection
+                MidiOutputPortsSection
 
 #        Widget:
 #            size_hint_y: 1/9
@@ -326,9 +335,11 @@ ScreenManager:
     padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
 
 <SectionTitleLabel>:
+    size_hint_y: None
+    height: app.curr_height * 1/16
     background_color: 0, 1, 0, 0.3
     color: C('#092042FF')
-    font_size: self.width * 0.05
+    font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
     valign: 'middle'
@@ -379,7 +390,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/6
         text: 'OSCILLATOR'
 
     ParamsGrid:
@@ -498,7 +508,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/6
         text: 'FILTER'
 
     ParamsGrid:
@@ -617,7 +626,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/3
         text: 'LFO1'
 
     ParamsGrid:
@@ -679,7 +687,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/3
         text: 'AMP'
 
     ParamsGrid:
@@ -741,7 +748,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/3
         text: 'REVERB'
 
     ParamsGrid:
@@ -799,7 +805,6 @@ ScreenManager:
             radius: [root.corner_radius]
 
     SectionTitleLabel:
-        size_hint: 1, 1/3
         text: 'LFO2'
 
     ParamsGrid:
@@ -1113,6 +1118,41 @@ ScreenManager:
             text: "OK"
             on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
 
+<NymphesPortsSection@ControlSection>:
+    spacing: self.parent.spacing
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            text: 'NYMPHES PORTS'
+
+        GridLayout:
+            cols: 2
+
+            MidiPortColumnHeaderLabel:
+                text: 'INPUT'
+                size_hint_x: None
+                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+
+            MidiPortColumnHeaderLabel:
+                text: 'OUTPUT'
+                size_hint_x: None
+                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+
+
+
+
+
 
 <MidiInputPortsSection@ControlSection>:
     spacing: self.parent.spacing
@@ -1130,8 +1170,7 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            size_hint: 1, 1/12
-            text: 'MIDI INPUTS'
+            text: 'MIDI INPUT PORTS'
 
         GridLayout:
             cols: 3
@@ -1171,8 +1210,7 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            size_hint: 1, 1/12
-            text: 'MIDI OUTPUTS'
+            text: 'MIDI OUTPUT PORTS'
 
         GridLayout:
             cols: 3
@@ -1254,6 +1292,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/20
     active: self.port_name == app.nymphes_input_name
+    on_active: app.nymphes_input_port_checkbox_toggled(self.port_name, self.active)
 
 <NymphesOutputPortCheckBox>:
     canvas.before:
@@ -1269,6 +1308,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/20
     active: self.port_name == app.nymphes_output_name
+    on_active: app.nymphes_output_port_checkbox_toggled(self.port_name, self.active)
 
 
 <MidiInputPortCheckBox>:
@@ -1284,7 +1324,8 @@ ScreenManager:
     width: (app.curr_width * 1/16) - app.curr_height * 0.012
     size_hint_y: None
     height: app.curr_height * 1/20
-    active: self.port_name in app.connected_midi_input_names
+    active: self.port_name in app.connected_midi_input_names_for_gui
+    on_active: app.midi_input_port_checkbox_toggled(self.port_name, self.active)
     
 <MidiOutputPortCheckBox>:
     canvas.before:
@@ -1299,7 +1340,8 @@ ScreenManager:
     width: (app.curr_width * 1/16) - app.curr_height * 0.012
     size_hint_y: None
     height: app.curr_height * 1/20
-    active: self.port_name in app.connected_midi_output_names
+    active: self.port_name in app.connected_midi_output_names_for_gui
+    on_active: app.midi_output_port_checkbox_toggled(self.port_name, self.active)
 
 <MidiPortColumnHeaderLabel@Label>:
     size_hint_y: None

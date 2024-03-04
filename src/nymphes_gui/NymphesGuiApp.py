@@ -65,8 +65,8 @@ class NymphesGuiApp(App):
     midi_inputs_grid_names = ListProperty([])
     midi_outputs_grid_names = ListProperty([])
 
-    connected_midi_input_names = ListProperty([])
-    connected_midi_output_names = ListProperty([])
+    connected_midi_input_names_for_gui = ListProperty([])
+    connected_midi_output_names_for_gui = ListProperty([])
 
     nymphes_input_name = StringProperty('')
     nymphes_output_name = StringProperty('')
@@ -2574,8 +2574,8 @@ class NymphesGuiApp(App):
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
         def work_func(_, new_port_name):
-            self.connected_midi_input_names.append(new_port_name)
-            self.connected_midi_input_names.sort()
+            self.connected_midi_input_names_for_gui.append(new_port_name)
+            self.connected_midi_input_names_for_gui.sort()
 
     def remove_connected_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_connected_midi_input_name_on_main_thread: {port_name}')
@@ -2583,8 +2583,8 @@ class NymphesGuiApp(App):
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
         def work_func(_, new_port_name):
-            if new_port_name in self.connected_midi_input_names:
-                self.connected_midi_input_names.remove(new_port_name)
+            if new_port_name in self.connected_midi_input_names_for_gui:
+                self.connected_midi_input_names_for_gui.remove(new_port_name)
                 
     def add_connected_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'add_connected_midi_output_name_on_main_thread: {port_name}')
@@ -2592,8 +2592,8 @@ class NymphesGuiApp(App):
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
         def work_func(_, new_port_name):
-            self.connected_midi_output_names.append(new_port_name)
-            self.connected_midi_output_names.sort()
+            self.connected_midi_output_names_for_gui.append(new_port_name)
+            self.connected_midi_output_names_for_gui.sort()
 
     def remove_connected_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_connected_midi_output_name_on_main_thread: {port_name}')
@@ -2601,8 +2601,36 @@ class NymphesGuiApp(App):
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
         def work_func(_, new_port_name):
-            if new_port_name in self.connected_midi_output_names:
-                self.connected_midi_output_names.remove(new_port_name)
+            if new_port_name in self.connected_midi_output_names_for_gui:
+                self.connected_midi_output_names_for_gui.remove(new_port_name)
+
+    def nymphes_input_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'nymphes_input_port_checkbox_toggled: {port_name}, {active}')
+        
+    def nymphes_output_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'nymphes_output_port_checkbox_toggled: {port_name}, {active}')
+
+    def midi_input_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
+
+        if active:
+            if port_name not in self._connected_midi_inputs:
+                # Connect to this MIDI input
+                self._send_nymphes_osc(
+                    '/connect_midi_input',
+                    port_name
+                )
+
+        else:
+            if port_name in self._connected_midi_inputs:
+                # Disconnect from this MIDI input
+                self._send_nymphes_osc(
+                    '/disconnect_midi_input',
+                    port_name
+                )
+
+    def midi_output_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'midi_output_port_checkbox_toggled: {port_name}, {active}')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3076,6 +3104,8 @@ class MainControlsBox(BoxLayout):
 class MainSettingsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
+class MidiSettingsBox(BoxLayout):
+    corner_radius = NumericProperty(0)
 
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
