@@ -51,8 +51,6 @@ ScreenManager:
             size_hint: 1, 1/9
             corner_radius: root.height * 0.015
 
-
-
         MainSettingsBox:
             orientation: 'vertical'
             spacing: app.curr_height * 0.008
@@ -60,10 +58,10 @@ ScreenManager:
             corner_radius: root.height * 0.015
 
             NymphesPortsSection:
-                size_hint: 1, 1/8
+                size_hint: 1/2, 1/6
 
             MidiSettingsBox:
-                size_hint: 1, 7/8
+                size_hint: 1, 5/8
                 orientation: 'horizontal'
                 spacing: self.parent.spacing
                 corner_radius: self.parent.corner_radius
@@ -954,14 +952,18 @@ ScreenManager:
 <Lfo2ModAmountLine@ModAmountLine>:
     color_hex: '#F51414FF'
 
+
 <WheelModAmountLine@ModAmountLine>:
     color_hex: '#FDFF00FF'
+
 
 <VelocityModAmountLine@ModAmountLine>:
     color_hex: '#00FF1FFF'
 
+
 <AftertouchModAmountLine@ModAmountLine>:
     color_hex: '#0000FFFF'
+
 
 <ParamsGridLfoConfigCell>:
     orientation: 'vertical'
@@ -993,6 +995,7 @@ ScreenManager:
         font_size: self.width * 0.2
         param_name: root.section_name + '.key_sync'
         text: "ON" if root.key_sync_prop == 1 else "OFF"
+
 
 <ParamsGridNonModCell>:
     orientation: 'vertical'
@@ -1050,6 +1053,7 @@ ScreenManager:
     background_color: C('#1D60C5F5')
     background_normal: ''
 
+
 <TopBarButton@ButtonBehavior+Label>:
     size_hint_x: 1/6
     color: C('#092042FF')
@@ -1081,6 +1085,7 @@ ScreenManager:
             valign: 'middle'
             text: "OK"
             on_release: root.load(filechooser.path, filechooser.selection)
+
 
 <SaveDialog>:
     text_input: text_input
@@ -1118,6 +1123,7 @@ ScreenManager:
             text: "OK"
             on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
 
+
 <NymphesPortsSection@ControlSection>:
     spacing: self.parent.spacing
 
@@ -1134,23 +1140,28 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'NYMPHES PORTS'
+            text: 'NYMPHES CONNECTION'
 
         GridLayout:
             cols: 2
 
-            MidiPortColumnHeaderLabel:
+            # First Row
+            NymphesSpinnerLabel:
                 text: 'INPUT'
-                size_hint_x: None
-                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+                size_hint_x: 1/6
 
-            MidiPortColumnHeaderLabel:
+            NymphesPortSpinner:
+                values: app.nymphes_input_spinner_names
+                text: app.nymphes_input_name
+
+            # Second Row
+            NymphesSpinnerLabel:
                 text: 'OUTPUT'
-                size_hint_x: None
-                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+                size_hint_x: 1/8
 
-
-
+            NymphesPortSpinner:
+                values: app.nymphes_output_spinner_names
+                text: app.nymphes_output_name
 
 
 
@@ -1172,26 +1183,8 @@ ScreenManager:
         SectionTitleLabel:
             text: 'MIDI INPUT PORTS'
 
-        GridLayout:
-            cols: 3
-
-            MidiPortColumnHeaderLabel:
-                text: 'Name'
-                size_hint_x: None
-                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
-
-            MidiPortCheckBoxColumnHeaderLabel:
-                text: 'Nymphes'
-                size_hint_x: None
-                width: (app.curr_width * 1/16) - app.curr_height * 0.012
-
-            MidiPortCheckBoxColumnHeaderLabel:
-                text: 'Enabled'
-                size_hint_x: None
-                width: (app.curr_width * 1/16) - app.curr_height * 0.012
-
-            MidiInputPortsGrid:
-                midi_ports: app.midi_inputs_grid_names
+        MidiInputPortsGrid:
+            midi_ports: app.detected_midi_input_names_for_gui
 
 
 <MidiOutputPortsSection@ControlSection>:
@@ -1212,26 +1205,9 @@ ScreenManager:
         SectionTitleLabel:
             text: 'MIDI OUTPUT PORTS'
 
-        GridLayout:
-            cols: 3
+        MidiOutputPortsGrid:
+            midi_ports: app.detected_midi_output_names_for_gui
 
-            MidiPortColumnHeaderLabel:
-                text: 'Name'
-                size_hint_x: None
-                width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
-
-            MidiPortCheckBoxColumnHeaderLabel:
-                text: 'Nymphes'
-                size_hint_x: None
-                width: (app.curr_width * 1/16) - app.curr_height * 0.012
-
-            MidiPortCheckBoxColumnHeaderLabel:
-                text: 'Enabled'
-                size_hint_x: None
-                width: (app.curr_width * 1/16) - app.curr_height * 0.012
-
-            MidiOutputPortsGrid:
-                midi_ports: app.midi_outputs_grid_names
 
 <MidiInputPortsGrid>:
     row_default_height: app.curr_height * 1/20
@@ -1244,6 +1220,7 @@ ScreenManager:
         Rectangle:
             pos: self.pos
             size: self.width, self.height
+
 
 <MidiOutputPortsGrid>:
     row_default_height: app.curr_height * 1/20
@@ -1268,7 +1245,7 @@ ScreenManager:
             size: self.width, self.height
 
     size_hint_x: None
-    width: (app.curr_width * 6/16) - app.curr_height * 0.008 - app.curr_height * 0.008
+    width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
     size_hint_y: None
     height: app.curr_height * 1/20
     color: C('#092042FF')
@@ -1277,6 +1254,7 @@ ScreenManager:
     halign: 'left'
     valign: 'middle'
     background_color: C('#00000000')
+
 
 <NymphesInputPortCheckBox>:
     canvas.before:
@@ -1293,6 +1271,7 @@ ScreenManager:
     height: app.curr_height * 1/20
     active: self.port_name == app.nymphes_input_name
     on_active: app.nymphes_input_port_checkbox_toggled(self.port_name, self.active)
+
 
 <NymphesOutputPortCheckBox>:
     canvas.before:
@@ -1326,7 +1305,8 @@ ScreenManager:
     height: app.curr_height * 1/20
     active: self.port_name in app.connected_midi_input_names_for_gui
     on_active: app.midi_input_port_checkbox_toggled(self.port_name, self.active)
-    
+
+
 <MidiOutputPortCheckBox>:
     canvas.before:
         Color:
@@ -1343,22 +1323,52 @@ ScreenManager:
     active: self.port_name in app.connected_midi_output_names_for_gui
     on_active: app.midi_output_port_checkbox_toggled(self.port_name, self.active)
 
+
 <MidiPortColumnHeaderLabel@Label>:
     size_hint_y: None
-    height: app.curr_height * 1/30
-    color: C('#092042FF')
+    height: app.curr_height * 1/25
+    color: C('#ECBFEBFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
     valign: 'middle'
     background_color: C('#00000000')
 
+
 <MidiPortCheckBoxColumnHeaderLabel@Label>:
     size_hint_y: None
-    height: app.curr_height * 1/30
-    color: C('#092042FF')
+    height: app.curr_height * 1/25
+    color: C('#ECBFEBFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'center'
+    valign: 'middle'
+    background_color: C('#00000000')
+
+
+<NymphesPortSpinner@Spinner>:
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
+    option_cls: 'NymphesPortSpinnerOption'
+
+
+<NymphesPortSpinnerOption@SpinnerOption>:
+    color: C('#092042FF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    background_color: C('#1D60C5F5')
+    background_normal: ''
+
+<NymphesSpinnerLabel@Label>:
+    color: C('#ECBFEBFF')
+    font_size: self.height * 0.4
+    text_size: self.size
+    halign: 'left'
     valign: 'middle'
     background_color: C('#00000000')
