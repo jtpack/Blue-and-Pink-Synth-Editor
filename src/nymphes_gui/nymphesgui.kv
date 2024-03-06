@@ -24,10 +24,11 @@ ScreenManager:
 
         # Top Bar
         TopBar:
-            size_hint: 1, 1/9
+            size_hint_y: 1/10
             corner_radius: root.height * 0.015
 
         MainControlsBox:
+            size_hint_y: 9/10
             corner_radius: root.height * 0.015
 
 
@@ -48,29 +49,26 @@ ScreenManager:
 
         # Top Bar
         SettingsTopBar:
-            size_hint: 1, 1/9
+            size_hint: 1, 1/10
             corner_radius: root.height * 0.015
 
         MainSettingsBox:
-            orientation: 'vertical'
+            orientation: 'horizontal'
             spacing: app.curr_height * 0.008
-            size_hint: 1, 8/9
+            size_hint: 1, 5/10
             corner_radius: root.height * 0.015
 
             NymphesPortsSection:
-                size_hint: 1/2, 1/6
+                size_hint_x: 1/3
 
-            MidiSettingsBox:
-                size_hint: 1, 5/8
-                orientation: 'horizontal'
-                spacing: self.parent.spacing
-                corner_radius: self.parent.corner_radius
+            MidiInputPortsSection:
+                size_hint_x: 1/3
 
-                MidiInputPortsSection
-                MidiOutputPortsSection
+            MidiOutputPortsSection:
+                size_hint_x: 1/3
 
-#        Widget:
-#            size_hint_y: 1/9
+        Widget:
+            size_hint_y: 4/10
 #            canvas.before:
 #                Color:
 #                    rgba: C('#00FF0050')
@@ -78,7 +76,6 @@ ScreenManager:
 #                Rectangle:
 #                    pos: self.pos
 #                    size: self.width, self.height
-
 
 
 <SettingsTopBar>:
@@ -94,6 +91,9 @@ ScreenManager:
             pos: root.pos
             size: root.width, root.height
             radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    Widget:
+        size_hint_x: 5/6
 
     TopBarButton:
         on_release:
@@ -116,52 +116,62 @@ ScreenManager:
             size: root.width, root.height
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
+    Widget:
+        size_hint_x: 1/40
+
+    TopBarButton:
+        size_hint_x: 2/20
+        text: 'RELOAD'
+        on_release: app.reload()
+        disabled: not app.nymphes_connected or app.curr_preset_type == ''
+
+    Widget:
+        size_hint_x: 1/20
+
     PresetIncButton:
-        size_hint_x: 1/10
+        size_hint_x: 1/20
         text: '-'
         on_release: app.load_prev_preset()
 
     TopBarSpinner:
-        size_hint_x: 1/4
+        size_hint_x: 6/20
         values: app.presets_spinner_values
         text: app.presets_spinner_text
         on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
 
     PresetIncButton:
-        size_hint_x: 1/10
+        size_hint_x: 1/20
         text: '+'
         on_release: app.load_next_preset()
 
     Widget:
-        size_hint_x: 1/6
+        size_hint_x: 1/20
 
     TopBarButton:
-        size_hint_x: 1/6
-        text: 'RELOAD'
-        on_release: app.reload()
-        disabled: not app.nymphes_connected or app.curr_preset_type == ''
-
-    TopBarButton:
-        size_hint_x: 1/6
+        size_hint_x: 2/20
         text: 'OPEN'
         on_release: app.show_load_dialog()
         disabled: not app.nymphes_connected
 
     TopBarButton:
-        size_hint_x: 1/6
+        size_hint_x: 2/20
         text: 'SAVE'
         on_release: app.show_save_dialog()
         disabled: not app.nymphes_connected
 
     Widget:
-        size_hint_x: 1/6
+        size_hint_x: 2/20
 
     TopBarButton:
+        size_hint_x: 2/20
         id: midi_settings_button
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
         text: 'MIDI'
+
+    Widget:
+        size_hint_x: 1/40
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -1033,8 +1043,10 @@ ScreenManager:
 
 <TopBarSpinner@Spinner>:
     color: C('#092042FF')
-    font_size: self.height * 0.5
+    font_size: self.height * 0.4
     text_size: self.size
+    size_hint_y: None
+    height: self.parent.height
     halign: 'center'
     valign: 'middle'
     background_color: C('#00000000')
@@ -1044,10 +1056,10 @@ ScreenManager:
 
 <TopBarSpinnerOption@SpinnerOption>:
     color: C('#092042FF')
-    font_size: app.curr_height * 1/25
+    font_size: self.height * 0.5
     text_size: self.size
     size_hint_y: None
-    height: app.curr_height * 1/20
+    height: app.curr_height * 1/12
     halign: 'center'
     valign: 'middle'
     background_color: C('#1D60C5F5')
@@ -1056,6 +1068,8 @@ ScreenManager:
 
 <TopBarButton@ButtonBehavior+Label>:
     size_hint_x: 1/6
+    size_hint_y: None
+    height: self.parent.height
     color: C('#092042FF')
     font_size: self.height * 0.4
     text_size: self.size
@@ -1140,29 +1154,35 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'NYMPHES CONNECTION'
+            text: 'NYMPHES'
 
         GridLayout:
             cols: 2
+            row_default_height: app.curr_height * 1/16
+            row_force_default: True
+    
 
             # First Row
-            NymphesSpinnerLabel:
+            NymphesPortSpinnerLabel:
                 text: 'INPUT'
-                size_hint_x: 1/6
+                size_hint_x: 2/8
 
             NymphesPortSpinner:
+                size_hint_x: 6/8
                 values: app.nymphes_input_spinner_names
                 text: app.nymphes_input_name
+                on_text: app.nymphes_input_spinner_text_changed(self.text)
 
             # Second Row
-            NymphesSpinnerLabel:
+            NymphesPortSpinnerLabel:
                 text: 'OUTPUT'
-                size_hint_x: 1/8
+                size_hint_x: 2/8
 
             NymphesPortSpinner:
+                size_hint_x: 6/8
                 values: app.nymphes_output_spinner_names
                 text: app.nymphes_output_name
-
+                on_text: app.nymphes_output_spinner_text_changed(self.text)
 
 
 <MidiInputPortsSection@ControlSection>:
@@ -1181,10 +1201,16 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'MIDI INPUT PORTS'
+            text: 'INPUTS'
 
-        MidiInputPortsGrid:
-            midi_ports: app.detected_midi_input_names_for_gui
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MidiInputPortsGrid:
+                size_hint_y: None
+                height: self.minimum_height
+                midi_ports: app.detected_midi_input_names_for_gui
 
 
 <MidiOutputPortsSection@ControlSection>:
@@ -1203,51 +1229,30 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'MIDI OUTPUT PORTS'
+            text: 'OUTPUTS'
 
-        MidiOutputPortsGrid:
-            midi_ports: app.detected_midi_output_names_for_gui
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MidiOutputPortsGrid:
+                size_hint_y: None
+                height: self.minimum_height
+                midi_ports: app.detected_midi_output_names_for_gui
 
 
 <MidiInputPortsGrid>:
-    row_default_height: app.curr_height * 1/20
+    row_default_height: app.curr_height * 1/16
     row_force_default: True
-
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
 
 
 <MidiOutputPortsGrid>:
-    row_default_height: app.curr_height * 1/20
+    row_default_height: app.curr_height * 1/16
     row_force_default: True
-
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
 
 
 <MidiPortLabel>:
-    canvas.before:
-        Color:
-            rgba: C('#FFFFFF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
-
-    size_hint_x: None
-    width: (app.curr_width * 7/16) - app.curr_height * 0.008 - app.curr_height * 0.008
-    size_hint_y: None
-    height: app.curr_height * 1/20
+    size_hint_x: 7/8
     color: C('#092042FF')
     font_size: self.height * 0.5
     text_size: self.size
@@ -1256,101 +1261,23 @@ ScreenManager:
     background_color: C('#00000000')
 
 
-<NymphesInputPortCheckBox>:
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
-
-    size_hint_x: None
-    width: (app.curr_width * 1/16) - app.curr_height * 0.012
-    size_hint_y: None
-    height: app.curr_height * 1/20
-    active: self.port_name == app.nymphes_input_name
-    on_active: app.nymphes_input_port_checkbox_toggled(self.port_name, self.active)
-
-
-<NymphesOutputPortCheckBox>:
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
-
-    size_hint_x: None
-    width: (app.curr_width * 1/16) - app.curr_height * 0.012
-    size_hint_y: None
-    height: app.curr_height * 1/20
-    active: self.port_name == app.nymphes_output_name
-    on_active: app.nymphes_output_port_checkbox_toggled(self.port_name, self.active)
-
-
 <MidiInputPortCheckBox>:
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
-
-    size_hint_x: None
-    width: (app.curr_width * 1/16) - app.curr_height * 0.012
-    size_hint_y: None
-    height: app.curr_height * 1/20
+    size_hint_x: 1/8
     active: self.port_name in app.connected_midi_input_names_for_gui
     on_active: app.midi_input_port_checkbox_toggled(self.port_name, self.active)
 
 
 <MidiOutputPortCheckBox>:
-    canvas.before:
-        Color:
-            rgba: C('#0000FF50')
-
-        Rectangle:
-            pos: self.pos
-            size: self.width, self.height
-
-    size_hint_x: None
-    width: (app.curr_width * 1/16) - app.curr_height * 0.012
-    size_hint_y: None
-    height: app.curr_height * 1/20
+    size_hint_x: 1/8
     active: self.port_name in app.connected_midi_output_names_for_gui
     on_active: app.midi_output_port_checkbox_toggled(self.port_name, self.active)
-
-
-<MidiPortColumnHeaderLabel@Label>:
-    size_hint_y: None
-    height: app.curr_height * 1/25
-    color: C('#ECBFEBFF')
-    font_size: self.height * 0.5
-    text_size: self.size
-    halign: 'left'
-    valign: 'middle'
-    background_color: C('#00000000')
-
-
-<MidiPortCheckBoxColumnHeaderLabel@Label>:
-    size_hint_y: None
-    height: app.curr_height * 1/25
-    color: C('#ECBFEBFF')
-    font_size: self.height * 0.5
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    background_color: C('#00000000')
 
 
 <NymphesPortSpinner@Spinner>:
     color: C('#092042FF')
     font_size: self.height * 0.5
     text_size: self.size
-    halign: 'left'
+    halign: 'right'
     valign: 'middle'
     background_color: C('#00000000')
     option_cls: 'NymphesPortSpinnerOption'
@@ -1360,12 +1287,12 @@ ScreenManager:
     color: C('#092042FF')
     font_size: self.height * 0.5
     text_size: self.size
-    halign: 'left'
+    halign: 'right'
     valign: 'middle'
     background_color: C('#1D60C5F5')
     background_normal: ''
 
-<NymphesSpinnerLabel@Label>:
+<NymphesPortSpinnerLabel@Label>:
     color: C('#ECBFEBFF')
     font_size: self.height * 0.4
     text_size: self.size

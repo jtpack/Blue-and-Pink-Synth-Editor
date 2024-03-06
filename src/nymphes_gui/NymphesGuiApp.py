@@ -68,11 +68,11 @@ class NymphesGuiApp(App):
     connected_midi_input_names_for_gui = ListProperty([])
     connected_midi_output_names_for_gui = ListProperty([])
 
-    nymphes_input_spinner_names = ListProperty([])
-    nymphes_output_spinner_names = ListProperty([])
+    nymphes_input_spinner_names = ListProperty(['Not Connected'])
+    nymphes_output_spinner_names = ListProperty(['Not Connected'])
 
-    nymphes_input_name = StringProperty('')
-    nymphes_output_name = StringProperty('')
+    nymphes_input_name = StringProperty('Not Connected')
+    nymphes_output_name = StringProperty('Not Connected')
 
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty(presets_spinner_values_list())
@@ -917,7 +917,7 @@ class NymphesGuiApp(App):
             # Add it to our list of detected Nymphes MIDI input ports
             if port_name not in self._detected_nymphes_midi_inputs:
                 self._detected_nymphes_midi_inputs.append(port_name)
-                self.add_midi_input_name_on_main_thread(port_name)
+                self.add_name_to_nymphes_input_spinner_on_main_thread(port_name)
 
             # Try automatically connecting to the first Nymphes if we
             # now have both an input and output port
@@ -943,7 +943,7 @@ class NymphesGuiApp(App):
             # Remove it from our list of detected Nymphes MIDI input ports
             if port_name in self._detected_nymhes_midi_inputs:
                 self._detected_nymhes_midi_inputs.remove(port_name)
-                self.remove_midi_input_name_on_main_thread(port_name)
+                self.remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
             
         elif address == '/nymphes_midi_output_detected':
             #
@@ -958,7 +958,7 @@ class NymphesGuiApp(App):
             # Add it to our list of detected Nymphes MIDI output ports
             if port_name not in self._detected_nymphes_midi_outputs:
                 self._detected_nymphes_midi_outputs.append(port_name)
-                self.add_midi_output_name_on_main_thread(port_name)
+                self.add_name_to_nymphes_output_spinner_on_main_thread(port_name)
 
             # Try automatically connecting to the first Nymphes if we
             # now have both an input and output port
@@ -984,7 +984,7 @@ class NymphesGuiApp(App):
             # Remove it from our list of detected Nymphes MIDI output ports
             if port_name in self._detected_nymhes_midi_outputs:
                 self._detected_nymhes_midi_outputs.remove(port_name)
-                self.remove_midi_output_name_on_main_thread(port_name)
+                self.remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
 
         elif address == '/nymphes_connected':
             #
@@ -1017,8 +1017,8 @@ class NymphesGuiApp(App):
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            self.set_nymphes_input_name_on_main_thread('')
-            self.set_nymphes_output_name_on_main_thread('')
+            self.set_nymphes_input_name_on_main_thread('Not Connected')
+            self.set_nymphes_output_name_on_main_thread('Not Connected')
 
         elif address == '/loaded_preset':
             #
@@ -1219,6 +1219,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_inputs:
                 self._detected_midi_inputs.append(port_name)
                 self.add_midi_input_name_on_main_thread(port_name)
+                self.add_name_to_nymphes_input_spinner_on_main_thread(port_name)
 
         elif address == '/midi_input_no_longer_detected':
             #
@@ -1234,6 +1235,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_inputs:
                 self._detected_midi_inputs.remove(port_name)
                 self.remove_midi_input_name_on_main_thread(port_name)
+                self.remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
 
         elif address == '/midi_input_connected':
             #
@@ -1279,6 +1281,7 @@ class NymphesGuiApp(App):
             if port_name not in self._detected_midi_outputs:
                 self._detected_midi_outputs.append(port_name)
                 self.add_midi_output_name_on_main_thread(port_name)
+                self.add_name_to_nymphes_output_spinner_on_main_thread(port_name)
 
         elif address == '/midi_output_no_longer_detected':
             #
@@ -1294,6 +1297,7 @@ class NymphesGuiApp(App):
             if port_name in self._detected_midi_outputs:
                 self._detected_midi_outputs.remove(port_name)
                 self.remove_midi_output_name_on_main_thread(port_name)
+                self.remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
 
         elif address == '/midi_output_connected':
             #
@@ -2533,7 +2537,48 @@ class NymphesGuiApp(App):
 
         def work_func(_, new_port_name):
             self.nymphes_output_name = new_port_name
-        
+
+    def add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
+        Logger.debug(f'add_nymphes_input_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            # Add the port name to the list used by the
+            # Nymphes input ports spinner
+            self.nymphes_input_spinner_names.append(new_port_name)
+            self.nymphes_input_spinner_names = [self.nymphes_input_spinner_names[0]] + sorted(self.nymphes_input_spinner_names[1:])
+
+    def remove_name_from_nymphes_input_spinner_on_main_thread(self, port_name):
+        Logger.debug(f'remove_nymphes_input_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            # Remove it from the Nymphes input spinner list as well
+            if new_port_name in self.nymphes_input_spinner_names:
+                self.nymphes_input_spinner_names.remove(new_port_name)
+                
+    def add_name_to_nymphes_output_spinner_on_main_thread(self, port_name):
+        Logger.debug(f'add_nymphes_output_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            # Add the port name to the list used by the
+            # Nymphes output ports spinner
+            self.nymphes_output_spinner_names.append(new_port_name)
+            self.nymphes_output_spinner_names = [self.nymphes_output_spinner_names[0]] + sorted(self.nymphes_output_spinner_names[1:])
+
+    def remove_name_from_nymphes_output_spinner_on_main_thread(self, port_name):
+        Logger.debug(f'remove_nymphes_output_name_on_main_thread: {port_name}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+
+        def work_func(_, new_port_name):
+            # Remove it from the Nymphes output spinner list as well
+            if new_port_name in self.nymphes_output_spinner_names:
+                self.nymphes_output_spinner_names.remove(new_port_name)
 
     def add_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'add_midi_input_name_on_main_thread: {port_name}')
@@ -2546,11 +2591,6 @@ class NymphesGuiApp(App):
             self.detected_midi_input_names_for_gui.append(new_port_name)
             self.detected_midi_input_names_for_gui.sort()
 
-            # Also add the port name to the list used by the
-            # Nymphes input ports spinner
-            self.nymphes_input_spinner_names.append(new_port_name)
-            self.nymphes_input_spinner_names.sort()
-
     def remove_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_midi_input_name_on_main_thread: {port_name}')
 
@@ -2559,10 +2599,6 @@ class NymphesGuiApp(App):
         def work_func(_, new_port_name):
             if new_port_name in self.detected_midi_input_names_for_gui:
                 self.detected_midi_input_names_for_gui.remove(new_port_name)
-                
-            # Remove it from the Nymphes input spinner list as well
-            if new_port_name in self.nymphes_input_spinner_names:
-                self.nymphes_input_spinner_names.remove(new_port_name)
 
     def add_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'add_midi_output_name_on_main_thread: {port_name}')
@@ -2573,11 +2609,6 @@ class NymphesGuiApp(App):
             self.detected_midi_output_names_for_gui.append(new_port_name)
             self.detected_midi_output_names_for_gui.sort()
 
-            # Also add the port name to the list used by the
-            # Nymphes output ports spinner
-            self.nymphes_output_spinner_names.append(new_port_name)
-            self.nymphes_output_spinner_names.sort()
-
     def remove_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_midi_output_name_on_main_thread: {port_name}')
 
@@ -2586,10 +2617,6 @@ class NymphesGuiApp(App):
         def work_func(_, new_port_name):
             if new_port_name in self.detected_midi_output_names_for_gui:
                 self.detected_midi_output_names_for_gui.remove(new_port_name)
-
-            # Remove it from the Nymphes output spinner list as well
-            if new_port_name in self.nymphes_output_spinner_names:
-                self.nymphes_output_spinner_names.remove(new_port_name)
 
     def add_connected_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'add_connected_midi_input_name_on_main_thread: {port_name}')
@@ -2627,12 +2654,6 @@ class NymphesGuiApp(App):
             if new_port_name in self.connected_midi_output_names_for_gui:
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
-    def nymphes_input_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'nymphes_input_port_checkbox_toggled: {port_name}, {active}')
-        
-    def nymphes_output_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'nymphes_output_port_checkbox_toggled: {port_name}, {active}')
-
     def midi_input_port_checkbox_toggled(self, port_name, active):
         Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
 
@@ -2654,6 +2675,68 @@ class NymphesGuiApp(App):
 
     def midi_output_port_checkbox_toggled(self, port_name, active):
         Logger.debug(f'midi_output_port_checkbox_toggled: {port_name}, {active}')
+
+        if active:
+            if port_name not in self._connected_midi_outputs:
+                # Connect to this MIDI output
+                self._send_nymphes_osc(
+                    '/connect_midi_output',
+                    port_name
+                )
+
+        else:
+            if port_name in self._connected_midi_outputs:
+                # Disconnect from this MIDI output
+                self._send_nymphes_osc(
+                    '/disconnect_midi_output',
+                    port_name
+                )
+
+    def nymphes_input_spinner_text_changed(self, new_text):
+        if new_text != self.nymphes_input_name:
+            #
+            # A new selection has been made by the user
+            #
+
+            # Store the new selection
+            self.nymphes_input_name = new_text
+
+            # Try connecting if we have both input and output names
+            #
+            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+                self._send_nymphes_osc(
+                    '/connect_nymphes',
+                    self.nymphes_input_name,
+                    self.nymphes_output_name
+                )
+
+            else:
+                if self.nymphes_connected:
+                    self._send_nymphes_osc('/disconnect_nymphes')
+                    
+    def nymphes_output_spinner_text_changed(self, new_text):
+        if new_text != self.nymphes_output_name:
+            #
+            # A new selection has been made by the user
+            #
+
+            # Store the new selection
+            self.nymphes_output_name = new_text
+
+            # Try connecting if we have both input and output names
+            #
+            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+                self._send_nymphes_osc(
+                    '/connect_nymphes',
+                    self.nymphes_output_name,
+                    self.nymphes_output_name
+                )
+
+            else:
+                if self.nymphes_connected:
+                    self._send_nymphes_osc('/disconnect_nymphes')
+
+
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3127,8 +3210,6 @@ class MainControlsBox(BoxLayout):
 class MainSettingsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
-class MidiSettingsBox(BoxLayout):
-    corner_radius = NumericProperty(0)
 
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
