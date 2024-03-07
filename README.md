@@ -4,6 +4,8 @@ Uses nymphes-osc in the background to do the actual communication with the Nymph
 
 2024, Scott Lumsden
 
+## This is ALPHA software.
+
 # Installation
 
 ## 1. Clone this repository to your home directory
