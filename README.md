@@ -6,6 +6,13 @@ Uses nymphes-osc in the background to do the actual communication with the Nymph
 
 ## This is ALPHA software.
 
+## Platforms:
+- macOS
+- Linux
+- Windows
+
+## Nymphes Firmware Version: 2.0
+
 # Installation
 
 ## 1. Clone this repository to your home directory
