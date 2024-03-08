@@ -9,7 +9,8 @@ Uses nymphes-osc in the background to do the actual communication with the Nymph
 ## Platforms:
 - macOS
 - Linux
-- Windows
+- Windows (possibly)
+    - The app should run on Windows, but has not been tested. 
 
 ## Nymphes Firmware Version: 2.0
 
