@@ -506,7 +506,7 @@ class NymphesGuiApp(App):
         #
 
         # Set path to data folder
-        self._data_folder_path = Path(os.path.expanduser('~')) / 'nymphes_gui_data/'
+        self._data_folder_path = Path(os.path.expanduser('~')) / 'NymphesEdit_data/'
 
         # Make sure it exists
         if not self._data_folder_path.exists():
@@ -1098,7 +1098,6 @@ class NymphesGuiApp(App):
             # Reset current preset slot info
             self._curr_preset_slot_type = None
             self._curr_preset_slot_bank_and_number = None
-            self._curr_preset_file_path = None
 
             # Update the presets spinner
             # Select the init option
@@ -1704,7 +1703,7 @@ class NymphesGuiApp(App):
             # Reconstruct the full path
             filepath = directory_path + '/' + filename
 
-            Logger.info(f'Saving preset to {self._curr_preset_file_path}')
+            Logger.info(f'Saving preset to {filepath}')
 
             # Send message to nymphes controller to load the preset file
             self._send_nymphes_osc('/save_to_file', filepath)
