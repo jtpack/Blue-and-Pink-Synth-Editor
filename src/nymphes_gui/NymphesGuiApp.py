@@ -35,6 +35,8 @@ Logger.setLevel(LOG_LEVELS["debug"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 from nymphes_osc.NymphesOSC import NymphesOSC
 
+import platform
+
 import time
 
 kivy.require('2.1.0')
@@ -410,6 +412,20 @@ class NymphesGuiApp(App):
         self._caps_lock_key_on = False
         self._meta_key_pressed = False
         self._alt_key_pressed = False
+
+        # Choose the float mode modifier key based on the
+        # current operating system
+        os_name = platform.system()
+        Logger.info(f'Operating system is {os_name}')
+
+        if os_name == 'Windows':
+            self.float_mode_modifier_key = 'shift'
+        elif os_name == 'Darwin':
+            self.float_mode_modifier_key = 'meta'
+        elif os_name == 'Linux':
+            self.float_mode_modifier_key = 'shift'
+        else:
+            self.float_mode_modifier_key = 'shift'
 
         # Get notified when the window resizes so we can maintain
         # aspect ratio
@@ -2276,6 +2292,11 @@ class NymphesGuiApp(App):
             Logger.debug('Shift key pressed')
             self._shift_key_pressed = True
 
+            if self.float_mode_modifier_key == 'shift':
+                # Enable float mode
+                Logger.debug('Float Mode Enabled')
+                self.float_mode = True
+
         # Check for the meta key (CMD on macOS)
         left_meta_key_code = 309
         right_meta_key_code = 1073742055
@@ -2283,9 +2304,10 @@ class NymphesGuiApp(App):
             Logger.debug('meta key pressed')
             self._meta_key_pressed = True
 
-            # Enable float mode
-            Logger.debug('Float Mode Enabled')
-            self.float_mode = True
+            if self.float_mode_modifier_key == 'meta':
+                # Enable float mode
+                Logger.debug('Float Mode Enabled')
+                self.float_mode = True
 
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
@@ -2293,6 +2315,11 @@ class NymphesGuiApp(App):
         if keycode in [left_alt_key_code, right_alt_key_code] or 'alt' in modifiers:
             Logger.debug('alt key pressed')
             self._alt_key_pressed = True
+
+            if self.float_mode_modifier_key == 'alt':
+                # Enable float mode
+                Logger.debug('Float Mode Enabled')
+                self.float_mode = True
 
     def _on_key_up(self, keyboard, keycode):
         Logger.debug(f'on_key_up: {keyboard}, {keycode}')
@@ -2304,6 +2331,11 @@ class NymphesGuiApp(App):
             Logger.debug('Shift key released')
             self._shift_key_pressed = False
 
+            if self.float_mode_modifier_key == 'shift':
+                # Disable float mode
+                Logger.debug('Float Mode Disabled')
+                self.float_mode = False
+
         # Check for the meta key (CMD on macOS)
         left_meta_key_code = 309
         right_meta_key_code = 1073742055
@@ -2311,9 +2343,10 @@ class NymphesGuiApp(App):
             Logger.debug('meta key released')
             self._meta_key_pressed = False
 
-            # Disable float mode
-            Logger.debug('Float Mode Disabled')
-            self.float_mode = False
+            if self.float_mode_modifier_key == 'meta':
+                # Disable float mode
+                Logger.debug('Float Mode Disabled')
+                self.float_mode = False
 
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
@@ -2321,6 +2354,11 @@ class NymphesGuiApp(App):
         if keycode[0] in [left_alt_key_code, right_alt_key_code]:
             Logger.debug('alt key released')
             self._alt_key_pressed = False
+
+            if self.float_mode_modifier_key == 'alt':
+                # Disable float mode
+                Logger.debug('Float Mode Disabled')
+                self.float_mode = False
 
         # File Open
         if keycode[1] == 'o' and self._meta_key_pressed:
