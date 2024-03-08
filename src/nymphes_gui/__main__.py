@@ -7,6 +7,6 @@ def main():
 
 
 if __name__ == '__main__':
-    set_start_method('spawn')
     freeze_support()
+    set_start_method('spawn')
     main()
