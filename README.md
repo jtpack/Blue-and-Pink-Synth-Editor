@@ -1,6 +1,6 @@
 # nymphes-gui
 A graphical editor for the Dreadbox Nymphes synthesizer. 
-Uses nymphes-osc in the background to do the actual communication with the Nymphes.
+Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process to do the actual communication with the Nymphes.
 
 2024, Scott Lumsden
 
@@ -8,11 +8,10 @@ Uses nymphes-osc in the background to do the actual communication with the Nymph
 
 ## Platforms:
 - macOS
-- Linux
-- Windows (possibly)
-    - The app should run on Windows, but has not been tested. 
+- Linux (Including RPi)
+- Windows (Most functions work)
 
-## Nymphes Firmware Version: 2.0
+## Supports Nymphes Firmware Version: 2.0
 
 # Installation
 
@@ -40,21 +39,6 @@ Uses nymphes-osc in the background to do the actual communication with the Nymph
 - Install nymphes-osc in your virtual environment as an editable package
   - `pip install -e ~/nymphes-osc`
     - _Note: On Windows you may need to replace ~ with the full path to your home directory_
-  
-
-### Kivy Dependencies for Raspberry Pi
-```
-sudo apt install pkg-config libgl1-mesa-dev libgles2-mesa-dev \
-libgstreamer1.0-dev \
-gstreamer1.0-plugins-{bad,base,good,ugly} \
-gstreamer1.0-{omx,alsa} libmtdev-dev \
-xclip xsel libjpeg-dev 
-```
-
-```
-sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-```
-
 
 ## 4. Install nymphes-gui itself
 - `pip install -e .`
@@ -62,11 +46,14 @@ sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 ## 5. Run nymphes-gui
 - `python -m nymphes_gui`
 
-## 6. Building an executable binary
+## 6. Compile an executable binary
 -   `pyinstaller NymphesEdit.spec`
 
 When the build finishes, the executable will be found in the dist folder.
 - On macOS this will be dist/NymphesEdit.app
   - You can ignore the dist/NymphesEdit folder.
 - On Windows, you need both dist/NymphesEdit.exe and the dist/_internal folder.
+  - Windows Defender or other anti-virus software may interfere with compilation or incorrectly flag the compiled executable as a virus
+    - This is an issue related to pyinstaller
+      - Do not worry: you have not created a virus
 
