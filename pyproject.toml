@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "NymphesEdit"
-version = "0.1.0"
+version = "0.1.1-beta"
 description = "A gui application for full control of the Dreadbox Nymphes MIDI synthesizer"
 readme = "README.md"
 authors = [{name = "Scott Lumsden", email = "jtpack@gmail.com"}]
