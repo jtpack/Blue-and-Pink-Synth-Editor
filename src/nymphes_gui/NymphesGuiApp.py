@@ -3301,9 +3301,6 @@ class MidiInputPortsGrid(GridLayout):
         self.bind(midi_ports=self.update_grid)
 
     def update_grid(self, instance, value):
-        print(f'MidiInputPortsGrid update grid: self.midi_ports: {self.midi_ports}')
-        print(f'MidiInputPortsGrid update grid: value: {value}')
-
         # Remove all old rows
         self.clear_widgets()
 
@@ -3324,9 +3321,6 @@ class MidiOutputPortsGrid(GridLayout):
         self.bind(midi_ports=self.update_grid)
 
     def update_grid(self, instance, value):
-        print(f'MidiOutputPortsGrid update grid: self.midi_ports: {self.midi_ports}')
-        print(f'MidiOutputPortsGrid update grid: value: {value}')
-
         # Remove all old rows
         self.clear_widgets()
 
