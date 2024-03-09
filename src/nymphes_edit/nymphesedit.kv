@@ -12,7 +12,7 @@ ScreenManager:
 
     canvas.before:
         Color:
-            rgba: C('#292929FF')
+            rgba: C('#092042FF')
         Rectangle:
             pos: self.pos
             size: self.size
@@ -37,7 +37,7 @@ ScreenManager:
 
     canvas.before:
         Color:
-            rgba: C('#000000FF')
+            rgba: C('#092042FF')
         Rectangle:
             pos: self.pos
             size: self.size
@@ -116,18 +116,6 @@ ScreenManager:
             size: root.width, root.height
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
-    Widget:
-        size_hint_x: 1/40
-
-    TopBarButton:
-        size_hint_x: 2/20
-        text: 'RELOAD'
-        on_release: app.reload()
-        disabled: not app.nymphes_connected or app.curr_preset_type == ''
-
-    Widget:
-        size_hint_x: 1/20
-
     PresetIncButton:
         size_hint_x: 1/20
         text: '-'
@@ -149,6 +137,15 @@ ScreenManager:
 
     TopBarButton:
         size_hint_x: 2/20
+        text: 'RELOAD'
+        on_release: app.reload()
+        disabled: not app.nymphes_connected or app.curr_preset_type == ''
+
+    Widget:
+        size_hint_x: 1/20
+
+    TopBarButton:
+        size_hint_x: 2/20
         text: 'OPEN'
         on_release: app.show_load_dialog()
         disabled: not app.nymphes_connected
@@ -160,18 +157,16 @@ ScreenManager:
         disabled: not app.nymphes_connected
 
     Widget:
-        size_hint_x: 2/20
+        size_hint_x: 1/20
 
     TopBarButton:
-        size_hint_x: 2/20
+        size_hint_x: 3/20
         id: midi_settings_button
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
-        text: 'MIDI'
+        text: 'SETTINGS'
 
-    Widget:
-        size_hint_x: 1/40
 
 <MainControlsBox>:
     orientation: 'horizontal'
@@ -460,7 +455,7 @@ ScreenManager:
             title: 'EG'
             param_name: 'pitch.eg'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.pitch_eg_value
             lfo2_prop: app.pitch_eg_lfo2
@@ -526,7 +521,7 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'LFO1'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             param_name: 'pitch.lfo1'
             value_prop: app.pitch_lfo1_value
@@ -595,7 +590,7 @@ ScreenManager:
             title: 'EG'
             param_name: 'lpf.eg'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.lpf_eg_value
             lfo2_prop: app.lpf_eg_lfo2
@@ -607,7 +602,7 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'LFO1'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             param_name: 'lpf.lfo1'
             value_prop: app.lpf_lfo1_value
@@ -623,7 +618,7 @@ ScreenManager:
             title: 'ATT'
             param_name: 'filter_eg.attack'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_attack_value
             lfo2_prop: app.filter_eg_attack_lfo2
@@ -636,7 +631,7 @@ ScreenManager:
             title: 'DEC'
             param_name: 'filter_eg.decay'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_decay_value
             lfo2_prop: app.filter_eg_decay_lfo2
@@ -649,7 +644,7 @@ ScreenManager:
             title: 'SUS'
             param_name: 'filter_eg.sustain'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_sustain_value
             lfo2_prop: app.filter_eg_sustain_lfo2
@@ -662,7 +657,7 @@ ScreenManager:
             title: 'REL'
             param_name: 'filter_eg.release'
             background_color_string: '#8382FEFF'
-            param_name_color_string: '#2B2B80FF'
+            param_name_color_string: '#3B3A73FF'
             mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_release_value
             lfo2_prop: app.filter_eg_release_lfo2
@@ -703,7 +698,7 @@ ScreenManager:
             title: 'RATE'
             param_name: 'lfo1.rate'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_rate_value
             lfo2_prop: app.lfo1_rate_lfo2
@@ -716,7 +711,7 @@ ScreenManager:
             title: 'WAVE'
             param_name: 'lfo1.wave'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_wave_value
             lfo2_prop: app.lfo1_wave_lfo2
@@ -729,7 +724,7 @@ ScreenManager:
             title: 'DEL'
             param_name: 'lfo1.delay'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_delay_value
             lfo2_prop: app.lfo1_delay_lfo2
@@ -742,7 +737,7 @@ ScreenManager:
             title: 'FADE'
             param_name: 'lfo1.fade'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_fade_value
             lfo2_prop: app.lfo1_fade_lfo2
@@ -753,7 +748,7 @@ ScreenManager:
         ParamsGridLfoConfigCell:
             section_name: 'lfo1'
             background_color_string: '#4C65FFFF'
-            param_name_color_string: '#0018ADFF'
+            param_name_color_string: '#222D72FF'
             type_prop: app.lfo1_type_value
             key_sync_prop: app.lfo1_key_sync_value
 
@@ -1316,7 +1311,7 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'INPUTS'
+            text: 'MIDI INPUTS'
 
         ScrollView:
             do_scroll_x: False
@@ -1344,7 +1339,7 @@ ScreenManager:
         orientation: 'vertical'
 
         SectionTitleLabel:
-            text: 'OUTPUTS'
+            text: 'MIDI OUTPUTS'
 
         ScrollView:
             do_scroll_x: False
