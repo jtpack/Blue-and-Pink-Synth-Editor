@@ -1,4 +1,4 @@
-# nymphes-gui
+# NymphesEdit
 A graphical editor for the Dreadbox Nymphes synthesizer. 
 Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process to do the actual communication with the Nymphes.
 
