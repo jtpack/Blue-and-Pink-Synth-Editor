@@ -33,7 +33,7 @@ from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["debug"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 import platform
-from nymphes_osc_process import NymphesOscProcess
+from .nymphes_osc_process import NymphesOscProcess
 
 
 kivy.require('2.1.0')
@@ -954,8 +954,8 @@ class NymphesGuiApp(App):
             Logger.info(f'{address}: {port_name}')
 
             # Remove it from our list of detected Nymphes MIDI input ports
-            if port_name in self._detected_nymhes_midi_inputs:
-                self._detected_nymhes_midi_inputs.remove(port_name)
+            if port_name in self._detected_nymphes_midi_inputs:
+                self._detected_nymphes_midi_inputs.remove(port_name)
                 self.remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
             
         elif address == '/nymphes_midi_output_detected':
@@ -995,8 +995,8 @@ class NymphesGuiApp(App):
             Logger.info(f'{address}: {port_name}')
 
             # Remove it from our list of detected Nymphes MIDI output ports
-            if port_name in self._detected_nymhes_midi_outputs:
-                self._detected_nymhes_midi_outputs.remove(port_name)
+            if port_name in self._detected_nymphes_midi_outputs:
+                self._detected_nymphes_midi_outputs.remove(port_name)
                 self.remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
 
         elif address == '/nymphes_connected':
