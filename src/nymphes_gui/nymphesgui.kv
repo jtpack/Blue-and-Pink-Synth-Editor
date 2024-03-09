@@ -12,7 +12,7 @@ ScreenManager:
 
     canvas.before:
         Color:
-            rgba: C('#092042FF')
+            rgba: C('#292929FF')
         Rectangle:
             pos: self.pos
             size: self.size
@@ -37,7 +37,7 @@ ScreenManager:
 
     canvas.before:
         Color:
-            rgba: C('#092042FF')
+            rgba: C('#000000FF')
         Rectangle:
             pos: self.pos
             size: self.size
@@ -346,7 +346,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/16
     background_color: 0, 1, 0, 0.3
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -356,7 +356,7 @@ ScreenManager:
 
 <ParamNameLabel>:
     background_color: 1, 1, 0, 0.7
-    color: C('#ECBFEBFF')
+    color: C(self.text_color_string)
     font_size: self.width * 0.3
     text_size: self.size
     halign: 'center'
@@ -365,7 +365,7 @@ ScreenManager:
 
 <FloatParamValueLabel>:
     background_color: 0, 1, 1, 0.7
-    color: C('#06070FFF')
+    color: C(self.text_color_string)
     font_size: self.width * 0.35
     text_size: self.size
     halign: 'center'
@@ -407,6 +407,9 @@ ScreenManager:
             section_name: 'oscillator_top_row'
             title: 'PW'
             param_name: 'osc.pulsewidth'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.osc_pulsewidth_value
             lfo2_prop: app.osc_pulsewidth_lfo2
             mod_wheel_prop: app.osc_pulsewidth_mod_wheel
@@ -417,6 +420,9 @@ ScreenManager:
             section_name: 'oscillator_top_row'
             title: 'GLD'
             param_name: 'pitch.glide'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_glide_value
             lfo2_prop: app.pitch_glide_lfo2
             mod_wheel_prop: app.pitch_glide_mod_wheel
@@ -427,6 +433,9 @@ ScreenManager:
             section_name: 'oscillator_top_row'
             title: 'DTN'
             param_name: 'pitch.detune'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_detune_value
             lfo2_prop: app.pitch_detune_lfo2
             mod_wheel_prop: app.pitch_detune_mod_wheel
@@ -437,6 +446,9 @@ ScreenManager:
             section_name: 'oscillator_top_row'
             title: 'CHD'
             param_name: 'pitch.chord'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_chord_value
             lfo2_prop: app.pitch_chord_lfo2
             mod_wheel_prop: app.pitch_chord_mod_wheel
@@ -447,6 +459,9 @@ ScreenManager:
             section_name: 'oscillator_top_row'
             title: 'EG'
             param_name: 'pitch.eg'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.pitch_eg_value
             lfo2_prop: app.pitch_eg_lfo2
             mod_wheel_prop: app.pitch_eg_mod_wheel
@@ -459,6 +474,9 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'WAVE'
             param_name: 'osc.wave'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.osc_wave_value
             lfo2_prop: app.osc_wave_lfo2
             mod_wheel_prop: app.osc_wave_mod_wheel
@@ -469,6 +487,9 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'LVL'
             param_name: 'mix.osc'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_osc_value
             lfo2_prop: app.mix_osc_lfo2
             mod_wheel_prop: app.mix_osc_mod_wheel
@@ -479,6 +500,9 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'SUB'
             param_name: 'mix.sub'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_sub_value
             lfo2_prop: app.mix_sub_lfo2
             mod_wheel_prop: app.mix_sub_mod_wheel
@@ -489,6 +513,9 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'NOISE'
             param_name: 'mix.noise'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_noise_value
             lfo2_prop: app.mix_noise_lfo2
             mod_wheel_prop: app.mix_noise_mod_wheel
@@ -497,7 +524,10 @@ ScreenManager:
 
         ParamsGridModCell:
             section_name: 'oscillator_bottom_row'
-            title: 'LFO'
+            title: 'LFO1'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             param_name: 'pitch.lfo1'
             value_prop: app.pitch_lfo1_value
             lfo2_prop: app.pitch_lfo1_lfo2
@@ -525,6 +555,9 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'CUT'
             param_name: 'lpf.cutoff'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_cutoff_value
             lfo2_prop: app.lpf_cutoff_lfo2
             mod_wheel_prop: app.lpf_cutoff_mod_wheel
@@ -535,6 +568,9 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'RES'
             param_name: 'lpf.resonance'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_resonance_value
             lfo2_prop: app.lpf_resonance_lfo2
             mod_wheel_prop: app.lpf_resonance_mod_wheel
@@ -545,6 +581,9 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'TRK'
             param_name: 'lpf.tracking'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_tracking_value
             lfo2_prop: app.lpf_tracking_lfo2
             mod_wheel_prop: app.lpf_tracking_mod_wheel
@@ -555,6 +594,9 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'EG'
             param_name: 'lpf.eg'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.lpf_eg_value
             lfo2_prop: app.lpf_eg_lfo2
             mod_wheel_prop: app.lpf_eg_mod_wheel
@@ -563,7 +605,10 @@ ScreenManager:
 
         ParamsGridModCell:
             section_name: 'filter_top_row'
-            title: 'LFO'
+            title: 'LFO1'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             param_name: 'lpf.lfo1'
             value_prop: app.lpf_lfo1_value
             lfo2_prop: app.lpf_lfo1_lfo2
@@ -577,6 +622,9 @@ ScreenManager:
             section_name: 'filter_bottom_row'
             title: 'ATT'
             param_name: 'filter_eg.attack'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_attack_value
             lfo2_prop: app.filter_eg_attack_lfo2
             mod_wheel_prop: app.filter_eg_attack_mod_wheel
@@ -587,6 +635,9 @@ ScreenManager:
             section_name: 'filter_bottom_row'
             title: 'DEC'
             param_name: 'filter_eg.decay'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_decay_value
             lfo2_prop: app.filter_eg_decay_lfo2
             mod_wheel_prop: app.filter_eg_decay_mod_wheel
@@ -597,6 +648,9 @@ ScreenManager:
             section_name: 'filter_bottom_row'
             title: 'SUS'
             param_name: 'filter_eg.sustain'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_sustain_value
             lfo2_prop: app.filter_eg_sustain_lfo2
             mod_wheel_prop: app.filter_eg_sustain_mod_wheel
@@ -607,6 +661,9 @@ ScreenManager:
             section_name: 'filter_bottom_row'
             title: 'REL'
             param_name: 'filter_eg.release'
+            background_color_string: '#8382FEFF'
+            param_name_color_string: '#2B2B80FF'
+            mod_amount_line_background_color_string: '#9595FEFF'
             value_prop: app.filter_eg_release_value
             lfo2_prop: app.filter_eg_release_lfo2
             mod_wheel_prop: app.filter_eg_release_mod_wheel
@@ -617,6 +674,9 @@ ScreenManager:
             section_name: 'filter_bottom_row'
             title: 'HPF'
             param_name: 'hpf.cutoff'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.hpf_cutoff_value
             lfo2_prop: app.hpf_cutoff_lfo2
             mod_wheel_prop: app.hpf_cutoff_mod_wheel
@@ -642,6 +702,9 @@ ScreenManager:
             section_name: 'lfo1'
             title: 'RATE'
             param_name: 'lfo1.rate'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_rate_value
             lfo2_prop: app.lfo1_rate_lfo2
             mod_wheel_prop: app.lfo1_rate_mod_wheel
@@ -652,6 +715,9 @@ ScreenManager:
             section_name: 'lfo1'
             title: 'WAVE'
             param_name: 'lfo1.wave'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_wave_value
             lfo2_prop: app.lfo1_wave_lfo2
             mod_wheel_prop: app.lfo1_wave_mod_wheel
@@ -662,6 +728,9 @@ ScreenManager:
             section_name: 'lfo1'
             title: 'DEL'
             param_name: 'lfo1.delay'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_delay_value
             lfo2_prop: app.lfo1_delay_lfo2
             mod_wheel_prop: app.lfo1_delay_mod_wheel
@@ -672,6 +741,9 @@ ScreenManager:
             section_name: 'lfo1'
             title: 'FADE'
             param_name: 'lfo1.fade'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
+            mod_amount_line_background_color_string: '#6379FFFF'
             value_prop: app.lfo1_fade_value
             lfo2_prop: app.lfo1_fade_lfo2
             mod_wheel_prop: app.lfo1_fade_mod_wheel
@@ -680,6 +752,8 @@ ScreenManager:
 
         ParamsGridLfoConfigCell:
             section_name: 'lfo1'
+            background_color_string: '#4C65FFFF'
+            param_name_color_string: '#0018ADFF'
             type_prop: app.lfo1_type_value
             key_sync_prop: app.lfo1_key_sync_value
 
@@ -702,6 +776,9 @@ ScreenManager:
             section_name: 'amp'
             title: 'ATT'
             param_name: 'amp_eg.attack'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_attack_value
             lfo2_prop: app.amp_eg_attack_lfo2
             mod_wheel_prop: app.amp_eg_attack_mod_wheel
@@ -712,6 +789,9 @@ ScreenManager:
             section_name: 'amp'
             title: 'DEC'
             param_name: 'amp_eg.decay'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_decay_value
             lfo2_prop: app.amp_eg_decay_lfo2
             mod_wheel_prop: app.amp_eg_decay_mod_wheel
@@ -722,6 +802,9 @@ ScreenManager:
             section_name: 'amp'
             title: 'SUS'
             param_name: 'amp_eg.sustain'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_sustain_value
             lfo2_prop: app.amp_eg_sustain_lfo2
             mod_wheel_prop: app.amp_eg_sustain_mod_wheel
@@ -732,6 +815,9 @@ ScreenManager:
             section_name: 'amp'
             title: 'REL'
             param_name: 'amp_eg.release'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_release_value
             lfo2_prop: app.amp_eg_release_lfo2
             mod_wheel_prop: app.amp_eg_release_mod_wheel
@@ -742,6 +828,7 @@ ScreenManager:
             section_name: 'amp'
             title: 'LVL'
             param_name: 'mix.level'
+            background_color_string: '#438EFFFF'
             value_prop: app.mix_level_value
 
 
@@ -763,6 +850,9 @@ ScreenManager:
             section_name: 'reverb'
             title: 'SIZE'
             param_name: 'reverb.size'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_size_value
             lfo2_prop: app.reverb_size_lfo2
             mod_wheel_prop: app.reverb_size_mod_wheel
@@ -773,6 +863,9 @@ ScreenManager:
             section_name: 'reverb'
             title: 'DEC'
             param_name: 'reverb.decay'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_decay_value
             lfo2_prop: app.reverb_decay_lfo2
             mod_wheel_prop: app.reverb_decay_mod_wheel
@@ -783,6 +876,9 @@ ScreenManager:
             section_name: 'reverb'
             title: 'FILT'
             param_name: 'reverb.filter'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_filter_value
             lfo2_prop: app.reverb_filter_lfo2
             mod_wheel_prop: app.reverb_filter_mod_wheel
@@ -793,6 +889,9 @@ ScreenManager:
             section_name: 'reverb'
             title: 'MIX'
             param_name: 'reverb.mix'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_mix_value
             lfo2_prop: app.reverb_mix_lfo2
             mod_wheel_prop: app.reverb_mix_mod_wheel
@@ -821,6 +920,9 @@ ScreenManager:
             section_name: 'lfo2'
             title: 'RATE'
             param_name: 'lfo2.rate'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_rate_value
             lfo2_prop: app.lfo2_rate_lfo2
             mod_wheel_prop: app.lfo2_rate_mod_wheel
@@ -831,6 +933,9 @@ ScreenManager:
             section_name: 'lfo2'
             title: 'WAVE'
             param_name: 'lfo2.wave'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_wave_value
             lfo2_prop: app.lfo2_wave_lfo2
             mod_wheel_prop: app.lfo2_wave_mod_wheel
@@ -841,6 +946,9 @@ ScreenManager:
             section_name: 'lfo2'
             title: 'DEL'
             param_name: 'lfo2.delay'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_delay_value
             lfo2_prop: app.lfo2_delay_lfo2
             mod_wheel_prop: app.lfo2_delay_mod_wheel
@@ -851,6 +959,9 @@ ScreenManager:
             section_name: 'lfo2'
             title: 'FADE'
             param_name: 'lfo2.fade'
+            background_color_string: '#438EFFFF'
+            value_color_string: '#06070FFF'
+            mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_fade_value
             lfo2_prop: app.lfo2_fade_lfo2
             mod_wheel_prop: app.lfo2_fade_mod_wheel
@@ -859,6 +970,7 @@ ScreenManager:
 
         ParamsGridLfoConfigCell:
             section_name: 'lfo2'
+            background_color_string: '#438EFFFF'
             type_prop: app.lfo2_type_value
             key_sync_prop: app.lfo2_key_sync_value
 
@@ -874,7 +986,7 @@ ScreenManager:
     padding: [self.corner_radius * 0.25]
     canvas.before:
         Color:
-            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+            rgba: C(self.background_color_string)
         RoundedRectangle:
             size: self.size
             pos: self.pos
@@ -882,12 +994,15 @@ ScreenManager:
 
     ParamNameLabel:
         text: root.title
+        text_color_string: root.param_name_color_string
 
     FloatParamValueLabel:
         text: str(float(root.value_prop))
         param_name: root.param_name
+        text_color_string: root.value_color_string
 
     ModAmountsBox:
+        mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
         size_hint_x: 0.75
         pos_hint: {'center_x': 0.5}
 
@@ -903,31 +1018,26 @@ ScreenManager:
     spacing: self.height * 0.1
     size_hint: 1, 1
 
-#    canvas.before:
-#        Color:
-#            # rgba: C('#00000020') if root.lfo2 > 0 or root.wheel > 0 or root.velocity > 0 or root.aftertouch > 0 else C('#00000000')
-#            rgba: C('#00000020')
-#        RoundedRectangle:
-#            pos: self.pos
-#            size: self.size
-#            radius: [self.height * 0.01]
-
     Lfo2ModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
         mod_type: 'lfo2'
         midi_val: root.lfo2_prop
 
     WheelModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
         mod_type: 'mod_wheel'
         midi_val: root.mod_wheel_prop
 
     VelocityModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
         mod_type: 'velocity'
         midi_val: root.velocity_prop
 
     AftertouchModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
         mod_type: 'aftertouch'
         midi_val: root.aftertouch_prop
@@ -938,7 +1048,7 @@ ScreenManager:
         # Line Background
 
         Color:
-            rgba: C('#257CFFFF')
+            rgba: C(self.background_color_string)
 
         RoundedRectangle:
             pos: self.pos
@@ -982,7 +1092,7 @@ ScreenManager:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
     canvas.before:
         Color:
-            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+            rgba: C(self.background_color_string)
         RoundedRectangle:
             size: self.size
             pos: self.pos
@@ -991,19 +1101,23 @@ ScreenManager:
     ParamNameLabel:
         font_size: self.width * 0.2
         text: 'TYPE'
+        text_color_string: root.param_name_color_string
 
     IntParamValueLabel:
         font_size: self.width * 0.2
         param_name: root.section_name + '.type'
+        text_color_string: root.value_color_string
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
 
     ParamNameLabel:
         font_size: self.width * 0.2
         text: 'SYNC'
+        text_color_string: root.param_name_color_string
 
     IntParamValueLabel:
         font_size: self.width * 0.2
         param_name: root.section_name + '.key_sync'
+        text_color_string: root.value_color_string
         text: "ON" if root.key_sync_prop == 1 else "OFF"
 
 
@@ -1014,7 +1128,7 @@ ScreenManager:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
     canvas.before:
         Color:
-            rgba: C('#8C7CFFFF') if app.selected_section == self.section_name else C('#438EFFFF')
+            rgba: C(self.background_color_string)
         RoundedRectangle:
             size: self.size
             pos: self.pos
@@ -1026,6 +1140,7 @@ ScreenManager:
     FloatParamValueLabel:
         text: str(float(root.value_prop))
         param_name: root.param_name
+        text_color_string: root.value_color_string
 
     # A placeholder to take up the empty space in the lower
     # part of the cell
@@ -1033,7 +1148,7 @@ ScreenManager:
 
 
 <PresetIncButton@ButtonBehavior+Label>:
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'center'
@@ -1042,7 +1157,7 @@ ScreenManager:
 
 
 <TopBarSpinner@Spinner>:
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.4
     text_size: self.size
     size_hint_y: None
@@ -1055,7 +1170,7 @@ ScreenManager:
 
 
 <TopBarSpinnerOption@SpinnerOption>:
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     size_hint_y: None
@@ -1070,7 +1185,7 @@ ScreenManager:
     size_hint_x: 1/6
     size_hint_y: None
     height: self.parent.height
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.4
     text_size: self.size
     halign: 'center'
@@ -1253,7 +1368,7 @@ ScreenManager:
 
 <MidiPortLabel>:
     size_hint_x: 7/8
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -1274,7 +1389,7 @@ ScreenManager:
 
 
 <NymphesPortSpinner@Spinner>:
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'right'
@@ -1284,7 +1399,7 @@ ScreenManager:
 
 
 <NymphesPortSpinnerOption@SpinnerOption>:
-    color: C('#092042FF')
+    color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'right'

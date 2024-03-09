@@ -2789,6 +2789,7 @@ class FloatParamValueLabel(ButtonBehavior, Label):
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
+    text_color_string = StringProperty('#06070FFF')
 
     def handle_touch(self, device, button):
         #
@@ -2885,6 +2886,7 @@ class IntParamValueLabel(ButtonBehavior, Label):
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
+    text_color_string = StringProperty('#06070FFF')
 
     def handle_touch(self, device, button):
         #
@@ -2958,6 +2960,10 @@ class ParamsGridModCell(BoxLayout):
     section_name = StringProperty('')
     title = StringProperty('')
     param_name = StringProperty('')
+    param_name_color_string = StringProperty('#ECBFEBFF')
+    value_color_string = StringProperty('#06070FFF')
+    background_color_string = StringProperty('#438EFFFF')
+    mod_amount_line_background_color_string = StringProperty('#000000FF')
 
     value_prop = NumericProperty(0)
     lfo2_prop = NumericProperty(0)
@@ -2973,6 +2979,8 @@ class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
     param_name = StringProperty('')
     value_prop = NumericProperty(0)
     corner_radius = NumericProperty(0)
+    value_color_string = StringProperty('#06070FFF')
+    background_color_string = StringProperty('#438EFFFF')
 
 
 class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
@@ -2980,6 +2988,9 @@ class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
     type_prop = NumericProperty(0)
     key_sync_prop = NumericProperty(0)
     corner_radius = NumericProperty(0)
+    param_name_color_string = StringProperty('#ECBFEBFF')
+    value_color_string = StringProperty('#06070FFF')
+    background_color_string = StringProperty('#438EFFFF')
 
 
 class ParamsGridPlaceholderCell(Widget):
@@ -3071,6 +3082,7 @@ class ModAmountLine(ButtonBehavior, Widget):
     param_name = StringProperty('')
     mod_type = StringProperty('')
     drag_start_pos = NumericProperty(0)
+    background_color_string = StringProperty('#72777BFF')
 
     def handle_touch(self, device, button):
         #
@@ -3233,6 +3245,7 @@ class ModAmountsBox(BoxLayout):
     mod_wheel_prop = NumericProperty(0)
     velocity_prop = NumericProperty(0)
     aftertouch_prop = NumericProperty(0)
+    mod_amount_line_background_color_string = StringProperty('#000000FF')
 
 
 class MainControlsBox(BoxLayout):
@@ -3289,7 +3302,7 @@ class ParamsGridCell(BoxLayout):
 
 
 class ParamNameLabel(Label):
-    pass
+    text_color_string = StringProperty('#ECBFEBFF')
 
 
 class MidiInputPortsGrid(GridLayout):
@@ -3332,11 +3345,15 @@ class MidiOutputPortsGrid(GridLayout):
             # Add a checkbox
             self.add_widget(MidiOutputPortCheckBox(port_name=port_name))
 
+
 class MidiPortLabel(Label):
     pass
+
 
 class MidiInputPortCheckBox(CheckBox):
     port_name = StringProperty('')
 
+
 class MidiOutputPortCheckBox(CheckBox):
     port_name = StringProperty('')
+
