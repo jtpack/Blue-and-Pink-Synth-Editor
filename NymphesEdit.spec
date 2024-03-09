@@ -4,12 +4,12 @@ from pathlib import Path
 
 
 a = Analysis(
-    ['src/nymphes_gui/__main__.py'],
+    ['src/nymphes_edit/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('src/nymphes_gui/app_config.ini', 'src/nymphes_gui'),
-        ('src/nymphes_gui/nymphesgui.kv', 'src/nymphes_gui')
+        ('src/nymphes_edit/app_config.ini', 'src/nymphes_edit'),
+        ('src/nymphes_edit/nymphesedit.kv', 'src/nymphes_edit')
     ],
     hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],

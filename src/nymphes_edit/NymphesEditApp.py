@@ -50,7 +50,7 @@ def presets_spinner_values_list():
     return values
 
 
-class NymphesGuiApp(App):
+class NymphesEditApp(App):
     #
     # App Status Parameters
     #
@@ -396,7 +396,7 @@ class NymphesGuiApp(App):
     curr_height = NumericProperty(480)
 
     def __init__(self, **kwargs):
-        super(NymphesGuiApp, self).__init__(**kwargs)
+        super(NymphesEditApp, self).__init__(**kwargs)
 
         # Set the app title
         self.title = f'NymphesEdit {app_version_string}'
@@ -1050,7 +1050,7 @@ class NymphesGuiApp(App):
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
             # Get the index of the loaded preset
-            preset_slot_index = NymphesGuiApp.index_from_preset_info(
+            preset_slot_index = NymphesEditApp.index_from_preset_info(
                 bank_name=self._curr_preset_slot_bank_and_number[0],
                 preset_num=self._curr_preset_slot_bank_and_number[1],
                 preset_type=self._curr_preset_slot_type
@@ -1645,7 +1645,7 @@ class NymphesGuiApp(App):
             raise Exception(f'Invalid preset_index: {preset_index}')
 
         # Parse preset_index into preset type, bank and number
-        preset_info = NymphesGuiApp.parse_preset_index(preset_index)
+        preset_info = NymphesEditApp.parse_preset_index(preset_index)
 
         # Load the preset
         self.load_preset(preset_info['bank_name'],

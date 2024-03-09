@@ -5,5 +5,5 @@ venv/
 dist/
 build/
 nymphes_gui.egg-info/
-src/nymphes_gui/config.txt
+src/nymphes_edit/config.txt
 nymphes-osc

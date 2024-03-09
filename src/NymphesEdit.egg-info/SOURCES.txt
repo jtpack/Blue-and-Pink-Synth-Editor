@@ -1,0 +1,15 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+src/__init__.py
+src/NymphesEdit.egg-info/PKG-INFO
+src/NymphesEdit.egg-info/SOURCES.txt
+src/NymphesEdit.egg-info/dependency_links.txt
+src/NymphesEdit.egg-info/entry_points.txt
+src/NymphesEdit.egg-info/requires.txt
+src/NymphesEdit.egg-info/top_level.txt
+src/nymphes_edit/NymphesEditApp.py
+src/nymphes_edit/__init__.py
+src/nymphes_edit/__main__.py
+src/nymphes_edit/nymphes_osc_process.py

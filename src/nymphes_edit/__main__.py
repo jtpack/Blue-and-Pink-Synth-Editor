@@ -3,5 +3,5 @@ if __name__ == '__main__':
     freeze_support()
 
     set_start_method('spawn')
-    from src.nymphes_gui.NymphesGuiApp import NymphesGuiApp
-    NymphesGuiApp().run()
+    from src.nymphes_edit.NymphesEditApp import NymphesEditApp
+    NymphesEditApp().run()
