@@ -39,5 +39,4 @@ class NymphesOscProcess(Process):
                 self.nymphes_osc_object.update()
                 time.sleep(0.0001)
         except KeyboardInterrupt:
-            Logger.warning(f'nymphes-osc is about to close')
             self.nymphes_osc_object.stop_osc_server()
