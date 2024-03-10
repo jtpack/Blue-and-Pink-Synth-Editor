@@ -3275,6 +3275,10 @@ class TopBar(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
+class BottomBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
 class SettingsTopBar(BoxLayout):
     corner_radius = NumericProperty(0)
 

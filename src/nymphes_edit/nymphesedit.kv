@@ -24,11 +24,15 @@ ScreenManager:
 
         # Top Bar
         TopBar:
-            size_hint_y: 1/10
+            size_hint_y: 3/40
             corner_radius: root.height * 0.015
 
         MainControlsBox:
-            size_hint_y: 9/10
+            size_hint_y: 35/40
+            corner_radius: root.height * 0.015
+
+        BottomBar:
+            size_hint_y: 2/40
             corner_radius: root.height * 0.015
 
 
@@ -104,7 +108,7 @@ ScreenManager:
 
 <TopBar>:
     orientation: 'horizontal'
-    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    padding: [self.corner_radius * 0, self.corner_radius * 0]
     spacing: self.parent.spacing
 
     canvas.before:
@@ -119,10 +123,11 @@ ScreenManager:
     PresetIncButton:
         size_hint_x: 1/20
         text: '-'
+        font_size: self.height * 1.2
         on_release: app.load_prev_preset()
 
     TopBarSpinner:
-        size_hint_x: 6/20
+        size_hint_x: 7/20
         values: app.presets_spinner_values
         text: app.presets_spinner_text
         on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
@@ -140,9 +145,6 @@ ScreenManager:
         text: 'RELOAD'
         on_release: app.reload()
         disabled: not app.nymphes_connected or app.curr_preset_type == ''
-
-    Widget:
-        size_hint_x: 1/20
 
     TopBarButton:
         size_hint_x: 2/20
@@ -231,18 +233,16 @@ ScreenManager:
 
     # Voice Mode Box
     VoiceModeBox:
-        size_hint: 1, 5/7
+        size_hint: 1, 22/28
         corner_radius: root.corner_radius
 
     LegatoBox:
-        size_hint: 1, 1/7
+        size_hint: 1, 3/28
         corner_radius: root.corner_radius
-        text: 'LEGATO'
 
     FloatModeBox:
-        size_hint: 1, 1/7
+        size_hint: 1, 3/28
         corner_radius: root.corner_radius
-        text: 'FLOAT'
 
 
 <VoiceModeBox>:
@@ -280,7 +280,7 @@ ScreenManager:
     text: self.voice_mode_name
     size_hint: 1, 1 / self.parent.num_voice_modes
     color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
-    font_size: (self.height * 0.30) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.275)
+    font_size: (self.height * 0.35) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.3)
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected
 
@@ -303,7 +303,7 @@ ScreenManager:
     text: 'LEGATO'
     size_hint: 1, 1
     color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
-    font_size: (self.height * 0.275) if app.legato else (self.height * 0.25)
+    font_size: (self.height * 0.375) if app.legato else (self.height * 0.35)
     on_release: app.set_legato(not app.legato)
     disabled: not app.nymphes_connected
 
@@ -322,13 +322,13 @@ ScreenManager:
     FloatModeButton
 
 <FloatModeButton@ButtonBehavior+Label>:
-    text: 'FLOAT MODE'
+    text: 'FLOAT'
     size_hint: 1, 1
     text_size: self.size
     halign: 'center'
     valign: 'middle'
     color: C('#ECBFEBFF') if app.float_mode else C('#06070FFF')
-    font_size: (self.height * 0.275) if app.float_mode else (self.height * 0.25)
+    font_size: (self.height * 0.4) if app.float_mode else (self.height * 0.35)
     on_release: app.set_float_mode(not app.float_mode)
     disabled: not app.nymphes_connected
 
@@ -1143,8 +1143,15 @@ ScreenManager:
 
 
 <PresetIncButton@ButtonBehavior+Label>:
+#    canvas.before:
+#        Color:
+#            rgba: C('#505050FF')
+#        Rectangle:
+#            pos: self.pos
+#            size: self.width, self.height
+
     color: C('#000000FF')
-    font_size: self.height * 0.5
+    font_size: self.height * 0.7
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -1153,7 +1160,7 @@ ScreenManager:
 
 <TopBarSpinner@Spinner>:
     color: C('#000000FF')
-    font_size: self.height * 0.4
+    font_size: self.height * 0.6
     text_size: self.size
     size_hint_y: None
     height: self.parent.height
@@ -1181,7 +1188,7 @@ ScreenManager:
     size_hint_y: None
     height: self.parent.height
     color: C('#000000FF')
-    font_size: self.height * 0.4
+    font_size: self.height * 0.45
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -1409,3 +1416,21 @@ ScreenManager:
     halign: 'left'
     valign: 'middle'
     background_color: C('#00000000')
+
+
+<BottomBar>:
+    orientation: 'horizontal'
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    spacing: self.parent.spacing
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius, root.corner_radius, root.corner_radius, root.corner_radius]
+
+    Label:
+        text: 'testing'
