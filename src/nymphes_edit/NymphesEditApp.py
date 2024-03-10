@@ -87,6 +87,8 @@ class NymphesEditApp(App):
     detected_midi_output_names_for_gui = ListProperty([])
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
+    status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
+
     #
     # Nymphes Parameters
     #
@@ -470,9 +472,6 @@ class NymphesEditApp(App):
         # This is non-zero-referenced, so 1 is channel 1.
         self._nymphes_midi_channel = 1
 
-        self._mod_wheel = 0
-        self._velocity = 0
-        self._aftertouch = 0
         self._sustain_pedal = 0
         self._legato = False
 
@@ -624,6 +623,9 @@ class NymphesEditApp(App):
         # Update the current voice mode
         self.voice_mode_name = voice_mode_name
 
+        # Status bar text
+        self.set_status_bar_text_on_main_thread(f'osc.voice_mode.value: {voice_mode_int}')
+
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
 
@@ -634,6 +636,9 @@ class NymphesEditApp(App):
 
         # Update the property
         self.legato = enable_legato
+
+        # Status bar text
+        self.set_status_bar_text_on_main_thread(f'osc.legato.value: {1 if enable_legato else 0}')
 
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
@@ -1018,6 +1023,9 @@ class NymphesEditApp(App):
             # Update app state
             self.nymphes_connected = True
 
+            # Status message
+            self.set_status_bar_text_on_main_thread('NYMPHES CONNECTED')
+
         elif address == '/nymphes_disconnected':
             #
             # nymphes_midi is no longer connected to a Nymphes synthesizer
@@ -1029,6 +1037,9 @@ class NymphesEditApp(App):
             self.nymphes_connected = False
             self._nymphes_input_port = None
             self._nymphes_output_port = None
+
+            # Status message
+            self.set_status_bar_text_on_main_thread('NYMPHES NOT CONNECTED')
 
             self.set_nymphes_input_name_on_main_thread('Not Connected')
             self.set_nymphes_output_name_on_main_thread('Not Connected')
@@ -1064,6 +1075,9 @@ class NymphesEditApp(App):
             if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
                 self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
 
+            # Status bar message
+            self.set_status_bar_text_on_main_thread(f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
         elif address == '/loaded_preset_dump_from_midi_input_port':
             port_name = str(args[0])
             preset_slot_type = str(args[0])
@@ -1073,6 +1087,10 @@ class NymphesEditApp(App):
 
             self._curr_preset_slot_type = preset_slot_type
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
+
+            # Status bar message
+            msg = f'LOADED PRESET DUMP {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]} FROM MIDI INPUT PORT {port_name}'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/loaded_file':
             #
@@ -1097,6 +1115,9 @@ class NymphesEditApp(App):
             # and updates self._curr_presets_spinner_index.
             self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
 
+            # Status bar message
+            msg = f'LOADED {filepath.stem} PRESET FILE '
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/loaded_init_file':
             #
@@ -1116,6 +1137,10 @@ class NymphesEditApp(App):
             # Select the init option
             self.presets_spinner_text = 'init'
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
+
+            # Status bar message
+            msg = f'LOADED INIT PRESET'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_to_file':
             #
@@ -1140,6 +1165,10 @@ class NymphesEditApp(App):
             # and updates self._curr_presets_spinner_index.
             self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
 
+            # Status bar message
+            msg = f'SAVED {filepath.stem} PRESET FILE'
+            self.set_status_bar_text_on_main_thread(msg)
+
         elif address == '/saved_preset_to_file':
             #
             # A Nymphes preset slot has been saved to a file
@@ -1152,6 +1181,10 @@ class NymphesEditApp(App):
             preset_number = int(args[3])
 
             Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.stem}'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/loaded_file_to_preset':
             #
@@ -1166,6 +1199,10 @@ class NymphesEditApp(App):
             preset_number = int(args[3])
 
             Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'LOADED PRESET FILE {filepath.stem} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_to_preset':
             #
@@ -1182,11 +1219,19 @@ class NymphesEditApp(App):
 
             Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
 
+            # Status bar message
+            msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self.set_status_bar_text_on_main_thread(msg)
+
         elif address == '/requested_preset_dump':
             #
             # A full preset dump has been requested
             #
             Logger.info(f'{address}:')
+
+            # Status bar message
+            msg = f'REQUESTED PRESET DUMP...'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/received_preset_dump_from_nymphes':
             #
@@ -1200,6 +1245,10 @@ class NymphesEditApp(App):
             preset_number = int(args[2])
 
             Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET DUMP'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_preset_dump_from_midi_input_port_to_preset':
             #
@@ -1216,6 +1265,10 @@ class NymphesEditApp(App):
             preset_number = int(args[3])
 
             Logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/midi_input_detected':
             #
@@ -1345,19 +1398,19 @@ class NymphesEditApp(App):
             val = int(args[0])
             Logger.debug(f'{address}: {val}')
 
-            self._mod_wheel = val
+            self.set_mod_wheel_on_main_thread(val)
 
         elif address == '/velocity':
             val = int(args[0])
             Logger.debug(f'{address}: {val}')
 
-            self._velocity = val
+            self.set_velocity_on_main_thread(val)
 
         elif address == '/aftertouch':
             val = int(args[0])
             Logger.debug(f'{address}: {val}')
 
-            self._aftertouch = val
+            self.set_aftertouch_on_main_thread(val)
 
         elif address == '/sustain_pedal':
             val = int(args[0])
@@ -2219,6 +2272,17 @@ class NymphesEditApp(App):
         # Update our property for this parameter name
         setattr(self, param_name.replace('.', '_'), value)
 
+        # Set status bar text
+        #
+        param_type = NymphesPreset.type_for_param_name(param_name)
+        if param_type == float:
+            value_string = format(round(value, NymphesPreset.float_precision_num_decimals),
+                                  f'.{NymphesPreset.float_precision_num_decimals}f')
+        elif param_type == int:
+            value_string = str(value)
+
+        self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+
         # Send an OSC message for this parameter with the new value
         self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
 
@@ -2686,6 +2750,32 @@ class NymphesEditApp(App):
             if new_port_name in self.connected_midi_output_names_for_gui:
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
+    def set_status_bar_text_on_main_thread(self, status_text):
+        Logger.debug(f'set_status_bar_text_on_main_thread: {status_text}')
+
+        Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
+
+        def work_func(_, new_status_text):
+            self.status_bar_text = new_status_text
+
+    def set_mod_wheel_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.mod_wheel = value
+            
+    def set_velocity_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.velocity = value
+        
+    def set_aftertouch_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.aftertouch = value
+
     def midi_input_port_checkbox_toggled(self, port_name, active):
         Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
 
@@ -2768,7 +2858,22 @@ class NymphesEditApp(App):
                 if self.nymphes_connected:
                     self._send_nymphes_osc('/disconnect_nymphes')
 
+    def on_mouse_entered_param_control(self, param_name):
+        # Get the value and type for the parameter
+        value = self.get_prop_value_for_param_name(param_name)
+        param_type = NymphesPreset.type_for_param_name(param_name)
 
+        if param_type == float:
+            value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+
+        elif param_type == int:
+            value_string = str(value)
+
+        self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+        
+    def on_mouse_exited_param_control(self, param_name):
+        # Reset the status message to blank
+        self.set_status_bar_text_on_main_thread('')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -2784,12 +2889,74 @@ class NymphesEditApp(App):
         v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
         return v1 == v2
 
+    def increment_mod_wheel(self, amount):
+        print(f'increment_mod_wheel: {amount}')
+
+        new_val = self.mod_wheel + int(amount)
+        if new_val > 127:
+            new_val = 127
+        elif new_val < 0:
+            new_val = 0
+
+        if new_val != self.mod_wheel:
+            # Update the property
+            self.mod_wheel = new_val
+
+            # Send the new value to Nymphes
+            self._send_nymphes_osc(
+                '/mod_wheel',
+                new_val
+            )
+
+    def increment_aftertouch(self, amount):
+        print(f'increment_aftertouch: {amount}')
+
+        new_val = self.aftertouch + int(amount)
+        if new_val > 127:
+            new_val = 127
+        elif new_val < 0:
+            new_val = 0
+
+        if new_val != self.aftertouch:
+            # Update the property
+            self.aftertouch = new_val
+
+            # Send the new value to Nymphes
+            self._send_nymphes_osc(
+                '/aftertouch',
+                new_val
+            )
+
 
 class FloatParamValueLabel(ButtonBehavior, Label):
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+        self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if self.collide_point(*pos):
+            if not self.mouse_inside_bounds:
+                self.mouse_inside_bounds = True
+                self.on_mouse_enter()
+
+        else:
+            if self.mouse_inside_bounds:
+                self.mouse_inside_bounds = False
+                self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+
 
     def handle_touch(self, device, button):
         #
@@ -2888,6 +3055,29 @@ class IntParamValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+        self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if self.collide_point(*pos):
+            if not self.mouse_inside_bounds:
+                self.mouse_inside_bounds = True
+                self.on_mouse_enter()
+
+        else:
+            if self.mouse_inside_bounds:
+                self.mouse_inside_bounds = False
+                self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+
     def handle_touch(self, device, button):
         #
         # Mouse Wheel
@@ -2954,6 +3144,7 @@ class IntParamValueLabel(ButtonBehavior, Label):
                 touch.ungrab(self)
                 return True
             return super(IntParamValueLabel, self).on_touch_up(touch)
+
     
 
 class ParamsGridModCell(BoxLayout):
@@ -3084,6 +3275,29 @@ class ModAmountLine(ButtonBehavior, Widget):
     drag_start_pos = NumericProperty(0)
     background_color_string = StringProperty('#72777BFF')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+        self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if self.collide_point(*pos):
+            if not self.mouse_inside_bounds:
+                self.mouse_inside_bounds = True
+                self.on_mouse_enter()
+
+        else:
+            if self.mouse_inside_bounds:
+                self.mouse_inside_bounds = False
+                self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.{self.mod_type}')
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+
     def handle_touch(self, device, button):
         #
         # Mouse Wheel
@@ -3191,52 +3405,6 @@ class LegatoSectionBox(BoxLayout):
 class SectionRelativeLayout(RelativeLayout):
     corner_radius = NumericProperty(12)
     section_name = StringProperty('')
-
-
-
-
-#class OscillatorSectionBox(SectionRelativeLayout):
-    # def __init__(self, **kwargs):
-    #     super(OscillatorSectionBox, self).__init__(**kwargs)
-    #
-    #     section_title_label = SectionTitleLabel(text='OSCILLATOR')
-    #     section_title_label.id = 'section_title_label'
-
-
-
-
-
-
-class ParameterBox(ButtonBehavior, BoxLayout):
-    name = StringProperty('NAME')
-    value = NumericProperty(0)
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
-
-    def on_release(self):
-        # Create a popup
-        popup = ModParameterPopup(title=self.name)
-        popup.name = self.name
-        popup.value = self.value
-        popup.lfo2 = self.lfo2
-        popup.wheel = self.wheel
-        popup.velocity = self.velocity
-        popup.aftertouch = self.aftertouch
-        popup.open()
-
-
-class ModParameterPopup(Popup):
-    name = StringProperty('NAME')
-    value = NumericProperty(0)
-    lfo2 = NumericProperty(0)
-    wheel = NumericProperty(0)
-    velocity = NumericProperty(0)
-    aftertouch = NumericProperty(0)
-
-    def on_value_slider(self, new_value):
-        self.value = new_value
 
 
 class ModAmountsBox(BoxLayout):
@@ -3361,3 +3529,156 @@ class MidiInputPortCheckBox(CheckBox):
 class MidiOutputPortCheckBox(CheckBox):
     port_name = StringProperty('')
 
+
+class ModWheelValueLabel(ButtonBehavior, Label):
+    drag_start_pos = NumericProperty(0)
+    text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.mouse_inside_bounds = False
+
+    def handle_touch(self, device, button):
+        #
+        # Mouse Wheel
+        #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    increment = -1 if App.get_running_app().invert_mouse_wheel else 1
+
+                    # Increment the property
+                    App.get_running_app().increment_mod_wheel(increment)
+
+                elif button == 'scrolldown':
+                    increment = 1 if App.get_running_app().invert_mouse_wheel else -1
+
+                    # Increment the property
+                    App.get_running_app().increment_mod_wheel(increment)
+
+            else:
+                Logger.debug(f'mod_wheel {device} {button}')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
+
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
+
+                return True
+            return super(ModWheelValueLabel, self).on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        #
+        # This is called when the mouse drags
+        #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
+
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+                # Scale the drag distance and use as the increment
+                increment = int(round(curr_drag_distance * 0.2))
+
+                # Increment the property's value
+                App.get_running_app().increment_mod_wheel(increment)
+
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
+
+                return True
+
+            return super(ModWheelValueLabel, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(ModWheelValueLabel, self).on_touch_up(touch)
+        
+
+class AftertouchValueLabel(ButtonBehavior, Label):
+    drag_start_pos = NumericProperty(0)
+    text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.mouse_inside_bounds = False
+
+    def handle_touch(self, device, button):
+        #
+        # Mouse Wheel
+        #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    increment = -1 if App.get_running_app().invert_mouse_wheel else 1
+
+                    # Increment the property
+                    App.get_running_app().increment_aftertouch(increment)
+
+                elif button == 'scrolldown':
+                    increment = 1 if App.get_running_app().invert_mouse_wheel else -1
+
+                    # Increment the property
+                    App.get_running_app().increment_aftertouch(increment)
+
+            else:
+                Logger.debug(f'aftertouch {device} {button}')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
+
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
+
+                return True
+            return super(AftertouchValueLabel, self).on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        #
+        # This is called when the mouse drags
+        #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
+
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+                # Scale the drag distance and use as the increment
+                increment = int(round(curr_drag_distance * 0.2))
+
+                # Increment the property's value
+                App.get_running_app().increment_aftertouch(increment)
+
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
+
+                return True
+
+            return super(AftertouchValueLabel, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(AftertouchValueLabel, self).on_touch_up(touch)
