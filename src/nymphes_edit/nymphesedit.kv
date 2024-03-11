@@ -5,6 +5,7 @@
 ScreenManager:
     DashboardScreen
     SettingsScreen
+    ChordsScreen
 
 
 <DashboardScreen@Screen>:
@@ -80,6 +81,59 @@ ScreenManager:
 #                Rectangle:
 #                    pos: self.pos
 #                    size: self.width, self.height
+
+
+<ChordsScreen@Screen>:
+    name: 'chords'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        ChordsTopBar:
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+
+        ChordsMainControlsBox:
+            size_hint_y: 35/40
+            corner_radius: root.height * 0.015
+
+        BottomBar:
+            size_hint_y: 2/40
+            corner_radius: root.height * 0.015
+
+
+<ChordsTopBar>:
+    orientation: 'horizontal'
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    spacing: self.parent.spacing
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    Widget:
+        size_hint_x: 5/6
+
+    TopBarButton:
+        on_release:
+            app.root.transition = SlideTransition(direction='right')
+            app.root.current = 'dashboard'
+        text: 'BACK'
 
 
 <SettingsTopBar>:
@@ -233,10 +287,14 @@ ScreenManager:
 
     # Voice Mode Box
     VoiceModeBox:
-        size_hint: 1, 22/28
+        size_hint: 1, 19/28
         corner_radius: root.corner_radius
 
     LegatoBox:
+        size_hint: 1, 3/28
+        corner_radius: root.corner_radius
+
+    ChordsButtonBox:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
 
@@ -305,6 +363,31 @@ ScreenManager:
     color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
     font_size: (self.height * 0.375) if app.legato else (self.height * 0.35)
     on_release: app.set_legato(not app.legato)
+    disabled: not app.nymphes_connected
+
+
+<ChordsButtonBox>:
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordsButton
+
+<ChordsButton@ButtonBehavior+Label>:
+    text: 'CHORDS'
+    size_hint: 1, 1
+    color: C('#06070FFF')
+    font_size: self.height * 0.35
+    on_release:
+        app.root.transition = SlideTransition(direction='left')
+        app.root.current = 'chords'
     disabled: not app.nymphes_connected
 
 <FloatModeBox>:
@@ -1178,10 +1261,10 @@ ScreenManager:
 
 <TopBarSpinnerOption@SpinnerOption>:
     color: C('#000000FF')
-    font_size: self.height * 0.5
+    font_size: self.height * 0.75
     text_size: self.size
     size_hint_y: None
-    height: app.curr_height * 1/12
+    height: app.curr_height * 2/40
     halign: 'center'
     valign: 'middle'
     background_color: C('#1D60C5F5')

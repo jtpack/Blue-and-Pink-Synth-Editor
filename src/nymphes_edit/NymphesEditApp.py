@@ -38,7 +38,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.2-beta'
+app_version_string = 'v0.1.2-beta_dev'
 
 def presets_spinner_values_list():
     """
@@ -2751,8 +2751,6 @@ class NymphesEditApp(App):
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
     def set_status_bar_text_on_main_thread(self, status_text):
-        Logger.debug(f'set_status_bar_text_on_main_thread: {status_text}')
-
         Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
 
         def work_func(_, new_status_text):
@@ -3394,13 +3392,6 @@ class VoiceModeButton(ButtonBehavior, Label):
     voice_mode_name = StringProperty('')
 
 
-class VoiceModeSectionBox(BoxLayout):
-    corner_radius = NumericProperty(20)
-
-
-class LegatoSectionBox(BoxLayout):
-    corner_radius = NumericProperty(20)
-
 
 class SectionRelativeLayout(RelativeLayout):
     corner_radius = NumericProperty(12)
@@ -3432,6 +3423,11 @@ class VoiceModeBox(BoxLayout):
 class LegatoBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
+
+class ChordsButtonBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
 class FloatModeBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
@@ -3448,6 +3444,13 @@ class BottomBar(BoxLayout):
 
 
 class SettingsTopBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+class ChordsTopBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class ChordsMainControlsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
