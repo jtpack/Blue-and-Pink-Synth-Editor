@@ -1247,7 +1247,7 @@ class NymphesEditApp(App):
             Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
-            msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET DUMP'
+            msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET SYSEX DUMP'
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_preset_dump_from_midi_input_port_to_preset':
@@ -2857,21 +2857,31 @@ class NymphesEditApp(App):
                     self._send_nymphes_osc('/disconnect_nymphes')
 
     def on_mouse_entered_param_control(self, param_name):
-        # Get the value and type for the parameter
-        value = self.get_prop_value_for_param_name(param_name)
-        param_type = NymphesPreset.type_for_param_name(param_name)
+        # When the mouse enters a parameter control and Nymphes
+        # is connected, display the name and value in the status
+        # bar.
 
-        if param_type == float:
-            value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+        if self.nymphes_connected:
+            # Get the value and type for the parameter
+            value = self.get_prop_value_for_param_name(param_name)
+            param_type = NymphesPreset.type_for_param_name(param_name)
 
-        elif param_type == int:
-            value_string = str(value)
+            if param_type == float:
+                value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
 
-        self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
-        
+            elif param_type == int:
+                value_string = str(value)
+
+            self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+
     def on_mouse_exited_param_control(self, param_name):
-        # Reset the status message to blank
-        self.set_status_bar_text_on_main_thread('')
+        # When Nymphes is connected and the mouse exits a parameter
+        # control, blank the status bar
+        #
+
+        if self.nymphes_connected:
+            # Reset the status message to blank
+            self.set_status_bar_text_on_main_thread('')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3170,6 +3180,7 @@ class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
     corner_radius = NumericProperty(0)
     value_color_string = StringProperty('#06070FFF')
     background_color_string = StringProperty('#438EFFFF')
+    param_name_color_string = StringProperty('#ECBFEBFF')
 
 
 class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
@@ -3411,6 +3422,10 @@ class MainControlsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
+class ChordsMainControlsBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
 class MainSettingsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
@@ -3459,6 +3474,10 @@ class ControlSectionsGrid(GridLayout):
 
 
 class ControlSection(BoxLayout):
+    corner_radius = NumericProperty(0)
+
+
+class ChordsControlSectionsGrid(GridLayout):
     corner_radius = NumericProperty(0)
 
 
@@ -3685,3 +3704,141 @@ class AftertouchValueLabel(ButtonBehavior, Label):
                 touch.ungrab(self)
                 return True
             return super(AftertouchValueLabel, self).on_touch_up(touch)
+
+
+class ChordParamsGrid(GridLayout):
+    corner_radius = NumericProperty(0)
+
+
+class ChordParamsGridCell(ButtonBehavior, BoxLayout):
+    section_name = StringProperty('')
+    title = StringProperty('')
+    param_name = StringProperty('')
+    value_prop = NumericProperty(0)
+    corner_radius = NumericProperty(0)
+    value_color_string = StringProperty('#06070FFF')
+    background_color_string = StringProperty('#438EFFFF')
+    
+    
+class ChordParamValueLabel(ButtonBehavior, Label):
+    section_name = StringProperty('')
+    param_name = StringProperty('')
+    drag_start_pos = NumericProperty(0)
+    text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+        self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if self.collide_point(*pos):
+            if not self.mouse_inside_bounds:
+                self.mouse_inside_bounds = True
+                self.on_mouse_enter()
+
+        else:
+            if self.mouse_inside_bounds:
+                self.mouse_inside_bounds = False
+                self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+
+    def handle_touch(self, device, button):
+        #
+        # Mouse Wheel
+        #
+        if not self.disabled:
+            if device == 'mouse':
+                if button == 'scrollup':
+                    direction = -1 if App.get_running_app().invert_mouse_wheel else 1
+
+                    if App.get_running_app().float_mode:
+                        # We are in float mode, so use the minimum increment defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
+                    else:
+                        increment = int(direction)
+
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
+
+                elif button == 'scrolldown':
+                    direction = 1 if App.get_running_app().invert_mouse_wheel else -1
+
+                    if App.get_running_app().float_mode:
+                        # We are in float mode, so use the minimum decrement defined by
+                        # NymphesPreset's float precision property
+                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+
+                    else:
+                        increment = int(direction)
+
+                    # Increment the property
+                    App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
+
+            else:
+                Logger.debug(f'{self.param_name} {device} {button}')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+        if not self.disabled:
+            if self.collide_point(*touch.pos) and touch.button == 'left':
+                touch.grab(self)
+
+                # Store the starting y position of the touch
+                self.drag_start_pos = int(touch.pos[1])
+
+                return True
+
+            return super(ChordParamValueLabel, self).on_touch_down(touch)
+
+    def on_touch_move(self, touch):
+        #
+        # This is called when the mouse drags
+        #
+        if not self.disabled:
+            if touch.grab_current == self:
+                # Get the current y position
+                curr_pos = int(touch.pos[1])
+
+                # Calculate the distance from the starting drag position
+                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+                # Scale the drag distance and use as the increment
+                if App.get_running_app().float_mode:
+                    # Use the minimum increment defined by
+                    # NymphesPreset's float precision property
+                    increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
+
+                else:
+                    increment = int(round(curr_drag_distance * (1/3)))
+
+                # Increment the property's value
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
+
+                # Reset the drag start position to the current position
+                self.drag_start_pos = curr_pos
+
+                return True
+
+            return super(ChordParamValueLabel, self).on_touch_move(touch)
+
+    def on_touch_up(self, touch):
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+            return super(ChordParamValueLabel, self).on_touch_up(touch)
+
+
+class ChordSectionTitleLabel(ButtonBehavior, Label):
+    this_chord_active = BooleanProperty(False)

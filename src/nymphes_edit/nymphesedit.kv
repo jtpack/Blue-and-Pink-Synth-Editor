@@ -127,14 +127,539 @@ ScreenManager:
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
     Widget:
-        size_hint_x: 5/6
+        size_hint_x: 15/20
 
     TopBarButton:
+        size_hint_x: 3/20
+        on_release:
+            app.root.transition = SlideTransition(direction='left')
+            app.root.current = 'settings'
+        text: 'SETTINGS'
+
+    TopBarButton:
+        size_hint_x: 2/20
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
         text: 'BACK'
 
+
+<ChordsMainControlsBox>:
+    orientation: 'horizontal'
+    spacing: self.parent.spacing
+
+    ChordsControlSectionsGrid:
+        cols: 2
+        spacing: self.parent.spacing
+        corner_radius: self.parent.corner_radius
+
+        canvas.before:
+            Color:
+                rgba: C('#500000FF')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        # Row 1
+        Chord1ControlSection:
+            size_hint_y: 1/4
+
+        Chord2ControlSection:
+            size_hint_y: 1/4
+
+        # Row 2
+        Chord3ControlSection:
+            size_hint_y: 1/4
+
+        Chord4ControlSection:
+            size_hint_y: 1/4
+
+        # Row 3
+        Chord5ControlSection:
+            size_hint_y: 1/4
+
+        Chord6ControlSection:
+            size_hint_y: 1/4
+
+        # Row 4
+        Chord7ControlSection:
+            size_hint_y: 1/4
+
+        Chord8ControlSection:
+            size_hint_y: 1/4
+
+
+<Chord1ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 1 (0-9)'
+        this_chord_active: 0 <= app.pitch_chord_value <= 9
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'ROOT'
+            param_name: 'chord_1.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'SEMI 1'
+            param_name: 'chord_1.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'SEMI 2'
+            param_name: 'chord_1.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'SEMI 3'
+            param_name: 'chord_1.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'SEMI 4'
+            param_name: 'chord_1.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_1'
+            title: 'SEMI 5'
+            param_name: 'chord_1.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_1_semi_5_value
+            
+
+<Chord2ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 2 (10-27)'
+        this_chord_active: 10 <= app.pitch_chord_value <= 27
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'ROOT'
+            param_name: 'chord_2.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'SEMI 1'
+            param_name: 'chord_2.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'SEMI 2'
+            param_name: 'chord_2.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'SEMI 3'
+            param_name: 'chord_2.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'SEMI 4'
+            param_name: 'chord_2.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_2'
+            title: 'SEMI 5'
+            param_name: 'chord_2.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_2_semi_5_value
+
+
+<Chord3ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 3 (28-45)'
+        this_chord_active: 28 <= app.pitch_chord_value <= 45
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'ROOT'
+            param_name: 'chord_3.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'SEMI 1'
+            param_name: 'chord_3.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'SEMI 2'
+            param_name: 'chord_3.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'SEMI 3'
+            param_name: 'chord_3.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'SEMI 4'
+            param_name: 'chord_3.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_3'
+            title: 'SEMI 5'
+            param_name: 'chord_3.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_3_semi_5_value
+
+
+<Chord4ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 4 (46-63)'
+        this_chord_active: 46 <= app.pitch_chord_value <= 63
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'ROOT'
+            param_name: 'chord_4.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'SEMI 1'
+            param_name: 'chord_4.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'SEMI 2'
+            param_name: 'chord_4.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'SEMI 3'
+            param_name: 'chord_4.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'SEMI 4'
+            param_name: 'chord_4.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_4'
+            title: 'SEMI 5'
+            param_name: 'chord_4.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_4_semi_5_value
+          
+          
+<Chord5ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 5 (64-81)'
+        this_chord_active: 64 <= app.pitch_chord_value <= 81
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'ROOT'
+            param_name: 'chord_5.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'SEMI 1'
+            param_name: 'chord_5.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'SEMI 2'
+            param_name: 'chord_5.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'SEMI 3'
+            param_name: 'chord_5.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'SEMI 4'
+            param_name: 'chord_5.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_5'
+            title: 'SEMI 5'
+            param_name: 'chord_5.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_5_semi_5_value  
+
+
+<Chord6ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 6 (82-99)'
+        this_chord_active: 82 <= app.pitch_chord_value <= 99
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'ROOT'
+            param_name: 'chord_6.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'SEMI 1'
+            param_name: 'chord_6.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'SEMI 2'
+            param_name: 'chord_6.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'SEMI 3'
+            param_name: 'chord_6.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'SEMI 4'
+            param_name: 'chord_6.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_6'
+            title: 'SEMI 5'
+            param_name: 'chord_6.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_6_semi_5_value
+
+
+<Chord7ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 7 (100-117)'
+        this_chord_active: 100 <= app.pitch_chord_value <= 117
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'ROOT'
+            param_name: 'chord_7.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'SEMI 1'
+            param_name: 'chord_7.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'SEMI 2'
+            param_name: 'chord_7.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'SEMI 3'
+            param_name: 'chord_7.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'SEMI 4'
+            param_name: 'chord_7.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_7'
+            title: 'SEMI 5'
+            param_name: 'chord_7.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_7_semi_5_value
+
+
+<Chord8ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 8 (118-127)'
+        this_chord_active: 118 <= app.pitch_chord_value <= 127
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'ROOT'
+            param_name: 'chord_8.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_root_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'SEMI 1'
+            param_name: 'chord_8.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_semi_1_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'SEMI 2'
+            param_name: 'chord_8.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_semi_2_value
+            
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'SEMI 3'
+            param_name: 'chord_8.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_semi_3_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'SEMI 4'
+            param_name: 'chord_8.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_semi_4_value
+
+        ChordParamsGridCell:
+            section_name: 'chord_8'
+            title: 'SEMI 5'
+            param_name: 'chord_8.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_8_semi_5_value
+            
 
 <SettingsTopBar>:
     orientation: 'horizontal'
@@ -217,7 +742,6 @@ ScreenManager:
 
     TopBarButton:
         size_hint_x: 3/20
-        id: midi_settings_button
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
@@ -424,7 +948,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/16
     background_color: 0, 1, 0, 0.3
-    color: C('#000000FF')
+    color: C('#000000FF') if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -434,16 +958,16 @@ ScreenManager:
 
 <ParamNameLabel>:
     background_color: 1, 1, 0, 0.7
-    color: C(self.text_color_string)
+    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.width * 0.3
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-
+    disabled: not app.nymphes_connected
 
 <FloatParamValueLabel>:
     background_color: 0, 1, 1, 0.7
-    color: C(self.text_color_string)
+    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.width * 0.35
     text_size: self.size
     halign: 'center'
@@ -455,7 +979,7 @@ ScreenManager:
 
 <IntParamValueLabel>:
     background_color: 0, 1, 1, 0.7
-    color: C('#06070FFF')
+    color: C('#06070FFF') if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.width * 0.35
     text_size: self.size
     halign: 'center'
@@ -487,6 +1011,7 @@ ScreenManager:
             param_name: 'osc.pulsewidth'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.osc_pulsewidth_value
             lfo2_prop: app.osc_pulsewidth_lfo2
@@ -500,6 +1025,7 @@ ScreenManager:
             param_name: 'pitch.glide'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_glide_value
             lfo2_prop: app.pitch_glide_lfo2
@@ -513,6 +1039,7 @@ ScreenManager:
             param_name: 'pitch.detune'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_detune_value
             lfo2_prop: app.pitch_detune_lfo2
@@ -526,6 +1053,7 @@ ScreenManager:
             param_name: 'pitch.chord'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.pitch_chord_value
             lfo2_prop: app.pitch_chord_lfo2
@@ -554,6 +1082,7 @@ ScreenManager:
             param_name: 'osc.wave'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.osc_wave_value
             lfo2_prop: app.osc_wave_lfo2
@@ -567,6 +1096,7 @@ ScreenManager:
             param_name: 'mix.osc'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_osc_value
             lfo2_prop: app.mix_osc_lfo2
@@ -580,6 +1110,7 @@ ScreenManager:
             param_name: 'mix.sub'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_sub_value
             lfo2_prop: app.mix_sub_lfo2
@@ -593,6 +1124,7 @@ ScreenManager:
             param_name: 'mix.noise'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.mix_noise_value
             lfo2_prop: app.mix_noise_lfo2
@@ -604,7 +1136,7 @@ ScreenManager:
             section_name: 'oscillator_bottom_row'
             title: 'LFO1'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             param_name: 'pitch.lfo1'
             value_prop: app.pitch_lfo1_value
@@ -635,6 +1167,7 @@ ScreenManager:
             param_name: 'lpf.cutoff'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_cutoff_value
             lfo2_prop: app.lpf_cutoff_lfo2
@@ -648,6 +1181,7 @@ ScreenManager:
             param_name: 'lpf.resonance'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_resonance_value
             lfo2_prop: app.lpf_resonance_lfo2
@@ -661,6 +1195,7 @@ ScreenManager:
             param_name: 'lpf.tracking'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lpf_tracking_value
             lfo2_prop: app.lpf_tracking_lfo2
@@ -685,7 +1220,7 @@ ScreenManager:
             section_name: 'filter_top_row'
             title: 'LFO1'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             param_name: 'lpf.lfo1'
             value_prop: app.lpf_lfo1_value
@@ -754,6 +1289,7 @@ ScreenManager:
             param_name: 'hpf.cutoff'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.hpf_cutoff_value
             lfo2_prop: app.hpf_cutoff_lfo2
@@ -781,7 +1317,7 @@ ScreenManager:
             title: 'RATE'
             param_name: 'lfo1.rate'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo1_rate_value
             lfo2_prop: app.lfo1_rate_lfo2
@@ -794,7 +1330,7 @@ ScreenManager:
             title: 'WAVE'
             param_name: 'lfo1.wave'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo1_wave_value
             lfo2_prop: app.lfo1_wave_lfo2
@@ -807,7 +1343,7 @@ ScreenManager:
             title: 'DEL'
             param_name: 'lfo1.delay'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo1_delay_value
             lfo2_prop: app.lfo1_delay_lfo2
@@ -820,7 +1356,7 @@ ScreenManager:
             title: 'FADE'
             param_name: 'lfo1.fade'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo1_fade_value
             lfo2_prop: app.lfo1_fade_lfo2
@@ -831,7 +1367,7 @@ ScreenManager:
         ParamsGridLfoConfigCell:
             section_name: 'lfo1'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#945900FF'
+            param_name_color_string: '#5500EEFF'
             type_prop: app.lfo1_type_value
             key_sync_prop: app.lfo1_key_sync_value
 
@@ -856,6 +1392,7 @@ ScreenManager:
             param_name: 'amp_eg.attack'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_attack_value
             lfo2_prop: app.amp_eg_attack_lfo2
@@ -869,6 +1406,7 @@ ScreenManager:
             param_name: 'amp_eg.decay'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_decay_value
             lfo2_prop: app.amp_eg_decay_lfo2
@@ -882,6 +1420,7 @@ ScreenManager:
             param_name: 'amp_eg.sustain'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_sustain_value
             lfo2_prop: app.amp_eg_sustain_lfo2
@@ -895,6 +1434,7 @@ ScreenManager:
             param_name: 'amp_eg.release'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.amp_eg_release_value
             lfo2_prop: app.amp_eg_release_lfo2
@@ -907,6 +1447,8 @@ ScreenManager:
             title: 'LVL'
             param_name: 'mix.level'
             background_color_string: '#438EFFFF'
+            param_name_color_string: '#ECBFEBFF'
+            value_color_string: '#06070FFF'
             value_prop: app.mix_level_value
 
 
@@ -930,6 +1472,7 @@ ScreenManager:
             param_name: 'reverb.size'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_size_value
             lfo2_prop: app.reverb_size_lfo2
@@ -943,6 +1486,7 @@ ScreenManager:
             param_name: 'reverb.decay'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_decay_value
             lfo2_prop: app.reverb_decay_lfo2
@@ -956,6 +1500,7 @@ ScreenManager:
             param_name: 'reverb.filter'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_filter_value
             lfo2_prop: app.reverb_filter_lfo2
@@ -969,6 +1514,7 @@ ScreenManager:
             param_name: 'reverb.mix'
             background_color_string: '#438EFFFF'
             value_color_string: '#06070FFF'
+            param_name_color_string: '#ECBFEBFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.reverb_mix_value
             lfo2_prop: app.reverb_mix_lfo2
@@ -999,7 +1545,7 @@ ScreenManager:
             title: 'RATE'
             param_name: 'lfo2.rate'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#AB0F0DFF'
+            param_name_color_string: '#F6BEF5FF'
             value_color_string: '#06070FFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_rate_value
@@ -1013,7 +1559,7 @@ ScreenManager:
             title: 'WAVE'
             param_name: 'lfo2.wave'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#AB0F0DFF'
+            param_name_color_string: '#F6BEF5FF'
             value_color_string: '#06070FFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_wave_value
@@ -1027,7 +1573,7 @@ ScreenManager:
             title: 'DEL'
             param_name: 'lfo2.delay'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#AB0F0DFF'
+            param_name_color_string: '#F6BEF5FF'
             value_color_string: '#06070FFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_delay_value
@@ -1041,7 +1587,7 @@ ScreenManager:
             title: 'FADE'
             param_name: 'lfo2.fade'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#AB0F0DFF'
+            param_name_color_string: '#F6BEF5FF'
             value_color_string: '#06070FFF'
             mod_amount_line_background_color_string: '#6AA3F8FF'
             value_prop: app.lfo2_fade_value
@@ -1053,7 +1599,7 @@ ScreenManager:
         ParamsGridLfoConfigCell:
             section_name: 'lfo2'
             background_color_string: '#438EFFFF'
-            param_name_color_string: '#AB0F0DFF'
+            param_name_color_string: '#F6BEF5FF'
             type_prop: app.lfo2_type_value
             key_sync_prop: app.lfo2_key_sync_value
 
@@ -1153,7 +1699,7 @@ ScreenManager:
 
 
 <Lfo2ModAmountLine@ModAmountLine>:
-    color_hex: '#AB0F0DFF'
+    color_hex: '#F41513FF'
 
 
 <WheelModAmountLine@ModAmountLine>:
@@ -1219,6 +1765,7 @@ ScreenManager:
 
     ParamNameLabel:
         text: root.title
+        text_color_string: root.param_name_color_string
 
     FloatParamValueLabel:
         text: str(float(root.value_prop))
@@ -1558,17 +2105,18 @@ ScreenManager:
     Label:
         size_hint_x: 2/40
         text: str(app.velocity)
-        color: C('#222754FF')
+        color: C('#222754FF') if app.nymphes_connected else C('#ECBFEBFF')
         font_size: self.height * 0.8
         text_size: self.size
         halign: 'center'
         valign: 'middle'
+        disabled: not app.nymphes_connected
 
     # Aftertouch
     Label:
         size_hint_x: 4/40
         text: 'AFTERTOUCH'
-        color: C('#ECBFEBFF')
+        color: C('#ECBFEBFF') if app.nymphes_connected else C('#ECBFEBFF')
         font_size: self.height * 0.6
         text_size: self.size
         halign: 'right'
@@ -1581,7 +2129,7 @@ ScreenManager:
 
 
 <ModWheelValueLabel>:
-    color: C(self.text_color_string)
+    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.height * 0.8
     text_size: self.size
     halign: 'center'
@@ -1591,11 +2139,63 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 <AftertouchValueLabel>:
-    color: C(self.text_color_string)
+    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.height * 0.8
     text_size: self.size
     halign: 'center'
     valign: 'middle'
     text: str(app.aftertouch)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
+
+
+<ChordParamsGrid>:
+    cols: 6
+    corner_radius: self.width * 0.03
+    spacing: self.width * 0.01
+
+
+<ChordParamsGridCell>:
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    #on_press: app.select_section(self.section_name)
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+
+    ChordParamValueLabel:
+        text: str(root.value_prop)
+        param_name: root.param_name
+        text_color_string: root.value_color_string
+
+
+<ChordParamValueLabel>:
+    background_color: 0, 1, 1, 0.7
+    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+    font_size: self.width * 0.35
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    on_press: app.label_clicked(self.param_name)
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
+
+
+<ChordSectionTitleLabel>:
+    size_hint_y: None
+    height: app.curr_height * 1/16
+    background_color: 0, 1, 0, 0.3
+    color: C('#ECBFEBFF') if not app.nymphes_connected else (C('#ECBFEBFF') if self.this_chord_active else C('#000000FF'))
+    font_size: self.height * 0.6 if self.this_chord_active else self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
     disabled: not app.nymphes_connected
