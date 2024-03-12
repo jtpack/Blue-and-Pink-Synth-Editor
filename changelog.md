@@ -1,3 +1,10 @@
+## v0.1.3-beta
+
+- Created chords screen
+
+- Small UI colors improvements
+  - The LFO1 and LFO2 label colors look better now, I think
+
 ## v0.1.2-beta
 
 - Created status bar at bottom of window
