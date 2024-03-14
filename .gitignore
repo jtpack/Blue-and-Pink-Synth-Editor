@@ -4,6 +4,5 @@
 venv/
 dist/
 build/
-nymphes_gui.egg-info/
-src/nymphes_edit/config.txt
-nymphes-osc
+src/blue_and_pink_synth_editor/config.txt
+/src/BlueAndPinkSynthEditor.egg-info/

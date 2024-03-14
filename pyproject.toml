@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "NymphesEdit"
+name = "BlueAndPinkSynthEditor"
 version = "0.1.1-beta"
-description = "A gui application for full control of the Dreadbox Nymphes MIDI synthesizer"
+description = "A full-featured editor for the Dreadbox Nymphes MIDI synthesizer"
 readme = "README.md"
 authors = [{name = "Scott Lumsden", email = "jtpack@gmail.com"}]
 license = { file = "LICENSE"}
@@ -25,7 +25,4 @@ dependencies = [
 requires-python = ">=3.9"
 
 [project.urls]
-Homepage = "https://github.com/jtpack/NymphesEdit"
-
-[project.scripts]
-nymphes-osc = "nymphes_edit.__main__:main"
+Homepage = "https://github.com/jtpack/Blue-and-Pink-Synth-Editor"

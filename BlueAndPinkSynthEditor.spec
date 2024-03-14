@@ -4,12 +4,12 @@ from pathlib import Path
 
 
 a = Analysis(
-    ['src/nymphes_edit/__main__.py'],
+    ['src/blue_and_pink_synth_editor/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('src/nymphes_edit/app_config.ini', 'src/nymphes_edit'),
-        ('src/nymphes_edit/nymphesedit.kv', 'src/nymphes_edit')
+        ('src/blue_and_pink_synth_editor/app_config.ini', 'src/blue_and_pink_synth_editor'),
+        ('src/blue_and_pink_synth_editor/blueandpinksyntheditor.kv', 'src/blue_and_pink_synth_editor')
     ],
     hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],
@@ -25,7 +25,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='NymphesEdit',
+    name='BlueAndPinkSynthEditor',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -44,11 +44,11 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='NymphesEdit',
+    name='BlueAndPinkSynthEditor',
 )
 app = BUNDLE(
     coll,
-    name='NymphesEdit.app',
+    name='BlueAndPinkSynthEditor.app',
     icon=None,
     bundle_identifier=None,
 )

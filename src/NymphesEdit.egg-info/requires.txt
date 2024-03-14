@@ -1,5 +1,0 @@
-python-osc
-netifaces
-kivy[base]
-zeroconf
-pyinstaller

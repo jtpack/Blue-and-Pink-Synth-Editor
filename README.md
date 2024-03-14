@@ -1,5 +1,5 @@
-# NymphesEdit
-A graphical editor for the Dreadbox Nymphes synthesizer. 
+# Blue and Pink Synth Editor
+A full-featured editor for the Dreadbox Nymphes synthesizer. 
 Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process to do the actual communication with the Nymphes.
 
 2024, Scott Lumsden
@@ -9,7 +9,7 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 ## Platforms:
 - macOS
 - Linux (Including RPi)
-- Windows (Most functions work)
+- Windows (Possibly. Not tested)
 
 ## Supports Nymphes Firmware Version: 2.0
 
@@ -21,14 +21,14 @@ Clone the repository to your home directory
 - `cd ~`
 - `git clone https://github.com/jtpack/nymphes-osc.git`
 
-## 2. Download NymphesEdit
+## 2. Download Blue and Pink Synth Editor
 Clone the repository to your home directory
 - `cd ~`
-- `git clone git@github.com:jtpack/NymphesEdit.git`
+- `git clone git@github.com:jtpack/Blue-and-Pink-Synth-Editor.git`
 
-## 2. Create a virtual environment for NymphesEdit and activate it
-Change to the NymphesEdit directory:
-  - `cd ~/NymphesEdit`
+## 2. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
+Change to the Blue-and-Pink-Synth-Editor directory:
+  - `cd ~/Blue-and-Pink-Synth-Editor`
 
 Create and activate the virtual environment:
 - On Mac OS / Linux:
@@ -43,20 +43,15 @@ Create and activate the virtual environment:
   - `pip install -e ~/nymphes-osc`
     - _Note: On Windows you may need to replace ~ with the full path to your home directory_
 
-## 4. Install NymphesEdit in the virtual environment as an editable package
+## 4. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `pip install -e .`
 
-## 5. Run NymphesEdit
-- `python -m nymphes_edit`
+## 5. Run Blue-and-Pink-Synth-Editor
+- `python -m blue_and_pink_synth_editor`
 
 ## 6. Compile an executable binary
--   `pyinstaller NymphesEdit.spec`
+-   `pyinstaller BlueAndPinkSynthEditor.spec`
 
 When the build finishes, the executable will be found in the dist folder.
-- On macOS this will be dist/NymphesEdit.app
-  - You can ignore the dist/NymphesEdit folder.
-- On Windows, you need both dist/NymphesEdit.exe and the dist/_internal folder.
-  - Windows Defender or other anti-virus software may interfere with compilation or incorrectly flag the compiled executable as a virus
-    - This is an issue related to pyinstaller
-      - Do not worry: you have not created a virus
-
+- On macOS this will be dist/BlueAndPinkSynthEditor.app
+  - You can ignore the dist/BlueAndPinkSynthEditor folder

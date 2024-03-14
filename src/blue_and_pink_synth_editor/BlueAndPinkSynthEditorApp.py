@@ -38,7 +38,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.3-beta'
+app_version_string = 'v0.1.4-beta'
 
 def presets_spinner_values_list():
     """
@@ -50,7 +50,7 @@ def presets_spinner_values_list():
     return values
 
 
-class NymphesEditApp(App):
+class BlueAndPinkSynthEditorApp(App):
     #
     # App Status Parameters
     #
@@ -398,10 +398,10 @@ class NymphesEditApp(App):
     curr_height = NumericProperty(480)
 
     def __init__(self, **kwargs):
-        super(NymphesEditApp, self).__init__(**kwargs)
+        super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
 
         # Set the app title
-        self.title = f'NymphesEdit {app_version_string}'
+        self.title = f'Blue and Pink Synth Editor {app_version_string}'
 
         # Bind keyboard events
         self._bind_keyboard_events()
@@ -518,7 +518,7 @@ class NymphesEditApp(App):
         #
 
         # Set path to data folder
-        self._data_folder_path = Path(os.path.expanduser('~')) / 'NymphesEdit_data/'
+        self._data_folder_path = Path(os.path.expanduser('~')) / 'BlueAndPinkSynthEditor_data/'
 
         # Make sure it exists
         if not self._data_folder_path.exists():
@@ -1061,7 +1061,7 @@ class NymphesEditApp(App):
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
             # Get the index of the loaded preset
-            preset_slot_index = NymphesEditApp.index_from_preset_info(
+            preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
                 bank_name=self._curr_preset_slot_bank_and_number[0],
                 preset_num=self._curr_preset_slot_bank_and_number[1],
                 preset_type=self._curr_preset_slot_type
@@ -1698,7 +1698,7 @@ class NymphesEditApp(App):
             raise Exception(f'Invalid preset_index: {preset_index}')
 
         # Parse preset_index into preset type, bank and number
-        preset_info = NymphesEditApp.parse_preset_index(preset_index)
+        preset_info = BlueAndPinkSynthEditorApp.parse_preset_index(preset_index)
 
         # Load the preset
         self.load_preset(preset_info['bank_name'],
