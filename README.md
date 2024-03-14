@@ -4,15 +4,31 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 
 2024, Scott Lumsden
 
+## Features
 
-## This is ALPHA software.
+- Supports all MIDI-controllable Nymphes functions
+- User and Factory preset recall via MIDI Program Change Messages
+- MIDI CC control of preset parameters, including the modulation matrix
+- Request SYSEX dump of all presets
+- Decode and generate SYSEX messages to access all preset parameters, including chords settings
+  - This also means that most have full floating-point resolution, not just 0-127 MIDI CC values
+- Write to preset slots on Nymphes from the editor via SYSEX
+- Save and load presets as files
+- User-controllable pass-through from MIDI input ports to Nymphes
+- User-controllable pass-through from Nymphes to MIDI output ports
+- Compatible with Nymphes Firmware Version 2.1
+
+
+## This is ALPHA software
+
 ## Platforms:
 - macOS
 - Linux (Including RPi)
-- Windows (Possibly. Not tested)
+- Windows (Not extensively tested)
+  - Known issue: due to a Windows limitation on MIDI message length, SYSEX preset dumps from Nymphes are not received
+  - macOS and Linux do not have this limitation
 
-## Supports Nymphes Firmware Version: 2.0
-
+  
 # Installation
 
 ## 1. Download nymphes-osc
