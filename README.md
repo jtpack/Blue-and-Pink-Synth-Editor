@@ -18,7 +18,7 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 - Compatible with Nymphes Firmware Version 2.1
 
 
-## This is ALPHA software
+## This is BETA software
 
 ## Platforms:
 - macOS
