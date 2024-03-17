@@ -3,6 +3,7 @@
 - Calling this BETA software now, not ALPHA
 - Changed reload button text to REVERT
 - Renamed Float Mode to Fine Mode, as this is a little clearer
+- Increased font size of Play Mode buttons
 
 
 ## v0.1.3-beta

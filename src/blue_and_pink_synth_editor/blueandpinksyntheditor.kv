@@ -862,7 +862,7 @@ ScreenManager:
     text: self.voice_mode_name
     size_hint: 1, 1 / self.parent.num_voice_modes
     color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
-    font_size: (self.height * 0.35) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.3)
+    font_size: (self.height * 0.4) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.35)
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected
 
