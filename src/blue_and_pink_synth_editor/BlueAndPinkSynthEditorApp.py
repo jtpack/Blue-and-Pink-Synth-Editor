@@ -390,7 +390,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     # If True then increment float value parameters using
     # float values.
-    float_mode = BooleanProperty(False)
+    fine_mode = BooleanProperty(False)
 
     invert_mouse_wheel = BooleanProperty(True)
 
@@ -412,19 +412,19 @@ class BlueAndPinkSynthEditorApp(App):
         self._meta_key_pressed = False
         self._alt_key_pressed = False
 
-        # Choose the float mode modifier key based on the
+        # Choose the fine mode modifier key based on the
         # current operating system
         os_name = platform.system()
         Logger.info(f'Operating system is {os_name}')
 
         if os_name == 'Windows':
-            self.float_mode_modifier_key = 'shift'
+            self.fine_mode_modifier_key = 'shift'
         elif os_name == 'Darwin':
-            self.float_mode_modifier_key = 'meta'
+            self.fine_mode_modifier_key = 'meta'
         elif os_name == 'Linux':
-            self.float_mode_modifier_key = 'shift'
+            self.fine_mode_modifier_key = 'shift'
         else:
-            self.float_mode_modifier_key = 'shift'
+            self.fine_mode_modifier_key = 'shift'
 
         # Get notified when the window resizes so we can maintain
         # aspect ratio
@@ -643,9 +643,9 @@ class BlueAndPinkSynthEditorApp(App):
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
 
-    def set_float_mode(self, enable_float_mode):
+    def set_fine_mode(self, enable_fine_mode):
         # Update the property
-        self.float_mode = enable_float_mode
+        self.fine_mode = enable_fine_mode
 
     def _load_config_file(self, filepath):
         """
@@ -2300,7 +2300,7 @@ class BlueAndPinkSynthEditorApp(App):
         min_val = NymphesPreset.min_val_for_param_name(param_name)
         max_val = NymphesPreset.max_val_for_param_name(param_name)
 
-        if not self.float_mode or param_type == int:
+        if not self.fine_mode or param_type == int:
             # Apply the increment amount, then round with zero
             # decimal places and convert to int
             new_val = int(round(curr_val + amount))
@@ -2350,10 +2350,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('Shift key pressed')
             self._shift_key_pressed = True
 
-            if self.float_mode_modifier_key == 'shift':
-                # Enable float mode
-                Logger.debug('Float Mode Enabled')
-                self.float_mode = True
+            if self.fine_mode_modifier_key == 'shift':
+                # Enable fine mode
+                Logger.debug('Fine Mode Enabled')
+                self.fine_mode = True
 
         # Check for the meta key (CMD on macOS)
         left_meta_key_code = 309
@@ -2362,10 +2362,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('meta key pressed')
             self._meta_key_pressed = True
 
-            if self.float_mode_modifier_key == 'meta':
-                # Enable float mode
-                Logger.debug('Float Mode Enabled')
-                self.float_mode = True
+            if self.fine_mode_modifier_key == 'meta':
+                # Enable fine mode
+                Logger.debug('Fine Mode Enabled')
+                self.fine_mode = True
 
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
@@ -2374,10 +2374,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('alt key pressed')
             self._alt_key_pressed = True
 
-            if self.float_mode_modifier_key == 'alt':
-                # Enable float mode
-                Logger.debug('Float Mode Enabled')
-                self.float_mode = True
+            if self.fine_mode_modifier_key == 'alt':
+                # Enable fine mode
+                Logger.debug('Fine Mode Enabled')
+                self.fine_mode = True
 
     def _on_key_up(self, keyboard, keycode):
         Logger.debug(f'on_key_up: {keyboard}, {keycode}')
@@ -2389,10 +2389,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('Shift key released')
             self._shift_key_pressed = False
 
-            if self.float_mode_modifier_key == 'shift':
-                # Disable float mode
-                Logger.debug('Float Mode Disabled')
-                self.float_mode = False
+            if self.fine_mode_modifier_key == 'shift':
+                # Disable fine mode
+                Logger.debug('Fine Mode Disabled')
+                self.fine_mode = False
 
         # Check for the meta key (CMD on macOS)
         left_meta_key_code = 309
@@ -2401,10 +2401,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('meta key released')
             self._meta_key_pressed = False
 
-            if self.float_mode_modifier_key == 'meta':
-                # Disable float mode
-                Logger.debug('Float Mode Disabled')
-                self.float_mode = False
+            if self.fine_mode_modifier_key == 'meta':
+                # Disable fine mode
+                Logger.debug('Fine Mode Disabled')
+                self.fine_mode = False
 
         # Check for the Alt key (Alt/Option on macOS)
         left_alt_key_code = 308
@@ -2413,10 +2413,10 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug('alt key released')
             self._alt_key_pressed = False
 
-            if self.float_mode_modifier_key == 'alt':
-                # Disable float mode
-                Logger.debug('Float Mode Disabled')
-                self.float_mode = False
+            if self.fine_mode_modifier_key == 'alt':
+                # Disable fine mode
+                Logger.debug('Fine Mode Disabled')
+                self.fine_mode = False
 
         # File Open
         if keycode[1] == 'o' and self._meta_key_pressed:
@@ -2975,8 +2975,8 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 if button == 'scrollup':
                     direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-                    if App.get_running_app().float_mode:
-                        # We are in float mode, so use the minimum increment defined by
+                    if App.get_running_app().fine_mode:
+                        # We are in fine mode, so use the minimum increment defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
@@ -2989,8 +2989,8 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 elif button == 'scrolldown':
                     direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-                    if App.get_running_app().float_mode:
-                        # We are in float mode, so use the minimum decrement defined by
+                    if App.get_running_app().fine_mode:
+                        # We are in fine mode, so use the minimum decrement defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
@@ -3031,7 +3031,7 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
                 # Scale the drag distance and use as the increment
-                if App.get_running_app().float_mode:
+                if App.get_running_app().fine_mode:
                     # Use the minimum increment defined by
                     # NymphesPreset's float precision property
                     increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
@@ -3316,13 +3316,13 @@ class ModAmountLine(ButtonBehavior, Widget):
                 if button == 'scrollup':
                     direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-                    if App.get_running_app().float_mode:
+                    if App.get_running_app().fine_mode:
                         # Use the minimum increment defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
                     else:
-                        # We are not in float mode, so increment by 1
+                        # We are not in fine mode, so increment by 1
                         increment = int(direction)
 
                     # Increment the property
@@ -3331,13 +3331,13 @@ class ModAmountLine(ButtonBehavior, Widget):
                 elif button == 'scrolldown':
                     direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-                    if App.get_running_app().float_mode:
+                    if App.get_running_app().fine_mode:
                         # Use the minimum decrement defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
                     else:
-                        # We are not in float mode, so decrement by 1
+                        # We are not in fine mode, so decrement by 1
                         increment = int(direction)
 
                     # Increment the property
@@ -3373,7 +3373,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                 curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
                 # Scale the drag distance and use as the increment
-                if App.get_running_app().float_mode:
+                if App.get_running_app().fine_mode:
                     # Use the minimum increment defined by
                     # NymphesPreset's float precision property
                     increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
@@ -3443,7 +3443,7 @@ class ChordsButtonBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
-class FloatModeBox(BoxLayout):
+class FineModeBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 class LeftBar(BoxLayout):
@@ -3758,8 +3758,8 @@ class ChordParamValueLabel(ButtonBehavior, Label):
                 if button == 'scrollup':
                     direction = -1 if App.get_running_app().invert_mouse_wheel else 1
 
-                    if App.get_running_app().float_mode:
-                        # We are in float mode, so use the minimum increment defined by
+                    if App.get_running_app().fine_mode:
+                        # We are in fine mode, so use the minimum increment defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
@@ -3772,8 +3772,8 @@ class ChordParamValueLabel(ButtonBehavior, Label):
                 elif button == 'scrolldown':
                     direction = 1 if App.get_running_app().invert_mouse_wheel else -1
 
-                    if App.get_running_app().float_mode:
-                        # We are in float mode, so use the minimum decrement defined by
+                    if App.get_running_app().fine_mode:
+                        # We are in fine mode, so use the minimum decrement defined by
                         # NymphesPreset's float precision property
                         increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
 
@@ -3814,7 +3814,7 @@ class ChordParamValueLabel(ButtonBehavior, Label):
                 curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
                 # Scale the drag distance and use as the increment
-                if App.get_running_app().float_mode:
+                if App.get_running_app().fine_mode:
                     # Use the minimum increment defined by
                     # NymphesPreset's float precision property
                     increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)

@@ -822,7 +822,7 @@ ScreenManager:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
 
-    FloatModeBox:
+    FineModeBox:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
 
@@ -914,7 +914,7 @@ ScreenManager:
         app.root.current = 'chords'
     disabled: not app.nymphes_connected
 
-<FloatModeBox>:
+<FineModeBox>:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
 
     canvas.before:
@@ -926,17 +926,17 @@ ScreenManager:
             size: root.width, root.height
             radius: [root.corner_radius]
 
-    FloatModeButton
+    FineModeButton
 
-<FloatModeButton@ButtonBehavior+Label>:
-    text: 'FLOAT'
+<FineModeButton@ButtonBehavior+Label>:
+    text: 'FINE MODE'
     size_hint: 1, 1
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    color: C('#ECBFEBFF') if app.float_mode else C('#06070FFF')
-    font_size: (self.height * 0.4) if app.float_mode else (self.height * 0.35)
-    on_release: app.set_float_mode(not app.float_mode)
+    color: C('#ECBFEBFF') if app.fine_mode else C('#06070FFF')
+    font_size: (self.height * 0.4) if app.fine_mode else (self.height * 0.35)
+    on_release: app.set_fine_mode(not app.fine_mode)
     disabled: not app.nymphes_connected
 
 <ControlSection>:

@@ -1,3 +1,10 @@
+## v0.1.3-beta_dev
+
+- Calling this BETA software now, not ALPHA
+- Changed reload button text to REVERT
+- Renamed Float Mode to Fine Mode, as this is a little clearer
+
+
 ## v0.1.3-beta
 
 - Created chords screen
