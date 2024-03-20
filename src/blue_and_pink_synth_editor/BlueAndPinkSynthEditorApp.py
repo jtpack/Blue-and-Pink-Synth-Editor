@@ -44,7 +44,7 @@ def presets_spinner_values_list():
     """
     Returns a list of text values for the presets spinner to show.
     """
-    values = ['init']
+    values = ['init.txt']
     values.extend([f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
                    for num in [1, 2, 3, 4, 5, 6, 7]])
     return values
@@ -83,11 +83,13 @@ class BlueAndPinkSynthEditorApp(App):
     selected_section = StringProperty('')
     detected_midi_input_names_for_gui = ListProperty([])
     midi_inputs_spinner_curr_value = StringProperty('Not Connected')
-    
+
     detected_midi_output_names_for_gui = ListProperty([])
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
+
+    unsaved_preset_changes = BooleanProperty(False)
 
     #
     # Nymphes Parameters
@@ -1053,6 +1055,9 @@ class BlueAndPinkSynthEditorApp(App):
 
             Logger.info(f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
+            # Reset the unsaved changes flag
+            self.set_unsaved_preset_changes_on_main_thread(False)
+
             # Update the current preset type
             self.curr_preset_type = 'preset_slot'
 
@@ -1085,6 +1090,9 @@ class BlueAndPinkSynthEditorApp(App):
 
             Logger.info(f'{address}: {port_name}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
+            # Reset the unsaved changes flag
+            self.set_unsaved_preset_changes_on_main_thread(False)
+
             self._curr_preset_slot_type = preset_slot_type
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
@@ -1110,13 +1118,16 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_type = None
             self._curr_preset_slot_bank_and_number = None
 
+            # Reset the unsaved changes flag
+            self.set_unsaved_preset_changes_on_main_thread(False)
+
             # Update the presets spinner.
             # This also sets the spinner's current text
             # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
 
             # Status bar message
-            msg = f'LOADED {filepath.stem} PRESET FILE '
+            msg = f'LOADED {filepath.name} PRESET FILE '
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/loaded_init_file':
@@ -1124,7 +1135,13 @@ class BlueAndPinkSynthEditorApp(App):
             # The init preset file was loaded
             #
 
-            Logger.info(f'{address}: {str(args[0])}')
+            # Get the path to the init preset file
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
+
+            # Store the path
+            self._curr_preset_file_path = filepath
 
             # Update the current preset type
             self.curr_preset_type = 'init'
@@ -1133,13 +1150,16 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_type = None
             self._curr_preset_slot_bank_and_number = None
 
+            # Reset the unsaved changes flag
+            self.set_unsaved_preset_changes_on_main_thread(False)
+
             # Update the presets spinner
             # Select the init option
-            self.presets_spinner_text = 'init'
+            self.presets_spinner_text = 'init.txt'
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
 
             # Status bar message
-            msg = f'LOADED INIT PRESET'
+            msg = f'LOADED INIT PRESET (init.txt)'
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_to_file':
@@ -1160,13 +1180,16 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_type = None
             self._curr_preset_slot_bank_and_number = None
 
+            # Reset the unsaved changes flag
+            self.set_unsaved_preset_changes_on_main_thread(False)
+
             # Update the presets spinner.
             # This also sets the spinner's current text
             # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
 
             # Status bar message
-            msg = f'SAVED {filepath.stem} PRESET FILE'
+            msg = f'SAVED {filepath.name} PRESET FILE'
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_preset_to_file':
@@ -1183,7 +1206,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
-            msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.stem}'
+            msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/loaded_file_to_preset':
@@ -1201,7 +1224,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
-            msg = f'LOADED PRESET FILE {filepath.stem} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
             self.set_status_bar_text_on_main_thread(msg)
 
         elif address == '/saved_to_preset':
@@ -1269,6 +1292,14 @@ class BlueAndPinkSynthEditorApp(App):
             # Status bar message
             msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
             self.set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/unsaved_changes':
+            #
+            # Parameter values have changed since the current preset
+            # was loaded or saved.
+            #
+            Logger.info(address)
+            self.set_unsaved_preset_changes_on_main_thread(True)
 
         elif address == '/midi_input_detected':
             #
@@ -1732,13 +1763,56 @@ class BlueAndPinkSynthEditorApp(App):
         content = SaveDialog(
             save=self.on_file_save_dialog,
             cancel=self.dismiss_popup,
-            default_filename=self._curr_preset_file_path.stem if self._curr_preset_file_path is not None else ''
+            default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
         )
         self._popup = Popup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
+
+    def update_current_preset(self):
+        """
+        If a preset of any kind has been loaded, then update
+        it by writing the current settings to the same file
+        or memory slot.
+        """
+        if self.curr_preset_type == 'init':
+            #
+            # The most-recently loaded preset was the init
+            # preset, which is the file init.txt
+            #
+
+            # Write the current settings to the init file
+            self._send_nymphes_osc(
+                '/save_to_file',
+                str(self._curr_preset_file_path)
+            )
+
+        elif self.curr_preset_type == 'file':
+            #
+            # The most-recently loaded preset was a file.
+            #
+
+            # Write the current settings to the file
+            self._send_nymphes_osc(
+                '/save_to_file',
+                str(self._curr_preset_file_path)
+            )
+
+        elif self.curr_preset_type == 'preset_slot':
+            #
+            # The most-recently loaded preset was a memory
+            # slot.
+            #
+
+            # Write the current settings to the slot
+            self._send_nymphes_osc(
+                '/save_to_preset',
+                self._curr_preset_slot_type,
+                self._curr_preset_slot_bank_and_number[0],
+                self._curr_preset_slot_bank_and_number[1]
+            )
 
     def on_file_load_dialog(self, path=None, filepaths=[]):
         # Close the file load dialog
@@ -2773,6 +2847,12 @@ class BlueAndPinkSynthEditorApp(App):
 
         def work_func(_, value):
             self.aftertouch = value
+
+    def set_unsaved_preset_changes_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.unsaved_preset_changes = value
 
     def midi_input_port_checkbox_toggled(self, port_name, active):
         Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
