@@ -716,14 +716,20 @@ ScreenManager:
         text: '+'
         on_release: app.load_next_preset()
 
-    Widget:
-        size_hint_x: 1/20
+    TopBarButton:
+        size_hint_x: 2/20
+        text: 'SAVE'
+        on_release: app.update_current_preset()
+        disabled: not app.nymphes_connected or app.unsaved_preset_changes == False
 
     TopBarButton:
         size_hint_x: 2/20
         text: 'REVERT'
         on_release: app.reload()
-        disabled: not app.nymphes_connected or app.curr_preset_type == ''
+        disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
+
+    Widget:
+        size_hint_x: 1/20
 
     TopBarButton:
         size_hint_x: 2/20
@@ -733,7 +739,7 @@ ScreenManager:
 
     TopBarButton:
         size_hint_x: 2/20
-        text: 'SAVE'
+        text: 'SAVE AS'
         on_release: app.show_save_dialog()
         disabled: not app.nymphes_connected
 

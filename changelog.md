@@ -4,6 +4,7 @@
 - Changed reload button text to REVERT
 - Renamed Float Mode to Fine Mode, as this is a little clearer
 - Increased font size of Play Mode buttons
+- Discovered that not all white labels were the same color. Fixed it.
 
 
 ## v0.1.3-beta
