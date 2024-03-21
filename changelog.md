@@ -1,4 +1,4 @@
-## v0.1.4-beta
+## v0.1.5-beta
 
 - Calling this BETA software now, not ALPHA
 - Changed reload button text to REVERT
@@ -11,7 +11,10 @@
     - If the current preset is a file then it saves to the file
     - If the current preset is a Nymphes memory slot, then the slot is updated
   - The revert button reloads the current preset
-    
+
+## v0.1.4-beta
+- The app was renamed
+  
 ## v0.1.3-beta
 
 - Created chords screen
