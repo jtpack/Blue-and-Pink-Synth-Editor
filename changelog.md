@@ -1,12 +1,17 @@
-## v0.1.3-beta_dev
+## v0.1.4-beta
 
 - Calling this BETA software now, not ALPHA
 - Changed reload button text to REVERT
 - Renamed Float Mode to Fine Mode, as this is a little clearer
 - Increased font size of Play Mode buttons
 - Discovered that not all white labels were the same color. Fixed it.
-
-
+- Now there are save and revert buttons
+  - They are enabled when there are unsaved changes to the current preset
+  - The save button updates the current preset
+    - If the current preset is a file then it saves to the file
+    - If the current preset is a Nymphes memory slot, then the slot is updated
+  - The revert button reloads the current preset
+    
 ## v0.1.3-beta
 
 - Created chords screen
