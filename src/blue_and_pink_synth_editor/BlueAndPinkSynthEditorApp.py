@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 import os
+import sys
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -38,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.5-beta'
+app_version_string = 'v0.1.5-beta_dev'
 
 def presets_spinner_values_list():
     """
@@ -51,6 +52,8 @@ def presets_spinner_values_list():
 
 
 class BlueAndPinkSynthEditorApp(App):
+    Logger.info(f'__file__: {__file__}')
+
     #
     # App Status Parameters
     #
@@ -542,7 +545,9 @@ class BlueAndPinkSynthEditorApp(App):
                 Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
 
         # Path to config file
-        self._config_file_path = self._data_folder_path / 'config.txt'
+        self._config_file_path = Path(__file__).parent / 'config.txt'
+
+        Logger.info(f'Config file path: {self._config_file_path}')
 
         # Create a config file if one doesn't exist
         if not Path(self._config_file_path).exists():
@@ -712,6 +717,30 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._encoder_osc_incoming_port = int(config['ENCODER_OSC']['incoming port'])
 
+        #
+        # Nymphes MIDI Channel
+        #
+
+        if config.has_option('MIDI', 'nymphes midi channel'):
+            try:
+                self._nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
+                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self._nymphes_midi_channel}')
+
+            except Exception as e:
+                # Something went wrong retrieving and converting the MIDI
+                # channel
+
+                # Use MIDI channel 1
+                self._nymphes_midi_channel = 1
+
+                Logger.warning(f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self._nymphes_midi_channel}')
+
+        else:
+            # Use MIDI channel 1
+            self._nymphes_midi_channel = 1
+
+            Logger.warning(f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self._nymphes_midi_channel}')
+
     def _reload_config_file(self):
         Logger.info(f'Reloading config file at {self._config_file_path}')
         self._load_config_file(self._config_file_path)
@@ -732,6 +761,11 @@ class BlueAndPinkSynthEditorApp(App):
             'outgoing port': '5000',
             'incoming port': '5001'}
 
+        # Nymphes MIDI Channel
+        config['MIDI'] = {
+            'nymphes midi channel': '1'
+        }
+
         # Write to a new config file
         try:
             with open(filepath, 'w') as config_file:
@@ -741,6 +775,37 @@ class BlueAndPinkSynthEditorApp(App):
 
         except Exception as e:
             Logger.critical(f'Failed to create config file at {filepath} ({e})')
+
+    def _save_config_file(self, filepath):
+        config = configparser.ConfigParser()
+
+        # OSC Communication with Nymphes-OSC App
+        config['NYMPHES_OSC'] = {
+            'outgoing host': self._nymphes_osc_outgoing_host,
+            'outgoing port': self._nymphes_osc_outgoing_port,
+            'incoming host': self._nymphes_osc_incoming_host,
+            'incoming port': self._nymphes_osc_incoming_port}
+
+        # OSC Communication with Encoder App
+        config['ENCODER_OSC'] = {
+            'outgoing host': self._encoder_osc_outgoing_host,
+            'outgoing port': self._encoder_osc_outgoing_port,
+            'incoming port': self._encoder_osc_incoming_port}
+
+        # Nymphes MIDI Channel
+        config['MIDI'] = {
+            'nymphes midi channel': self._nymphes_midi_channel
+        }
+
+        # Write to the config file
+        try:
+            with open(filepath, 'w') as config_file:
+                config.write(config_file)
+
+            Logger.info(f'Wrote to config file at {filepath}')
+
+        except Exception as e:
+            Logger.critical(f'Failed to write to config file at {filepath} ({e})')
 
     @staticmethod
     def _get_local_ip_address():
@@ -1453,7 +1518,11 @@ class BlueAndPinkSynthEditorApp(App):
             midi_channel = int(args[0])
             Logger.debug(f'{address}: {midi_channel}')
 
+            # Store the new MIDI channel
             self._nymphes_midi_channel = midi_channel
+
+            # Save the config file
+            self._save_config_file(self._config_file_path)
 
         elif address == '/status':
             Logger.info(f'{address}: {args[0]}')
