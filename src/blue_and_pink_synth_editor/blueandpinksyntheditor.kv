@@ -1922,25 +1922,38 @@ ScreenManager:
 
             # First Row
             NymphesPortSpinnerLabel:
-                text: 'INPUT'
-                size_hint_x: 2/8
+                text: 'INPUT PORT'
+                size_hint_x: 3/8
 
             NymphesPortSpinner:
-                size_hint_x: 6/8
+                size_hint_x: 5/8
                 values: app.nymphes_input_spinner_names
                 text: app.nymphes_input_name
                 on_text: app.nymphes_input_spinner_text_changed(self.text)
 
             # Second Row
             NymphesPortSpinnerLabel:
-                text: 'OUTPUT'
-                size_hint_x: 2/8
+                text: 'OUTPUT PORT'
+                size_hint_x: 3/8
 
             NymphesPortSpinner:
-                size_hint_x: 6/8
+                size_hint_x: 5/8
                 values: app.nymphes_output_spinner_names
                 text: app.nymphes_output_name
                 on_text: app.nymphes_output_spinner_text_changed(self.text)
+
+            # Third Row
+            NymphesPortSpinnerLabel:
+                text: 'MIDI CHANNEL'
+                size_hint_x: 3/8
+
+            NymphesPortSpinner:
+                size_hint_x: 5/8
+                values: [str(i) for i in range(17)]
+                text: str(app.nymphes_midi_channel)
+                #on_text: app.nymphes_output_spinner_text_changed(self.text)
+
+
 
 
 <MidiInputPortsSection@ControlSection>:
