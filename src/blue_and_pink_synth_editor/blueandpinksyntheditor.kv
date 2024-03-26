@@ -1949,9 +1949,10 @@ ScreenManager:
 
             NymphesPortSpinner:
                 size_hint_x: 5/8
-                values: [str(i) for i in range(17)]
+                values: [str(i) for i in range(1, 17)]
+                halign: 'center'
                 text: str(app.nymphes_midi_channel)
-                #on_text: app.nymphes_output_spinner_text_changed(self.text)
+                on_text: app.on_nymphes_midi_channel_spinner(self.text)
 
 
 
@@ -2048,7 +2049,7 @@ ScreenManager:
     color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
-    halign: 'right'
+    halign: 'center'
     valign: 'middle'
     background_color: C('#00000000')
     option_cls: 'NymphesPortSpinnerOption'
@@ -2058,7 +2059,7 @@ ScreenManager:
     color: C('#000000FF')
     font_size: self.height * 0.5
     text_size: self.size
-    halign: 'right'
+    halign: 'center'
     valign: 'middle'
     background_color: C('#1D60C5F5')
     background_normal: ''

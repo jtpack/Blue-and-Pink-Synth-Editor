@@ -473,10 +473,6 @@ class BlueAndPinkSynthEditorApp(App):
         # Nymphes Synthesizer State
         #
 
-        # The MIDI channel used when communicating with Nymphes.
-        # This is non-zero-referenced, so 1 is channel 1.
-        self._nymphes_midi_channel = 1
-
         self._sustain_pedal = 0
         self._legato = False
 
@@ -723,23 +719,23 @@ class BlueAndPinkSynthEditorApp(App):
 
         if config.has_option('MIDI', 'nymphes midi channel'):
             try:
-                self._nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
-                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self._nymphes_midi_channel}')
+                self.nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
+                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self.nymphes_midi_channel}')
 
             except Exception as e:
                 # Something went wrong retrieving and converting the MIDI
                 # channel
 
                 # Use MIDI channel 1
-                self._nymphes_midi_channel = 1
+                self.nymphes_midi_channel = 1
 
-                Logger.warning(f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self._nymphes_midi_channel}')
+                Logger.warning(f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self.nymphes_midi_channel}')
 
         else:
             # Use MIDI channel 1
-            self._nymphes_midi_channel = 1
+            self.nymphes_midi_channel = 1
 
-            Logger.warning(f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self._nymphes_midi_channel}')
+            Logger.warning(f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self.nymphes_midi_channel}')
 
     def _reload_config_file(self):
         Logger.info(f'Reloading config file at {self._config_file_path}')
@@ -794,7 +790,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Nymphes MIDI Channel
         config['MIDI'] = {
-            'nymphes midi channel': self._nymphes_midi_channel
+            'nymphes midi channel': self.nymphes_midi_channel
         }
 
         # Write to the config file
@@ -1519,7 +1515,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug(f'{address}: {midi_channel}')
 
             # Store the new MIDI channel
-            self._nymphes_midi_channel = midi_channel
+            self.nymphes_midi_channel = midi_channel
 
             # Save the config file
             self._save_config_file(self._config_file_path)
@@ -1644,33 +1640,13 @@ class BlueAndPinkSynthEditorApp(App):
                 server_port=self._nymphes_osc_outgoing_port,
                 client_host=self._nymphes_osc_incoming_host,
                 client_port=self._nymphes_osc_incoming_port,
-                nymphes_midi_channel=self._nymphes_midi_channel,
+                nymphes_midi_channel=self.nymphes_midi_channel,
                 osc_log_level=logging.WARNING,
                 midi_log_level=logging.WARNING,
                 presets_directory_path=self._presets_directory_path
             )
 
             self._nymphes_osc_child_process.start()
-
-
-            #
-            #
-            # arguments = [
-            #     '--server_host', self._nymphes_osc_outgoing_host,
-            #     '--server_port', str(self._nymphes_osc_outgoing_port),
-            #     '--client_host', self._nymphes_osc_incoming_host,
-            #     '--client_port', str(self._nymphes_osc_incoming_port),
-            #     '--midi_channel', str(self._nymphes_midi_channel),
-            #     '--osc_log_level', 'info',
-            #     '--midi_log_level', 'info',
-            #     '--presets_directory_path', self._presets_directory_path
-            # ]
-            # nymphes_osc_path = str(Path(__file__).resolve().parent.parent.parent / 'nymphes-osc')
-            # command = [nymphes_osc_path] + arguments
-            # self._nymphes_osc_child_process = subprocess.Popen(
-            #     command,
-            #     text=True
-            # )
 
             Logger.info('Started the nymphes_osc child process')
 
@@ -3082,6 +3058,20 @@ class BlueAndPinkSynthEditorApp(App):
             self._send_nymphes_osc(
                 '/aftertouch',
                 new_val
+            )
+
+    def on_nymphes_midi_channel_spinner(self, new_val):
+        # The spinner's values are strings, so
+        # convert new_val to an int
+        midi_channel = int(new_val)
+
+        if midi_channel != self.nymphes_midi_channel:
+            Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
+
+            # Send a message to nymphes-osc to change the channel
+            self._send_nymphes_osc(
+                '/set_nymphes_midi_channel',
+                midi_channel
             )
 
 
