@@ -15,7 +15,13 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 - Save and load presets as files
 - User-controllable pass-through from MIDI input ports to Nymphes
 - User-controllable pass-through from Nymphes to MIDI output ports
-- Compatible with Nymphes Firmware Version 2.1
+
+
+## Nymphes Settings
+- Make sure you have Nymphes Firmware Version 2.1 (the latest version as of March 2024)
+- Make sure that MIDI CC send/receive is turned ON
+- Make sure that MIDI Program Change send/receive is turned ON
+- Make sure that you choose the correct MIDI channel on the Settings page in Blue and Pink Synth Editor
 
 
 ## This is BETA software
