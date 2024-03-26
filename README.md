@@ -4,6 +4,8 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 
 2024, Scott Lumsden
 
+## This is BETA software
+
 ## Features
 
 - Supports all MIDI-controllable Nymphes functions
@@ -23,8 +25,6 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 - Make sure that MIDI Program Change send/receive is turned ON
 - Make sure that you choose the correct MIDI channel on the Settings page in Blue and Pink Synth Editor
 
-
-## This is BETA software
 
 ## Platforms:
 - macOS
