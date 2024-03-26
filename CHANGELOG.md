@@ -1,3 +1,10 @@
+## v0.1.6-beta
+
+- Added Nymphes MIDI Channel control on settings page
+  - Bugfixes were necessary in nymphes-osc, so make sure you pull the latest version of it.
+- Moved config.txt to the app bundle
+
+
 ## v0.1.5-beta
 
 - Calling this BETA software now, not ALPHA
@@ -12,8 +19,11 @@
     - If the current preset is a Nymphes memory slot, then the slot is updated
   - The revert button reloads the current preset
 
+
 ## v0.1.4-beta
+
 - The app was renamed
+
   
 ## v0.1.3-beta
 
@@ -21,6 +31,7 @@
 
 - Small UI colors improvements
   - The LFO1 and LFO2 label colors look better now, I think
+
 
 ## v0.1.2-beta
 
