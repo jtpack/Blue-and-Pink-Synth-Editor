@@ -94,6 +94,8 @@ class BlueAndPinkSynthEditorApp(App):
 
     unsaved_preset_changes = BooleanProperty(False)
 
+    curr_mouse_hover_param_name = StringProperty('')
+
     #
     # Nymphes Parameters
     #
@@ -2987,6 +2989,13 @@ class BlueAndPinkSynthEditorApp(App):
         # bar.
 
         if self.nymphes_connected:
+            # Change the mouse cursor to a hand indicate that
+            # this is a control
+            Window.set_system_cursor('hand')
+
+            # Store the name of the parameter
+            self.curr_mouse_hover_param_name = param_name
+
             # Get the value and type for the parameter
             value = self.get_prop_value_for_param_name(param_name)
             param_type = NymphesPreset.type_for_param_name(param_name)
@@ -3004,9 +3013,16 @@ class BlueAndPinkSynthEditorApp(App):
         # control, blank the status bar
         #
 
-        if self.nymphes_connected:
-            # Reset the status message to blank
-            self.set_status_bar_text_on_main_thread('')
+        if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
+            # Set the mouse cursor back to an arrow
+            Window.set_system_cursor('arrow')
+
+            # Reset the hover param name
+            self.curr_mouse_hover_param_name = ''
+
+            if self.nymphes_connected:
+                # Reset the status message to blank
+                self.set_status_bar_text_on_main_thread('')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3444,7 +3460,7 @@ class ModAmountLine(ButtonBehavior, Widget):
         App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.{self.mod_type}')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.{self.mod_type}')
 
     def handle_touch(self, device, button):
         #
