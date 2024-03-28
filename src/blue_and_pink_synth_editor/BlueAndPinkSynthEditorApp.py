@@ -95,6 +95,7 @@ class BlueAndPinkSynthEditorApp(App):
     unsaved_preset_changes = BooleanProperty(False)
 
     curr_mouse_hover_param_name = StringProperty('')
+    curr_mouse_dragging_param_name = StringProperty('')
 
     #
     # Nymphes Parameters
@@ -2375,12 +2376,6 @@ class BlueAndPinkSynthEditorApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
-    def label_clicked(self, param_name):
-        Logger.debug(f'label_clicked: {param_name}')
-
-    def label_touched(self, label, param_name):
-        Logger.debug(f'label_touched: {label}, {param_name}')
-
     def get_prop_value_for_param_name(self, param_name):
         # Convert the parameter name to the name
         # of our corresponding property
@@ -2987,42 +2982,42 @@ class BlueAndPinkSynthEditorApp(App):
         # When the mouse enters a parameter control and Nymphes
         # is connected, display the name and value in the status
         # bar.
-
         if self.nymphes_connected:
-            # Change the mouse cursor to a hand indicate that
-            # this is a control
-            Window.set_system_cursor('hand')
+            if self.curr_mouse_dragging_param_name == '':
+                # Change the mouse cursor to a hand indicate that
+                # this is a control
+                Window.set_system_cursor('hand')
 
-            # Store the name of the parameter
-            self.curr_mouse_hover_param_name = param_name
+                # Store the name of the parameter
+                self.curr_mouse_hover_param_name = param_name
 
-            # Get the value and type for the parameter
-            value = self.get_prop_value_for_param_name(param_name)
-            param_type = NymphesPreset.type_for_param_name(param_name)
+                # Get the value and type for the parameter
+                value = self.get_prop_value_for_param_name(param_name)
+                param_type = NymphesPreset.type_for_param_name(param_name)
 
-            if param_type == float:
-                value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+                if param_type == float:
+                    value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
 
-            elif param_type == int:
-                value_string = str(value)
+                elif param_type == int:
+                    value_string = str(value)
 
-            self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+                self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
         # control, blank the status bar
         #
+        if self.curr_mouse_dragging_param_name == '':
+            if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
+                # Set the mouse cursor back to an arrow
+                Window.set_system_cursor('arrow')
 
-        if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
-            # Set the mouse cursor back to an arrow
-            Window.set_system_cursor('arrow')
+                # Reset the hover param name
+                self.curr_mouse_hover_param_name = ''
 
-            # Reset the hover param name
-            self.curr_mouse_hover_param_name = ''
-
-            if self.nymphes_connected:
-                # Reset the status message to blank
-                self.set_status_bar_text_on_main_thread('')
+                if self.nymphes_connected:
+                    # Reset the status message to blank
+                    self.set_status_bar_text_on_main_thread('')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3169,6 +3164,9 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().curr_mouse_dragging_param_name = self.param_name + '.value'
+
                 return True
 
             return super(FloatParamValueLabel, self).on_touch_down(touch)
@@ -3208,6 +3206,10 @@ class FloatParamValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().curr_mouse_dragging_param_name = ''
+
                 return True
             return super(FloatParamValueLabel, self).on_touch_up(touch)
 
@@ -3273,6 +3275,9 @@ class IntParamValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().curr_mouse_dragging_param_name = self.param_name + '.value'
+
                 return True
             return super(IntParamValueLabel, self).on_touch_down(touch)
 
@@ -3305,6 +3310,10 @@ class IntParamValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().curr_mouse_dragging_param_name = ''
+
                 return True
             return super(IntParamValueLabel, self).on_touch_up(touch)
 
@@ -3512,6 +3521,9 @@ class ModAmountLine(ButtonBehavior, Widget):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().curr_mouse_dragging_param_name = f'{self.param_name}.{self.mod_type}'
+
                 return True
             return super(ModAmountLine, self).on_touch_down(touch)
 
@@ -3550,6 +3562,10 @@ class ModAmountLine(ButtonBehavior, Widget):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().curr_mouse_dragging_param_name = ''
+
                 return True
             return super(ModAmountLine, self).on_touch_up(touch)
 

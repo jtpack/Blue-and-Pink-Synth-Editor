@@ -978,7 +978,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -990,7 +989,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -1699,7 +1697,6 @@ ScreenManager:
             size: self.size[0], (root.midi_val / 127.0) * (root.height - root.height * 0.01)
             radius: [self.width * 0.5]
 
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -2204,7 +2201,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
