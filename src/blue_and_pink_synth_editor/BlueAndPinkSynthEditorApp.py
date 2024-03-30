@@ -39,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.6-beta'
+app_version_string = 'v0.1.6-beta_dev'
 
 def presets_spinner_values_list():
     """
