@@ -39,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.6-beta'
+app_version_string = 'v0.1.6-beta_dev'
 
 def presets_spinner_values_list():
     """
@@ -93,6 +93,10 @@ class BlueAndPinkSynthEditorApp(App):
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
 
     unsaved_preset_changes = BooleanProperty(False)
+
+    curr_mouse_hover_param_name = StringProperty('')
+    curr_mouse_dragging_param_name = StringProperty('')
+    curr_screen_name = StringProperty('dashboard')
 
     #
     # Nymphes Parameters
@@ -2373,12 +2377,6 @@ class BlueAndPinkSynthEditorApp(App):
         #     # Update encoder LED color
         #     self.update_encoder_led_color(encoder_num)
 
-    def label_clicked(self, param_name):
-        Logger.debug(f'label_clicked: {param_name}')
-
-    def label_touched(self, label, param_name):
-        Logger.debug(f'label_touched: {label}, {param_name}')
-
     def get_prop_value_for_param_name(self, param_name):
         # Convert the parameter name to the name
         # of our corresponding property
@@ -2985,28 +2983,43 @@ class BlueAndPinkSynthEditorApp(App):
         # When the mouse enters a parameter control and Nymphes
         # is connected, display the name and value in the status
         # bar.
-
         if self.nymphes_connected:
-            # Get the value and type for the parameter
-            value = self.get_prop_value_for_param_name(param_name)
-            param_type = NymphesPreset.type_for_param_name(param_name)
+            if self.curr_mouse_dragging_param_name == '':
+                # Change the mouse cursor to a hand indicate that
+                # this is a control
+                Window.set_system_cursor('hand')
 
-            if param_type == float:
-                value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+                # Store the name of the parameter
+                self.curr_mouse_hover_param_name = param_name
 
-            elif param_type == int:
-                value_string = str(value)
+                if param_name not in ['mod_wheel', 'aftertouch']:
+                    # Get the value and type for the parameter
+                    value = self.get_prop_value_for_param_name(param_name)
+                    param_type = NymphesPreset.type_for_param_name(param_name)
 
-            self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+                    if param_type == float:
+                        value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+
+                    elif param_type == int:
+                        value_string = str(value)
+
+                    self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
         # control, blank the status bar
         #
+        if self.curr_mouse_dragging_param_name == '':
+            if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
+                # Set the mouse cursor back to an arrow
+                Window.set_system_cursor('arrow')
 
-        if self.nymphes_connected:
-            # Reset the status message to blank
-            self.set_status_bar_text_on_main_thread('')
+                # Reset the hover param name
+                self.curr_mouse_hover_param_name = ''
+
+                if self.nymphes_connected:
+                    # Reset the status message to blank
+                    self.set_status_bar_text_on_main_thread('')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -3074,8 +3087,14 @@ class BlueAndPinkSynthEditorApp(App):
                 midi_channel
             )
 
+    def set_curr_screen_name(self, screen_name):
+        self.curr_screen_name = screen_name
+
+    def set_curr_mouse_dragging_param_name(self, param_name):
+        self.curr_mouse_dragging_param_name = param_name
 
 class FloatParamValueLabel(ButtonBehavior, Label):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
@@ -3088,15 +3107,16 @@ class FloatParamValueLabel(ButtonBehavior, Label):
         self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
-        if self.collide_point(*pos):
-            if not self.mouse_inside_bounds:
-                self.mouse_inside_bounds = True
-                self.on_mouse_enter()
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
 
-        else:
-            if self.mouse_inside_bounds:
-                self.mouse_inside_bounds = False
-                self.on_mouse_exit()
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
 
     def on_mouse_enter(self):
         App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
@@ -3153,6 +3173,9 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name + '.value')
+
                 return True
 
             return super(FloatParamValueLabel, self).on_touch_down(touch)
@@ -3192,11 +3215,16 @@ class FloatParamValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(FloatParamValueLabel, self).on_touch_up(touch)
 
 
 class IntParamValueLabel(ButtonBehavior, Label):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
@@ -3209,15 +3237,16 @@ class IntParamValueLabel(ButtonBehavior, Label):
         self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
-        if self.collide_point(*pos):
-            if not self.mouse_inside_bounds:
-                self.mouse_inside_bounds = True
-                self.on_mouse_enter()
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
 
-        else:
-            if self.mouse_inside_bounds:
-                self.mouse_inside_bounds = False
-                self.on_mouse_exit()
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
 
     def on_mouse_enter(self):
         App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
@@ -3257,6 +3286,9 @@ class IntParamValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name + '.value')
+
                 return True
             return super(IntParamValueLabel, self).on_touch_down(touch)
 
@@ -3289,14 +3321,20 @@ class IntParamValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(IntParamValueLabel, self).on_touch_up(touch)
 
     
 
 class ParamsGridModCell(BoxLayout):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     title = StringProperty('')
+    screen_name = StringProperty('')
     param_name = StringProperty('')
     param_name_color_string = StringProperty('#ECBFEBFF')
     value_color_string = StringProperty('#06070FFF')
@@ -3312,6 +3350,7 @@ class ParamsGridModCell(BoxLayout):
 
 
 class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     title = StringProperty('')
     param_name = StringProperty('')
@@ -3323,6 +3362,7 @@ class ParamsGridNonModCell(ButtonBehavior, BoxLayout):
 
 
 class ParamsGridLfoConfigCell(ButtonBehavior, BoxLayout):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     type_prop = NumericProperty(0)
     key_sync_prop = NumericProperty(0)
@@ -3417,6 +3457,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 class ModAmountLine(ButtonBehavior, Widget):
     midi_val = NumericProperty(0) # This is 0 to 127
     color_hex = StringProperty('#FFFFFFFF')
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
     mod_type = StringProperty('')
@@ -3430,21 +3471,22 @@ class ModAmountLine(ButtonBehavior, Widget):
         self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
-        if self.collide_point(*pos):
-            if not self.mouse_inside_bounds:
-                self.mouse_inside_bounds = True
-                self.on_mouse_enter()
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
 
-        else:
-            if self.mouse_inside_bounds:
-                self.mouse_inside_bounds = False
-                self.on_mouse_exit()
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
 
     def on_mouse_enter(self):
         App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.{self.mod_type}')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.{self.mod_type}')
 
     def handle_touch(self, device, button):
         #
@@ -3496,6 +3538,9 @@ class ModAmountLine(ButtonBehavior, Widget):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(f'{self.param_name}.{self.mod_type}')
+
                 return True
             return super(ModAmountLine, self).on_touch_down(touch)
 
@@ -3534,6 +3579,10 @@ class ModAmountLine(ButtonBehavior, Widget):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(ModAmountLine, self).on_touch_up(touch)
 
@@ -3549,6 +3598,7 @@ class SectionRelativeLayout(RelativeLayout):
 
 
 class ModAmountsBox(BoxLayout):
+    screen_name = StringProperty('')
     param_name = StringProperty('')
     lfo2_prop = NumericProperty(0)
     mod_wheel_prop = NumericProperty(0)
@@ -3558,10 +3608,12 @@ class ModAmountsBox(BoxLayout):
 
 
 class MainControlsBox(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
 class ChordsMainControlsBox(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3594,6 +3646,7 @@ class TopBar(BoxLayout):
 
 
 class BottomBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3614,6 +3667,7 @@ class ControlSectionsGrid(GridLayout):
 
 class ControlSection(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class ChordsControlSectionsGrid(GridLayout):
@@ -3692,13 +3746,34 @@ class MidiOutputPortCheckBox(CheckBox):
 
 
 class ModWheelValueLabel(ButtonBehavior, Label):
+    screen_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
+    param_name = StringProperty('mod_wheel')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
 
         self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
+
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(self.param_name)
 
     def handle_touch(self, device, button):
         #
@@ -3732,6 +3807,9 @@ class ModWheelValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+
                 return True
             return super(ModWheelValueLabel, self).on_touch_down(touch)
 
@@ -3764,18 +3842,43 @@ class ModWheelValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(ModWheelValueLabel, self).on_touch_up(touch)
         
 
 class AftertouchValueLabel(ButtonBehavior, Label):
+    screen_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
+    param_name = StringProperty('aftertouch')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
 
         self.mouse_inside_bounds = False
+
+    def on_mouseover(self, _, pos):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
+
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+
+    def on_mouse_exit(self):
+        App.get_running_app().on_mouse_exited_param_control(self.param_name)
 
     def handle_touch(self, device, button):
         #
@@ -3809,6 +3912,9 @@ class AftertouchValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+
                 return True
             return super(AftertouchValueLabel, self).on_touch_down(touch)
 
@@ -3841,6 +3947,10 @@ class AftertouchValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(AftertouchValueLabel, self).on_touch_up(touch)
 
@@ -3850,6 +3960,7 @@ class ChordParamsGrid(GridLayout):
 
 
 class ChordParamsGridCell(ButtonBehavior, BoxLayout):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     title = StringProperty('')
     param_name = StringProperty('')
@@ -3860,6 +3971,7 @@ class ChordParamsGridCell(ButtonBehavior, BoxLayout):
     
     
 class ChordParamValueLabel(ButtonBehavior, Label):
+    screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
     drag_start_pos = NumericProperty(0)
@@ -3872,15 +3984,16 @@ class ChordParamValueLabel(ButtonBehavior, Label):
         self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
-        if self.collide_point(*pos):
-            if not self.mouse_inside_bounds:
-                self.mouse_inside_bounds = True
-                self.on_mouse_enter()
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if self.collide_point(*pos):
+                if not self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = True
+                    self.on_mouse_enter()
 
-        else:
-            if self.mouse_inside_bounds:
-                self.mouse_inside_bounds = False
-                self.on_mouse_exit()
+            else:
+                if self.mouse_inside_bounds:
+                    self.mouse_inside_bounds = False
+                    self.on_mouse_exit()
 
     def on_mouse_enter(self):
         App.get_running_app().on_mouse_entered_param_control(self.param_name)
@@ -3936,6 +4049,9 @@ class ChordParamValueLabel(ButtonBehavior, Label):
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
 
+                # Inform the app that a drag has started
+                App.get_running_app().set_curr_mouse_dragging_param_name(f'{self.param_name}')
+
                 return True
 
             return super(ChordParamValueLabel, self).on_touch_down(touch)
@@ -3975,6 +4091,10 @@ class ChordParamValueLabel(ButtonBehavior, Label):
         if not self.disabled:
             if touch.grab_current == self:
                 touch.ungrab(self)
+
+                # Inform the app that a drag has ended
+                App.get_running_app().set_curr_mouse_dragging_param_name('')
+
                 return True
             return super(ChordParamValueLabel, self).on_touch_up(touch)
 

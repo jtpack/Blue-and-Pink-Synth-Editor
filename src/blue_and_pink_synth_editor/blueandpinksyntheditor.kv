@@ -29,10 +29,12 @@ ScreenManager:
             corner_radius: root.height * 0.015
 
         MainControlsBox:
+            screen_name: root.name
             size_hint_y: 35/40
             corner_radius: root.height * 0.015
 
         BottomBar:
+            screen_name: root.name
             size_hint_y: 2/40
             corner_radius: root.height * 0.015
 
@@ -104,10 +106,12 @@ ScreenManager:
             corner_radius: root.height * 0.015
 
         ChordsMainControlsBox:
+            screen_name: root.name
             size_hint_y: 35/40
             corner_radius: root.height * 0.015
 
         BottomBar:
+            screen_name: root.name
             size_hint_y: 2/40
             corner_radius: root.height * 0.015
 
@@ -127,20 +131,14 @@ ScreenManager:
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
     Widget:
-        size_hint_x: 15/20
-
-    TopBarButton:
-        size_hint_x: 3/20
-        on_release:
-            app.root.transition = SlideTransition(direction='left')
-            app.root.current = 'settings'
-        text: 'SETTINGS'
+        size_hint_x: 18/20
 
     TopBarButton:
         size_hint_x: 2/20
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
+            app.set_curr_screen_name('dashboard')
         text: 'BACK'
 
 
@@ -162,30 +160,38 @@ ScreenManager:
 
         # Row 1
         Chord1ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Chord2ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         # Row 2
         Chord3ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Chord4ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         # Row 3
         Chord5ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Chord6ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         # Row 4
         Chord7ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Chord8ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
 
@@ -206,6 +212,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'ROOT'
             param_name: 'chord_1.root.value'
@@ -213,6 +220,7 @@ ScreenManager:
             value_prop: app.chord_1_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'SEMI 1'
             param_name: 'chord_1.semi_1.value'
@@ -220,6 +228,7 @@ ScreenManager:
             value_prop: app.chord_1_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'SEMI 2'
             param_name: 'chord_1.semi_2.value'
@@ -227,6 +236,7 @@ ScreenManager:
             value_prop: app.chord_1_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'SEMI 3'
             param_name: 'chord_1.semi_3.value'
@@ -234,6 +244,7 @@ ScreenManager:
             value_prop: app.chord_1_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'SEMI 4'
             param_name: 'chord_1.semi_4.value'
@@ -241,6 +252,7 @@ ScreenManager:
             value_prop: app.chord_1_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_1'
             title: 'SEMI 5'
             param_name: 'chord_1.semi_5.value'
@@ -265,6 +277,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'ROOT'
             param_name: 'chord_2.root.value'
@@ -272,6 +285,7 @@ ScreenManager:
             value_prop: app.chord_2_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'SEMI 1'
             param_name: 'chord_2.semi_1.value'
@@ -279,6 +293,7 @@ ScreenManager:
             value_prop: app.chord_2_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'SEMI 2'
             param_name: 'chord_2.semi_2.value'
@@ -286,6 +301,7 @@ ScreenManager:
             value_prop: app.chord_2_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'SEMI 3'
             param_name: 'chord_2.semi_3.value'
@@ -293,6 +309,7 @@ ScreenManager:
             value_prop: app.chord_2_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'SEMI 4'
             param_name: 'chord_2.semi_4.value'
@@ -300,6 +317,7 @@ ScreenManager:
             value_prop: app.chord_2_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_2'
             title: 'SEMI 5'
             param_name: 'chord_2.semi_5.value'
@@ -324,6 +342,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'ROOT'
             param_name: 'chord_3.root.value'
@@ -331,6 +350,7 @@ ScreenManager:
             value_prop: app.chord_3_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'SEMI 1'
             param_name: 'chord_3.semi_1.value'
@@ -338,6 +358,7 @@ ScreenManager:
             value_prop: app.chord_3_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'SEMI 2'
             param_name: 'chord_3.semi_2.value'
@@ -345,6 +366,7 @@ ScreenManager:
             value_prop: app.chord_3_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'SEMI 3'
             param_name: 'chord_3.semi_3.value'
@@ -352,6 +374,7 @@ ScreenManager:
             value_prop: app.chord_3_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'SEMI 4'
             param_name: 'chord_3.semi_4.value'
@@ -359,6 +382,7 @@ ScreenManager:
             value_prop: app.chord_3_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_3'
             title: 'SEMI 5'
             param_name: 'chord_3.semi_5.value'
@@ -383,6 +407,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'ROOT'
             param_name: 'chord_4.root.value'
@@ -390,6 +415,7 @@ ScreenManager:
             value_prop: app.chord_4_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'SEMI 1'
             param_name: 'chord_4.semi_1.value'
@@ -397,6 +423,7 @@ ScreenManager:
             value_prop: app.chord_4_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'SEMI 2'
             param_name: 'chord_4.semi_2.value'
@@ -404,6 +431,7 @@ ScreenManager:
             value_prop: app.chord_4_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'SEMI 3'
             param_name: 'chord_4.semi_3.value'
@@ -411,6 +439,7 @@ ScreenManager:
             value_prop: app.chord_4_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'SEMI 4'
             param_name: 'chord_4.semi_4.value'
@@ -418,6 +447,7 @@ ScreenManager:
             value_prop: app.chord_4_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_4'
             title: 'SEMI 5'
             param_name: 'chord_4.semi_5.value'
@@ -442,6 +472,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'ROOT'
             param_name: 'chord_5.root.value'
@@ -449,6 +480,7 @@ ScreenManager:
             value_prop: app.chord_5_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'SEMI 1'
             param_name: 'chord_5.semi_1.value'
@@ -456,6 +488,7 @@ ScreenManager:
             value_prop: app.chord_5_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'SEMI 2'
             param_name: 'chord_5.semi_2.value'
@@ -463,6 +496,7 @@ ScreenManager:
             value_prop: app.chord_5_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'SEMI 3'
             param_name: 'chord_5.semi_3.value'
@@ -470,6 +504,7 @@ ScreenManager:
             value_prop: app.chord_5_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'SEMI 4'
             param_name: 'chord_5.semi_4.value'
@@ -477,6 +512,7 @@ ScreenManager:
             value_prop: app.chord_5_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_5'
             title: 'SEMI 5'
             param_name: 'chord_5.semi_5.value'
@@ -501,6 +537,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'ROOT'
             param_name: 'chord_6.root.value'
@@ -508,6 +545,7 @@ ScreenManager:
             value_prop: app.chord_6_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'SEMI 1'
             param_name: 'chord_6.semi_1.value'
@@ -515,6 +553,7 @@ ScreenManager:
             value_prop: app.chord_6_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'SEMI 2'
             param_name: 'chord_6.semi_2.value'
@@ -522,6 +561,7 @@ ScreenManager:
             value_prop: app.chord_6_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'SEMI 3'
             param_name: 'chord_6.semi_3.value'
@@ -529,6 +569,7 @@ ScreenManager:
             value_prop: app.chord_6_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'SEMI 4'
             param_name: 'chord_6.semi_4.value'
@@ -536,6 +577,7 @@ ScreenManager:
             value_prop: app.chord_6_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_6'
             title: 'SEMI 5'
             param_name: 'chord_6.semi_5.value'
@@ -560,6 +602,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'ROOT'
             param_name: 'chord_7.root.value'
@@ -567,6 +610,7 @@ ScreenManager:
             value_prop: app.chord_7_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'SEMI 1'
             param_name: 'chord_7.semi_1.value'
@@ -574,6 +618,7 @@ ScreenManager:
             value_prop: app.chord_7_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'SEMI 2'
             param_name: 'chord_7.semi_2.value'
@@ -581,6 +626,7 @@ ScreenManager:
             value_prop: app.chord_7_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'SEMI 3'
             param_name: 'chord_7.semi_3.value'
@@ -588,6 +634,7 @@ ScreenManager:
             value_prop: app.chord_7_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'SEMI 4'
             param_name: 'chord_7.semi_4.value'
@@ -595,6 +642,7 @@ ScreenManager:
             value_prop: app.chord_7_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_7'
             title: 'SEMI 5'
             param_name: 'chord_7.semi_5.value'
@@ -619,6 +667,7 @@ ScreenManager:
     ChordParamsGrid:
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'ROOT'
             param_name: 'chord_8.root.value'
@@ -626,6 +675,7 @@ ScreenManager:
             value_prop: app.chord_8_root_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'SEMI 1'
             param_name: 'chord_8.semi_1.value'
@@ -633,6 +683,7 @@ ScreenManager:
             value_prop: app.chord_8_semi_1_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'SEMI 2'
             param_name: 'chord_8.semi_2.value'
@@ -640,6 +691,7 @@ ScreenManager:
             value_prop: app.chord_8_semi_2_value
             
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'SEMI 3'
             param_name: 'chord_8.semi_3.value'
@@ -647,6 +699,7 @@ ScreenManager:
             value_prop: app.chord_8_semi_3_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'SEMI 4'
             param_name: 'chord_8.semi_4.value'
@@ -654,6 +707,7 @@ ScreenManager:
             value_prop: app.chord_8_semi_4_value
 
         ChordParamsGridCell:
+            screen_name: root.screen_name
             section_name: 'chord_8'
             title: 'SEMI 5'
             param_name: 'chord_8.semi_5.value'
@@ -682,6 +736,7 @@ ScreenManager:
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
+            app.set_curr_screen_name('dashboard')
         text: 'BACK'
 
 
@@ -751,6 +806,7 @@ ScreenManager:
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
+            app.set_curr_screen_name('settings')
         text: 'SETTINGS'
 
 
@@ -782,23 +838,29 @@ ScreenManager:
 
         # Top Row
         OscillatorControlSection:
+            screen_name: root.screen_name
             size_hint_y: 2/4
 
         FilterControlSection:
+            screen_name: root.screen_name
             size_hint_y: 2/4
 
         # Middle Row
         AmpControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Lfo1ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/5
 
         # Bottom Row
         ReverbControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
         Lfo2ControlSection:
+            screen_name: root.screen_name
             size_hint_y: 1/4
 
 
@@ -918,6 +980,7 @@ ScreenManager:
     on_release:
         app.root.transition = SlideTransition(direction='left')
         app.root.current = 'chords'
+        app.set_curr_screen_name('chords')
     disabled: not app.nymphes_connected
 
 <FineModeBox>:
@@ -978,7 +1041,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -990,7 +1052,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -1012,6 +1073,7 @@ ScreenManager:
         # Top Row
         #
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_top_row'
             title: 'PW'
             param_name: 'osc.pulsewidth'
@@ -1026,6 +1088,7 @@ ScreenManager:
             aftertouch_prop: app.osc_pulsewidth_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_top_row'
             title: 'GLD'
             param_name: 'pitch.glide'
@@ -1040,6 +1103,7 @@ ScreenManager:
             aftertouch_prop: app.pitch_glide_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_top_row'
             title: 'DTN'
             param_name: 'pitch.detune'
@@ -1054,6 +1118,7 @@ ScreenManager:
             aftertouch_prop: app.pitch_detune_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_top_row'
             title: 'CHD'
             param_name: 'pitch.chord'
@@ -1068,6 +1133,7 @@ ScreenManager:
             aftertouch_prop: app.pitch_chord_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_top_row'
             title: 'EG'
             param_name: 'pitch.eg'
@@ -1083,6 +1149,7 @@ ScreenManager:
         # Bottom Row
         #
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_bottom_row'
             title: 'WAVE'
             param_name: 'osc.wave'
@@ -1097,6 +1164,7 @@ ScreenManager:
             aftertouch_prop: app.osc_wave_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_bottom_row'
             title: 'LVL'
             param_name: 'mix.osc'
@@ -1111,6 +1179,7 @@ ScreenManager:
             aftertouch_prop: app.mix_osc_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_bottom_row'
             title: 'SUB'
             param_name: 'mix.sub'
@@ -1125,6 +1194,7 @@ ScreenManager:
             aftertouch_prop: app.mix_sub_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_bottom_row'
             title: 'NOISE'
             param_name: 'mix.noise'
@@ -1139,6 +1209,7 @@ ScreenManager:
             aftertouch_prop: app.mix_noise_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'oscillator_bottom_row'
             title: 'LFO1'
             background_color_string: '#438EFFFF'
@@ -1168,6 +1239,7 @@ ScreenManager:
         # Top Row
         #
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_top_row'
             title: 'CUT'
             param_name: 'lpf.cutoff'
@@ -1182,6 +1254,7 @@ ScreenManager:
             aftertouch_prop: app.lpf_cutoff_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_top_row'
             title: 'RES'
             param_name: 'lpf.resonance'
@@ -1196,6 +1269,7 @@ ScreenManager:
             aftertouch_prop: app.lpf_resonance_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_top_row'
             title: 'TRK'
             param_name: 'lpf.tracking'
@@ -1210,6 +1284,7 @@ ScreenManager:
             aftertouch_prop: app.lpf_tracking_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_top_row'
             title: 'EG'
             param_name: 'lpf.eg'
@@ -1223,6 +1298,7 @@ ScreenManager:
             aftertouch_prop: app.lpf_eg_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_top_row'
             title: 'LFO1'
             background_color_string: '#438EFFFF'
@@ -1238,6 +1314,7 @@ ScreenManager:
         # Bottom Row
         #
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_bottom_row'
             title: 'ATT'
             param_name: 'filter_eg.attack'
@@ -1251,6 +1328,7 @@ ScreenManager:
             aftertouch_prop: app.filter_eg_attack_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_bottom_row'
             title: 'DEC'
             param_name: 'filter_eg.decay'
@@ -1264,6 +1342,7 @@ ScreenManager:
             aftertouch_prop: app.filter_eg_decay_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_bottom_row'
             title: 'SUS'
             param_name: 'filter_eg.sustain'
@@ -1277,6 +1356,7 @@ ScreenManager:
             aftertouch_prop: app.filter_eg_sustain_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_bottom_row'
             title: 'REL'
             param_name: 'filter_eg.release'
@@ -1290,6 +1370,7 @@ ScreenManager:
             aftertouch_prop: app.filter_eg_release_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'filter_bottom_row'
             title: 'HPF'
             param_name: 'hpf.cutoff'
@@ -1319,6 +1400,7 @@ ScreenManager:
     ParamsGrid:
         # Top Row
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo1'
             title: 'RATE'
             param_name: 'lfo1.rate'
@@ -1332,6 +1414,7 @@ ScreenManager:
             aftertouch_prop: app.lfo1_rate_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo1'
             title: 'WAVE'
             param_name: 'lfo1.wave'
@@ -1345,6 +1428,7 @@ ScreenManager:
             aftertouch_prop: app.lfo1_wave_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo1'
             title: 'DEL'
             param_name: 'lfo1.delay'
@@ -1358,6 +1442,7 @@ ScreenManager:
             aftertouch_prop: app.lfo1_delay_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo1'
             title: 'FADE'
             param_name: 'lfo1.fade'
@@ -1371,6 +1456,7 @@ ScreenManager:
             aftertouch_prop: app.lfo1_fade_aftertouch
 
         ParamsGridLfoConfigCell:
+            screen_name: root.screen_name
             section_name: 'lfo1'
             background_color_string: '#438EFFFF'
             param_name_color_string: '#5500EEFF'
@@ -1393,6 +1479,7 @@ ScreenManager:
 
     ParamsGrid:
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'amp'
             title: 'ATT'
             param_name: 'amp_eg.attack'
@@ -1407,6 +1494,7 @@ ScreenManager:
             aftertouch_prop: app.amp_eg_attack_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'amp'
             title: 'DEC'
             param_name: 'amp_eg.decay'
@@ -1421,6 +1509,7 @@ ScreenManager:
             aftertouch_prop: app.amp_eg_decay_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'amp'
             title: 'SUS'
             param_name: 'amp_eg.sustain'
@@ -1435,6 +1524,7 @@ ScreenManager:
             aftertouch_prop: app.amp_eg_sustain_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'amp'
             title: 'REL'
             param_name: 'amp_eg.release'
@@ -1449,6 +1539,7 @@ ScreenManager:
             aftertouch_prop: app.amp_eg_release_aftertouch
 
         ParamsGridNonModCell:
+            screen_name: root.screen_name
             section_name: 'amp'
             title: 'LVL'
             param_name: 'mix.level'
@@ -1473,6 +1564,7 @@ ScreenManager:
 
     ParamsGrid:
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'reverb'
             title: 'SIZE'
             param_name: 'reverb.size'
@@ -1487,6 +1579,7 @@ ScreenManager:
             aftertouch_prop: app.reverb_size_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'reverb'
             title: 'DEC'
             param_name: 'reverb.decay'
@@ -1501,6 +1594,7 @@ ScreenManager:
             aftertouch_prop: app.reverb_decay_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'reverb'
             title: 'FILT'
             param_name: 'reverb.filter'
@@ -1515,6 +1609,7 @@ ScreenManager:
             aftertouch_prop: app.reverb_filter_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'reverb'
             title: 'MIX'
             param_name: 'reverb.mix'
@@ -1547,6 +1642,7 @@ ScreenManager:
     ParamsGrid:
         # Top Row
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo2'
             title: 'RATE'
             param_name: 'lfo2.rate'
@@ -1561,6 +1657,7 @@ ScreenManager:
             aftertouch_prop: app.lfo2_rate_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo2'
             title: 'WAVE'
             param_name: 'lfo2.wave'
@@ -1575,6 +1672,7 @@ ScreenManager:
             aftertouch_prop: app.lfo2_wave_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo2'
             title: 'DEL'
             param_name: 'lfo2.delay'
@@ -1589,6 +1687,7 @@ ScreenManager:
             aftertouch_prop: app.lfo2_delay_aftertouch
 
         ParamsGridModCell:
+            screen_name: root.screen_name
             section_name: 'lfo2'
             title: 'FADE'
             param_name: 'lfo2.fade'
@@ -1633,6 +1732,7 @@ ScreenManager:
 
     FloatParamValueLabel:
         text: str(float(root.value_prop))
+        screen_name: root.screen_name
         param_name: root.param_name
         text_color_string: root.value_color_string
 
@@ -1640,7 +1740,7 @@ ScreenManager:
         mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
         size_hint_x: 0.75
         pos_hint: {'center_x': 0.5}
-
+        screen_name: root.screen_name
         param_name: root.param_name
         lfo2_prop: root.lfo2_prop
         mod_wheel_prop: root.mod_wheel_prop
@@ -1656,24 +1756,28 @@ ScreenManager:
     Lfo2ModAmountLine:
         background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
+        screen_name: root.screen_name
         mod_type: 'lfo2'
         midi_val: root.lfo2_prop
 
     WheelModAmountLine:
         background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
+        screen_name: root.screen_name
         mod_type: 'mod_wheel'
         midi_val: root.mod_wheel_prop
 
     VelocityModAmountLine:
         background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
+        screen_name: root.screen_name
         mod_type: 'velocity'
         midi_val: root.velocity_prop
 
     AftertouchModAmountLine:
         background_color_string: root.mod_amount_line_background_color_string
         param_name: root.param_name
+        screen_name: root.screen_name
         mod_type: 'aftertouch'
         midi_val: root.aftertouch_prop
 
@@ -1699,7 +1803,6 @@ ScreenManager:
             size: self.size[0], (root.midi_val / 127.0) * (root.height - root.height * 0.01)
             radius: [self.width * 0.5]
 
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
@@ -1740,6 +1843,7 @@ ScreenManager:
 
     IntParamValueLabel:
         font_size: self.width * 0.2
+        screen_name: root.screen_name
         param_name: root.section_name + '.type'
         text_color_string: root.value_color_string
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
@@ -1751,6 +1855,7 @@ ScreenManager:
 
     IntParamValueLabel:
         font_size: self.width * 0.2
+        screen_name: root.screen_name
         param_name: root.section_name + '.key_sync'
         text_color_string: root.value_color_string
         text: "ON" if root.key_sync_prop == 1 else "OFF"
@@ -1775,6 +1880,7 @@ ScreenManager:
 
     FloatParamValueLabel:
         text: str(float(root.value_prop))
+        screen_name: root.screen_name
         param_name: root.param_name
         text_color_string: root.value_color_string
 
@@ -2108,6 +2214,7 @@ ScreenManager:
         disabled: not app.nymphes_connected
 
     ModWheelValueLabel:
+        screen_name: root.screen_name
         size_hint_x: 2/40
         text_color_string: '#092042FF'
 
@@ -2144,6 +2251,7 @@ ScreenManager:
         disabled: not app.nymphes_connected
 
     AftertouchValueLabel:
+        screen_name: root.screen_name
         size_hint_x: 2/40
         text_color_string: '#092042FF'
 
@@ -2193,6 +2301,7 @@ ScreenManager:
 
     ChordParamValueLabel:
         text: str(root.value_prop)
+        screen_name: root.screen_name
         param_name: root.param_name
         text_color_string: root.value_color_string
 
@@ -2204,7 +2313,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_press: app.label_clicked(self.param_name)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 

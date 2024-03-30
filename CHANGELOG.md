@@ -1,3 +1,6 @@
+- When the mouse is over a control the cursor becomes a hand. 
+ 
+
 ## v0.1.6-beta
 
 - Added Nymphes MIDI Channel control on settings page
