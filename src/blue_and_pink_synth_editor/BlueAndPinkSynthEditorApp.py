@@ -1,7 +1,10 @@
 import logging
 from pathlib import Path
 import os
-import sys
+import threading
+import configparser
+import netifaces
+import platform
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -20,35 +23,21 @@ from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.uix.checkbox import CheckBox
+
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
-import threading
-import configparser
 
-import netifaces
-# import logging
-# from logging.handlers import RotatingFileHandler
 from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["debug"])
-from nymphes_midi.NymphesPreset import NymphesPreset
-import platform
-from .nymphes_osc_process import NymphesOscProcess
 
+from nymphes_midi.NymphesPreset import NymphesPreset
+from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
 app_version_string = 'v0.1.6-beta_dev'
-
-def presets_spinner_values_list():
-    """
-    Returns a list of text values for the presets spinner to show.
-    """
-    values = ['init.txt']
-    values.extend([f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-                   for num in [1, 2, 3, 4, 5, 6, 7]])
-    return values
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -77,7 +66,7 @@ class BlueAndPinkSynthEditorApp(App):
     nymphes_output_name = StringProperty('Not Connected')
 
     presets_spinner_text = StringProperty('PRESET')
-    presets_spinner_values = ListProperty(presets_spinner_values_list())
+    presets_spinner_values = ListProperty()
 
     # This is used to track what is currently loaded.
     # Valid values: 'init', 'file', 'preset_slot'
@@ -423,6 +412,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Choose the fine mode modifier key based on the
         # current operating system
+        #
         os_name = platform.system()
         Logger.info(f'Operating system is {os_name}')
 
@@ -510,7 +500,14 @@ class BlueAndPinkSynthEditorApp(App):
         # the bank name ('A' to 'G') and preset number (1 to 7)
         self._curr_preset_slot_bank_and_number = (None, None)
 
-        # Used for Presets Spinner
+        # Presets Spinner Stuff
+        #
+        values = ['init.txt']
+        values.extend(
+            [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+             for num in [1, 2, 3, 4, 5, 6, 7]])
+        self.presets_spinner_values = values
+
         self._curr_presets_spinner_index = 0
 
         #
@@ -1961,7 +1958,7 @@ class BlueAndPinkSynthEditorApp(App):
             # the init file.
             #
 
-            if self._curr_presets_spinner_index + 1 >= len(presets_spinner_values_list()):
+            if self._curr_presets_spinner_index + 1 >= len(self.presets_spinner_values):
                 # Wrap around to the beginning of the list
                 self._curr_presets_spinner_index = 0
 
