@@ -43,15 +43,13 @@ app_version_string = 'v0.1.6-beta_dev'
 class BlueAndPinkSynthEditorApp(App):
     Logger.info(f'__file__: {__file__}')
 
-    #
-    # App Status Parameters
-    #
-
     nymphes_connected = BooleanProperty(False)
     nymphes_midi_channel = NumericProperty(1)
+
     mod_wheel = NumericProperty(0)
     velocity = NumericProperty(0)
     aftertouch = NumericProperty(0)
+    sustain_pedal = BooleanProperty(False)
 
     detected_midi_input_names_for_gui = ListProperty([])
     detected_midi_output_names_for_gui = ListProperty([])
@@ -68,11 +66,10 @@ class BlueAndPinkSynthEditorApp(App):
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty()
 
-    # This is used to track what is currently loaded.
+    # This is used to track what kind of preset is currently loaded.
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
 
-    selected_section = StringProperty('')
     detected_midi_input_names_for_gui = ListProperty([])
     midi_inputs_spinner_curr_value = StringProperty('Not Connected')
 
@@ -103,8 +100,8 @@ class BlueAndPinkSynthEditorApp(App):
     osc_pulsewidth_velocity = NumericProperty(0.0)
     osc_pulsewidth_aftertouch = NumericProperty(0.0)
 
-    osc_voice_mode_value = NumericProperty(0.0)
-    osc_legato_value = NumericProperty(0.0)
+    osc_voice_mode_value = NumericProperty(0)
+    osc_legato_value = NumericProperty(0)
 
     mix_osc_value = NumericProperty(0.0)
     mix_osc_lfo2 = NumericProperty(0.0)
@@ -375,16 +372,7 @@ class BlueAndPinkSynthEditorApp(App):
     chord_8_semi_5_value = NumericProperty(0)
 
     voice_mode_name = StringProperty('POLY')
-    legato = BooleanProperty(False)
     mod_source = NumericProperty(0)
-    main_level = DictProperty({'value': 0})
-
-    #
-    # Preset File Handling
-    #
-
-    loadfile = ObjectProperty(None)
-    savefile = ObjectProperty(None)
 
     # If True then increment float value parameters using
     # float values.
@@ -392,6 +380,8 @@ class BlueAndPinkSynthEditorApp(App):
 
     invert_mouse_wheel = BooleanProperty(True)
 
+    # Window dimensions
+    #
     curr_width = NumericProperty(800)
     curr_height = NumericProperty(480)
 
@@ -400,6 +390,10 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Set the app title
         self.title = f'Blue and Pink Synth Editor {app_version_string}'
+
+        #
+        # Keyboard Stuff
+        #
 
         # Bind keyboard events
         self._bind_keyboard_events()
@@ -425,50 +419,38 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             self.fine_mode_modifier_key = 'shift'
 
-        # Get notified when the window resizes so we can maintain
-        # aspect ratio
+        #
+        # Window Aspect Ratio Control
+        #
+
         self.aspect_ratio = 800 / 480
         Window.bind(on_resize=self._on_window_resize)
         self._just_resized_window = False
 
         #
-        # Encoder Properties
+        # OSC communication with nymphes-osc
         #
-        self._connected_to_encoders = False
 
-        self._encoder_osc_incoming_host = None
-        self._encoder_osc_incoming_port = None
-        self._encoder_osc_outgoing_host = None
-        self._encoder_osc_outgoing_port = None
-
-        self._encoder_osc_client = None
-        self._encoder_osc_server = None
-        self._encoder_osc_server_thread = None
-        self._encoder_osc_dispatcher = Dispatcher()
-
-        #
-        # nymphes-osc properties
-        #
         self._nymphes_osc_child_process = None
-
-        self._nymphes_osc_incoming_host = None
-        self._nymphes_osc_incoming_port = None
-        self._nymphes_osc_outgoing_host = None
-        self._nymphes_osc_outgoing_port = None
-
-        self._nymphes_osc_client = None
-        self._nymphes_osc_server = None
-        self._nymphes_osc_server_thread = None
-        self._nymphes_osc_dispatcher = Dispatcher()
-
         self._connected_to_nymphes_osc = False
+
+        # OSC Server that listens for OSC messages from nymphes-osc
+        # child process
+        self._nymphes_osc_listener = None
+        self._nymphes_osc_listener_host = None
+        self._nymphes_osc_listener_port = None
+        self._nymphes_osc_listener_thread = None
+        self._nymphes_osc_listener_dispatcher = Dispatcher()
+
+        # OSC Client that sends OSC messages to nymphes-osc
+        # child process
+        self._nymphes_osc_sender = None
+        self._nymphes_osc_sender_host = None
+        self._nymphes_osc_sender_port = None
 
         #
         # Nymphes Synthesizer State
         #
-
-        self._sustain_pedal = 0
-        self._legato = False
 
         # Names of Connected Nymphes MIDI Ports
         self._nymphes_input_port = None
@@ -490,18 +472,18 @@ class BlueAndPinkSynthEditorApp(App):
         # then this will be a Path object
         self._curr_preset_file_path = None
 
-        # TODO: Remove this
         # Once a preset has been loaded, this will be
         # either 'user' or 'factory'
         self._curr_preset_slot_type = None
 
-        # TODO: Remove this
         # Once a preset has been loaded, this will contain
         # the bank name ('A' to 'G') and preset number (1 to 7)
         self._curr_preset_slot_bank_and_number = (None, None)
 
+        #
         # Presets Spinner Stuff
         #
+
         values = ['init.txt']
         values.extend(
             [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
@@ -511,8 +493,9 @@ class BlueAndPinkSynthEditorApp(App):
         self._curr_presets_spinner_index = 0
 
         #
-        # Preset File Handling
+        # Preset File Dialog
         #
+
         self._popup = None
 
         #
@@ -567,29 +550,26 @@ class BlueAndPinkSynthEditorApp(App):
         # Start OSC Communication
         #
 
-        self._nymphes_osc_client = SimpleUDPClient(self._nymphes_osc_outgoing_host, self._nymphes_osc_outgoing_port)
-        self._start_nymphes_osc_server()
-
-        try:
-            self._encoder_osc_client = SimpleUDPClient(self._encoder_osc_outgoing_host, self._encoder_osc_outgoing_port)
-        except Exception as e:
-            Logger.warning(f'Failed to create Encoders OSC client ({e})')
-
-        self._start_encoder_osc_server()
+        self._nymphes_osc_sender = SimpleUDPClient(self._nymphes_osc_sender_host, self._nymphes_osc_sender_port)
+        self._start_nymphes_osc_listener()
 
         #
         # Map Incoming OSC Messages
         #
-        self._nymphes_osc_dispatcher.map('*', self._on_nymphes_osc_message)
-        self._encoder_osc_dispatcher.map('*', self._on_encoder_osc_message)
+        self._nymphes_osc_listener_dispatcher.map('*', self._on_nymphes_osc_message)
 
-        #
-        # Register as client with Encoders device
-        #
-        self._register_as_encoders_osc_client()
+    def on_stop(self):
+        """
+        The app is about to close.
+        :return:
+        """
+        Logger.info('on_stop')
 
-        # Select the oscillator section at the start
-        #self.select_section('oscillator_top_row')
+        # Stop the OSC server
+        self._stop_nymphes_osc_listener()
+
+        # Stop the nymphes_osc child process
+        self._stop_nymphes_osc_child_process()
 
     def set_voice_mode_by_name(self, voice_mode_name):
         """
@@ -628,7 +608,7 @@ class BlueAndPinkSynthEditorApp(App):
         self.voice_mode_name = voice_mode_name
 
         # Status bar text
-        self.set_status_bar_text_on_main_thread(f'osc.voice_mode.value: {voice_mode_int}')
+        self._set_status_bar_text_on_main_thread(f'osc.voice_mode.value: {voice_mode_int}')
 
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
@@ -639,10 +619,10 @@ class BlueAndPinkSynthEditorApp(App):
         """
 
         # Update the property
-        self.legato = enable_legato
+        self.osc_legato_value = enable_legato
 
         # Status bar text
-        self.set_status_bar_text_on_main_thread(f'osc.legato.value: {1 if enable_legato else 0}')
+        self._set_status_bar_text_on_main_thread(f'osc.legato.value: {1 if enable_legato else 0}')
 
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
@@ -651,1120 +631,7 @@ class BlueAndPinkSynthEditorApp(App):
         # Update the property
         self.fine_mode = enable_fine_mode
 
-    def _load_config_file(self, filepath):
-        """
-        Load the contents of the specified config txt file.
-        :param filepath: str or Path
-        :return:
-        """
-        config = configparser.ConfigParser()
-        config.read(filepath)
 
-        #
-        # Nymphes OSC Communication
-        #
-
-        self._nymphes_osc_outgoing_host = config['NYMPHES_OSC']['outgoing host']
-        self._nymphes_osc_outgoing_port = int(config['NYMPHES_OSC']['outgoing port'])
-
-        if config.has_option('NYMPHES_OSC', 'incoming host'):
-            #
-            # Incoming hostname has been specified in config.txt
-            #
-
-            self._nymphes_osc_incoming_host = config['NYMPHES_OSC']['incoming host']
-            Logger.info(f'Using incoming host from config file for Nymphes OSC communication: {self._nymphes_osc_incoming_host}')
-
-        else:
-            #
-            # Incoming host is not specified.
-            # Try to automatically determine the local ip address
-            #
-
-            in_host = self._get_local_ip_address()
-            self._nymphes_osc_incoming_host = in_host
-            Logger.info(f'Using detected local ip address for NYMPHES_OSC communication: {in_host}')
-
-        self._nymphes_osc_incoming_port = int(config['NYMPHES_OSC']['incoming port'])
-
-        #
-        # Encoder OSC Communication
-        #
-
-        self._encoder_osc_outgoing_host = config['ENCODER_OSC']['outgoing host']
-        self._encoder_osc_outgoing_port = int(config['ENCODER_OSC']['outgoing port'])
-
-        if config.has_option('ENCODER_OSC', 'incoming host'):
-            #
-            # Incoming hostname has been specified in config.txt
-            #
-
-            self._encoder_osc_incoming_host = config['ENCODER_OSC']['incoming host']
-            Logger.info(f'Using incoming host from config file for Encoder OSC communication: {self._encoder_osc_incoming_host}')
-
-        else:
-            #
-            # Incoming host is not specified.
-            # Try to automatically determine the local ip address
-            #
-
-            in_host = self._get_local_ip_address()
-            self._encoder_osc_incoming_host = in_host
-            Logger.info(f'Using detected local ip address for Encoder OSC communication: {in_host}')
-
-        self._encoder_osc_incoming_port = int(config['ENCODER_OSC']['incoming port'])
-
-        #
-        # Nymphes MIDI Channel
-        #
-
-        if config.has_option('MIDI', 'nymphes midi channel'):
-            try:
-                self.nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
-                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self.nymphes_midi_channel}')
-
-            except Exception as e:
-                # Something went wrong retrieving and converting the MIDI
-                # channel
-
-                # Use MIDI channel 1
-                self.nymphes_midi_channel = 1
-
-                Logger.warning(f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self.nymphes_midi_channel}')
-
-        else:
-            # Use MIDI channel 1
-            self.nymphes_midi_channel = 1
-
-            Logger.warning(f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self.nymphes_midi_channel}')
-
-    def _reload_config_file(self):
-        Logger.info(f'Reloading config file at {self._config_file_path}')
-        self._load_config_file(self._config_file_path)
-
-    def _create_config_file(self, filepath):
-        config = configparser.ConfigParser()
-
-        # OSC Communication with Nymphes-OSC App
-        config['NYMPHES_OSC'] = {
-            'outgoing host': '127.0.0.1',
-            'outgoing port': '1236',
-            'incoming host': '127.0.0.1',
-            'incoming port': '1237'}
-
-        # OSC Communication with Encoder App
-        config['ENCODER_OSC'] = {
-            'outgoing host': 'nymphes-encoders-0001',
-            'outgoing port': '5000',
-            'incoming port': '5001'}
-
-        # Nymphes MIDI Channel
-        config['MIDI'] = {
-            'nymphes midi channel': '1'
-        }
-
-        # Write to a new config file
-        try:
-            with open(filepath, 'w') as config_file:
-                config.write(config_file)
-
-            Logger.info(f'Created config file at {filepath}')
-
-        except Exception as e:
-            Logger.critical(f'Failed to create config file at {filepath} ({e})')
-
-    def _save_config_file(self, filepath):
-        config = configparser.ConfigParser()
-
-        # OSC Communication with Nymphes-OSC App
-        config['NYMPHES_OSC'] = {
-            'outgoing host': self._nymphes_osc_outgoing_host,
-            'outgoing port': self._nymphes_osc_outgoing_port,
-            'incoming host': self._nymphes_osc_incoming_host,
-            'incoming port': self._nymphes_osc_incoming_port}
-
-        # OSC Communication with Encoder App
-        config['ENCODER_OSC'] = {
-            'outgoing host': self._encoder_osc_outgoing_host,
-            'outgoing port': self._encoder_osc_outgoing_port,
-            'incoming port': self._encoder_osc_incoming_port}
-
-        # Nymphes MIDI Channel
-        config['MIDI'] = {
-            'nymphes midi channel': self.nymphes_midi_channel
-        }
-
-        # Write to the config file
-        try:
-            with open(filepath, 'w') as config_file:
-                config.write(config_file)
-
-            Logger.info(f'Wrote to config file at {filepath}')
-
-        except Exception as e:
-            Logger.critical(f'Failed to write to config file at {filepath} ({e})')
-
-    @staticmethod
-    def _get_local_ip_address():
-        """
-        Return the local IP address as a string.
-        If no address other than 127.0.0.1 can be found, then
-        return '127.0.0.1'
-        :return: str
-        """
-        # Get a list of all network interfaces
-        interfaces = netifaces.interfaces()
-
-        for iface in interfaces:
-            try:
-                # Get the addresses associated with the interface
-                addresses = netifaces.ifaddresses(iface)
-
-                # Extract the IPv4 addresses (if available)
-                if netifaces.AF_INET in addresses:
-                    ip_info = addresses[netifaces.AF_INET][0]
-                    ip_address = ip_info['addr']
-                    if ip_address != '127.0.0.1':
-                        return ip_address
-
-            except Exception as e:
-                Logger.critical(f'Failed to detect local IP address ({e})')
-
-                # Default to localhost
-                return '127.0.0.1'
-
-        # If we get here, then no IP Address other than 127.0.0.1 was found
-        return '127.0.0.1'
-
-    def _start_nymphes_osc_server(self):
-        """
-        Start an OSC server on a background thread for communication
-        with nymphes-osc
-        :return:
-        """
-        self._nymphes_osc_server = BlockingOSCUDPServer(
-            (self._nymphes_osc_incoming_host, self._nymphes_osc_incoming_port),
-            self._nymphes_osc_dispatcher
-        )
-        self._nymphes_osc_server_thread = threading.Thread(target=self._nymphes_osc_server.serve_forever)
-        self._nymphes_osc_server_thread.start()
-
-        Logger.info(f'Started OSC Server: Listening for nymphes-osc at {self._nymphes_osc_incoming_host}:{self._nymphes_osc_incoming_port}')
-
-    def _stop_nymphes_osc_server(self):
-        """
-        Shut down the OSC server used for communication with nymphes-osc
-        :return:
-        """
-        if self._nymphes_osc_server is not None:
-            self._nymphes_osc_server.shutdown()
-            self._nymphes_osc_server.server_close()
-            self._nymphes_osc_server = None
-            self._nymphes_osc_server_thread.join()
-            self._nymphes_osc_server_thread = None
-            Logger.info('Stopped OSC Server: No longer listening for nymphes-osc')
-
-    def _start_encoder_osc_server(self):
-        """
-        Start an OSC server on a background thread for communication
-        with the Encoders device
-        :return:
-        """
-        self._encoder_osc_server = BlockingOSCUDPServer(
-            (self._encoder_osc_incoming_host, self._encoder_osc_incoming_port),
-            self._encoder_osc_dispatcher
-        )
-        self._encoder_osc_server_thread = threading.Thread(target=self._encoder_osc_server.serve_forever)
-        self._encoder_osc_server_thread.start()
-
-        Logger.info(f'Started OSC Server: Listening for encoders at {self._encoder_osc_incoming_host}:{self._encoder_osc_incoming_port}')
-
-    def _stop_encoder_osc_server(self):
-        """
-        Shut down the OSC server used for communication with the Encoders device
-        :return:
-        """
-        if self._encoder_osc_server is not None:
-            self._encoder_osc_server.shutdown()
-            self._encoder_osc_server.server_close()
-            self._encoder_osc_server = None
-            self._encoder_osc_server_thread.join()
-            self._encoder_osc_server_thread = None
-            Logger.info('Stopped OSC Server: No longer listening for encoders')
-
-    def _register_as_nymphes_osc_client(self):
-        """
-        Register as a client with nymphes-osc by sending it a
-        /register_client OSC message
-        :return:
-        """
-
-        # To connect to the nymphes_osc server, we need
-        # to send it a /register_host OSC message
-        # with the port we are listening on.
-        Logger.info(f'Registering as client with nymphes-osc server at {self._nymphes_osc_outgoing_host}:{self._nymphes_osc_outgoing_port}...')
-        self._send_nymphes_osc('/register_client', self._nymphes_osc_incoming_port)
-
-    def _register_as_encoders_osc_client(self):
-        """
-        Register as a client with the Encoders device by sending it a
-        /register_client OSC message
-        :return:
-        """
-        if self._encoder_osc_client is not None:
-            Logger.info(f'Registering as client with Encoders server at {self._encoder_osc_outgoing_host}:{self._encoder_osc_outgoing_port}...')
-            self._send_encoder_osc('/register_client', self._encoder_osc_incoming_port)
-
-    def _send_nymphes_osc(self, address, *args):
-        """
-        Send an OSC message to nymphes_osc
-        :param address: The osc address including the forward slash ie: /register_host
-        :param args: A variable number arguments. Types will be automatically detected
-        :return:
-        """
-        msg = OscMessageBuilder(address=address)
-        for arg in args:
-            msg.add_arg(arg)
-        msg = msg.build()
-        self._nymphes_osc_client.send(msg)
-
-        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) for arg in args]}')
-
-    def _send_encoder_osc(self, address, *args):
-        """
-        Send an OSC message to the Encoders device
-        :param address: The osc address including the forward slash ie: /register_host
-        :param args: A variable number arguments. Types will be automatically detected
-        :return:
-        """
-        if self._encoder_osc_client is not None:
-            msg = OscMessageBuilder(address=address)
-            for arg in args:
-                msg.add_arg(arg)
-            msg = msg.build()
-            self._encoder_osc_client.send(msg)
-
-            Logger.debug(f'send_encoder_osc: {address}, {[str(arg) + " " for arg in args]}')
-
-    def _on_nymphes_osc_message(self, address, *args):
-        """
-        An OSC message has been received from nymphes-osc
-        :param address: str
-        :param args: A list of arguments
-        :return:
-        """
-        # App Status Messages
-        #
-        if address == '/client_registered':
-            # Get the hostname and port
-            #
-            host_name = str(args[0])
-            port = int(args[1])
-
-            Logger.info(f'{address}: {host_name}:{port}')
-
-            # We are connected to nymphes_osc
-            self._connected_to_nymphes_osc = True
-
-        elif address == '/client_unregistered':
-            # Get the hostname and port
-            #
-            host_name = str(args[0])
-            port = int(args[1])
-
-            Logger.info(f'{address}: {host_name}:{port}')
-
-            # We are no longer connected to nymphes-osc
-            self._connected_to_nymphes_osc = False
-
-        elif address == '/presets_directory_path':
-            # Get the path
-            path = Path(args[0])
-
-            Logger.info(f'{address}: {path}')
-
-            # Store it
-            self._presets_directory_path = str(path)
-
-        elif address == '/nymphes_midi_input_detected':
-            #
-            # A Nymphes MIDI input port has been detected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of detected Nymphes MIDI input ports
-            if port_name not in self._detected_nymphes_midi_inputs:
-                self._detected_nymphes_midi_inputs.append(port_name)
-                self.add_name_to_nymphes_input_spinner_on_main_thread(port_name)
-
-            # Try automatically connecting to the first Nymphes if we
-            # now have both an input and output port
-            if not self.nymphes_connected:
-                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
-                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
-                        '/connect_nymphes',
-                        self._detected_nymphes_midi_inputs[0],
-                        self._detected_nymphes_midi_outputs[0]
-                    )
-
-        elif address == '/nymphes_midi_input_no_longer_detected':
-            #
-            # A previously-detected Nymphes MIDI input port is no longer found
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of detected Nymphes MIDI input ports
-            if port_name in self._detected_nymphes_midi_inputs:
-                self._detected_nymphes_midi_inputs.remove(port_name)
-                self.remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
-            
-        elif address == '/nymphes_midi_output_detected':
-            #
-            # A Nymphes MIDI output port has been detected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of detected Nymphes MIDI output ports
-            if port_name not in self._detected_nymphes_midi_outputs:
-                self._detected_nymphes_midi_outputs.append(port_name)
-                self.add_name_to_nymphes_output_spinner_on_main_thread(port_name)
-
-            # Try automatically connecting to the first Nymphes if we
-            # now have both an input and output port
-            if not self.nymphes_connected:
-                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
-                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
-                        '/connect_nymphes',
-                        self._detected_nymphes_midi_inputs[0],
-                        self._detected_nymphes_midi_outputs[0]
-                    )
-
-        elif address == '/nymphes_midi_output_no_longer_detected':
-            #
-            # A previously-detected Nymphes MIDI output port is no longer found
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of detected Nymphes MIDI output ports
-            if port_name in self._detected_nymphes_midi_outputs:
-                self._detected_nymphes_midi_outputs.remove(port_name)
-                self.remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
-
-        elif address == '/nymphes_connected':
-            #
-            # nymphes_midi has connected to a Nymphes synthesizer
-            #
-            input_port = str(args[0])
-            output_port = str(args[1])
-
-            Logger.info(f'{address}: input_port: {input_port}, output_port: {output_port}')
-
-            # Get the names of the MIDI input and output ports
-            self._nymphes_input_port = input_port
-            self._nymphes_output_port = output_port
-            
-            self.set_nymphes_input_name_on_main_thread(input_port)
-            self.set_nymphes_output_name_on_main_thread(output_port)
-
-            # Update app state
-            self.nymphes_connected = True
-
-            # Status message
-            self.set_status_bar_text_on_main_thread('NYMPHES CONNECTED')
-
-        elif address == '/nymphes_disconnected':
-            #
-            # nymphes_midi is no longer connected to a Nymphes synthesizer
-            #
-
-            Logger.info(f'{address}')
-
-            # Update app state
-            self.nymphes_connected = False
-            self._nymphes_input_port = None
-            self._nymphes_output_port = None
-
-            # Status message
-            self.set_status_bar_text_on_main_thread('NYMPHES NOT CONNECTED')
-
-            self.set_nymphes_input_name_on_main_thread('Not Connected')
-            self.set_nymphes_output_name_on_main_thread('Not Connected')
-
-        elif address == '/loaded_preset':
-            #
-            # The Nymphes synthesizer has just loaded a preset
-            #
-            preset_slot_type = str(args[0])
-            preset_slot_bank_and_number = str(args[1]), int(args[2])
-
-            Logger.info(f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
-
-            # Reset the unsaved changes flag
-            self.set_unsaved_preset_changes_on_main_thread(False)
-
-            # Update the current preset type
-            self.curr_preset_type = 'preset_slot'
-
-            # Store preset slot info
-            self._curr_preset_slot_type = preset_slot_type
-            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
-
-            # Get the index of the loaded preset
-            preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
-                bank_name=self._curr_preset_slot_bank_and_number[0],
-                preset_num=self._curr_preset_slot_bank_and_number[1],
-                preset_type=self._curr_preset_slot_type
-            )
-
-            # Calculate the index within the presets spinner options
-            preset_slot_start_index = 1 if len(self.presets_spinner_values) == 99 else 2
-            self._curr_presets_spinner_index = preset_slot_start_index + preset_slot_index
-
-            # Update the preset spinner's text
-            if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
-                self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
-
-            # Status bar message
-            self.set_status_bar_text_on_main_thread(f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
-
-        elif address == '/loaded_preset_dump_from_midi_input_port':
-            port_name = str(args[0])
-            preset_slot_type = str(args[0])
-            preset_slot_bank_and_number = str(args[1]), int(args[2])
-
-            Logger.info(f'{address}: {port_name}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
-
-            # Reset the unsaved changes flag
-            self.set_unsaved_preset_changes_on_main_thread(False)
-
-            self._curr_preset_slot_type = preset_slot_type
-            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
-
-            # Status bar message
-            msg = f'LOADED PRESET DUMP {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]} FROM MIDI INPUT PORT {port_name}'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/loaded_file':
-            #
-            # A preset file was loaded
-            #
-            filepath = Path(args[0])
-
-            Logger.info(f'{address}: {filepath}')
-
-            # Update the current preset type
-            self.curr_preset_type = 'file'
-
-            # Store the path to the file
-            self._curr_preset_file_path = filepath
-
-            # Reset current preset slot info
-            self._curr_preset_slot_type = None
-            self._curr_preset_slot_bank_and_number = None
-
-            # Reset the unsaved changes flag
-            self.set_unsaved_preset_changes_on_main_thread(False)
-
-            # Update the presets spinner.
-            # This also sets the spinner's current text
-            # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
-
-            # Status bar message
-            msg = f'LOADED {filepath.name} PRESET FILE '
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/loaded_init_file':
-            #
-            # The init preset file was loaded
-            #
-
-            # Get the path to the init preset file
-            filepath = Path(args[0])
-
-            Logger.info(f'{address}: {filepath}')
-
-            # Store the path
-            self._curr_preset_file_path = filepath
-
-            # Update the current preset type
-            self.curr_preset_type = 'init'
-
-            # Reset current preset slot info
-            self._curr_preset_slot_type = None
-            self._curr_preset_slot_bank_and_number = None
-
-            # Reset the unsaved changes flag
-            self.set_unsaved_preset_changes_on_main_thread(False)
-
-            # Update the presets spinner
-            # Select the init option
-            self.presets_spinner_text = 'init.txt'
-            self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
-
-            # Status bar message
-            msg = f'LOADED INIT PRESET (init.txt)'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/saved_to_file':
-            #
-            # The current settings have been saved to a preset file
-            #
-            filepath = Path(args[0])
-
-            Logger.info(f'{address}: {filepath}')
-
-            # Update the current preset type
-            self.curr_preset_type = 'file'
-
-            # Store the path to the file
-            self._curr_preset_file_path = filepath
-
-            # Reset current preset slot info
-            self._curr_preset_slot_type = None
-            self._curr_preset_slot_bank_and_number = None
-
-            # Reset the unsaved changes flag
-            self.set_unsaved_preset_changes_on_main_thread(False)
-
-            # Update the presets spinner.
-            # This also sets the spinner's current text
-            # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
-
-            # Status bar message
-            msg = f'SAVED {filepath.name} PRESET FILE'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/saved_preset_to_file':
-            #
-            # A Nymphes preset slot has been saved to a file
-            #
-
-            # Get the preset info
-            filepath = str(args[0])
-            preset_type = str(args[1])
-            bank_name = str(args[2])
-            preset_number = int(args[3])
-
-            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
-
-            # Status bar message
-            msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/loaded_file_to_preset':
-            #
-            # A preset file has been loaded into one of Nymphes'
-            # preset slots
-            #
-
-            # Get the preset info
-            filepath = Path(args[0])
-            preset_type = str(args[1])
-            bank_name = str(args[2])
-            preset_number = int(args[3])
-
-            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
-
-            # Status bar message
-            msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/saved_to_preset':
-            #
-            # The current settings have been saved into one of
-            # Nymphes' preset slots. We will not make the preset
-            # active however, because Nymphes has not actually
-            # loaded the new preset.
-            #
-
-            # Get the preset info
-            preset_type = str(args[0])
-            bank_name = str(args[1])
-            preset_number = int(args[2])
-
-            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
-
-            # Status bar message
-            msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/requested_preset_dump':
-            #
-            # A full preset dump has been requested
-            #
-            Logger.info(f'{address}:')
-
-            # Status bar message
-            msg = f'REQUESTED PRESET DUMP...'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/received_preset_dump_from_nymphes':
-            #
-            # A single preset has been received from Nymphes
-            # as a persistent import type SYSEX message
-            #
-
-            # Get the preset info
-            preset_type = str(args[0])
-            bank_name = str(args[1])
-            preset_number = int(args[2])
-
-            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
-
-            # Status bar message
-            msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET SYSEX DUMP'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/saved_preset_dump_from_midi_input_port_to_preset':
-            #
-            # A preset was received via SYSEX from a MIDI input port and written
-            # to a Nymphes preset slot
-            #
-
-            # Get the port name
-            port_name = str(args[0])
-
-            # Get the preset info
-            preset_type = str(args[1])
-            bank_name = str(args[2])
-            preset_number = int(args[3])
-
-            Logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
-
-            # Status bar message
-            msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self.set_status_bar_text_on_main_thread(msg)
-
-        elif address == '/unsaved_changes':
-            #
-            # Parameter values have changed since the current preset
-            # was loaded or saved.
-            #
-            Logger.info(address)
-            self.set_unsaved_preset_changes_on_main_thread(True)
-
-        elif address == '/midi_input_detected':
-            #
-            # A MIDI input port has been detected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of detected MIDI input ports
-            if port_name not in self._detected_midi_inputs:
-                self._detected_midi_inputs.append(port_name)
-                self.add_midi_input_name_on_main_thread(port_name)
-                self.add_name_to_nymphes_input_spinner_on_main_thread(port_name)
-
-        elif address == '/midi_input_no_longer_detected':
-            #
-            # A previously-detected MIDI input port is no longer found
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of detected MIDI input ports
-            if port_name in self._detected_midi_inputs:
-                self._detected_midi_inputs.remove(port_name)
-                self.remove_midi_input_name_on_main_thread(port_name)
-                self.remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
-
-        elif address == '/midi_input_connected':
-            #
-            # A MIDI input port has been connected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of connected MIDI input ports
-            if port_name not in self._connected_midi_inputs:
-                self._connected_midi_inputs.append(port_name)
-                self.add_connected_midi_input_name_on_main_thread(port_name)
-
-        elif address == '/midi_input_disconnected':
-            #
-            # A previously-connected MIDI input port has been disconnected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of connected MIDI input ports
-            if port_name in self._connected_midi_inputs:
-                self._connected_midi_inputs.remove(port_name)
-                self.remove_connected_midi_input_name_on_main_thread(port_name)
-
-        elif address == '/midi_output_detected':
-            #
-            # A MIDI output port has been detected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of detected MIDI output ports
-            if port_name not in self._detected_midi_outputs:
-                self._detected_midi_outputs.append(port_name)
-                self.add_midi_output_name_on_main_thread(port_name)
-                self.add_name_to_nymphes_output_spinner_on_main_thread(port_name)
-
-        elif address == '/midi_output_no_longer_detected':
-            #
-            # A previously-detected MIDI output port is no longer found
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of detected MIDI output ports
-            if port_name in self._detected_midi_outputs:
-                self._detected_midi_outputs.remove(port_name)
-                self.remove_midi_output_name_on_main_thread(port_name)
-                self.remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
-
-        elif address == '/midi_output_connected':
-            #
-            # A MIDI output port has been connected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Add it to our list of connected MIDI output ports
-            if port_name not in self._connected_midi_outputs:
-                self._connected_midi_outputs.append(port_name)
-                self.add_connected_midi_output_name_on_main_thread(port_name)
-
-        elif address == '/midi_output_disconnected':
-            #
-            # A previously-connected MIDI output port has been disconnected
-            #
-
-            # Get the name of the port
-            port_name = str(args[0])
-
-            Logger.info(f'{address}: {port_name}')
-
-            # Remove it from our list of connected MIDI output ports
-            if port_name in self._connected_midi_outputs:
-                self._connected_midi_outputs.remove(port_name)
-                self.remove_connected_midi_output_name_on_main_thread(port_name)
-
-        elif address == '/mod_wheel':
-            val = int(args[0])
-            Logger.debug(f'{address}: {val}')
-
-            self.set_mod_wheel_on_main_thread(val)
-
-        elif address == '/velocity':
-            val = int(args[0])
-            Logger.debug(f'{address}: {val}')
-
-            self.set_velocity_on_main_thread(val)
-
-        elif address == '/aftertouch':
-            val = int(args[0])
-            Logger.debug(f'{address}: {val}')
-
-            self.set_aftertouch_on_main_thread(val)
-
-        elif address == '/sustain_pedal':
-            val = int(args[0])
-            Logger.debug(f'{address}: {val}')
-
-            self._sustain_pedal = val
-
-        elif address == '/nymphes_midi_channel_changed':
-            midi_channel = int(args[0])
-            Logger.debug(f'{address}: {midi_channel}')
-
-            # Store the new MIDI channel
-            self.nymphes_midi_channel = midi_channel
-
-            # Save the config file
-            self._save_config_file(self._config_file_path)
-
-        elif address == '/status':
-            Logger.info(f'{address}: {args[0]}')
-
-        elif address == '/legato':
-            val = bool(args[0])
-            Logger.debug(f'{address}: {val}')
-
-            self._legato = val
-
-        elif address == '/osc/voice_mode/value':
-            voice_mode = int(args[0])
-
-            # Store the new voice mode as an int
-            self.osc_voice_mode_value = voice_mode
-
-            # Get the name of the voice mode
-            if voice_mode == 0:
-                voice_mode_name = 'POLY'
-
-            elif voice_mode == 1:
-                voice_mode_name = 'UNI-A'
-
-            elif voice_mode == 2:
-                voice_mode_name = 'UNI-B'
-
-            elif voice_mode == 3:
-                voice_mode_name = 'TRI'
-
-            elif voice_mode == 4:
-                voice_mode_name = 'DUO'
-
-            elif voice_mode == 5:
-                voice_mode_name = 'MONO'
-
-            # Update the voice mode name property
-            # used by the UI
-            self.voice_mode_name = voice_mode_name
-
-        else:
-            # This could be a Nymphes parameter message
-
-            # Convert to a parameter name by skipping the
-            # first slash and replacing all other slashes
-            # with periods
-            param_name = address[1:].replace('/', '.')
-
-            if param_name in NymphesPreset.all_param_names():
-                #
-                # This is a valid parameter name.
-                #
-
-                # Convert the value based on its type
-                if NymphesPreset.type_for_param_name(param_name) == float:
-                    #
-                    # This is a float value parameter.
-                    #
-                    value = round(args[0], NymphesPreset.float_precision_num_decimals)
-
-                else:
-                    #
-                    # This is an integer value
-                    #
-                    value = int(args[0])
-
-                Logger.debug(f'Received param name {param_name}: {args[0]}')
-
-                # Set our property for this parameter
-                setattr(self, param_name.replace('.', '_'), value)
-
-            else:
-                # This is an unrecognized OSC message
-                Logger.warning(f'Received unhandled OSC message: {address}')
-
-    def _on_encoder_osc_message(self, address, *args):
-        """
-        An OSC message has been received from the Encoders device
-        :param address: str
-        :param args: A list of arguments
-        :return:
-        """
-        Logger.debug(f'Received OSC Message from Encoders device: {address}, {[str(arg) + " " for arg in args]}')
-
-        # App Status Messages
-        #
-        if address == '/client_registered':
-            # Get the hostname and port
-            #
-            host_name = str(args[0])
-            port = int(args[1])
-
-            # We are connected to the Encoder device
-            self._connected_to_encoders = True
-
-            Logger.info(f'{address}: {host_name}:{port}')
-
-        elif address == '/client_unregistered':
-            # Get the hostname and port
-            #
-            host_name = str(args[0])
-            port = int(args[1])
-
-            # We are no longer connected to the Encoders device
-            self._connected_to_encoders = False
-
-            Logger.info(f'{address}: {host_name}:{port}')
-
-    def _start_nymphes_osc_child_process(self):
-        """
-        Start the nymphes_osc child process, which handles all
-        communication with the Nymphes synthesizer and with
-        which we communicate with via OSC.
-        :return:
-        """
-        try:
-            Logger.info('Starting nymphes-osc child process...')
-            self._nymphes_osc_child_process = NymphesOscProcess(
-                server_host=self._nymphes_osc_outgoing_host,
-                server_port=self._nymphes_osc_outgoing_port,
-                client_host=self._nymphes_osc_incoming_host,
-                client_port=self._nymphes_osc_incoming_port,
-                nymphes_midi_channel=self.nymphes_midi_channel,
-                osc_log_level=logging.WARNING,
-                midi_log_level=logging.WARNING,
-                presets_directory_path=self._presets_directory_path
-            )
-
-            self._nymphes_osc_child_process.start()
-
-            Logger.info('Started the nymphes_osc child process')
-
-        except Exception as e:
-            Logger.critical(f'Failed to start the nymphes_osc child process ({e})')
-
-    def _stop_nymphes_osc_child_process(self):
-        """
-        Stop the nymphes_osc child process if it is running
-        :return:
-        """
-        Logger.info('Stopping the nymphes_osc child process...')
-        if self._nymphes_osc_child_process is not None:
-            self._nymphes_osc_child_process.kill()
-            self._nymphes_osc_child_process.join()
-            self._nymphes_osc_child_process = None
-
-    def on_stop(self):
-        """
-        The app is about to close.
-        :return:
-        """
-        Logger.info('on_stop')
-
-        # Stop the OSC servers
-        self._stop_nymphes_osc_server()
-        self._stop_encoder_osc_server()
-
-        # Stop the nymphes_osc child process
-        self._stop_nymphes_osc_child_process()
-
-    @staticmethod
-    def parse_preset_index(preset_index):
-        """
-        Parse the supplied preset spinner index into bank, preset number
-        and type.
-        Return a dict containing the parsed values.
-        """
-        bank_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        preset_nums = [1, 2, 3, 4, 5, 6, 7]
-        preset_types = ['user', 'factory']
-
-        bank_name = bank_names[int((preset_index % 49) / 7)]
-        preset_num = preset_nums[int((preset_index % 49) % 7)]
-        preset_type = preset_types[int(preset_index / 49)]
-
-        return {'bank_name': bank_name,
-                'preset_num': preset_num,
-                'preset_type': preset_type}
-
-    @staticmethod
-    def index_from_preset_info(bank_name, preset_num, preset_type):
-        """
-        Calculates and returns the preset index for the supplied preset
-        bank_name, preset_num and preset_type.
-        Raises an Exception if any of the arguments are invalid.
-        Return type: int
-        """
-        bank_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        preset_nums = [1, 2, 3, 4, 5, 6, 7]
-        preset_types = ['user', 'factory']
-
-        if bank_name not in bank_names:
-            raise Exception(f'Invalid bank_name: {bank_name}')
-
-        if preset_num not in preset_nums:
-            raise Exception(f'Invalid preset_num: {preset_num}')
-
-        if preset_type not in preset_types:
-            raise Exception(f'Invalid preset_type: {preset_type}')
-
-        index = 0
-        index += preset_num - 1
-        index += bank_names.index(bank_name) * 7
-        index += preset_types.index(preset_type) * 49
-
-        return index
-
-    @staticmethod
-    def string_for_lfo_type(lfo_type_int):
-        """
-        LFO Type has four discrete values, from 0 to 3, and
-        each has a name. Return the name as a string.
-        Raises an Exception if lfo_type_int is less than 0
-        or greater than 3.
-        """
-        if lfo_type_int < 0 or lfo_type_int > 3:
-            raise Exception(f'lfo_type_int must be between 0 and 3: {lfo_type_int}')
-
-        if lfo_type_int == 0:
-            return 'BPM'
-
-        elif lfo_type_int == 1:
-            return 'LOW'
-
-        elif lfo_type_int == 2:
-            return 'HIGH'
-
-        elif lfo_type_int == 3:
-            return 'TRACK'
-
-    @staticmethod
-    def string_for_lfo_key_sync(lfo_key_sync):
-        """
-        LFO Key Sync has two discrete values, 0 and 1,
-        representing ON and OFF. Return these as strings.
-        Raises an Exception if lfo_key_sync is less than 0
-        or greater than 1.
-        """
-        if lfo_key_sync < 0 or lfo_key_sync > 1:
-            raise Exception(f'lfo_key_sync must be between 0 and 1: {lfo_key_sync}')
-
-        return 'ON' if lfo_key_sync == 1 else 'OFF'
-
-    #
-    # Nymphes Internal Memory Preset Handling
-    #
 
     def load_preset_by_index(self, preset_index):
         """
@@ -1790,15 +657,8 @@ class BlueAndPinkSynthEditorApp(App):
             preset_num
         )
 
-    #
-    # Preset File Handling
-    #
-
-    def dismiss_popup(self):
-        self._popup.dismiss()
-
     def show_load_dialog(self):
-        content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
+        content = LoadDialog(load=self.on_file_load_dialog, cancel=self._dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
@@ -1808,7 +668,7 @@ class BlueAndPinkSynthEditorApp(App):
     def show_save_dialog(self):
         content = SaveDialog(
             save=self.on_file_save_dialog,
-            cancel=self.dismiss_popup,
+            cancel=self._dismiss_popup,
             default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
         )
         self._popup = Popup(title="Save file", content=content,
@@ -1862,7 +722,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_load_dialog(self, path=None, filepaths=[]):
         # Close the file load dialog
-        self.dismiss_popup()
+        self._dismiss_popup()
 
         # Re-bind keyboard events
         self._bind_keyboard_events()
@@ -1875,7 +735,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
-        self.dismiss_popup()
+        self._dismiss_popup()
 
         # Get the filename by removing all occurrences of the
         # directory path (with a trailing slash added)
@@ -2022,384 +882,6 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_presets_spinner_index = self._curr_presets_spinner_index - 1
                 self.load_preset_by_index(self._curr_presets_spinner_index - 2)
 
-    def on_encoder_osc_message(self, address, *args):
-        """
-        An OSC message has been received from the encoders.
-        :param address: str
-        :param args: A list of arguments
-        :return:
-        """
-        if address == '/client_registered':
-            # We have just successfully registered as the encoders'
-            # client.
-            self._connected_to_encoders = True
-            Logger.info("Connected to Encoders")
-
-        elif address == '/client_removed':
-            # We are no longer the encoders' client
-            self._connected_to_encoders = False
-            Logger.info("Disconnected from Encoders")
-
-        elif address == '/encoder_pos':
-            # An encoder's position has been sent
-            num = args[0]
-            val = args[1]
-
-            self.on_encoder_pos(num, val)
-
-        elif address == '/encoder_button_short_press_ended':
-            num = args[0]
-            self.on_encoder_button_short_press_ended(num)
-
-        elif address == '/encoder_button_long_press_started':
-            num = args[0]
-            self.on_encoder_button_long_press_started(num)
-
-        elif address == '/encoder_button_released':
-            pass
-
-        else:
-            Logger.warning(f'Received unrecognized OSC Message: {address}')
-
-    def select_section(self, section_name):
-        if section_name == 'oscillator_top_row':
-            self.encoder_display_names = [
-                'PW',
-                'GLIDE',
-                'DETUNE',
-                'CHORD',
-                'EG'
-            ]
-
-            encoder_property_names = [
-                'osc_pulsewidth',
-                'pitch_glide',
-                'pitch_detune',
-                'pitch_chord',
-                'pitch_env_depth'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/osc/pulsewidth',
-                '/pitch/glide',
-                '/pitch/detune',
-                '/pitch/chord',
-                '/pitch/env_depth'
-            ]
-
-        elif section_name == 'oscillator_bottom_row':
-            self.encoder_display_names = [
-                'WAVE',
-                'LEVEL',
-                'SUB',
-                'NOISE',
-                'LFO'
-            ]
-
-            encoder_property_names = [
-                'osc_wave',
-                'mix_osc',
-                'mix_sub',
-                'mix_noise',
-                'pitch_lfo1'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/osc/wave',
-                '/mix/osc',
-                '/mix/sub',
-                '/mix/noise',
-                '/pitch/lfo1'
-            ]
-
-        elif section_name == 'filter_top_row':
-            self.encoder_display_names = [
-                'CUTOFF',
-                'RESONANCE',
-                'TRACKING',
-                'EG',
-                'LFO'
-            ]
-
-            encoder_property_names = [
-                'lpf_cutoff',
-                'lpf_resonance',
-                'lpf_tracking',
-                'lpf_env_depth',
-                'lpf_lfo1'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/lpf/cutoff',
-                '/lpf/resonance',
-                '/lpf/tracking',
-                '/lpf/env_depth',
-                '/lpf/lfo1'
-            ]
-
-        elif section_name == 'filter_bottom_row':
-            self.encoder_display_names = [
-                'HPF',
-                '',
-                '',
-                '',
-                ''
-            ]
-
-            encoder_property_names = [
-                'hpf_cutoff',
-                None,
-                None,
-                None,
-                None
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/hpf/cutoff',
-                None,
-                None,
-                None,
-                None
-            ]
-
-        elif section_name == 'amp':
-            self.encoder_display_names = [
-                'ATTACK',
-                'DECAY',
-                'SUSTAIN',
-                'RELEASE',
-                'MAIN'
-            ]
-
-            encoder_property_names = [
-                'amp_attack',
-                'amp_decay',
-                'amp_sustain',
-                'amp_release',
-                'main_level'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/amp/attack',
-                '/amp/decay',
-                '/amp/sustain',
-                '/amp/release',
-                '/amp/level'
-            ]
-
-        elif section_name == 'pitch_filter_env':
-            self.encoder_display_names = [
-                'ATTACK',
-                'DECAY',
-                'SUSTAIN',
-                'RELEASE',
-                ''
-            ]
-
-            encoder_property_names = [
-                'pitch_filter_env_attack',
-                'pitch_filter_env_decay',
-                'pitch_filter_env_sustain',
-                'pitch_filter_env_release',
-                None
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/pitch_filter_env/attack',
-                '/pitch_filter_env/decay',
-                '/pitch_filter_env/sustain',
-                '/pitch_filter_env/release',
-                None
-            ]
-
-        elif section_name == 'lfo1':
-            self.encoder_display_names = [
-                'RATE',
-                'WAVE',
-                'DELAY',
-                'FADE',
-                'CONFIG'
-            ]
-
-            encoder_property_names = [
-                'lfo1_rate',
-                'lfo1_wave',
-                'lfo1_delay',
-                'lfo1_fade',
-                'lfo1_config'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/lfo1/rate',
-                '/lfo1/wave',
-                '/lfo1/delay',
-                '/lfo1/fade',
-                '/lfo1'
-            ]
-
-        elif section_name == 'lfo2':
-            self.encoder_display_names = [
-                'RATE',
-                'WAVE',
-                'DELAY',
-                'FADE',
-                'CONFIG'
-            ]
-
-            encoder_property_names = [
-                'lfo2_rate',
-                'lfo2_wave',
-                'lfo2_delay',
-                'lfo2_fade',
-                'lfo2_config'
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/lfo2/rate',
-                '/lfo2/wave',
-                '/lfo2/delay',
-                '/lfo2/fade',
-                '/lfo2'
-            ]
-
-        elif section_name == 'reverb':
-            self.encoder_display_names = [
-                'SIZE',
-                'DECAY',
-                'FILTER',
-                'MIX',
-                ''
-            ]
-
-            encoder_property_names = [
-                'reverb_size',
-                'reverb_decay',
-                'reverb_filter',
-                'reverb_mix',
-                None
-            ]
-
-            self._encoder_property_osc_addresses = [
-                '/reverb/size',
-                '/reverb/decay',
-                '/reverb/filter',
-                '/reverb/mix',
-                None
-            ]
-
-        else:
-            raise Exception(f'Unknown section name: {section_name}')
-
-        # Store the name of the newly-selected section
-        self.selected_section = section_name
-
-        # # Implement the encoder configuration
-        # for encoder_num in range(self.num_param_encoders):
-        #
-        #     # Remove any previous property binding for this encoder
-        #     if self._encoder_bindings[encoder_num]['property_name'] is not None:
-        #         self.unbind(**{
-        #             self._encoder_bindings[encoder_num]['property_name']: self._encoder_bindings[encoder_num][
-        #                 'function']})
-        #         self._encoder_bindings[encoder_num]['property_name'] = None
-        #         self._encoder_bindings[encoder_num]['function'] = None
-        #
-        #     # Get the new property name for the encoder
-        #     prop_name = encoder_property_names[encoder_num]
-        #
-        #     if prop_name is None:
-        #         # Clear the encoder displays
-        #         self.encoder_display_names[encoder_num] = ''
-        #         self.encoder_display_types[encoder_num] = ''
-        #         self.encoder_display_values[encoder_num] = ''
-        #
-        #     else:
-        #         prop_dict = getattr(self, prop_name)
-        #         prop_keys = list(prop_dict.keys())
-        #
-        #         # Reset the selected dict key for the property
-        #         self._encoder_property_dict_key[encoder_num] = prop_keys[0]
-        #
-        #         # Update the encoder's value type and value displays
-        #         #
-        #         key = self._encoder_property_dict_key[encoder_num]
-        #         if key == 'key_sync':
-        #             # Key Sync has two discrete values, displayed as strings.
-        #             #
-        #
-        #             # Set the encoder's value type display
-        #             self.encoder_display_types[encoder_num] = 'KEY SYNC'
-        #
-        #             # Get the current value for Key Sync
-        #             key_sync_int = prop_dict[key]
-        #
-        #             # Get the string representation
-        #             key_sync_string = self.string_for_lfo_key_sync(key_sync_int)
-        #
-        #             # Set the encoder's value display
-        #             self.encoder_display_values[encoder_num] = key_sync_string
-        #
-        #         elif key == 'type':
-        #             # LFO Type has four discrete values, displayed as strings
-        #             #
-        #
-        #             # Set the encoder's value type display
-        #             self.encoder_display_types[encoder_num] = 'TYPE'
-        #
-        #             # Get the current value for LFO Type
-        #             lfo_type_int = prop_dict[key]
-        #
-        #             # Get its string representation
-        #             lfo_type_string = self.string_for_lfo_type(lfo_type_int)
-        #
-        #             # Set the encoder's value display
-        #             self.encoder_display_values[encoder_num] = lfo_type_string
-        #
-        #         else:
-        #             # This is just a numerical value.
-        #             #
-        #             self.encoder_display_types[encoder_num] = key.upper()
-        #             self.encoder_display_values[encoder_num] = str(prop_dict[key])
-        #
-        #         # Bind a callback to the property so the encoder
-        #         # displays update whenever the property changes
-        #         if prop_name is not None:
-        #             bound_func = lambda _, prop_dict, encoder_num=encoder_num, prop_name=prop_name: self._encoder_bound_property_changed(encoder_num, prop_name, prop_dict)
-        #             self.bind(**{prop_name: bound_func})
-        #
-        #             # Store new binding info
-        #             self._encoder_bindings[encoder_num]['property_name'] = prop_name
-        #             self._encoder_bindings[encoder_num]['function'] = bound_func
-        #
-        #     # Update encoder LED color
-        #     self.update_encoder_led_color(encoder_num)
-
-    def get_prop_value_for_param_name(self, param_name):
-        # Convert the parameter name to the name
-        # of our corresponding property
-        property_name = param_name.replace('.', '_')
-
-        # Get the property's current value
-        return getattr(self, property_name)
-
-    def set_prop_value_for_param_name(self, param_name, value):
-        # Update our property for this parameter name
-        setattr(self, param_name.replace('.', '_'), value)
-
-        # Set status bar text
-        #
-        param_type = NymphesPreset.type_for_param_name(param_name)
-        if param_type == float:
-            value_string = format(round(value, NymphesPreset.float_precision_num_decimals),
-                                  f'.{NymphesPreset.float_precision_num_decimals}f')
-        elif param_type == int:
-            value_string = str(value)
-
-        self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
-
-        # Send an OSC message for this parameter with the new value
-        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
-
     def increment_prop_value_for_param_name(self, param_name, amount):
         # Convert the parameter name to the name
         # of our corresponding property
@@ -2429,7 +911,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Set the property's value only if the new value is different
             # than the current value
             if new_val != curr_val:
-                self.set_prop_value_for_param_name(param_name, new_val)
+                self._set_prop_value_for_param_name(param_name, new_val)
 
         else:
             # Apply the increment amount and round using the precision
@@ -2446,7 +928,1186 @@ class BlueAndPinkSynthEditorApp(App):
             # Set the property's value only if the new value is different
             # than the current value
             if not self.float_equals(curr_val, new_val, NymphesPreset.float_precision_num_decimals):
-                self.set_prop_value_for_param_name(param_name, new_val)
+                self._set_prop_value_for_param_name(param_name, new_val)
+
+
+
+    def reload(self):
+        """
+        Reloads the current preset
+        :return:
+        """
+        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
+            self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+
+        elif self.curr_preset_type == 'init':
+            self._send_nymphes_osc('/load_init_file')
+
+        elif self.curr_preset_type == 'preset_slot':
+            # Get the index of the last preset slot that was loaded
+            preset_slot_index = self.index_from_preset_info(
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
+            )
+
+            # Load the preset
+            self.load_preset_by_index(preset_slot_index)
+
+    def update_current_preset_file(self):
+        """
+        Save the current settings to the currently-loaded or saved
+        preset file, updating it.
+        """
+        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
+            Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
+            self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+
+
+
+    def midi_input_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
+
+        if active:
+            if port_name not in self._connected_midi_inputs:
+                # Connect to this MIDI input
+                self._send_nymphes_osc(
+                    '/connect_midi_input',
+                    port_name
+                )
+
+        else:
+            if port_name in self._connected_midi_inputs:
+                # Disconnect from this MIDI input
+                self._send_nymphes_osc(
+                    '/disconnect_midi_input',
+                    port_name
+                )
+
+    def midi_output_port_checkbox_toggled(self, port_name, active):
+        Logger.debug(f'midi_output_port_checkbox_toggled: {port_name}, {active}')
+
+        if active:
+            if port_name not in self._connected_midi_outputs:
+                # Connect to this MIDI output
+                self._send_nymphes_osc(
+                    '/connect_midi_output',
+                    port_name
+                )
+
+        else:
+            if port_name in self._connected_midi_outputs:
+                # Disconnect from this MIDI output
+                self._send_nymphes_osc(
+                    '/disconnect_midi_output',
+                    port_name
+                )
+
+    def nymphes_input_spinner_text_changed(self, new_text):
+        if new_text != self.nymphes_input_name:
+            #
+            # A new selection has been made by the user
+            #
+
+            # Store the new selection
+            self.nymphes_input_name = new_text
+
+            # Try connecting if we have both input and output names
+            #
+            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+                self._send_nymphes_osc(
+                    '/connect_nymphes',
+                    self.nymphes_input_name,
+                    self.nymphes_output_name
+                )
+
+            else:
+                if self.nymphes_connected:
+                    self._send_nymphes_osc('/disconnect_nymphes')
+                    
+    def nymphes_output_spinner_text_changed(self, new_text):
+        if new_text != self.nymphes_output_name:
+            #
+            # A new selection has been made by the user
+            #
+
+            # Store the new selection
+            self.nymphes_output_name = new_text
+
+            # Try connecting if we have both input and output names
+            #
+            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+                self._send_nymphes_osc(
+                    '/connect_nymphes',
+                    self.nymphes_output_name,
+                    self.nymphes_output_name
+                )
+
+            else:
+                if self.nymphes_connected:
+                    self._send_nymphes_osc('/disconnect_nymphes')
+
+    def on_mouse_entered_param_control(self, param_name):
+        # When the mouse enters a parameter control and Nymphes
+        # is connected, display the name and value in the status
+        # bar.
+        if self.nymphes_connected:
+            if self.curr_mouse_dragging_param_name == '':
+                # Change the mouse cursor to a hand indicate that
+                # this is a control
+                Window.set_system_cursor('hand')
+
+                # Store the name of the parameter
+                self.curr_mouse_hover_param_name = param_name
+
+                if param_name not in ['mod_wheel', 'aftertouch']:
+                    # Get the value and type for the parameter
+                    value = self._get_prop_value_for_param_name(param_name)
+                    param_type = NymphesPreset.type_for_param_name(param_name)
+
+                    if param_type == float:
+                        value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+
+                    elif param_type == int:
+                        value_string = str(value)
+
+                    self._set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+
+    def on_mouse_exited_param_control(self, param_name):
+        # When Nymphes is connected and the mouse exits a parameter
+        # control, blank the status bar
+        #
+        if self.curr_mouse_dragging_param_name == '':
+            if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
+                # Set the mouse cursor back to an arrow
+                Window.set_system_cursor('arrow')
+
+                # Reset the hover param name
+                self.curr_mouse_hover_param_name = ''
+
+                if self.nymphes_connected:
+                    # Reset the status message to blank
+                    self._set_status_bar_text_on_main_thread('')
+
+    @staticmethod
+    def float_equals(first_value, second_value, num_decimals):
+        """
+        Uses a limited amount of precision to determine
+        whether the supplied float values are equal
+        :param first_value:
+        :param second_value:
+        :param num_decimals: int
+        :return: True if the two values are equal. False if not.
+        """
+        v1 = int(round(first_value, num_decimals) * pow(10, num_decimals))
+        v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
+        return v1 == v2
+
+    def increment_mod_wheel(self, amount):
+        print(f'increment_mod_wheel: {amount}')
+
+        new_val = self.mod_wheel + int(amount)
+        if new_val > 127:
+            new_val = 127
+        elif new_val < 0:
+            new_val = 0
+
+        if new_val != self.mod_wheel:
+            # Update the property
+            self.mod_wheel = new_val
+
+            # Send the new value to Nymphes
+            self._send_nymphes_osc(
+                '/mod_wheel',
+                new_val
+            )
+
+    def increment_aftertouch(self, amount):
+        print(f'increment_aftertouch: {amount}')
+
+        new_val = self.aftertouch + int(amount)
+        if new_val > 127:
+            new_val = 127
+        elif new_val < 0:
+            new_val = 0
+
+        if new_val != self.aftertouch:
+            # Update the property
+            self.aftertouch = new_val
+
+            # Send the new value to Nymphes
+            self._send_nymphes_osc(
+                '/aftertouch',
+                new_val
+            )
+
+    def on_nymphes_midi_channel_spinner(self, new_val):
+        # The spinner's values are strings, so
+        # convert new_val to an int
+        midi_channel = int(new_val)
+
+        if midi_channel != self.nymphes_midi_channel:
+            Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
+
+            # Send a message to nymphes-osc to change the channel
+            self._send_nymphes_osc(
+                '/set_nymphes_midi_channel',
+                midi_channel
+            )
+
+    def set_curr_screen_name(self, screen_name):
+        self.curr_screen_name = screen_name
+
+    def set_curr_mouse_dragging_param_name(self, param_name):
+        self.curr_mouse_dragging_param_name = param_name
+
+    def _get_prop_value_for_param_name(self, param_name):
+        # Convert the parameter name to the name
+        # of our corresponding property
+        property_name = param_name.replace('.', '_')
+
+        # Get the property's current value
+        return getattr(self, property_name)
+
+    def _set_prop_value_for_param_name(self, param_name, value):
+        # Update our property for this parameter name
+        setattr(self, param_name.replace('.', '_'), value)
+
+        # Set status bar text
+        #
+        param_type = NymphesPreset.type_for_param_name(param_name)
+        if param_type == float:
+            value_string = format(round(value, NymphesPreset.float_precision_num_decimals),
+                                  f'.{NymphesPreset.float_precision_num_decimals}f')
+        elif param_type == int:
+            value_string = str(value)
+
+        self._set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+
+        # Send an OSC message for this parameter with the new value
+        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
+
+    def _bind_keyboard_events(self):
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
+        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
+
+    def _load_config_file(self, filepath):
+        """
+        Load the contents of the specified config txt file.
+        :param filepath: str or Path
+        :return:
+        """
+        config = configparser.ConfigParser()
+        config.read(filepath)
+
+        #
+        # Nymphes OSC Communication
+        #
+
+        self._nymphes_osc_sender_host = config['NYMPHES_OSC']['sender host']
+        self._nymphes_osc_sender_port = int(config['NYMPHES_OSC']['sender port'])
+
+        if config.has_option('NYMPHES_OSC', 'listener host'):
+            #
+            # Incoming hostname has been specified in config.txt
+            #
+
+            self._nymphes_osc_listener_host = config['NYMPHES_OSC']['listener host']
+            Logger.info(
+                f'Using incoming host from config file for Nymphes OSC communication: {self._nymphes_osc_listener_host}')
+
+        else:
+            #
+            # Incoming host is not specified.
+            # Try to automatically determine the local ip address
+            #
+
+            in_host = self._get_local_ip_address()
+            self._nymphes_osc_listener_host = in_host
+            Logger.info(f'Using detected local ip address for NYMPHES_OSC communication: {in_host}')
+
+        self._nymphes_osc_listener_port = int(config['NYMPHES_OSC']['listener port'])
+
+        #
+        # Nymphes MIDI Channel
+        #
+
+        if config.has_option('MIDI', 'nymphes midi channel'):
+            try:
+                self.nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
+                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self.nymphes_midi_channel}')
+
+            except Exception as e:
+                # Something went wrong retrieving and converting the MIDI
+                # channel
+
+                # Use MIDI channel 1
+                self.nymphes_midi_channel = 1
+
+                Logger.warning(
+                    f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self.nymphes_midi_channel}')
+
+        else:
+            # Use MIDI channel 1
+            self.nymphes_midi_channel = 1
+
+            Logger.warning(
+                f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self.nymphes_midi_channel}')
+
+    def _reload_config_file(self):
+        Logger.info(f'Reloading config file at {self._config_file_path}')
+        self._load_config_file(self._config_file_path)
+
+    def _create_config_file(self, filepath):
+        config = configparser.ConfigParser()
+
+        # OSC Communication with Nymphes-OSC App
+        config['NYMPHES_OSC'] = {
+            'sender host': '127.0.0.1',
+            'sender port': '1236',
+            'listener host': '127.0.0.1',
+            'listener port': '1237'}
+
+        # Nymphes MIDI Channel
+        config['MIDI'] = {
+            'nymphes midi channel': '1'
+        }
+
+        # Write to a new config file
+        try:
+            with open(filepath, 'w') as config_file:
+                config.write(config_file)
+
+            Logger.info(f'Created config file at {filepath}')
+
+        except Exception as e:
+            Logger.critical(f'Failed to create config file at {filepath} ({e})')
+
+    def _save_config_file(self, filepath):
+        config = configparser.ConfigParser()
+
+        # OSC Communication with Nymphes-OSC App
+        config['NYMPHES_OSC'] = {
+            'sender host': self._nymphes_osc_sender_host,
+            'sender port': self._nymphes_osc_sender_port,
+            'listener host': self._nymphes_osc_listener_host,
+            'listener port': self._nymphes_osc_listener_port}
+
+        # Nymphes MIDI Channel
+        config['MIDI'] = {
+            'nymphes midi channel': self.nymphes_midi_channel
+        }
+
+        # Write to the config file
+        try:
+            with open(filepath, 'w') as config_file:
+                config.write(config_file)
+
+            Logger.info(f'Wrote to config file at {filepath}')
+
+        except Exception as e:
+            Logger.critical(f'Failed to write to config file at {filepath} ({e})')
+
+    @staticmethod
+    def _get_local_ip_address():
+        """
+        Return the local IP address as a string.
+        If no address other than 127.0.0.1 can be found, then
+        return '127.0.0.1'
+        :return: str
+        """
+        # Get a list of all network interfaces
+        interfaces = netifaces.interfaces()
+
+        for iface in interfaces:
+            try:
+                # Get the addresses associated with the interface
+                addresses = netifaces.ifaddresses(iface)
+
+                # Extract the IPv4 addresses (if available)
+                if netifaces.AF_INET in addresses:
+                    ip_info = addresses[netifaces.AF_INET][0]
+                    ip_address = ip_info['addr']
+                    if ip_address != '127.0.0.1':
+                        return ip_address
+
+            except Exception as e:
+                Logger.critical(f'Failed to detect local IP address ({e})')
+
+                # Default to localhost
+                return '127.0.0.1'
+
+        # If we get here, then no IP Address other than 127.0.0.1 was found
+        return '127.0.0.1'
+
+    def _start_nymphes_osc_listener(self):
+        """
+        Start an OSC server that listens for OSC messages from nymphes-osc
+        on a background thread
+        :return:
+        """
+        self._nymphes_osc_listener = BlockingOSCUDPServer(
+            (self._nymphes_osc_listener_host, self._nymphes_osc_listener_port),
+            self._nymphes_osc_listener_dispatcher
+        )
+        self._nymphes_osc_listener_thread = threading.Thread(target=self._nymphes_osc_listener.serve_forever)
+        self._nymphes_osc_listener_thread.start()
+
+        Logger.info(
+            f'Started listener for nymphes-osc at: {self._nymphes_osc_listener_host}:{self._nymphes_osc_listener_port}')
+
+    def _stop_nymphes_osc_listener(self):
+        """
+        Shut down the OSC server that listens for OSC messages from nymphes-osc
+        :return:
+        """
+        if self._nymphes_osc_listener is not None:
+            self._nymphes_osc_listener.shutdown()
+            self._nymphes_osc_listener.server_close()
+            self._nymphes_osc_listener = None
+            self._nymphes_osc_listener_thread.join()
+            self._nymphes_osc_listener_thread = None
+            Logger.info('Stopped nymphes-osc listener')
+
+    def _register_as_nymphes_osc_client(self):
+        """
+        Register as a client with nymphes-osc by sending it a
+        /register_client OSC message
+        :return:
+        """
+
+        # To connect to the nymphes_osc server, we need
+        # to send it a /register_host OSC message
+        # with the port we are listening on.
+        Logger.info(
+            f'Registering as client with nymphes-osc server at {self._nymphes_osc_sender_host}:{self._nymphes_osc_sender_port}...')
+        self._send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
+
+    def _send_nymphes_osc(self, address, *args):
+        """
+        Send an OSC message to nymphes_osc
+        :param address: The osc address including the forward slash ie: /register_host
+        :param args: A variable number arguments. Types will be automatically detected
+        :return:
+        """
+        msg = OscMessageBuilder(address=address)
+        for arg in args:
+            msg.add_arg(arg)
+        msg = msg.build()
+        self._nymphes_osc_sender.send(msg)
+
+        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) for arg in args]}')
+
+    def _on_nymphes_osc_message(self, address, *args):
+        """
+        An OSC message has been received from nymphes-osc
+        :param address: str
+        :param args: A list of arguments
+        :return:
+        """
+        # App Status Messages
+        #
+        if address == '/client_registered':
+            # Get the hostname and port
+            #
+            host_name = str(args[0])
+            port = int(args[1])
+
+            Logger.info(f'{address}: {host_name}:{port}')
+
+            # We are connected to nymphes_osc
+            self._connected_to_nymphes_osc = True
+
+        elif address == '/client_unregistered':
+            # Get the hostname and port
+            #
+            host_name = str(args[0])
+            port = int(args[1])
+
+            Logger.info(f'{address}: {host_name}:{port}')
+
+            # We are no longer connected to nymphes-osc
+            self._connected_to_nymphes_osc = False
+
+        elif address == '/presets_directory_path':
+            # Get the path
+            path = Path(args[0])
+
+            Logger.info(f'{address}: {path}')
+
+            # Store it
+            self._presets_directory_path = str(path)
+
+        elif address == '/nymphes_midi_input_detected':
+            #
+            # A Nymphes MIDI input port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected Nymphes MIDI input ports
+            if port_name not in self._detected_nymphes_midi_inputs:
+                self._detected_nymphes_midi_inputs.append(port_name)
+                self._add_name_to_nymphes_input_spinner_on_main_thread(port_name)
+
+            # Try automatically connecting to the first Nymphes if we
+            # now have both an input and output port
+            if not self.nymphes_connected:
+                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
+                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
+                    self._send_nymphes_osc(
+                        '/connect_nymphes',
+                        self._detected_nymphes_midi_inputs[0],
+                        self._detected_nymphes_midi_outputs[0]
+                    )
+
+        elif address == '/nymphes_midi_input_no_longer_detected':
+            #
+            # A previously-detected Nymphes MIDI input port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected Nymphes MIDI input ports
+            if port_name in self._detected_nymphes_midi_inputs:
+                self._detected_nymphes_midi_inputs.remove(port_name)
+                self._remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
+
+        elif address == '/nymphes_midi_output_detected':
+            #
+            # A Nymphes MIDI output port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected Nymphes MIDI output ports
+            if port_name not in self._detected_nymphes_midi_outputs:
+                self._detected_nymphes_midi_outputs.append(port_name)
+                self._add_name_to_nymphes_output_spinner_on_main_thread(port_name)
+
+            # Try automatically connecting to the first Nymphes if we
+            # now have both an input and output port
+            if not self.nymphes_connected:
+                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
+                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
+                    self._send_nymphes_osc(
+                        '/connect_nymphes',
+                        self._detected_nymphes_midi_inputs[0],
+                        self._detected_nymphes_midi_outputs[0]
+                    )
+
+        elif address == '/nymphes_midi_output_no_longer_detected':
+            #
+            # A previously-detected Nymphes MIDI output port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected Nymphes MIDI output ports
+            if port_name in self._detected_nymphes_midi_outputs:
+                self._detected_nymphes_midi_outputs.remove(port_name)
+                self._remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
+
+        elif address == '/nymphes_connected':
+            #
+            # nymphes_midi has connected to a Nymphes synthesizer
+            #
+            input_port = str(args[0])
+            output_port = str(args[1])
+
+            Logger.info(f'{address}: input_port: {input_port}, output_port: {output_port}')
+
+            # Get the names of the MIDI input and output ports
+            self._nymphes_input_port = input_port
+            self._nymphes_output_port = output_port
+
+            self._set_nymphes_input_name_on_main_thread(input_port)
+            self._set_nymphes_output_name_on_main_thread(output_port)
+
+            # Update app state
+            self.nymphes_connected = True
+
+            # Status message
+            self._set_status_bar_text_on_main_thread('NYMPHES CONNECTED')
+
+        elif address == '/nymphes_disconnected':
+            #
+            # nymphes_midi is no longer connected to a Nymphes synthesizer
+            #
+
+            Logger.info(f'{address}')
+
+            # Update app state
+            self.nymphes_connected = False
+            self._nymphes_input_port = None
+            self._nymphes_output_port = None
+
+            # Status message
+            self._set_status_bar_text_on_main_thread('NYMPHES NOT CONNECTED')
+
+            self._set_nymphes_input_name_on_main_thread('Not Connected')
+            self._set_nymphes_output_name_on_main_thread('Not Connected')
+
+        elif address == '/loaded_preset':
+            #
+            # The Nymphes synthesizer has just loaded a preset
+            #
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
+
+            Logger.info(
+                f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+            # Reset the unsaved changes flag
+            self._set_unsaved_preset_changes_on_main_thread(False)
+
+            # Update the current preset type
+            self.curr_preset_type = 'preset_slot'
+
+            # Store preset slot info
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
+
+            # Get the index of the loaded preset
+            preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
+            )
+
+            # Calculate the index within the presets spinner options
+            preset_slot_start_index = 1 if len(self.presets_spinner_values) == 99 else 2
+            self._curr_presets_spinner_index = preset_slot_start_index + preset_slot_index
+
+            # Update the preset spinner's text
+            if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
+                self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
+
+            # Status bar message
+            self._set_status_bar_text_on_main_thread(
+                f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+        elif address == '/loaded_preset_dump_from_midi_input_port':
+            port_name = str(args[0])
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
+
+            Logger.info(
+                f'{address}: {port_name}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+            # Reset the unsaved changes flag
+            self._set_unsaved_preset_changes_on_main_thread(False)
+
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
+
+            # Status bar message
+            msg = f'LOADED PRESET DUMP {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]} FROM MIDI INPUT PORT {port_name}'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/loaded_file':
+            #
+            # A preset file was loaded
+            #
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
+
+            # Update the current preset type
+            self.curr_preset_type = 'file'
+
+            # Store the path to the file
+            self._curr_preset_file_path = filepath
+
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Reset the unsaved changes flag
+            self._set_unsaved_preset_changes_on_main_thread(False)
+
+            # Update the presets spinner.
+            # This also sets the spinner's current text
+            # and updates self._curr_presets_spinner_index.
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+
+            # Status bar message
+            msg = f'LOADED {filepath.name} PRESET FILE '
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/loaded_init_file':
+            #
+            # The init preset file was loaded
+            #
+
+            # Get the path to the init preset file
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
+
+            # Store the path
+            self._curr_preset_file_path = filepath
+
+            # Update the current preset type
+            self.curr_preset_type = 'init'
+
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Reset the unsaved changes flag
+            self._set_unsaved_preset_changes_on_main_thread(False)
+
+            # Update the presets spinner
+            # Select the init option
+            self.presets_spinner_text = 'init.txt'
+            self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
+
+            # Status bar message
+            msg = f'LOADED INIT PRESET (init.txt)'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/saved_to_file':
+            #
+            # The current settings have been saved to a preset file
+            #
+            filepath = Path(args[0])
+
+            Logger.info(f'{address}: {filepath}')
+
+            # Update the current preset type
+            self.curr_preset_type = 'file'
+
+            # Store the path to the file
+            self._curr_preset_file_path = filepath
+
+            # Reset current preset slot info
+            self._curr_preset_slot_type = None
+            self._curr_preset_slot_bank_and_number = None
+
+            # Reset the unsaved changes flag
+            self._set_unsaved_preset_changes_on_main_thread(False)
+
+            # Update the presets spinner.
+            # This also sets the spinner's current text
+            # and updates self._curr_presets_spinner_index.
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+
+            # Status bar message
+            msg = f'SAVED {filepath.name} PRESET FILE'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/saved_preset_to_file':
+            #
+            # A Nymphes preset slot has been saved to a file
+            #
+
+            # Get the preset info
+            filepath = str(args[0])
+            preset_type = str(args[1])
+            bank_name = str(args[2])
+            preset_number = int(args[3])
+
+            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/loaded_file_to_preset':
+            #
+            # A preset file has been loaded into one of Nymphes'
+            # preset slots
+            #
+
+            # Get the preset info
+            filepath = Path(args[0])
+            preset_type = str(args[1])
+            bank_name = str(args[2])
+            preset_number = int(args[3])
+
+            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/saved_to_preset':
+            #
+            # The current settings have been saved into one of
+            # Nymphes' preset slots. We will not make the preset
+            # active however, because Nymphes has not actually
+            # loaded the new preset.
+            #
+
+            # Get the preset info
+            preset_type = str(args[0])
+            bank_name = str(args[1])
+            preset_number = int(args[2])
+
+            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/requested_preset_dump':
+            #
+            # A full preset dump has been requested
+            #
+            Logger.info(f'{address}:')
+
+            # Status bar message
+            msg = f'REQUESTED PRESET DUMP...'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/received_preset_dump_from_nymphes':
+            #
+            # A single preset has been received from Nymphes
+            # as a persistent import type SYSEX message
+            #
+
+            # Get the preset info
+            preset_type = str(args[0])
+            bank_name = str(args[1])
+            preset_number = int(args[2])
+
+            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET SYSEX DUMP'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/saved_preset_dump_from_midi_input_port_to_preset':
+            #
+            # A preset was received via SYSEX from a MIDI input port and written
+            # to a Nymphes preset slot
+            #
+
+            # Get the port name
+            port_name = str(args[0])
+
+            # Get the preset info
+            preset_type = str(args[1])
+            bank_name = str(args[2])
+            preset_number = int(args[3])
+
+            Logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
+
+            # Status bar message
+            msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            self._set_status_bar_text_on_main_thread(msg)
+
+        elif address == '/unsaved_changes':
+            #
+            # Parameter values have changed since the current preset
+            # was loaded or saved.
+            #
+            Logger.info(address)
+            self._set_unsaved_preset_changes_on_main_thread(True)
+
+        elif address == '/midi_input_detected':
+            #
+            # A MIDI input port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected MIDI input ports
+            if port_name not in self._detected_midi_inputs:
+                self._detected_midi_inputs.append(port_name)
+                self._add_midi_input_name_on_main_thread(port_name)
+                self._add_name_to_nymphes_input_spinner_on_main_thread(port_name)
+
+        elif address == '/midi_input_no_longer_detected':
+            #
+            # A previously-detected MIDI input port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected MIDI input ports
+            if port_name in self._detected_midi_inputs:
+                self._detected_midi_inputs.remove(port_name)
+                self._remove_midi_input_name_on_main_thread(port_name)
+                self._remove_name_from_nymphes_input_spinner_on_main_thread(port_name)
+
+        elif address == '/midi_input_connected':
+            #
+            # A MIDI input port has been connected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of connected MIDI input ports
+            if port_name not in self._connected_midi_inputs:
+                self._connected_midi_inputs.append(port_name)
+                self._add_connected_midi_input_name_on_main_thread(port_name)
+
+        elif address == '/midi_input_disconnected':
+            #
+            # A previously-connected MIDI input port has been disconnected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of connected MIDI input ports
+            if port_name in self._connected_midi_inputs:
+                self._connected_midi_inputs.remove(port_name)
+                self._remove_connected_midi_input_name_on_main_thread(port_name)
+
+        elif address == '/midi_output_detected':
+            #
+            # A MIDI output port has been detected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of detected MIDI output ports
+            if port_name not in self._detected_midi_outputs:
+                self._detected_midi_outputs.append(port_name)
+                self._add_midi_output_name_on_main_thread(port_name)
+                self._add_name_to_nymphes_output_spinner_on_main_thread(port_name)
+
+        elif address == '/midi_output_no_longer_detected':
+            #
+            # A previously-detected MIDI output port is no longer found
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of detected MIDI output ports
+            if port_name in self._detected_midi_outputs:
+                self._detected_midi_outputs.remove(port_name)
+                self._remove_midi_output_name_on_main_thread(port_name)
+                self._remove_name_from_nymphes_output_spinner_on_main_thread(port_name)
+
+        elif address == '/midi_output_connected':
+            #
+            # A MIDI output port has been connected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Add it to our list of connected MIDI output ports
+            if port_name not in self._connected_midi_outputs:
+                self._connected_midi_outputs.append(port_name)
+                self._add_connected_midi_output_name_on_main_thread(port_name)
+
+        elif address == '/midi_output_disconnected':
+            #
+            # A previously-connected MIDI output port has been disconnected
+            #
+
+            # Get the name of the port
+            port_name = str(args[0])
+
+            Logger.info(f'{address}: {port_name}')
+
+            # Remove it from our list of connected MIDI output ports
+            if port_name in self._connected_midi_outputs:
+                self._connected_midi_outputs.remove(port_name)
+                self._remove_connected_midi_output_name_on_main_thread(port_name)
+
+        elif address == '/mod_wheel':
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._set_mod_wheel_prop_on_main_thread(val)
+
+        elif address == '/velocity':
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._set_velocity_prop_on_main_thread(val)
+
+        elif address == '/aftertouch':
+            val = int(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._set_aftertouch_prop_on_main_thread(val)
+
+        elif address == '/sustain_pedal':
+            val = bool(args[0])
+            Logger.debug(f'{address}: {val}')
+
+            self._set_sustain_pedal_prop_on_main_thread(val)
+
+        elif address == '/nymphes_midi_channel_changed':
+            midi_channel = int(args[0])
+            Logger.debug(f'{address}: {midi_channel}')
+
+            # Store the new MIDI channel
+            self.nymphes_midi_channel = midi_channel
+
+            # Save the config file
+            self._save_config_file(self._config_file_path)
+
+        elif address == '/status':
+            Logger.info(f'{address}: {args[0]}')
+
+        elif address == '/osc/legato/value':
+            val = int(args[0])
+            Logger.debug(f'Received param name osc.legato.value: {val}')
+
+            self._set_legato_prop_on_main_thread(val)
+
+        elif address == '/osc/voice_mode/value':
+            voice_mode = int(args[0])
+
+            # Store the new voice mode as an int
+            self.osc_voice_mode_value = voice_mode
+
+            # Get the name of the voice mode
+            if voice_mode == 0:
+                voice_mode_name = 'POLY'
+
+            elif voice_mode == 1:
+                voice_mode_name = 'UNI-A'
+
+            elif voice_mode == 2:
+                voice_mode_name = 'UNI-B'
+
+            elif voice_mode == 3:
+                voice_mode_name = 'TRI'
+
+            elif voice_mode == 4:
+                voice_mode_name = 'DUO'
+
+            elif voice_mode == 5:
+                voice_mode_name = 'MONO'
+
+            # Update the voice mode name property
+            # used by the UI
+            self.voice_mode_name = voice_mode_name
+
+        else:
+            # This could be a Nymphes parameter message
+
+            # Convert to a parameter name by skipping the
+            # first slash and replacing all other slashes
+            # with periods
+            param_name = address[1:].replace('/', '.')
+
+            if param_name in NymphesPreset.all_param_names():
+                #
+                # This is a valid parameter name.
+                #
+
+                # Convert the value based on its type
+                if NymphesPreset.type_for_param_name(param_name) == float:
+                    #
+                    # This is a float value parameter.
+                    #
+                    value = round(args[0], NymphesPreset.float_precision_num_decimals)
+
+                else:
+                    #
+                    # This is an integer value
+                    #
+                    value = int(args[0])
+
+                Logger.debug(f'Received param name {param_name}: {args[0]}')
+
+                # Set our property for this parameter
+                setattr(self, param_name.replace('.', '_'), value)
+
+            else:
+                # This is an unrecognized OSC message
+                Logger.warning(f'Received unhandled OSC message: {address}')
+
+    def _start_nymphes_osc_child_process(self):
+        """
+        Start the nymphes_osc child process, which handles all
+        communication with the Nymphes synthesizer and with
+        which we communicate with via OSC.
+        :return:
+        """
+        try:
+            Logger.info('Starting nymphes-osc child process...')
+            self._nymphes_osc_child_process = NymphesOscProcess(
+                server_host=self._nymphes_osc_sender_host,
+                server_port=self._nymphes_osc_sender_port,
+                client_host=self._nymphes_osc_listener_host,
+                client_port=self._nymphes_osc_listener_port,
+                nymphes_midi_channel=self.nymphes_midi_channel,
+                osc_log_level=logging.WARNING,
+                midi_log_level=logging.WARNING,
+                presets_directory_path=self._presets_directory_path
+            )
+
+            self._nymphes_osc_child_process.start()
+
+            Logger.info('Started the nymphes_osc child process')
+
+        except Exception as e:
+            Logger.critical(f'Failed to start the nymphes_osc child process ({e})')
+
+    def _stop_nymphes_osc_child_process(self):
+        """
+        Stop the nymphes_osc child process if it is running
+        :return:
+        """
+        Logger.info('Stopping the nymphes_osc child process...')
+        if self._nymphes_osc_child_process is not None:
+            self._nymphes_osc_child_process.kill()
+            self._nymphes_osc_child_process.join()
+            self._nymphes_osc_child_process = None
+
+    def _on_popup_open(self, popup_instance):
+        # Bind keyboard events for the popup
+        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._keyboard_closed,
+                                                                   popup_instance)
+        popup_instance.content._keyboard.bind(
+            on_key_down=popup_instance.content._on_key_down,
+            on_key_up=popup_instance.content._on_key_up
+        )
+
+    def _dismiss_popup(self):
+        self._popup.dismiss()
+
+    def _on_popup_dismiss(self, popup_instance):
+        # Unbind keyboard events from the popup
+        if popup_instance.content._keyboard is not None:
+            popup_instance.content._keyboard.unbind(on_key_down=popup_instance.content._on_key_down)
+            popup_instance.content._keyboard.unbind(on_key_up=popup_instance.content._on_key_up)
+            popup_instance.content._keyboard = None
+
+        # Rebind keyboard events for the app itself
+        self._bind_keyboard_events()
 
     def _keyboard_closed(self):
         Logger.debug('Keyboard Closed')
@@ -2679,68 +2340,15 @@ class BlueAndPinkSynthEditorApp(App):
             self.presets_spinner_text = self.presets_spinner_values[0]
             self._curr_presets_spinner_index = 0
 
-    def reload(self):
-        """
-        Reloads the current preset
-        :return:
-        """
-        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
-            self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
-
-        elif self.curr_preset_type == 'init':
-            self._send_nymphes_osc('/load_init_file')
-
-        elif self.curr_preset_type == 'preset_slot':
-            # Get the index of the last preset slot that was loaded
-            preset_slot_index = self.index_from_preset_info(
-                bank_name=self._curr_preset_slot_bank_and_number[0],
-                preset_num=self._curr_preset_slot_bank_and_number[1],
-                preset_type=self._curr_preset_slot_type
-            )
-
-            # Load the preset
-            self.load_preset_by_index(preset_slot_index)
-
-    def update_current_preset_file(self):
-        """
-        Save the current settings to the currently-loaded or saved
-        preset file, updating it.
-        """
-        if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
-            Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
-            self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
-
-    def _bind_keyboard_events(self):
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
-        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
-
-    def _on_popup_open(self, popup_instance):
-        # Bind keyboard events for the popup
-        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._keyboard_closed, popup_instance)
-        popup_instance.content._keyboard.bind(
-            on_key_down=popup_instance.content._on_key_down,
-            on_key_up=popup_instance.content._on_key_up
-        )
-
-    def _on_popup_dismiss(self, popup_instance):
-        # Unbind keyboard events from the popup
-        if popup_instance.content._keyboard is not None:
-            popup_instance.content._keyboard.unbind(on_key_down=popup_instance.content._on_key_down)
-            popup_instance.content._keyboard.unbind(on_key_up=popup_instance.content._on_key_up)
-            popup_instance.content._keyboard = None
-
-        # Rebind keyboard events for the app itself
-        self._bind_keyboard_events()
-
-    def set_nymphes_input_name_on_main_thread(self, port_name):
+    def _set_nymphes_input_name_on_main_thread(self, port_name):
         Logger.debug(f'set_nymphes_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
         def work_func(_, new_port_name):
             self.nymphes_input_name = new_port_name
-            
-    def set_nymphes_output_name_on_main_thread(self, port_name):
+
+    def _set_nymphes_output_name_on_main_thread(self, port_name):
         Logger.debug(f'set_nymphes_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2748,7 +2356,7 @@ class BlueAndPinkSynthEditorApp(App):
         def work_func(_, new_port_name):
             self.nymphes_output_name = new_port_name
 
-    def add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
+    def _add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
         Logger.debug(f'add_nymphes_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2757,9 +2365,10 @@ class BlueAndPinkSynthEditorApp(App):
             # Add the port name to the list used by the
             # Nymphes input ports spinner
             self.nymphes_input_spinner_names.append(new_port_name)
-            self.nymphes_input_spinner_names = [self.nymphes_input_spinner_names[0]] + sorted(self.nymphes_input_spinner_names[1:])
+            self.nymphes_input_spinner_names = [self.nymphes_input_spinner_names[0]] + sorted(
+                self.nymphes_input_spinner_names[1:])
 
-    def remove_name_from_nymphes_input_spinner_on_main_thread(self, port_name):
+    def _remove_name_from_nymphes_input_spinner_on_main_thread(self, port_name):
         Logger.debug(f'remove_nymphes_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2768,8 +2377,8 @@ class BlueAndPinkSynthEditorApp(App):
             # Remove it from the Nymphes input spinner list as well
             if new_port_name in self.nymphes_input_spinner_names:
                 self.nymphes_input_spinner_names.remove(new_port_name)
-                
-    def add_name_to_nymphes_output_spinner_on_main_thread(self, port_name):
+
+    def _add_name_to_nymphes_output_spinner_on_main_thread(self, port_name):
         Logger.debug(f'add_nymphes_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2778,9 +2387,10 @@ class BlueAndPinkSynthEditorApp(App):
             # Add the port name to the list used by the
             # Nymphes output ports spinner
             self.nymphes_output_spinner_names.append(new_port_name)
-            self.nymphes_output_spinner_names = [self.nymphes_output_spinner_names[0]] + sorted(self.nymphes_output_spinner_names[1:])
+            self.nymphes_output_spinner_names = [self.nymphes_output_spinner_names[0]] + sorted(
+                self.nymphes_output_spinner_names[1:])
 
-    def remove_name_from_nymphes_output_spinner_on_main_thread(self, port_name):
+    def _remove_name_from_nymphes_output_spinner_on_main_thread(self, port_name):
         Logger.debug(f'remove_nymphes_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2790,7 +2400,7 @@ class BlueAndPinkSynthEditorApp(App):
             if new_port_name in self.nymphes_output_spinner_names:
                 self.nymphes_output_spinner_names.remove(new_port_name)
 
-    def add_midi_input_name_on_main_thread(self, port_name):
+    def _add_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'add_midi_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2801,7 +2411,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.detected_midi_input_names_for_gui.append(new_port_name)
             self.detected_midi_input_names_for_gui.sort()
 
-    def remove_midi_input_name_on_main_thread(self, port_name):
+    def _remove_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_midi_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2810,7 +2420,7 @@ class BlueAndPinkSynthEditorApp(App):
             if new_port_name in self.detected_midi_input_names_for_gui:
                 self.detected_midi_input_names_for_gui.remove(new_port_name)
 
-    def add_midi_output_name_on_main_thread(self, port_name):
+    def _add_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'add_midi_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2819,7 +2429,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.detected_midi_output_names_for_gui.append(new_port_name)
             self.detected_midi_output_names_for_gui.sort()
 
-    def remove_midi_output_name_on_main_thread(self, port_name):
+    def _remove_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_midi_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2828,7 +2438,7 @@ class BlueAndPinkSynthEditorApp(App):
             if new_port_name in self.detected_midi_output_names_for_gui:
                 self.detected_midi_output_names_for_gui.remove(new_port_name)
 
-    def add_connected_midi_input_name_on_main_thread(self, port_name):
+    def _add_connected_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'add_connected_midi_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2837,7 +2447,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.connected_midi_input_names_for_gui.append(new_port_name)
             self.connected_midi_input_names_for_gui.sort()
 
-    def remove_connected_midi_input_name_on_main_thread(self, port_name):
+    def _remove_connected_midi_input_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_connected_midi_input_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2845,8 +2455,8 @@ class BlueAndPinkSynthEditorApp(App):
         def work_func(_, new_port_name):
             if new_port_name in self.connected_midi_input_names_for_gui:
                 self.connected_midi_input_names_for_gui.remove(new_port_name)
-                
-    def add_connected_midi_output_name_on_main_thread(self, port_name):
+
+    def _add_connected_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'add_connected_midi_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2855,7 +2465,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.connected_midi_output_names_for_gui.append(new_port_name)
             self.connected_midi_output_names_for_gui.sort()
 
-    def remove_connected_midi_output_name_on_main_thread(self, port_name):
+    def _remove_connected_midi_output_name_on_main_thread(self, port_name):
         Logger.debug(f'remove_connected_midi_output_name_on_main_thread: {port_name}')
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
@@ -2864,231 +2474,130 @@ class BlueAndPinkSynthEditorApp(App):
             if new_port_name in self.connected_midi_output_names_for_gui:
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
-    def set_status_bar_text_on_main_thread(self, status_text):
+    def _set_status_bar_text_on_main_thread(self, status_text):
         Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
 
         def work_func(_, new_status_text):
             self.status_bar_text = new_status_text
 
-    def set_mod_wheel_on_main_thread(self, val):
+    def _set_mod_wheel_prop_on_main_thread(self, val):
         Clock.schedule_once(lambda dt: work_func(dt, val), 0)
 
         def work_func(_, value):
             self.mod_wheel = value
-            
-    def set_velocity_on_main_thread(self, val):
+
+    def _set_velocity_prop_on_main_thread(self, val):
         Clock.schedule_once(lambda dt: work_func(dt, val), 0)
 
         def work_func(_, value):
             self.velocity = value
-        
-    def set_aftertouch_on_main_thread(self, val):
+
+    def _set_aftertouch_prop_on_main_thread(self, val):
         Clock.schedule_once(lambda dt: work_func(dt, val), 0)
 
         def work_func(_, value):
             self.aftertouch = value
 
-    def set_unsaved_preset_changes_on_main_thread(self, val):
+    def _set_sustain_pedal_prop_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.sustain_pedal = value
+
+    def _set_legato_prop_on_main_thread(self, val):
+        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
+
+        def work_func(_, value):
+            self.osc_legato_value = value
+
+    def _set_unsaved_preset_changes_on_main_thread(self, val):
         Clock.schedule_once(lambda dt: work_func(dt, val), 0)
 
         def work_func(_, value):
             self.unsaved_preset_changes = value
 
-    def midi_input_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
+    @staticmethod
+    def parse_preset_index(preset_index):
+        """
+        Parse the supplied preset spinner index into bank, preset number
+        and type.
+        Return a dict containing the parsed values.
+        """
+        bank_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        preset_nums = [1, 2, 3, 4, 5, 6, 7]
+        preset_types = ['user', 'factory']
 
-        if active:
-            if port_name not in self._connected_midi_inputs:
-                # Connect to this MIDI input
-                self._send_nymphes_osc(
-                    '/connect_midi_input',
-                    port_name
-                )
+        bank_name = bank_names[int((preset_index % 49) / 7)]
+        preset_num = preset_nums[int((preset_index % 49) % 7)]
+        preset_type = preset_types[int(preset_index / 49)]
 
-        else:
-            if port_name in self._connected_midi_inputs:
-                # Disconnect from this MIDI input
-                self._send_nymphes_osc(
-                    '/disconnect_midi_input',
-                    port_name
-                )
-
-    def midi_output_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'midi_output_port_checkbox_toggled: {port_name}, {active}')
-
-        if active:
-            if port_name not in self._connected_midi_outputs:
-                # Connect to this MIDI output
-                self._send_nymphes_osc(
-                    '/connect_midi_output',
-                    port_name
-                )
-
-        else:
-            if port_name in self._connected_midi_outputs:
-                # Disconnect from this MIDI output
-                self._send_nymphes_osc(
-                    '/disconnect_midi_output',
-                    port_name
-                )
-
-    def nymphes_input_spinner_text_changed(self, new_text):
-        if new_text != self.nymphes_input_name:
-            #
-            # A new selection has been made by the user
-            #
-
-            # Store the new selection
-            self.nymphes_input_name = new_text
-
-            # Try connecting if we have both input and output names
-            #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
-                    '/connect_nymphes',
-                    self.nymphes_input_name,
-                    self.nymphes_output_name
-                )
-
-            else:
-                if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
-                    
-    def nymphes_output_spinner_text_changed(self, new_text):
-        if new_text != self.nymphes_output_name:
-            #
-            # A new selection has been made by the user
-            #
-
-            # Store the new selection
-            self.nymphes_output_name = new_text
-
-            # Try connecting if we have both input and output names
-            #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
-                    '/connect_nymphes',
-                    self.nymphes_output_name,
-                    self.nymphes_output_name
-                )
-
-            else:
-                if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
-
-    def on_mouse_entered_param_control(self, param_name):
-        # When the mouse enters a parameter control and Nymphes
-        # is connected, display the name and value in the status
-        # bar.
-        if self.nymphes_connected:
-            if self.curr_mouse_dragging_param_name == '':
-                # Change the mouse cursor to a hand indicate that
-                # this is a control
-                Window.set_system_cursor('hand')
-
-                # Store the name of the parameter
-                self.curr_mouse_hover_param_name = param_name
-
-                if param_name not in ['mod_wheel', 'aftertouch']:
-                    # Get the value and type for the parameter
-                    value = self.get_prop_value_for_param_name(param_name)
-                    param_type = NymphesPreset.type_for_param_name(param_name)
-
-                    if param_type == float:
-                        value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
-
-                    elif param_type == int:
-                        value_string = str(value)
-
-                    self.set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
-
-    def on_mouse_exited_param_control(self, param_name):
-        # When Nymphes is connected and the mouse exits a parameter
-        # control, blank the status bar
-        #
-        if self.curr_mouse_dragging_param_name == '':
-            if self.curr_mouse_hover_param_name != '' and param_name == self.curr_mouse_hover_param_name:
-                # Set the mouse cursor back to an arrow
-                Window.set_system_cursor('arrow')
-
-                # Reset the hover param name
-                self.curr_mouse_hover_param_name = ''
-
-                if self.nymphes_connected:
-                    # Reset the status message to blank
-                    self.set_status_bar_text_on_main_thread('')
+        return {'bank_name': bank_name,
+                'preset_num': preset_num,
+                'preset_type': preset_type}
 
     @staticmethod
-    def float_equals(first_value, second_value, num_decimals):
+    def index_from_preset_info(bank_name, preset_num, preset_type):
         """
-        Uses a limited amount of precision to determine
-        whether the supplied float values are equal
-        :param first_value:
-        :param second_value:
-        :param num_decimals: int
-        :return: True if the two values are equal. False if not.
+        Calculates and returns the preset index for the supplied preset
+        bank_name, preset_num and preset_type.
+        Raises an Exception if any of the arguments are invalid.
+        Return type: int
         """
-        v1 = int(round(first_value, num_decimals) * pow(10, num_decimals))
-        v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
-        return v1 == v2
+        bank_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        preset_nums = [1, 2, 3, 4, 5, 6, 7]
+        preset_types = ['user', 'factory']
 
-    def increment_mod_wheel(self, amount):
-        print(f'increment_mod_wheel: {amount}')
+        if bank_name not in bank_names:
+            raise Exception(f'Invalid bank_name: {bank_name}')
 
-        new_val = self.mod_wheel + int(amount)
-        if new_val > 127:
-            new_val = 127
-        elif new_val < 0:
-            new_val = 0
+        if preset_num not in preset_nums:
+            raise Exception(f'Invalid preset_num: {preset_num}')
 
-        if new_val != self.mod_wheel:
-            # Update the property
-            self.mod_wheel = new_val
+        if preset_type not in preset_types:
+            raise Exception(f'Invalid preset_type: {preset_type}')
 
-            # Send the new value to Nymphes
-            self._send_nymphes_osc(
-                '/mod_wheel',
-                new_val
-            )
+        index = 0
+        index += preset_num - 1
+        index += bank_names.index(bank_name) * 7
+        index += preset_types.index(preset_type) * 49
 
-    def increment_aftertouch(self, amount):
-        print(f'increment_aftertouch: {amount}')
+        return index
 
-        new_val = self.aftertouch + int(amount)
-        if new_val > 127:
-            new_val = 127
-        elif new_val < 0:
-            new_val = 0
+    @staticmethod
+    def string_for_lfo_type(lfo_type_int):
+        """
+        LFO Type has four discrete values, from 0 to 3, and
+        each has a name. Return the name as a string.
+        Raises an Exception if lfo_type_int is less than 0
+        or greater than 3.
+        """
+        if lfo_type_int < 0 or lfo_type_int > 3:
+            raise Exception(f'lfo_type_int must be between 0 and 3: {lfo_type_int}')
 
-        if new_val != self.aftertouch:
-            # Update the property
-            self.aftertouch = new_val
+        if lfo_type_int == 0:
+            return 'BPM'
 
-            # Send the new value to Nymphes
-            self._send_nymphes_osc(
-                '/aftertouch',
-                new_val
-            )
+        elif lfo_type_int == 1:
+            return 'LOW'
 
-    def on_nymphes_midi_channel_spinner(self, new_val):
-        # The spinner's values are strings, so
-        # convert new_val to an int
-        midi_channel = int(new_val)
+        elif lfo_type_int == 2:
+            return 'HIGH'
 
-        if midi_channel != self.nymphes_midi_channel:
-            Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
+        elif lfo_type_int == 3:
+            return 'TRACK'
 
-            # Send a message to nymphes-osc to change the channel
-            self._send_nymphes_osc(
-                '/set_nymphes_midi_channel',
-                midi_channel
-            )
+    @staticmethod
+    def string_for_lfo_key_sync(lfo_key_sync):
+        """
+        LFO Key Sync has two discrete values, 0 and 1,
+        representing ON and OFF. Return these as strings.
+        Raises an Exception if lfo_key_sync is less than 0
+        or greater than 1.
+        """
+        if lfo_key_sync < 0 or lfo_key_sync > 1:
+            raise Exception(f'lfo_key_sync must be between 0 and 1: {lfo_key_sync}')
 
-    def set_curr_screen_name(self, screen_name):
-        self.curr_screen_name = screen_name
-
-    def set_curr_mouse_dragging_param_name(self, param_name):
-        self.curr_mouse_dragging_param_name = param_name
+        return 'ON' if lfo_key_sync == 1 else 'OFF'
 
 class FloatParamValueLabel(ButtonBehavior, Label):
     screen_name = StringProperty('')
@@ -3406,7 +2915,7 @@ class LoadDialog(BoxLayout):
         # This is the same as clicking the Cancel button
         escape_keycode = 27
         if keycode[0] in [escape_keycode]:
-            App.get_running_app().dismiss_popup()
+            App.get_running_app()._dismiss_popup()
 
 
 class SaveDialog(BoxLayout):
@@ -3444,7 +2953,7 @@ class SaveDialog(BoxLayout):
         # This is the same as clicking the Cancel button
         escape_keycode = 27
         if keycode[0] in [escape_keycode]:
-            App.get_running_app().dismiss_popup()
+            App.get_running_app()._dismiss_popup()
 
 
 Factory.register('LoadDialog', cls=LoadDialog)
