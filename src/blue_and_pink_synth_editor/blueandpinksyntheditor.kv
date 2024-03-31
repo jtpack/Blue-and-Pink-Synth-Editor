@@ -952,9 +952,9 @@ ScreenManager:
 <LegatoButton@ButtonBehavior+Label>:
     text: 'LEGATO'
     size_hint: 1, 1
-    color: C('#ECBFEBFF') if app.legato else C('#06070FFF')
-    font_size: (self.height * 0.375) if app.legato else (self.height * 0.35)
-    on_release: app.set_legato(not app.legato)
+    color: C('#ECBFEBFF') if app.osc_legato_value else C('#06070FFF')
+    font_size: (self.height * 0.375) if app.osc_legato_value else (self.height * 0.35)
+    on_release: app.set_legato(not app.osc_legato_value)
     disabled: not app.nymphes_connected
 
 
@@ -1826,7 +1826,6 @@ ScreenManager:
 <ParamsGridLfoConfigCell>:
     orientation: 'vertical'
     corner_radius: self.parent.corner_radius
-    on_press: app.select_section(self.section_name)
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
     canvas.before:
         Color:
@@ -1864,7 +1863,6 @@ ScreenManager:
 <ParamsGridNonModCell>:
     orientation: 'vertical'
     corner_radius: self.parent.corner_radius
-    #on_press: app.select_section(self.section_name)
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
     canvas.before:
         Color:
@@ -2286,7 +2284,6 @@ ScreenManager:
 <ChordParamsGridCell>:
     orientation: 'vertical'
     corner_radius: self.parent.corner_radius
-    #on_press: app.select_section(self.section_name)
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
     canvas.before:
         Color:
