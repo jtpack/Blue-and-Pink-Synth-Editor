@@ -37,7 +37,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.7-beta'
+app_version_string = 'v0.1.8-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -499,23 +499,23 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup = None
 
         #
-        # Prep data folder and get Configuration From config.txt
+        # Create Application folder if necessary
         #
 
-        # Set path to data folder
-        self._data_folder_path = Path(os.path.expanduser('~')) / 'BlueAndPinkSynthEditor_data/'
-
-        # Make sure it exists
-        if not self._data_folder_path.exists():
+        self._application_folder_path = Path('/Applications/Blue and Pink Synth Editor')
+        if not self._application_folder_path.exists():
             try:
-                self._data_folder_path.mkdir()
-                Logger.info(f'Created data folder at {self._data_folder_path}')
+                self._application_folder_path.mkdir()
+                Logger.info(f'Created application folder at {self._application_folder_path}')
 
             except Exception as e:
-                Logger.critical(f'Failed to create data folder at {self._data_folder_path} ({e})')
+                Logger.critical(f'Failed to create application folder at {self._application_folder_path} ({e})')
 
-        # Path for presets folder
-        self._presets_directory_path = self._data_folder_path / 'presets'
+        #
+        # Create Presets folder if necessary
+        #
+
+        self._presets_directory_path = self._application_folder_path / 'presets'
         if not self._presets_directory_path.exists():
             try:
                 self._presets_directory_path.mkdir()
@@ -524,7 +524,10 @@ class BlueAndPinkSynthEditorApp(App):
             except Exception as e:
                 Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
 
-        # Path to config file
+        #
+        # Config file
+        #
+
         self._config_file_path = Path(__file__).parent / 'config.txt'
 
         Logger.info(f'Config file path: {self._config_file_path}')
@@ -1209,22 +1212,22 @@ class BlueAndPinkSynthEditorApp(App):
 
         if config.has_option('NYMPHES_OSC', 'listener host'):
             #
-            # Incoming hostname has been specified in config.txt
+            # Listener host has been specified in config.txt
             #
 
             self._nymphes_osc_listener_host = config['NYMPHES_OSC']['listener host']
             Logger.info(
-                f'Using incoming host from config file for Nymphes OSC communication: {self._nymphes_osc_listener_host}')
+                f'Using {self._nymphes_osc_listener_host} for OSC server listening for OSC messages from nymphes-osc')
 
         else:
             #
-            # Incoming host is not specified.
+            # Listener host is not specified.
             # Try to automatically determine the local ip address
             #
 
             in_host = self._get_local_ip_address()
             self._nymphes_osc_listener_host = in_host
-            Logger.info(f'Using detected local ip address for NYMPHES_OSC communication: {in_host}')
+            Logger.info(f'Using detected local ip address for OSC server listening for OSC messages from nymphes-osc: {in_host}')
 
         self._nymphes_osc_listener_port = int(config['NYMPHES_OSC']['listener port'])
 
