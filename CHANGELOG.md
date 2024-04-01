@@ -1,4 +1,8 @@
-- When the mouse is over a control the cursor becomes a hand. 
+## v0.1.7-beta
+- When the mouse is over a control the cursor becomes a hand.
+- The Aftertouch control at the bottom of the window now shows the latest aftertouch value regardless of MIDI channel
+  - This is to better support MPE
+  - When adjusting the control, a channel aftertouch message is sent to Nymphes on its channel
  
 
 ## v0.1.6-beta
