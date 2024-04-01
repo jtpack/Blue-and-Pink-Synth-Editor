@@ -80,5 +80,5 @@ Note: The app checks for the Blue and Pink Synth Editor folder in /Applications 
 
 ## 8a. Run the compiled app by double-clicking on it
 
-## 8b. To see debug output on the console, run the app from the command line
+## 8b. To see debug output on the console, run the app from the command line instead
 - `/Applications/Blue\ and\ Pink\ Synth\ Editor/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
