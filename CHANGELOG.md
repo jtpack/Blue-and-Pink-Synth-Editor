@@ -1,4 +1,13 @@
+## v0.1.8-beta
+
+- Finalized the folder structure for app data and presets. Now programmers and regular users will all have a consistent experience with file locations.
+  - Now the app automatically creates /Applications/Blue and Pink Synth Editor/ if necessary on start
+    - Then it checks for /Applications/Blue and Pink Synth Editor/presets/ and creates it if necessary
+- Updated instructions in README to instruct readers to move the app to /Applications/Blue and Pink Synth Editor/ after compiling
+
+
 ## v0.1.7-beta
+
 - When the mouse is over a control the cursor becomes a hand.
 - The Aftertouch control at the bottom of the window now shows the latest aftertouch value regardless of MIDI channel
   - This is to better support MPE

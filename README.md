@@ -67,12 +67,18 @@ Create and activate the virtual environment:
 ## 4. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `pip install -e .`
 
-## 5. Run Blue-and-Pink-Synth-Editor
+## 5. Run Blue-and-Pink-Synth-Editor to make sure it works
 - `python -m blue_and_pink_synth_editor`
 
-## 6. Compile an executable binary
--   `pyinstaller BlueAndPinkSynthEditor.spec`
+Note: The app checks for the Blue and Pink Synth Editor folder in /Applications when it runs. If the folder doesn't exist then it is created. Inside that the presets folder is created.
 
-When the build finishes, the executable will be found in the dist folder.
-- On macOS this will be dist/BlueAndPinkSynthEditor.app
-  - You can ignore the dist/BlueAndPinkSynthEditor folder
+## 6. Compile the app into an executable binary
+- `pyinstaller BlueAndPinkSynthEditor.spec`
+
+## 7. Move the compiled app into the folder in /Applications
+- `mv dist/BlueAndPinkSynthEditor.app /Applications/Blue\ and\ Pink\ Synth\ Editor`
+
+## 8a. Run the compiled app by double-clicking on it
+
+## 8b. To see debug output on the console, run the app from the command line
+- `/Applications/Blue\ and\ Pink\ Synth\ Editor/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
