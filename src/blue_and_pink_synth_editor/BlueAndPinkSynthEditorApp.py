@@ -37,7 +37,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.8-beta'
+app_version_string = 'v0.1.9-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
