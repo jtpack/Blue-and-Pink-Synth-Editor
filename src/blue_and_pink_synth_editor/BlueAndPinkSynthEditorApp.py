@@ -499,36 +499,83 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup = None
 
         #
-        # Create Application folder if necessary
+        # Create directories to hold app data, like presets
+        # and config files.
+        # The location varies with platform. On macOS, we
+        # create a folder inside /Applications, and then
+        # both the app bundle and the presets folder go
+        # into it. The app's config files go into a folder
+        # inside ~/Library/Application Support/
+        # On other platforms, we create a directory in the
+        # user's home folder and put both the presets folder
+        # and config files inside.
         #
 
-        self._application_folder_path = Path('/Applications/Blue and Pink Synth Editor')
-        if not self._application_folder_path.exists():
-            try:
-                self._application_folder_path.mkdir()
-                Logger.info(f'Created application folder at {self._application_folder_path}')
+        os_name = platform.system()
 
-            except Exception as e:
-                Logger.critical(f'Failed to create application folder at {self._application_folder_path} ({e})')
+        if os_name == 'Darwin':
+            # Create the app data folder. On macOS, the app bundle is also installed
+            # in this folder by the pkg installer.
+            #
+            self._app_data_folder_path = Path('/Applications/Blue and Pink Synth Editor')
+            if not self._app_data_folder_path.exists():
+                try:
+                    self._app_data_folder_path.mkdir()
+                    Logger.info(f'Created app data folder at {self._app_data_folder_path}')
 
-        #
-        # Create Presets folder if necessary
-        #
+                except Exception as e:
+                    Logger.critical(f'Failed to create app data folder at {self._app_data_folder_path} ({e})')
 
-        self._presets_directory_path = self._application_folder_path / 'presets'
-        if not self._presets_directory_path.exists():
-            try:
-                self._presets_directory_path.mkdir()
-                Logger.info(f'Created presets folder at {self._presets_directory_path}')
+            # Create the presets folder
+            #
+            self._presets_directory_path = self._app_data_folder_path / 'presets'
+            if not self._presets_directory_path.exists():
+                try:
+                    self._presets_directory_path.mkdir()
+                    Logger.info(f'Created presets folder at {self._presets_directory_path}')
 
-            except Exception as e:
-                Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
+                except Exception as e:
+                    Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
 
-        #
-        # Config file
-        #
+            # Create the folder for config files
+            #
+            self._config_files_directory_path = Path.home() / 'Library/Application Support/Blue and Pink Synth Editor'
+            if not self._config_files_directory_path.exists():
+                try:
+                    self._config_files_directory_path.mkdir()
+                    Logger.info(f'Created config files folder at {self._config_files_directory_path}')
 
-        self._config_file_path = Path(__file__).parent / 'config.txt'
+                except Exception as e:
+                    Logger.critical(f'Failed to config files folder at {self._config_files_directory_path} ({e})')
+
+            # Store the path to the config file
+            self._config_file_path = self._config_files_directory_path / 'config.txt'
+
+        else:
+            # Create the app data folder
+            #
+            self._app_data_folder_path = Path.home() / 'Blue and Pink Synth Editor Data'
+            if not self._app_data_folder_path.exists():
+                try:
+                    self._app_data_folder_path.mkdir()
+                    Logger.info(f'Created app data folder at {self._app_data_folder_path}')
+
+                except Exception as e:
+                    Logger.critical(f'Failed to create app data folder at {self._app_data_folder_path} ({e})')
+
+            # Create the presets folder
+            #
+            self._presets_directory_path = self._app_data_folder_path / 'presets'
+            if not self._presets_directory_path.exists():
+                try:
+                    self._presets_directory_path.mkdir()
+                    Logger.info(f'Created presets folder at {self._presets_directory_path}')
+
+                except Exception as e:
+                    Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
+
+            # Create the path for the config file
+            self._config_file_path = self._app_data_folder_path / 'config.txt'
 
         Logger.info(f'Config file path: {self._config_file_path}')
 
