@@ -1,3 +1,10 @@
+## v0.1.9-beta
+
+- Had to revise the folder structure, as we don't have write access for the config file if it is inside the app bundle and has been installed using the pkg installer.
+  - Now we are using ~/Library/Application Support/Blue and Pink Synth Editor/
+- I also realized that none of this would work for platforms other than macOS, so for those platforms I've gone back to ~/Blue and Pink Synth Editor Data/ for both presets and config files.
+
+
 ## v0.1.8-beta
 
 - Finalized the folder structure for app data and presets. Now programmers and regular users will all have a consistent experience with file locations.
