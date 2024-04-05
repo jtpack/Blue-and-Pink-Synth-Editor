@@ -37,7 +37,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.1.9-beta'
+app_version_string = 'v0.2.0-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -2114,8 +2114,8 @@ class BlueAndPinkSynthEditorApp(App):
                 client_host=self._nymphes_osc_listener_host,
                 client_port=self._nymphes_osc_listener_port,
                 nymphes_midi_channel=self.nymphes_midi_channel,
-                osc_log_level=logging.WARNING,
-                midi_log_level=logging.WARNING,
+                osc_log_level=logging.INFO,
+                midi_log_level=logging.INFO,
                 presets_directory_path=self._presets_directory_path
             )
 

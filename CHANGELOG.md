@@ -1,3 +1,8 @@
+## v0.2.0-beta
+
+- No change to BlueAndPinkSynthEditor, but a major bug was fixed in nymphes-osc, which prevented /loaded_preset from being sent when a preset was loaded via Program Change from a MIDI port.
+
+
 ## v0.1.9-beta
 
 - Had to revise the folder structure, as we don't have write access for the config file if it is inside the app bundle and has been installed using the pkg installer.
