@@ -1,3 +1,10 @@
+- Renamed chords to better match what is written in the Nymphes Manual. Now the seven normal chords are named 1 through 7, and the default chord is chord 0.
+  - All old preset files are incompatible unless you rename the chords to match
+- Turns out Nymphes actually sends a value of 127 when legato is enabled, not 1 as indicated in the Nymphes manual
+  - Now we do the same
+- Make sure you also pull in new changes from nymphes-osc repository.
+
+
 ## v0.2.0-beta
 
 - No change to BlueAndPinkSynthEditor, but a major bug was fixed in nymphes-osc, which prevented /loaded_preset from being sent when a preset was loaded via Program Change from a MIDI port.
