@@ -315,6 +315,13 @@ class BlueAndPinkSynthEditorApp(App):
     reverb_mix_velocity = NumericProperty(0.0)
     reverb_mix_aftertouch = NumericProperty(0.0)
 
+    chord_0_root_value = NumericProperty(0)
+    chord_0_semi_1_value = NumericProperty(0)
+    chord_0_semi_2_value = NumericProperty(0)
+    chord_0_semi_3_value = NumericProperty(0)
+    chord_0_semi_4_value = NumericProperty(0)
+    chord_0_semi_5_value = NumericProperty(0)
+
     chord_1_root_value = NumericProperty(0)
     chord_1_semi_1_value = NumericProperty(0)
     chord_1_semi_2_value = NumericProperty(0)
@@ -363,13 +370,6 @@ class BlueAndPinkSynthEditorApp(App):
     chord_7_semi_3_value = NumericProperty(0)
     chord_7_semi_4_value = NumericProperty(0)
     chord_7_semi_5_value = NumericProperty(0)
-
-    chord_8_root_value = NumericProperty(0)
-    chord_8_semi_1_value = NumericProperty(0)
-    chord_8_semi_2_value = NumericProperty(0)
-    chord_8_semi_3_value = NumericProperty(0)
-    chord_8_semi_4_value = NumericProperty(0)
-    chord_8_semi_5_value = NumericProperty(0)
 
     voice_mode_name = StringProperty('POLY')
     mod_source = NumericProperty(0)
@@ -663,19 +663,19 @@ class BlueAndPinkSynthEditorApp(App):
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
 
-    def set_legato(self, enable_legato):
+    def set_legato(self, val):
         """
-        enable_legato should be a bool
+        val is an int. 0 for off, 127 for on.
         """
 
         # Update the property
-        self.osc_legato_value = enable_legato
+        self.osc_legato_value = val
 
         # Status bar text
-        self._set_status_bar_text_on_main_thread(f'osc.legato.value: {1 if enable_legato else 0}')
+        self._set_status_bar_text_on_main_thread(f'osc.legato.value: {val}')
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/legato/value', 1 if enable_legato else 0)
+        self._send_nymphes_osc('/osc/legato/value', val)
 
     def set_fine_mode(self, enable_fine_mode):
         # Update the property

@@ -159,41 +159,106 @@ ScreenManager:
                 size: self.size
 
         # Row 1
+        Chord0ControlSection:
+            screen_name: root.screen_name
+            size_hint_y: 1/4
+
         Chord1ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
+        # Row 2
         Chord2ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
-        # Row 2
         Chord3ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
+        # Row 3
         Chord4ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
-        # Row 3
         Chord5ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
+        # Row 4
         Chord6ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
-        # Row 4
         Chord7ControlSection:
             screen_name: root.screen_name
             size_hint_y: 1/4
 
-        Chord8ControlSection:
-            screen_name: root.screen_name
-            size_hint_y: 1/4
 
+<Chord0ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        RoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 0 (0-9)'
+        this_chord_active: 0 <= app.pitch_chord_value <= 9
+
+    ChordParamsGrid:
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'ROOT'
+            param_name: 'chord_0.root.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_root_value
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 1'
+            param_name: 'chord_0.semi_1.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_semi_1_value
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 2'
+            param_name: 'chord_0.semi_2.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_semi_2_value
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 3'
+            param_name: 'chord_0.semi_3.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_semi_3_value
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 4'
+            param_name: 'chord_0.semi_4.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_semi_4_value
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 5'
+            param_name: 'chord_0.semi_5.value'
+            background_color_string: '#438EFFFF'
+            value_prop: app.chord_0_semi_5_value
+            
 
 <Chord1ControlSection@ControlSection>:
     canvas.before:
@@ -206,8 +271,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 1 (0-9)'
-        this_chord_active: 0 <= app.pitch_chord_value <= 9
+        text: 'CHORD 1 (10-27)'
+        this_chord_active: 10 <= app.pitch_chord_value <= 27
 
     ChordParamsGrid:
 
@@ -258,7 +323,7 @@ ScreenManager:
             param_name: 'chord_1.semi_5.value'
             background_color_string: '#438EFFFF'
             value_prop: app.chord_1_semi_5_value
-            
+
 
 <Chord2ControlSection@ControlSection>:
     canvas.before:
@@ -271,8 +336,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 2 (10-27)'
-        this_chord_active: 10 <= app.pitch_chord_value <= 27
+        text: 'CHORD 2 (28-45)'
+        this_chord_active: 28 <= app.pitch_chord_value <= 45
 
     ChordParamsGrid:
 
@@ -336,8 +401,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 3 (28-45)'
-        this_chord_active: 28 <= app.pitch_chord_value <= 45
+        text: 'CHORD 3 (46-63)'
+        this_chord_active: 46 <= app.pitch_chord_value <= 63
 
     ChordParamsGrid:
 
@@ -388,8 +453,8 @@ ScreenManager:
             param_name: 'chord_3.semi_5.value'
             background_color_string: '#438EFFFF'
             value_prop: app.chord_3_semi_5_value
-
-
+          
+          
 <Chord4ControlSection@ControlSection>:
     canvas.before:
         Color:
@@ -401,8 +466,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 4 (46-63)'
-        this_chord_active: 46 <= app.pitch_chord_value <= 63
+        text: 'CHORD 4 (64-81)'
+        this_chord_active: 64 <= app.pitch_chord_value <= 81
 
     ChordParamsGrid:
 
@@ -452,9 +517,9 @@ ScreenManager:
             title: 'SEMI 5'
             param_name: 'chord_4.semi_5.value'
             background_color_string: '#438EFFFF'
-            value_prop: app.chord_4_semi_5_value
-          
-          
+            value_prop: app.chord_4_semi_5_value  
+
+
 <Chord5ControlSection@ControlSection>:
     canvas.before:
         Color:
@@ -466,8 +531,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 5 (64-81)'
-        this_chord_active: 64 <= app.pitch_chord_value <= 81
+        text: 'CHORD 5 (82-99)'
+        this_chord_active: 82 <= app.pitch_chord_value <= 99
 
     ChordParamsGrid:
 
@@ -517,7 +582,7 @@ ScreenManager:
             title: 'SEMI 5'
             param_name: 'chord_5.semi_5.value'
             background_color_string: '#438EFFFF'
-            value_prop: app.chord_5_semi_5_value  
+            value_prop: app.chord_5_semi_5_value
 
 
 <Chord6ControlSection@ControlSection>:
@@ -531,8 +596,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 6 (82-99)'
-        this_chord_active: 82 <= app.pitch_chord_value <= 99
+        text: 'CHORD 6 (100-117)'
+        this_chord_active: 100 <= app.pitch_chord_value <= 117
 
     ChordParamsGrid:
 
@@ -596,8 +661,8 @@ ScreenManager:
             radius: [root.corner_radius]
 
     ChordSectionTitleLabel:
-        text: 'CHORD 7 (100-117)'
-        this_chord_active: 100 <= app.pitch_chord_value <= 117
+        text: 'CHORD 7 (118-127)'
+        this_chord_active: 118 <= app.pitch_chord_value <= 127
 
     ChordParamsGrid:
 
@@ -616,7 +681,7 @@ ScreenManager:
             param_name: 'chord_7.semi_1.value'
             background_color_string: '#438EFFFF'
             value_prop: app.chord_7_semi_1_value
-            
+
         ChordParamsGridCell:
             screen_name: root.screen_name
             section_name: 'chord_7'
@@ -624,7 +689,7 @@ ScreenManager:
             param_name: 'chord_7.semi_2.value'
             background_color_string: '#438EFFFF'
             value_prop: app.chord_7_semi_2_value
-            
+
         ChordParamsGridCell:
             screen_name: root.screen_name
             section_name: 'chord_7'
@@ -649,71 +714,6 @@ ScreenManager:
             background_color_string: '#438EFFFF'
             value_prop: app.chord_7_semi_5_value
 
-
-<Chord8ControlSection@ControlSection>:
-    canvas.before:
-        Color:
-            rgba: C('#257CFFFF')
-
-        RoundedRectangle:
-            pos: root.pos
-            size: root.width, root.height
-            radius: [root.corner_radius]
-
-    ChordSectionTitleLabel:
-        text: 'CHORD 8 (118-127)'
-        this_chord_active: 118 <= app.pitch_chord_value <= 127
-
-    ChordParamsGrid:
-
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'ROOT'
-            param_name: 'chord_8.root.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_root_value
-
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'SEMI 1'
-            param_name: 'chord_8.semi_1.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_semi_1_value
-            
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'SEMI 2'
-            param_name: 'chord_8.semi_2.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_semi_2_value
-            
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'SEMI 3'
-            param_name: 'chord_8.semi_3.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_semi_3_value
-
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'SEMI 4'
-            param_name: 'chord_8.semi_4.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_semi_4_value
-
-        ChordParamsGridCell:
-            screen_name: root.screen_name
-            section_name: 'chord_8'
-            title: 'SEMI 5'
-            param_name: 'chord_8.semi_5.value'
-            background_color_string: '#438EFFFF'
-            value_prop: app.chord_8_semi_5_value
-            
 
 <SettingsTopBar>:
     orientation: 'horizontal'
@@ -952,9 +952,9 @@ ScreenManager:
 <LegatoButton@ButtonBehavior+Label>:
     text: 'LEGATO'
     size_hint: 1, 1
-    color: C('#ECBFEBFF') if app.osc_legato_value else C('#06070FFF')
-    font_size: (self.height * 0.375) if app.osc_legato_value else (self.height * 0.35)
-    on_release: app.set_legato(not app.osc_legato_value)
+    color: C('#06070FFF') if app.osc_legato_value == 0 else C('#ECBFEBFF')
+    font_size: (self.height * 0.35) if app.osc_legato_value == 0 else (self.height * 0.375)
+    on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     disabled: not app.nymphes_connected
 
 
