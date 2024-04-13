@@ -5,6 +5,7 @@ import threading
 import configparser
 import netifaces
 import platform
+import subprocess
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -2540,6 +2541,21 @@ class BlueAndPinkSynthEditorApp(App):
         elif lfo_type_int == 3:
             return 'TRACK'
 
+    def open_presets_folder_in_native_file_browser(self):
+        """
+        Opens a new native filebrowser (Finder on macOS, Windows Explorer on Windows)
+        showing the presets folder.
+        """
+        subprocess.call(['open', '-R', self._presets_directory_path])
+
+    def open_logs_folder_in_native_file_browser(self):
+        """
+        Opens a new native filebrowser (Finder on macOS, Windows Explorer on Windows)
+        showing the kivy logs folder.
+        """
+        subprocess.call(['open', '-R', Path(os.path.expanduser('~/.kivy/logs/'))])
+
+
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
         """
@@ -3077,9 +3093,11 @@ class ChordsMainControlsBox(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
-class MainSettingsBox(BoxLayout):
+class MainSettingsGrid(GridLayout):
     corner_radius = NumericProperty(0)
 
+class SettingsSubBox(BoxLayout):
+    corner_radius = NumericProperty(0)
 
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)

@@ -1,6 +1,10 @@
 - Fixed bug where changing Nymphes output port also affected the input port.
 - Improved logging so it is easier to understand.
 - Moved presets folder to ~/Library/Application Support/Blue and Pink Synth Editor/ so now we no longer need a folder inside /Applications
+- Added MISC section to Settings screen
+  - Added a button to open the presets folder in the native file explorer (Finder on macOS, Windows Explorer on Windows, not sure on Linux)
+  - Added a button to open the kivy logs folder in the same way
+
 
 ## v0.2.1-beta
 
