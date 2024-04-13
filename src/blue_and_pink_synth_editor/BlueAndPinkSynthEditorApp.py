@@ -643,7 +643,7 @@ class BlueAndPinkSynthEditorApp(App):
         self.voice_mode_name = voice_mode_name
 
         # Status bar text
-        self._set_status_bar_text_on_main_thread(f'osc.voice_mode.value: {voice_mode_int}')
+        self._set_prop_value_on_main_thread('status_bar_text', f'osc.voice_mode.value: {voice_mode_int}')
 
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
@@ -657,7 +657,7 @@ class BlueAndPinkSynthEditorApp(App):
         self.osc_legato_value = val
 
         # Status bar text
-        self._set_status_bar_text_on_main_thread(f'osc.legato.value: {val}')
+        self._set_prop_value_on_main_thread('status_bar_text', f'osc.legato.value: {val}')
 
         # Send the command to the Nymphes
         self._send_nymphes_osc('/osc/legato/value', val)
@@ -1101,7 +1101,7 @@ class BlueAndPinkSynthEditorApp(App):
                     elif param_type == int:
                         value_string = str(value)
 
-                    self._set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+                    self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
@@ -1117,7 +1117,7 @@ class BlueAndPinkSynthEditorApp(App):
 
                 if self.nymphes_connected:
                     # Reset the status message to blank
-                    self._set_status_bar_text_on_main_thread('')
+                    self._set_prop_value_on_main_thread('status_bar_text', '')
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -1212,7 +1212,7 @@ class BlueAndPinkSynthEditorApp(App):
         elif param_type == int:
             value_string = str(value)
 
-        self._set_status_bar_text_on_main_thread(f'{param_name}: {value_string}')
+        self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
         # Send an OSC message for this parameter with the new value
         self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
@@ -1564,15 +1564,15 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the names of the MIDI input and output ports
             self._nymphes_input_port = input_port
             self._nymphes_output_port = output_port
-
-            self._set_nymphes_input_name_on_main_thread(input_port)
-            self._set_nymphes_output_name_on_main_thread(output_port)
+            
+            self._set_prop_value_on_main_thread('nymphes_input_name', input_port)
+            self._set_prop_value_on_main_thread('nymphes_output_name', output_port)
 
             # Update app state
             self.nymphes_connected = True
 
             # Status message
-            self._set_status_bar_text_on_main_thread('NYMPHES CONNECTED')
+            self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES CONNECTED')
 
         elif address == '/nymphes_disconnected':
             #
@@ -1586,11 +1586,9 @@ class BlueAndPinkSynthEditorApp(App):
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            # Status message
-            self._set_status_bar_text_on_main_thread('NYMPHES NOT CONNECTED')
-
-            self._set_nymphes_input_name_on_main_thread('Not Connected')
-            self._set_nymphes_output_name_on_main_thread('Not Connected')
+            self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES NOT CONNECTED')
+            self._set_prop_value_on_main_thread('nymphes_input_name', 'Not Connected')
+            self._set_prop_value_on_main_thread('nymphes_output_name', 'Not Connected')
 
         elif address == '/loaded_preset':
             #
@@ -1603,7 +1601,7 @@ class BlueAndPinkSynthEditorApp(App):
                 f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
             # Reset the unsaved changes flag
-            self._set_unsaved_preset_changes_on_main_thread(False)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             # Update the current preset type
             self.curr_preset_type = 'preset_slot'
@@ -1628,7 +1626,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
 
             # Status bar message
-            self._set_status_bar_text_on_main_thread(
+            self._set_prop_value_on_main_thread('status_bar_text',
                 f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
         elif address == '/loaded_preset_dump_from_midi_input_port':
@@ -1640,14 +1638,14 @@ class BlueAndPinkSynthEditorApp(App):
                 f'{address}: {port_name}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
             # Reset the unsaved changes flag
-            self._set_unsaved_preset_changes_on_main_thread(False)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             self._curr_preset_slot_type = preset_slot_type
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
             # Status bar message
             msg = f'LOADED PRESET DUMP {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]} FROM MIDI INPUT PORT {port_name}'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_file':
             #
@@ -1668,7 +1666,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_bank_and_number = None
 
             # Reset the unsaved changes flag
-            self._set_unsaved_preset_changes_on_main_thread(False)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             # Update the presets spinner.
             # This also sets the spinner's current text
@@ -1677,7 +1675,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'LOADED {filepath.name} PRESET FILE '
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_init_file':
             #
@@ -1700,7 +1698,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_bank_and_number = None
 
             # Reset the unsaved changes flag
-            self._set_unsaved_preset_changes_on_main_thread(False)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             # Update the presets spinner
             # Select the init option
@@ -1709,7 +1707,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'LOADED INIT PRESET (init.txt)'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_to_file':
             #
@@ -1730,7 +1728,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_bank_and_number = None
 
             # Reset the unsaved changes flag
-            self._set_unsaved_preset_changes_on_main_thread(False)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             # Update the presets spinner.
             # This also sets the spinner's current text
@@ -1739,7 +1737,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'SAVED {filepath.name} PRESET FILE'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_preset_to_file':
             #
@@ -1756,7 +1754,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_file_to_preset':
             #
@@ -1774,7 +1772,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_to_preset':
             #
@@ -1793,7 +1791,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/requested_preset_dump':
             #
@@ -1803,7 +1801,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'REQUESTED PRESET DUMP...'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/received_preset_dump_from_nymphes':
             #
@@ -1820,7 +1818,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET SYSEX DUMP'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_preset_dump_from_midi_input_port_to_preset':
             #
@@ -1840,7 +1838,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
-            self._set_status_bar_text_on_main_thread(msg)
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/unsaved_changes':
             #
@@ -1848,7 +1846,7 @@ class BlueAndPinkSynthEditorApp(App):
             # was loaded or saved.
             #
             Logger.info(address)
-            self._set_unsaved_preset_changes_on_main_thread(True)
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', True)
 
         elif address == '/midi_input_detected':
             #
@@ -1976,27 +1974,27 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/mod_wheel':
             val = int(args[0])
-            Logger.info(f'Received from nymphes-osc: {address}: {val}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {val}')
 
-            self._set_mod_wheel_prop_on_main_thread(val)
+            self._set_prop_value_on_main_thread('mod_wheel', val)
 
         elif address == '/velocity':
             val = int(args[0])
-            Logger.info(f'Received from nymphes-osc: {address}: {val}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {val}')
 
-            self._set_velocity_prop_on_main_thread(val)
+            self._set_prop_value_on_main_thread('velocity', val)
 
         elif address == '/aftertouch':
             val = int(args[0])
-            Logger.info(f'Received from nymphes-osc: {address}: {val}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {val}')
 
-            self._set_aftertouch_prop_on_main_thread(val)
+            self._set_prop_value_on_main_thread('aftertouch', val)
 
         elif address == '/sustain_pedal':
             val = bool(args[0])
-            Logger.info(f'Received from nymphes-osc: {address}: {val}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {val}')
 
-            self._set_sustain_pedal_prop_on_main_thread(val)
+            self._set_prop_value_on_main_thread('sustain_pedal', val)
 
         elif address == '/nymphes_midi_channel_changed':
             midi_channel = int(args[0])
@@ -2012,12 +2010,12 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
 
         elif address == '/osc/legato/value':
-            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
             val = int(args[0])
-            self._set_legato_prop_on_main_thread(val)
+            self._set_legato_prop_on_main_thread('osc_legato_value', val)
 
         elif address == '/osc/voice_mode/value':
-            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
+            Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
 
             voice_mode = int(args[0])
 
@@ -2354,9 +2352,6 @@ class BlueAndPinkSynthEditorApp(App):
         :param new_text: str
         :return:
         """
-
-        Clock.schedule_once(lambda dt: work_func(dt, option_text), 0)
-
         def work_func(_, new_text):
             if len(self.presets_spinner_values) == 99:
                 # No file has previously been loaded or saved,
@@ -2373,17 +2368,13 @@ class BlueAndPinkSynthEditorApp(App):
             self.presets_spinner_text = self.presets_spinner_values[0]
             self._curr_presets_spinner_index = 0
 
-    def _set_nymphes_input_name_on_main_thread(self, port_name):
-        def work_func(_, new_port_name):
-            self.nymphes_input_name = new_port_name
-
-        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
-
-    def _set_nymphes_output_name_on_main_thread(self, port_name):
-        def work_func(_, new_port_name):
-            self.nymphes_output_name = new_port_name
-
-        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
+        Clock.schedule_once(lambda dt: work_func(dt, option_text), 0)
+        
+    def _set_prop_value_on_main_thread(self, prop_name, value):
+        def work_func(_, _prop_name, _value):
+            setattr(self, _prop_name, _value)
+            
+        Clock.schedule_once(lambda dt: work_func(dt, prop_name, value), 0)
 
     def _add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
@@ -2478,48 +2469,6 @@ class BlueAndPinkSynthEditorApp(App):
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
-
-    def _set_status_bar_text_on_main_thread(self, status_text):
-        def work_func(_, new_status_text):
-            self.status_bar_text = new_status_text
-
-        Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
-
-    def _set_mod_wheel_prop_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.mod_wheel = value
-
-    def _set_velocity_prop_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.velocity = value
-
-    def _set_aftertouch_prop_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.aftertouch = value
-
-    def _set_sustain_pedal_prop_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.sustain_pedal = value
-
-    def _set_legato_prop_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.osc_legato_value = value
-
-    def _set_unsaved_preset_changes_on_main_thread(self, val):
-        Clock.schedule_once(lambda dt: work_func(dt, val), 0)
-
-        def work_func(_, value):
-            self.unsaved_preset_changes = value
 
     @staticmethod
     def parse_preset_index(preset_index):
