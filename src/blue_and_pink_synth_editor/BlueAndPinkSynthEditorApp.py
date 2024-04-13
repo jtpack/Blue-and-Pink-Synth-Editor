@@ -41,8 +41,6 @@ app_version_string = 'v0.2.0-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
-    Logger.info(f'__file__: {__file__}')
-
     nymphes_connected = BooleanProperty(False)
     nymphes_midi_channel = NumericProperty(1)
 
@@ -517,7 +515,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Create the app data folder. On macOS, the app bundle is also installed
             # in this folder by the pkg installer.
             #
-            self._app_data_folder_path = Path('/Applications/Blue and Pink Synth Editor')
+            self._app_data_folder_path = Path(os.path.expanduser('~')) / 'Library/Application Support/Blue and Pink Synth Editor'
             if not self._app_data_folder_path.exists():
                 try:
                     self._app_data_folder_path.mkdir()
@@ -537,19 +535,8 @@ class BlueAndPinkSynthEditorApp(App):
                 except Exception as e:
                     Logger.critical(f'Failed to create presets folder at {self._presets_directory_path} ({e})')
 
-            # Create the folder for config files
-            #
-            self._config_files_directory_path = Path.home() / 'Library/Application Support/Blue and Pink Synth Editor'
-            if not self._config_files_directory_path.exists():
-                try:
-                    self._config_files_directory_path.mkdir()
-                    Logger.info(f'Created config files folder at {self._config_files_directory_path}')
-
-                except Exception as e:
-                    Logger.critical(f'Failed to config files folder at {self._config_files_directory_path} ({e})')
-
             # Store the path to the config file
-            self._config_file_path = self._config_files_directory_path / 'config.txt'
+            self._config_file_path = self._app_data_folder_path / 'config.txt'
 
         else:
             # Create the app data folder
@@ -576,8 +563,6 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Create the path for the config file
             self._config_file_path = self._app_data_folder_path / 'config.txt'
-
-        Logger.info(f'Config file path: {self._config_file_path}')
 
         # Create a config file if one doesn't exist
         if not Path(self._config_file_path).exists():
@@ -805,7 +790,6 @@ class BlueAndPinkSynthEditorApp(App):
             self._send_nymphes_osc('/save_to_file', filepath)
 
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
-        Logger.debug(f'presets_spinner_text_changed: {spinner_index}, {spinner_text}')
         if self._curr_presets_spinner_index != spinner_index:
             # Store the new index
             self._curr_presets_spinner_index = spinner_index
@@ -1016,8 +1000,6 @@ class BlueAndPinkSynthEditorApp(App):
 
 
     def midi_input_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'midi_input_port_checkbox_toggled: {port_name}, {active}')
-
         if active:
             if port_name not in self._connected_midi_inputs:
                 # Connect to this MIDI input
@@ -1035,8 +1017,6 @@ class BlueAndPinkSynthEditorApp(App):
                 )
 
     def midi_output_port_checkbox_toggled(self, port_name, active):
-        Logger.debug(f'midi_output_port_checkbox_toggled: {port_name}, {active}')
-
         if active:
             if port_name not in self._connected_midi_outputs:
                 # Connect to this MIDI output
@@ -1247,6 +1227,8 @@ class BlueAndPinkSynthEditorApp(App):
         :param filepath: str or Path
         :return:
         """
+        Logger.info(f'Loading settings from config file at {filepath}...')
+
         config = configparser.ConfigParser()
         config.read(filepath)
 
@@ -1264,7 +1246,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             self._nymphes_osc_listener_host = config['NYMPHES_OSC']['listener host']
             Logger.info(
-                f'Using {self._nymphes_osc_listener_host} for OSC server listening for OSC messages from nymphes-osc')
+                f'[NYMPHES_OSC][listener_host]: {self._nymphes_osc_listener_host}')
 
         else:
             #
@@ -1274,7 +1256,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             in_host = self._get_local_ip_address()
             self._nymphes_osc_listener_host = in_host
-            Logger.info(f'Using detected local ip address for OSC server listening for OSC messages from nymphes-osc: {in_host}')
+            Logger.info(f'[NYMPHES_OSC][listener_host] not specified. Will use detected local ip address: {in_host}')
 
         self._nymphes_osc_listener_port = int(config['NYMPHES_OSC']['listener port'])
 
@@ -1285,7 +1267,7 @@ class BlueAndPinkSynthEditorApp(App):
         if config.has_option('MIDI', 'nymphes midi channel'):
             try:
                 self.nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
-                Logger.info(f'Using MIDI Channel for Nymphes from config file: {self.nymphes_midi_channel}')
+                Logger.info(f'[MIDI][nymphes midi channel]: {self.nymphes_midi_channel}')
 
             except Exception as e:
                 # Something went wrong retrieving and converting the MIDI
@@ -1295,14 +1277,14 @@ class BlueAndPinkSynthEditorApp(App):
                 self.nymphes_midi_channel = 1
 
                 Logger.warning(
-                    f'Failed to retrieve Nymphes MIDI channel from config file: {e}. Using channel {self.nymphes_midi_channel}')
+                    f'[MIDI][nymphes midi channel] was invalid. Using channel {self.nymphes_midi_channel}: {e}')
 
         else:
             # Use MIDI channel 1
             self.nymphes_midi_channel = 1
 
             Logger.warning(
-                f'Config file did not contain an entry for Nymphes MIDI channel. Using channel {self.nymphes_midi_channel}')
+                f'[MIDI][nymphes midi channel] not specified. Using channel {self.nymphes_midi_channel}')
 
     def _reload_config_file(self):
         Logger.info(f'Reloading config file at {self._config_file_path}')
@@ -1331,7 +1313,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Created config file at {filepath}')
 
         except Exception as e:
-            Logger.critical(f'Failed to create config file at {filepath} ({e})')
+            Logger.critical(f'Failed to create config file at {filepath}: ({e})')
 
     def _save_config_file(self, filepath):
         config = configparser.ConfigParser()
@@ -1446,7 +1428,7 @@ class BlueAndPinkSynthEditorApp(App):
         msg = msg.build()
         self._nymphes_osc_sender.send(msg)
 
-        Logger.debug(f'send_nymphes_osc: {address}, {[str(arg) for arg in args]}')
+        Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
 
     def _on_nymphes_osc_message(self, address, *args):
         """
@@ -1463,7 +1445,7 @@ class BlueAndPinkSynthEditorApp(App):
             host_name = str(args[0])
             port = int(args[1])
 
-            Logger.info(f'{address}: {host_name}:{port}')
+            Logger.info(f'Received from nymphes-osc: {address}: {host_name}:{port}')
 
             # We are connected to nymphes_osc
             self._connected_to_nymphes_osc = True
@@ -1474,7 +1456,7 @@ class BlueAndPinkSynthEditorApp(App):
             host_name = str(args[0])
             port = int(args[1])
 
-            Logger.info(f'{address}: {host_name}:{port}')
+            Logger.info(f'Received from nymphes-osc: {address}: {host_name}:{port}')
 
             # We are no longer connected to nymphes-osc
             self._connected_to_nymphes_osc = False
@@ -1483,7 +1465,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the path
             path = Path(args[0])
 
-            Logger.info(f'{address}: {path}')
+            Logger.info(f'Received from nymphes-osc: {address}: {path}')
 
             # Store it
             self._presets_directory_path = str(path)
@@ -1496,7 +1478,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of detected Nymphes MIDI input ports
             if port_name not in self._detected_nymphes_midi_inputs:
@@ -1522,7 +1504,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of detected Nymphes MIDI input ports
             if port_name in self._detected_nymphes_midi_inputs:
@@ -1537,7 +1519,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of detected Nymphes MIDI output ports
             if port_name not in self._detected_nymphes_midi_outputs:
@@ -1563,7 +1545,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of detected Nymphes MIDI output ports
             if port_name in self._detected_nymphes_midi_outputs:
@@ -1577,7 +1559,7 @@ class BlueAndPinkSynthEditorApp(App):
             input_port = str(args[0])
             output_port = str(args[1])
 
-            Logger.info(f'{address}: input_port: {input_port}, output_port: {output_port}')
+            Logger.info(f'Received from nymphes-osc: {address}: input_port: {input_port}, output_port: {output_port}')
 
             # Get the names of the MIDI input and output ports
             self._nymphes_input_port = input_port
@@ -1597,7 +1579,7 @@ class BlueAndPinkSynthEditorApp(App):
             # nymphes_midi is no longer connected to a Nymphes synthesizer
             #
 
-            Logger.info(f'{address}')
+            Logger.info(f'Received from nymphes-osc: {address}')
 
             # Update app state
             self.nymphes_connected = False
@@ -1673,7 +1655,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             filepath = Path(args[0])
 
-            Logger.info(f'{address}: {filepath}')
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
             # Update the current preset type
             self.curr_preset_type = 'file'
@@ -1705,7 +1687,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the path to the init preset file
             filepath = Path(args[0])
 
-            Logger.info(f'{address}: {filepath}')
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
             # Store the path
             self._curr_preset_file_path = filepath
@@ -1735,7 +1717,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             filepath = Path(args[0])
 
-            Logger.info(f'{address}: {filepath}')
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
             # Update the current preset type
             self.curr_preset_type = 'file'
@@ -1770,7 +1752,7 @@ class BlueAndPinkSynthEditorApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
             msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
@@ -1788,7 +1770,7 @@ class BlueAndPinkSynthEditorApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            Logger.info(f'{address}: {filepath} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
             msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
@@ -1807,7 +1789,7 @@ class BlueAndPinkSynthEditorApp(App):
             bank_name = str(args[1])
             preset_number = int(args[2])
 
-            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
             msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
@@ -1817,7 +1799,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # A full preset dump has been requested
             #
-            Logger.info(f'{address}:')
+            Logger.info(f'Received from nymphes-osc: {address}:')
 
             # Status bar message
             msg = f'REQUESTED PRESET DUMP...'
@@ -1834,7 +1816,7 @@ class BlueAndPinkSynthEditorApp(App):
             bank_name = str(args[1])
             preset_number = int(args[2])
 
-            Logger.info(f'{address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
             msg = f'RECEIVED {preset_type.upper()} {bank_name}{preset_number} PRESET SYSEX DUMP'
@@ -1854,7 +1836,7 @@ class BlueAndPinkSynthEditorApp(App):
             bank_name = str(args[2])
             preset_number = int(args[3])
 
-            Logger.info(f'{address}: {port_name} {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
             msg = f'SAVED PRESET DUMP FROM MIDI INPUT {port_name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
@@ -1876,7 +1858,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of detected MIDI input ports
             if port_name not in self._detected_midi_inputs:
@@ -1892,7 +1874,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of detected MIDI input ports
             if port_name in self._detected_midi_inputs:
@@ -1908,7 +1890,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of connected MIDI input ports
             if port_name not in self._connected_midi_inputs:
@@ -1923,7 +1905,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of connected MIDI input ports
             if port_name in self._connected_midi_inputs:
@@ -1938,7 +1920,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of detected MIDI output ports
             if port_name not in self._detected_midi_outputs:
@@ -1954,7 +1936,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of detected MIDI output ports
             if port_name in self._detected_midi_outputs:
@@ -1970,7 +1952,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Add it to our list of connected MIDI output ports
             if port_name not in self._connected_midi_outputs:
@@ -1985,7 +1967,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the name of the port
             port_name = str(args[0])
 
-            Logger.info(f'{address}: {port_name}')
+            Logger.info(f'Received from nymphes-osc: {address}: {port_name}')
 
             # Remove it from our list of connected MIDI output ports
             if port_name in self._connected_midi_outputs:
@@ -1994,31 +1976,31 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/mod_wheel':
             val = int(args[0])
-            Logger.debug(f'{address}: {val}')
+            Logger.info(f'Received from nymphes-osc: {address}: {val}')
 
             self._set_mod_wheel_prop_on_main_thread(val)
 
         elif address == '/velocity':
             val = int(args[0])
-            Logger.debug(f'{address}: {val}')
+            Logger.info(f'Received from nymphes-osc: {address}: {val}')
 
             self._set_velocity_prop_on_main_thread(val)
 
         elif address == '/aftertouch':
             val = int(args[0])
-            Logger.debug(f'{address}: {val}')
+            Logger.info(f'Received from nymphes-osc: {address}: {val}')
 
             self._set_aftertouch_prop_on_main_thread(val)
 
         elif address == '/sustain_pedal':
             val = bool(args[0])
-            Logger.debug(f'{address}: {val}')
+            Logger.info(f'Received from nymphes-osc: {address}: {val}')
 
             self._set_sustain_pedal_prop_on_main_thread(val)
 
         elif address == '/nymphes_midi_channel_changed':
             midi_channel = int(args[0])
-            Logger.debug(f'{address}: {midi_channel}')
+            Logger.info(f'Received from nymphes-osc: {address}: {midi_channel}')
 
             # Store the new MIDI channel
             self.nymphes_midi_channel = midi_channel
@@ -2027,15 +2009,16 @@ class BlueAndPinkSynthEditorApp(App):
             self._save_config_file(self._config_file_path)
 
         elif address == '/status':
-            Logger.info(f'{address}: {args[0]}')
+            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
 
         elif address == '/osc/legato/value':
+            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
             val = int(args[0])
-            Logger.debug(f'Received param name osc.legato.value: {val}')
-
             self._set_legato_prop_on_main_thread(val)
 
         elif address == '/osc/voice_mode/value':
+            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
+
             voice_mode = int(args[0])
 
             # Store the new voice mode as an int
@@ -2090,7 +2073,7 @@ class BlueAndPinkSynthEditorApp(App):
                     #
                     value = int(args[0])
 
-                Logger.debug(f'Received param name {param_name}: {args[0]}')
+                Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
 
                 # Set our property for this parameter
                 setattr(self, param_name.replace('.', '_'), value)
@@ -2107,7 +2090,6 @@ class BlueAndPinkSynthEditorApp(App):
         :return:
         """
         try:
-            Logger.info('Starting nymphes-osc child process...')
             self._nymphes_osc_child_process = NymphesOscProcess(
                 server_host=self._nymphes_osc_sender_host,
                 server_port=self._nymphes_osc_sender_port,
@@ -2124,18 +2106,19 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info('Started the nymphes_osc child process')
 
         except Exception as e:
-            Logger.critical(f'Failed to start the nymphes_osc child process ({e})')
+            Logger.critical(f'Failed to start the nymphes_osc child process: {e}')
 
     def _stop_nymphes_osc_child_process(self):
         """
         Stop the nymphes_osc child process if it is running
         :return:
         """
-        Logger.info('Stopping the nymphes_osc child process...')
         if self._nymphes_osc_child_process is not None:
             self._nymphes_osc_child_process.kill()
             self._nymphes_osc_child_process.join()
             self._nymphes_osc_child_process = None
+
+            Logger.info('Stopped the nymphes_osc child process')
 
     def _on_popup_open(self, popup_instance):
         # Bind keyboard events for the popup
@@ -2284,7 +2267,7 @@ class BlueAndPinkSynthEditorApp(App):
         width_diff = width - self.curr_width
         height_diff = height - self.curr_height
 
-        # Logger.debug(f'on_window_resize: new size: {width} x {height}, prev size: {self.curr_width} x {self.curr_height}, diff: {width_diff} x {height_diff}, scaling: {scaling}')
+        Logger.debug(f'on_window_resize: new size: {width} x {height}, prev size: {self.curr_width} x {self.curr_height}, diff: {width_diff} x {height_diff}, scaling: {scaling}')
 
         if self._just_resized_window:
             # Skip this resize callback, as it wasn't generated
@@ -2391,26 +2374,18 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_presets_spinner_index = 0
 
     def _set_nymphes_input_name_on_main_thread(self, port_name):
-        Logger.debug(f'set_nymphes_input_name_on_main_thread: {port_name}')
-
-        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
-
         def work_func(_, new_port_name):
             self.nymphes_input_name = new_port_name
 
-    def _set_nymphes_output_name_on_main_thread(self, port_name):
-        Logger.debug(f'set_nymphes_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _set_nymphes_output_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             self.nymphes_output_name = new_port_name
 
-    def _add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
-        Logger.debug(f'add_nymphes_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             # Add the port name to the list used by the
             # Nymphes input ports spinner
@@ -2418,21 +2393,17 @@ class BlueAndPinkSynthEditorApp(App):
             self.nymphes_input_spinner_names = [self.nymphes_input_spinner_names[0]] + sorted(
                 self.nymphes_input_spinner_names[1:])
 
-    def _remove_name_from_nymphes_input_spinner_on_main_thread(self, port_name):
-        Logger.debug(f'remove_nymphes_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_name_from_nymphes_input_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             # Remove it from the Nymphes input spinner list as well
             if new_port_name in self.nymphes_input_spinner_names:
                 self.nymphes_input_spinner_names.remove(new_port_name)
 
-    def _add_name_to_nymphes_output_spinner_on_main_thread(self, port_name):
-        Logger.debug(f'add_nymphes_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_name_to_nymphes_output_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             # Add the port name to the list used by the
             # Nymphes output ports spinner
@@ -2440,95 +2411,79 @@ class BlueAndPinkSynthEditorApp(App):
             self.nymphes_output_spinner_names = [self.nymphes_output_spinner_names[0]] + sorted(
                 self.nymphes_output_spinner_names[1:])
 
-    def _remove_name_from_nymphes_output_spinner_on_main_thread(self, port_name):
-        Logger.debug(f'remove_nymphes_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_name_from_nymphes_output_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             # Remove it from the Nymphes output spinner list as well
             if new_port_name in self.nymphes_output_spinner_names:
                 self.nymphes_output_spinner_names.remove(new_port_name)
 
-    def _add_midi_input_name_on_main_thread(self, port_name):
-        Logger.debug(f'add_midi_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_midi_input_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             # Add the port name to the list of detected
             # MIDI controller input ports
             self.detected_midi_input_names_for_gui.append(new_port_name)
             self.detected_midi_input_names_for_gui.sort()
 
-    def _remove_midi_input_name_on_main_thread(self, port_name):
-        Logger.debug(f'remove_midi_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_midi_input_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             if new_port_name in self.detected_midi_input_names_for_gui:
                 self.detected_midi_input_names_for_gui.remove(new_port_name)
 
-    def _add_midi_output_name_on_main_thread(self, port_name):
-        Logger.debug(f'add_midi_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_midi_output_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             self.detected_midi_output_names_for_gui.append(new_port_name)
             self.detected_midi_output_names_for_gui.sort()
 
-    def _remove_midi_output_name_on_main_thread(self, port_name):
-        Logger.debug(f'remove_midi_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_midi_output_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             if new_port_name in self.detected_midi_output_names_for_gui:
                 self.detected_midi_output_names_for_gui.remove(new_port_name)
 
-    def _add_connected_midi_input_name_on_main_thread(self, port_name):
-        Logger.debug(f'add_connected_midi_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_connected_midi_input_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             self.connected_midi_input_names_for_gui.append(new_port_name)
             self.connected_midi_input_names_for_gui.sort()
 
-    def _remove_connected_midi_input_name_on_main_thread(self, port_name):
-        Logger.debug(f'remove_connected_midi_input_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_connected_midi_input_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             if new_port_name in self.connected_midi_input_names_for_gui:
                 self.connected_midi_input_names_for_gui.remove(new_port_name)
 
-    def _add_connected_midi_output_name_on_main_thread(self, port_name):
-        Logger.debug(f'add_connected_midi_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _add_connected_midi_output_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             self.connected_midi_output_names_for_gui.append(new_port_name)
             self.connected_midi_output_names_for_gui.sort()
 
-    def _remove_connected_midi_output_name_on_main_thread(self, port_name):
-        Logger.debug(f'remove_connected_midi_output_name_on_main_thread: {port_name}')
-
         Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _remove_connected_midi_output_name_on_main_thread(self, port_name):
         def work_func(_, new_port_name):
             if new_port_name in self.connected_midi_output_names_for_gui:
                 self.connected_midi_output_names_for_gui.remove(new_port_name)
 
-    def _set_status_bar_text_on_main_thread(self, status_text):
-        Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
+        Clock.schedule_once(lambda dt: work_func(dt, port_name), 0)
 
+    def _set_status_bar_text_on_main_thread(self, status_text):
         def work_func(_, new_status_text):
             self.status_bar_text = new_status_text
+
+        Clock.schedule_once(lambda dt: work_func(dt, status_text), 0)
 
     def _set_mod_wheel_prop_on_main_thread(self, val):
         Clock.schedule_once(lambda dt: work_func(dt, val), 0)
