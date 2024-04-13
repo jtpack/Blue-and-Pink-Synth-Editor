@@ -1,4 +1,6 @@
 - Fixed bug where changing Nymphes output port also affected the input port.
+- Improved logging so it is easier to understand.
+- Moved presets folder to ~/Library/Application Support/Blue and Pink Synth Editor/ so now we no longer need a folder inside /Applications
 
 ## v0.2.1-beta
 
