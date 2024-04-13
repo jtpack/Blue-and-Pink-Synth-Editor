@@ -1,12 +1,16 @@
+- Fixed bug where changing Nymphes output port also affected the input port.
+
+## v0.2.1-beta
 
 - Renamed chord controls to match the changes in nymphes-osc
 
 Changes from nymphes-osc repository:
 - Discovered that chord semitone values can be negative
   - Adjusted range to -127 to 127
-- Renamed chords to better match what is written in the Nymphes Manual. Now the seven normal chords are named 1 through 7, and the default chord is chord 0.
-  - All old preset files are incompatible unless you rename the chords to match
-- Turns out Nymphes actually sends a value of 127 when legato is enabled, not 1 as indicated in the Nymphes manual
+- Renamed chords to better match what is written in the Nymphes Manual
+  - Now the seven normal chords are named 1 through 7, and the default chord is chord 0
+  - Note: All old preset files are incompatible unless you rename the chords to match!
+- Legato Fix: Turns out Nymphes actually sends a value of 127 when legato is enabled, not 1 as indicated in the Nymphes manual
   - Now we do the same
 
 
