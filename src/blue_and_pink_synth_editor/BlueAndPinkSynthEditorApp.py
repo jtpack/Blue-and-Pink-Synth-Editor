@@ -1089,7 +1089,7 @@ class BlueAndPinkSynthEditorApp(App):
             if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
                 self._send_nymphes_osc(
                     '/connect_nymphes',
-                    self.nymphes_output_name,
+                    self.nymphes_input_name,
                     self.nymphes_output_name
                 )
 

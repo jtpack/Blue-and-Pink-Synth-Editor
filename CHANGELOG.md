@@ -1,3 +1,5 @@
+- Fixed bug where changing Nymphes output port also affected the input port.
+
 ## v0.2.1-beta
 
 - Renamed chord controls to match the changes in nymphes-osc
