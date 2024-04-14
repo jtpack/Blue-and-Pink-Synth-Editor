@@ -164,13 +164,6 @@ ScreenManager:
         spacing: self.parent.spacing
         corner_radius: self.parent.corner_radius
 
-        canvas.before:
-            Color:
-                rgba: C('#500000FF')
-            Rectangle:
-                pos: self.pos
-                size: self.size
-
         # Row 1
         Chord0ControlSection:
             screen_name: root.screen_name
@@ -221,6 +214,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 0 (0-9)'
         this_chord_active: 0 <= app.pitch_chord_value <= 9
+        tooltip_text: 'ACTIVATE CHORD 0'
 
     ChordParamsGrid:
 
@@ -286,6 +280,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 1 (10-27)'
         this_chord_active: 10 <= app.pitch_chord_value <= 27
+        tooltip_text: 'ACTIVATE CHORD 1'
 
     ChordParamsGrid:
 
@@ -351,6 +346,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 2 (28-45)'
         this_chord_active: 28 <= app.pitch_chord_value <= 45
+        tooltip_text: 'ACTIVATE CHORD 2'
 
     ChordParamsGrid:
 
@@ -416,6 +412,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 3 (46-63)'
         this_chord_active: 46 <= app.pitch_chord_value <= 63
+        tooltip_text: 'ACTIVATE CHORD 3'
 
     ChordParamsGrid:
 
@@ -481,6 +478,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 4 (64-81)'
         this_chord_active: 64 <= app.pitch_chord_value <= 81
+        tooltip_text: 'ACTIVATE CHORD 4'
 
     ChordParamsGrid:
 
@@ -546,6 +544,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 5 (82-99)'
         this_chord_active: 82 <= app.pitch_chord_value <= 99
+        tooltip_text: 'ACTIVATE CHORD 5'
 
     ChordParamsGrid:
 
@@ -611,6 +610,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 6 (100-117)'
         this_chord_active: 100 <= app.pitch_chord_value <= 117
+        tooltip_text: 'ACTIVATE CHORD 6'
 
     ChordParamsGrid:
 
@@ -676,6 +676,7 @@ ScreenManager:
     ChordSectionTitleLabel:
         text: 'CHORD 7 (118-127)'
         this_chord_active: 118 <= app.pitch_chord_value <= 127
+        tooltip_text: 'ACTIVATE CHORD 7'
 
     ChordParamsGrid:
 
@@ -743,7 +744,7 @@ ScreenManager:
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
     Widget:
-        size_hint_x: 5/6
+        size_hint_x: 18/20
 
     TopBarButton:
         screen_name: root.screen_name
@@ -753,8 +754,7 @@ ScreenManager:
             app.root.current = 'dashboard'
             app.set_curr_screen_name('dashboard')
         text: 'BACK'
-        size_hint_x: 1/6
-
+        size_hint_x: 2/20
 
 <TopBar>:
     orientation: 'horizontal'
@@ -772,7 +772,7 @@ ScreenManager:
 
     PresetIncButton:
         screen_name: root.screen_name
-        tooltip_text: 'RECALL THE PREVIOUS PRESET'
+        tooltip_text: 'RECALL PREVIOUS PRESET'
         size_hint_x: 1/20
         text: '-'
         font_size: self.height * 1.2
@@ -788,14 +788,14 @@ ScreenManager:
 
     PresetIncButton:
         screen_name: root.screen_name
-        tooltip_text: 'RECALL THE NEXT PRESET'
+        tooltip_text: 'RECALL NEXT PRESET'
         size_hint_x: 1/20
         text: '+'
         on_release: app.load_next_preset()
 
     TopBarButton:
         screen_name: root.screen_name
-        tooltip_text: 'SAVE THE CURRENT CHANGES TO ' + app.presets_spinner_text
+        tooltip_text: 'SAVE CURRENT CHANGES TO ' + app.presets_spinner_text
         size_hint_x: 2/20
         text: 'SAVE'
         on_release: app.update_current_preset()
@@ -816,7 +816,7 @@ ScreenManager:
         screen_name: root.screen_name
         size_hint_x: 2/20
         text: 'OPEN'
-        tooltip_text: 'LOAD A PRESET FILE'
+        tooltip_text: 'LOAD PRESET FILE'
         on_release: app.show_load_dialog()
         disabled: not app.nymphes_connected
 
@@ -824,7 +824,7 @@ ScreenManager:
         screen_name: root.screen_name
         size_hint_x: 2/20
         text: 'SAVE AS'
-        tooltip_text: 'SAVE TO A NEW PRESET FILE'
+        tooltip_text: 'SAVE TO NEW PRESET FILE'
         on_release: app.show_save_dialog()
         disabled: not app.nymphes_connected
 
@@ -1006,7 +1006,7 @@ ScreenManager:
     font_size: (self.height * 0.35) if app.osc_legato_value == 0 else (self.height * 0.375)
     on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     disabled: not app.nymphes_connected
-    tooltip_text: 'ENABLE LEGATO MODE'
+    tooltip_text: 'LEGATO MODE'
 
 
 <ChordsButtonBox>:
@@ -1060,7 +1060,7 @@ ScreenManager:
     font_size: (self.height * 0.4) if app.fine_mode else (self.height * 0.35)
     on_release: app.set_fine_mode(not app.fine_mode)
     disabled: not app.nymphes_connected
-    tooltip_text: 'ENABLE HIGH RESOLUTION CONTROL MODE (0.1 INCREMENT INSTEAD OF 1.0)'
+    tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
 
 <ControlSection>:
     orientation: 'vertical'
@@ -2349,7 +2349,7 @@ ScreenManager:
 
 
 <ModWheelValueLabel>:
-    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C(self.text_color_string)
     font_size: self.height * 0.8
     text_size: self.size
     halign: 'center'
@@ -2357,9 +2357,10 @@ ScreenManager:
     text: str(app.mod_wheel)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
+    tooltip_text: 'SEND MOD WHEEL AMOUNT TO NYMPHES'
 
 <AftertouchValueLabel>:
-    color: C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C(self.text_color_string)
     font_size: self.height * 0.8
     text_size: self.size
     halign: 'center'
@@ -2367,6 +2368,7 @@ ScreenManager:
     text: str(app.aftertouch)
     on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
+    tooltip_text: 'SEND AFTERTOUCH TO NYMPHES'
 
 
 <ChordParamsGrid>:
@@ -2411,13 +2413,15 @@ ScreenManager:
 <ChordSectionTitleLabel>:
     size_hint_y: None
     height: app.curr_height * 1/16
+    size_hint_x: 2/5
     background_color: 0, 1, 0, 0.3
-    color: C('#ECBFEBFF') if not app.nymphes_connected else (C('#ECBFEBFF') if self.this_chord_active else C('#06070FFF'))
+    color: C('#ECBFEBFF') if self.this_chord_active or self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.6 if self.this_chord_active else self.height * 0.5
     text_size: self.size
     halign: 'left'
     valign: 'middle'
     disabled: not app.nymphes_connected
+    screen_name: 'chords'
 
 <MiscSettingsButton@ButtonBehavior+Label>:
     color: C('#06070FFF')

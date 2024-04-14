@@ -1092,18 +1092,17 @@ class BlueAndPinkSynthEditorApp(App):
                 # Store the name of the parameter
                 self.curr_mouse_hover_param_name = param_name
 
-                if param_name not in ['mod_wheel', 'aftertouch']:
-                    # Get the value and type for the parameter
-                    value = self._get_prop_value_for_param_name(param_name)
-                    param_type = NymphesPreset.type_for_param_name(param_name)
+                # Get the value and type for the parameter
+                value = self._get_prop_value_for_param_name(param_name)
+                param_type = NymphesPreset.type_for_param_name(param_name)
 
-                    if param_type == float:
-                        value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+                if param_type == float:
+                    value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
 
-                    elif param_type == int:
-                        value_string = str(value)
+                elif param_type == int:
+                    value_string = str(value)
 
-                    self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
+                self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
@@ -3301,12 +3300,12 @@ class ModWheelValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('mod_wheel')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouseover)
-
-        self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
         if App.get_running_app().curr_screen_name == self.screen_name:
@@ -3321,10 +3320,12 @@ class ModWheelValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
 
     def handle_touch(self, device, button):
         #
@@ -3406,12 +3407,12 @@ class AftertouchValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('aftertouch')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouseover)
-
-        self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
         if App.get_running_app().curr_screen_name == self.screen_name:
@@ -3426,10 +3427,12 @@ class AftertouchValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
 
     def handle_touch(self, device, button):
         #
@@ -3650,6 +3653,6 @@ class ChordParamValueLabel(ButtonBehavior, Label):
             return super(ChordParamValueLabel, self).on_touch_up(touch)
 
 
-class ChordSectionTitleLabel(ButtonBehavior, Label):
+class ChordSectionTitleLabel(HoverButton):
     this_chord_active = BooleanProperty(False)
 
