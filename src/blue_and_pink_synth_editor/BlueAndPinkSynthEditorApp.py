@@ -24,6 +24,7 @@ from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.uix.checkbox import CheckBox
+from kivy.uix.spinner import Spinner, SpinnerOption
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -3063,9 +3064,69 @@ class ModAmountLine(ButtonBehavior, Widget):
             return super(ModAmountLine, self).on_touch_up(touch)
 
 
-class VoiceModeButton(ButtonBehavior, Label):
-    voice_mode_name = StringProperty('')
+class HoverButton(ButtonBehavior, Label):
+    screen_name = StringProperty('')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+    def on_mouseover(self, _, pos):
+        if not self.disabled:
+            if App.get_running_app().curr_screen_name == self.screen_name:
+                if self.collide_point(*pos):
+                    if not self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = True
+                        self.on_mouse_enter()
+
+                else:
+                    if self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = False
+                        self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
+
+    def on_mouse_exit(self):
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
+
+class HoverSpinner(Spinner):
+    screen_name = StringProperty('')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+    def on_mouseover(self, _, pos):
+        if not self.disabled:
+            if App.get_running_app().curr_screen_name == self.screen_name:
+                if self.collide_point(*pos):
+                    if not self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = True
+                        self.on_mouse_enter()
+
+                else:
+                    if self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = False
+                        self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
+
+    def on_mouse_exit(self):
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
+
+
+class VoiceModeButton(HoverButton):
+    voice_mode_name = StringProperty('')
 
 
 class SectionRelativeLayout(RelativeLayout):
@@ -3096,30 +3157,39 @@ class ChordsMainControlsBox(BoxLayout):
 class MainSettingsGrid(GridLayout):
     corner_radius = NumericProperty(0)
 
+
 class SettingsSubBox(BoxLayout):
     corner_radius = NumericProperty(0)
+
 
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class LegatoBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class ChordsButtonBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class FineModeBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
 
 class LeftBar(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class TopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3129,9 +3199,12 @@ class BottomBar(BoxLayout):
 
 
 class SettingsTopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
+
 class ChordsTopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3579,3 +3652,4 @@ class ChordParamValueLabel(ButtonBehavior, Label):
 
 class ChordSectionTitleLabel(ButtonBehavior, Label):
     this_chord_active = BooleanProperty(False)
+

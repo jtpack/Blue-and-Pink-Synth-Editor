@@ -25,6 +25,7 @@ ScreenManager:
 
         # Top Bar
         TopBar:
+            screen_name: root.name
             size_hint_y: 3/40
             corner_radius: root.height * 0.015
 
@@ -33,7 +34,7 @@ ScreenManager:
             size_hint_y: 35/40
             corner_radius: root.height * 0.015
 
-        BottomBar:
+        DashboardBottomBar:
             screen_name: root.name
             size_hint_y: 2/40
             corner_radius: root.height * 0.015
@@ -56,13 +57,14 @@ ScreenManager:
 
         # Top Bar
         SettingsTopBar:
-            size_hint_y: 1/10
+            size_hint_y: 3/40
             corner_radius: root.height * 0.015
+            screen_name: root.name
 
         MainSettingsGrid:
             cols: 3
             spacing: app.curr_height * 0.008
-            size_hint_y: 7/10
+            size_hint_y: 35/40
             corner_radius: root.height * 0.015
 
             # Row 1
@@ -87,18 +89,10 @@ ScreenManager:
                 size_hint_x: 1/3
                 size_hint_y: 4/5
 
-            # Row 2
-
-
-        Widget:
-            size_hint_y: 2/10
-#            canvas.before:
-#                Color:
-#                    rgba: C('#00FF0050')
-#
-#                Rectangle:
-#                    pos: self.pos
-#                    size: self.width, self.height
+        DashboardBottomBar:
+            size_hint_y: 2/40
+            screen_name: root.name
+            corner_radius: root.height * 0.015
 
 
 <ChordsScreen@Screen>:
@@ -118,6 +112,7 @@ ScreenManager:
 
         # Top Bar
         ChordsTopBar:
+            screen_name: root.name
             size_hint_y: 3/40
             corner_radius: root.height * 0.015
 
@@ -126,7 +121,7 @@ ScreenManager:
             size_hint_y: 35/40
             corner_radius: root.height * 0.015
 
-        BottomBar:
+        DashboardBottomBar:
             screen_name: root.name
             size_hint_y: 2/40
             corner_radius: root.height * 0.015
@@ -150,7 +145,9 @@ ScreenManager:
         size_hint_x: 18/20
 
     TopBarButton:
+        screen_name: root.screen_name
         size_hint_x: 2/20
+        tooltip_text: 'RETURN TO MAIN SCREEN'
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
@@ -749,6 +746,8 @@ ScreenManager:
         size_hint_x: 5/6
 
     TopBarButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RETURN TO MAIN SCREEN'
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
@@ -772,6 +771,8 @@ ScreenManager:
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
     PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL THE PREVIOUS PRESET'
         size_hint_x: 1/20
         text: '-'
         font_size: self.height * 1.2
@@ -782,19 +783,27 @@ ScreenManager:
         values: app.presets_spinner_values
         text: app.presets_spinner_text
         on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
+        screen_name: root.screen_name
+        tooltip_text: 'SELECT A PRESET'
 
     PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL THE NEXT PRESET'
         size_hint_x: 1/20
         text: '+'
         on_release: app.load_next_preset()
 
     TopBarButton:
+        screen_name: root.screen_name
+        tooltip_text: 'SAVE THE CURRENT CHANGES TO ' + app.presets_spinner_text
         size_hint_x: 2/20
         text: 'SAVE'
         on_release: app.update_current_preset()
         disabled: not app.nymphes_connected or app.unsaved_preset_changes == False
 
     TopBarButton:
+        screen_name: root.screen_name
+        tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
         size_hint_x: 2/20
         text: 'REVERT'
         on_release: app.reload()
@@ -804,14 +813,18 @@ ScreenManager:
         size_hint_x: 1/20
 
     TopBarButton:
+        screen_name: root.screen_name
         size_hint_x: 2/20
         text: 'OPEN'
+        tooltip_text: 'LOAD A PRESET FILE'
         on_release: app.show_load_dialog()
         disabled: not app.nymphes_connected
 
     TopBarButton:
+        screen_name: root.screen_name
         size_hint_x: 2/20
         text: 'SAVE AS'
+        tooltip_text: 'SAVE TO A NEW PRESET FILE'
         on_release: app.show_save_dialog()
         disabled: not app.nymphes_connected
 
@@ -819,7 +832,9 @@ ScreenManager:
         size_hint_x: 1/20
 
     TopBarButton:
+        screen_name: root.screen_name
         size_hint_x: 3/20
+        tooltip_text: 'SHOW SETTINGS SCREEN'
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
@@ -840,6 +855,7 @@ ScreenManager:
 
     LeftBar:
         size_hint: 1/12, 1
+        screen_name: root.screen_name
 
     ControlSectionsGrid:
         cols: 2
@@ -896,25 +912,30 @@ ScreenManager:
 
     # Voice Mode Box
     VoiceModeBox:
+        screen_name: root.screen_name
         size_hint: 1, 19/28
         corner_radius: root.corner_radius
 
     LegatoBox:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
+        screen_name: root.screen_name
 
     ChordsButtonBox:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
+        screen_name: root.screen_name
 
     FineModeBox:
         size_hint: 1, 3/28
         corner_radius: root.corner_radius
+        screen_name: root.screen_name
 
 
 <VoiceModeBox>:
     orientation: 'vertical'
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    spacing: self.height * 1/50
 
     canvas.before:
         Color:
@@ -927,27 +948,38 @@ ScreenManager:
 
     VoiceModeButton:
         voice_mode_name: 'POLY'
+        screen_name: root.screen_name
+        tooltip_text: 'POLY MODE (6 NOTES, 1 VOICE PER NOTE)'
 
     VoiceModeButton:
         voice_mode_name: 'UNI-A'
+        screen_name: root.screen_name
+        tooltip_text: 'UNISON-A MODE (1 NOTE, 6 VOICES PER NOTE)'
 
     VoiceModeButton:
         voice_mode_name: 'UNI-B'
+        screen_name: root.screen_name
+        tooltip_text: 'UNISON-B MODE (1 NOTE, 4 VOICES PER NOTE)'
 
     VoiceModeButton:
         voice_mode_name: 'TRI'
+        screen_name: root.screen_name
+        tooltip_text: 'TRI MODE (3 NOTES, 2 VOICES PER NOTE)'
 
     VoiceModeButton:
         voice_mode_name: 'DUO'
+        screen_name: root.screen_name
+        tooltip_text: 'DUO MODE (2 NOTES, 3 VOICES PER NOTE)'
 
     VoiceModeButton:
         voice_mode_name: 'MONO'
+        screen_name: root.screen_name
+        tooltip_text: 'MONO MODE (1 NOTE, 1 VOICE PER NOTE)'
 
 <VoiceModeButton>:
     text: self.voice_mode_name
-    size_hint: 1, 1 / self.parent.num_voice_modes
-    color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name else C('#06070FFF')
-    font_size: (self.height * 0.4) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.35)
+    color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_inside_bounds else C('#06070FFF')
+    font_size: (self.height * 0.425) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.375)
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected
 
@@ -964,15 +996,17 @@ ScreenManager:
             size: root.width, root.height
             radius: [root.corner_radius]
 
-    LegatoButton
+    LegatoButton:
+        screen_name: root.screen_name
 
-<LegatoButton@ButtonBehavior+Label>:
+<LegatoButton@HoverButton>:
     text: 'LEGATO'
     size_hint: 1, 1
-    color: C('#06070FFF') if app.osc_legato_value == 0 else C('#ECBFEBFF')
+    color: C('#06070FFF') if app.osc_legato_value == 0 and not self.mouse_inside_bounds else C('#ECBFEBFF')
     font_size: (self.height * 0.35) if app.osc_legato_value == 0 else (self.height * 0.375)
     on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     disabled: not app.nymphes_connected
+    tooltip_text: 'ENABLE LEGATO MODE'
 
 
 <ChordsButtonBox>:
@@ -987,18 +1021,19 @@ ScreenManager:
             size: root.width, root.height
             radius: [root.corner_radius]
 
-    ChordsButton
+    ChordsButton:
+        screen_name: root.screen_name
 
-<ChordsButton@ButtonBehavior+Label>:
+<ChordsButton@HoverButton>:
     text: 'CHORDS'
-    size_hint: 1, 1
-    color: C('#06070FFF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.35
     on_release:
         app.root.transition = SlideTransition(direction='left')
         app.root.current = 'chords'
         app.set_curr_screen_name('chords')
     disabled: not app.nymphes_connected
+    tooltip_text: 'SHOW CHORDS EDITOR'
 
 <FineModeBox>:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
@@ -1012,18 +1047,20 @@ ScreenManager:
             size: root.width, root.height
             radius: [root.corner_radius]
 
-    FineModeButton
+    FineModeButton:
+        screen_name: root.screen_name
 
-<FineModeButton@ButtonBehavior+Label>:
+<FineModeButton@HoverButton>:
     text: 'FINE MODE'
     size_hint: 1, 1
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    color: C('#ECBFEBFF') if app.fine_mode else C('#06070FFF')
+    color: C('#ECBFEBFF') if app.fine_mode or self.mouse_inside_bounds else C('#06070FFF')
     font_size: (self.height * 0.4) if app.fine_mode else (self.height * 0.35)
     on_release: app.set_fine_mode(not app.fine_mode)
     disabled: not app.nymphes_connected
+    tooltip_text: 'ENABLE HIGH RESOLUTION CONTROL MODE (0.1 INCREMENT INSTEAD OF 1.0)'
 
 <ControlSection>:
     orientation: 'vertical'
@@ -1034,7 +1071,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/16
     background_color: 0, 1, 0, 0.3
-    color: C('#000000FF') if app.nymphes_connected else C('#ECBFEBFF')
+    color: C('#06070FFF') if app.nymphes_connected else C('#ECBFEBFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -1904,7 +1941,7 @@ ScreenManager:
     Widget
 
 
-<PresetIncButton@ButtonBehavior+Label>:
+<PresetIncButton@HoverButton>:
 #    canvas.before:
 #        Color:
 #            rgba: C('#505050FF')
@@ -1912,7 +1949,7 @@ ScreenManager:
 #            pos: self.pos
 #            size: self.width, self.height
 
-    color: C('#000000FF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.7
     text_size: self.size
     halign: 'center'
@@ -1920,8 +1957,8 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 
-<TopBarSpinner@Spinner>:
-    color: C('#000000FF')
+<TopBarSpinner@HoverSpinner>:
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.6
     text_size: self.size
     size_hint_y: None
@@ -1931,10 +1968,11 @@ ScreenManager:
     background_color: C('#00000000')
     option_cls: 'TopBarSpinnerOption'
     disabled: not app.nymphes_connected
+    spacing: self.height * 1/5
 
 
 <TopBarSpinnerOption@SpinnerOption>:
-    color: C('#000000FF')
+    color: C('#06070FFF')
     font_size: self.height * 0.75
     text_size: self.size
     size_hint_y: None
@@ -1945,11 +1983,11 @@ ScreenManager:
     background_normal: ''
 
 
-<TopBarButton@ButtonBehavior+Label>:
+<TopBarButton@HoverButton>:
     size_hint_x: 1/6
     size_hint_y: None
     height: self.parent.height
-    color: C('#000000FF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.45
     text_size: self.size
     halign: 'center'
@@ -2185,7 +2223,7 @@ ScreenManager:
 
 <MidiPortLabel>:
     size_hint_x: 7/8
-    color: C('#000000FF')
+    color: C('#06070FFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -2205,8 +2243,8 @@ ScreenManager:
     on_active: app.midi_output_port_checkbox_toggled(self.port_name, self.active)
 
 
-<NymphesPortSpinner@Spinner>:
-    color: C('#000000FF')
+<NymphesPortSpinner@HoverSpinner>:
+    color: C('#06070FFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'center'
@@ -2216,7 +2254,7 @@ ScreenManager:
 
 
 <NymphesPortSpinnerOption@SpinnerOption>:
-    color: C('#000000FF')
+    color: C('#06070FFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'center'
@@ -2233,7 +2271,7 @@ ScreenManager:
     background_color: C('#00000000')
 
 
-<BottomBar>:
+<DashboardBottomBar@BottomBar>:
     orientation: 'horizontal'
     padding: [self.corner_radius * 1, self.corner_radius * 0.25]
     spacing: 0
@@ -2374,7 +2412,7 @@ ScreenManager:
     size_hint_y: None
     height: app.curr_height * 1/16
     background_color: 0, 1, 0, 0.3
-    color: C('#ECBFEBFF') if not app.nymphes_connected else (C('#ECBFEBFF') if self.this_chord_active else C('#000000FF'))
+    color: C('#ECBFEBFF') if not app.nymphes_connected else (C('#ECBFEBFF') if self.this_chord_active else C('#06070FFF'))
     font_size: self.height * 0.6 if self.this_chord_active else self.height * 0.5
     text_size: self.size
     halign: 'left'
@@ -2382,7 +2420,7 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 <MiscSettingsButton@ButtonBehavior+Label>:
-    color: C('#000000FF')
+    color: C('#06070FFF')
     font_size: self.height * 0.7
     text_size: self.size
     halign: 'left'
