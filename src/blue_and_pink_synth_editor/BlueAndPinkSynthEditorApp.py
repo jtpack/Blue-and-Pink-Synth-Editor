@@ -648,7 +648,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'osc.voice_mode.value: {voice_mode_int}')
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
+        self.send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
 
     def set_legato(self, val):
         """
@@ -662,7 +662,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'osc.legato.value: {val}')
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/legato/value', val)
+        self.send_nymphes_osc('/osc/legato/value', val)
 
     def set_fine_mode(self, enable_fine_mode):
         # Update the property
@@ -687,7 +687,7 @@ class BlueAndPinkSynthEditorApp(App):
                          preset_info['preset_type'])
 
     def load_preset(self, bank_name, preset_num, preset_type):
-        self._send_nymphes_osc(
+        self.send_nymphes_osc(
             '/load_preset',
             preset_type,
             bank_name,
@@ -727,7 +727,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the init file
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_file',
                 str(self._curr_preset_file_path)
             )
@@ -738,7 +738,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the file
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_file',
                 str(self._curr_preset_file_path)
             )
@@ -750,7 +750,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the slot
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_preset',
                 self._curr_preset_slot_type,
                 self._curr_preset_slot_bank_and_number[0],
@@ -768,7 +768,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug(f'load path: {path}, filename: {filepaths}')
 
             # Send message to nymphes controller to load the preset file
-            self._send_nymphes_osc('/load_file', filepaths[0])
+            self.send_nymphes_osc('/load_file', filepaths[0])
 
     def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
@@ -789,7 +789,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Saving preset to {filepath}')
 
             # Send message to nymphes controller to load the preset file
-            self._send_nymphes_osc('/save_to_file', filepath)
+            self.send_nymphes_osc('/save_to_file', filepath)
 
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
         if self._curr_presets_spinner_index != spinner_index:
@@ -803,7 +803,7 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 if spinner_index == 0:
                     # Load the init preset file
-                    self._send_nymphes_osc('/load_init_file')
+                    self.send_nymphes_osc('/load_init_file')
 
                 else:
                     # This is a preset slot
@@ -817,11 +817,11 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 if spinner_index == 0:
                     # Reload the most recent preset file.
-                    self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                    self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
                 elif spinner_index == 1:
                     # Load the init preset file
-                    self._send_nymphes_osc('/load_init_file')
+                    self.send_nymphes_osc('/load_init_file')
 
                 else:
                     # This is a preset slot
@@ -840,7 +840,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_presets_spinner_index = 0
 
                 # Load the init preset file
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             else:
                 # Load the next preset slot
@@ -859,12 +859,12 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_presets_spinner_index = 0
 
                 # Reload the most recent preset file
-                self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
             elif self._curr_presets_spinner_index + 1 == 1:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 1
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             else:
                 # Load the next preset slot
@@ -880,7 +880,7 @@ class BlueAndPinkSynthEditorApp(App):
             if self._curr_presets_spinner_index - 1 == 0:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 0
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             elif self._curr_presets_spinner_index - 1 < 0:
                 # Wrap around to the end of the list
@@ -901,12 +901,12 @@ class BlueAndPinkSynthEditorApp(App):
             if self._curr_presets_spinner_index - 1 == 1:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 1
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             elif self._curr_presets_spinner_index - 1 == 0:
                 # Reload the most recent preset file
                 self._curr_presets_spinner_index = 0
-                self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
             elif self._curr_presets_spinner_index - 1 < 0:
                 # Wrap around to the end of the list
@@ -974,10 +974,10 @@ class BlueAndPinkSynthEditorApp(App):
         :return:
         """
         if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
-            self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+            self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
         elif self.curr_preset_type == 'init':
-            self._send_nymphes_osc('/load_init_file')
+            self.send_nymphes_osc('/load_init_file')
 
         elif self.curr_preset_type == 'preset_slot':
             # Get the index of the last preset slot that was loaded
@@ -997,7 +997,7 @@ class BlueAndPinkSynthEditorApp(App):
         """
         if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
             Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
-            self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+            self.send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
 
 
 
@@ -1005,7 +1005,7 @@ class BlueAndPinkSynthEditorApp(App):
         if active:
             if port_name not in self._connected_midi_inputs:
                 # Connect to this MIDI input
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_midi_input',
                     port_name
                 )
@@ -1013,7 +1013,7 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             if port_name in self._connected_midi_inputs:
                 # Disconnect from this MIDI input
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/disconnect_midi_input',
                     port_name
                 )
@@ -1022,7 +1022,7 @@ class BlueAndPinkSynthEditorApp(App):
         if active:
             if port_name not in self._connected_midi_outputs:
                 # Connect to this MIDI output
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_midi_output',
                     port_name
                 )
@@ -1030,7 +1030,7 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             if port_name in self._connected_midi_outputs:
                 # Disconnect from this MIDI output
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/disconnect_midi_output',
                     port_name
                 )
@@ -1047,7 +1047,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Try connecting if we have both input and output names
             #
             if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
                     self.nymphes_output_name
@@ -1055,7 +1055,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             else:
                 if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
+                    self.send_nymphes_osc('/disconnect_nymphes')
                     
     def nymphes_output_spinner_text_changed(self, new_text):
         if new_text != self.nymphes_output_name:
@@ -1069,7 +1069,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Try connecting if we have both input and output names
             #
             if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
                     self.nymphes_output_name
@@ -1077,7 +1077,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             else:
                 if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
+                    self.send_nymphes_osc('/disconnect_nymphes')
 
     def on_mouse_entered_param_control(self, param_name):
         # When the mouse enters a parameter control and Nymphes
@@ -1148,7 +1148,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.mod_wheel = new_val
 
             # Send the new value to Nymphes
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/mod_wheel',
                 new_val
             )
@@ -1167,7 +1167,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.aftertouch = new_val
 
             # Send the new value to Nymphes
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/aftertouch',
                 new_val
             )
@@ -1181,7 +1181,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
 
             # Send a message to nymphes-osc to change the channel
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/set_nymphes_midi_channel',
                 midi_channel
             )
@@ -1216,7 +1216,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
         # Send an OSC message for this parameter with the new value
-        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
+        self.send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
 
     def _bind_keyboard_events(self):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
@@ -1414,9 +1414,9 @@ class BlueAndPinkSynthEditorApp(App):
         # with the port we are listening on.
         Logger.info(
             f'Registering as client with nymphes-osc server at {self._nymphes_osc_sender_host}:{self._nymphes_osc_sender_port}...')
-        self._send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
+        self.send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
 
-    def _send_nymphes_osc(self, address, *args):
+    def send_nymphes_osc(self, address, *args):
         """
         Send an OSC message to nymphes_osc
         :param address: The osc address including the forward slash ie: /register_host
@@ -1491,7 +1491,7 @@ class BlueAndPinkSynthEditorApp(App):
             if not self.nymphes_connected:
                 if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
                     Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
+                    self.send_nymphes_osc(
                         '/connect_nymphes',
                         self._detected_nymphes_midi_inputs[0],
                         self._detected_nymphes_midi_outputs[0]
@@ -1532,7 +1532,7 @@ class BlueAndPinkSynthEditorApp(App):
             if not self.nymphes_connected:
                 if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
                     Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
+                    self.send_nymphes_osc(
                         '/connect_nymphes',
                         self._detected_nymphes_midi_inputs[0],
                         self._detected_nymphes_midi_outputs[0]
@@ -2555,6 +2555,44 @@ class BlueAndPinkSynthEditorApp(App):
         """
         subprocess.call(['open', '-R', Path(os.path.expanduser('~/.kivy/logs/'))])
 
+    def activate_chord_number(self, chord_number):
+        """
+        Send /pitch/chord/value to Nymphes to activate one
+        of the chords.
+        chord_number should be an int, from 0 to 7.
+        """
+        if chord_number == 0:
+            chord_val = 0
+
+        elif chord_number == 1:
+            chord_val = 10
+
+        elif chord_number == 2:
+            chord_val = 28
+
+        elif chord_number == 3:
+            chord_val = 46
+
+        elif chord_number == 4:
+            chord_val = 64
+
+        elif chord_number == 5:
+            chord_val = 64
+
+        elif chord_number == 6:
+            chord_val = 100
+
+        elif chord_number == 7:
+            chord_val = 118
+
+        else:
+            raise Exception(f'Invalid chord number: {chord_number}. Should be between 0 and 7')
+
+        # Send to Nymphes
+        self.send_nymphes_osc('/pitch/chord/value', chord_val)
+
+        # Update our property
+        self._set_prop_value_on_main_thread('pitch_chord_value', chord_val)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
