@@ -152,6 +152,7 @@ ScreenManager:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
             app.set_curr_screen_name('dashboard')
+            self.mouse_inside_bounds = False
         text: 'BACK'
 
 
@@ -762,6 +763,7 @@ ScreenManager:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
             app.set_curr_screen_name('dashboard')
+            self.mouse_inside_bounds = False
         text: 'BACK'
         size_hint_x: 2/20
 
@@ -848,6 +850,7 @@ ScreenManager:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
             app.set_curr_screen_name('settings')
+            self.mouse_inside_bounds = False
         text: 'SETTINGS'
 
 
@@ -1041,6 +1044,7 @@ ScreenManager:
         app.root.transition = SlideTransition(direction='left')
         app.root.current = 'chords'
         app.set_curr_screen_name('chords')
+        self.mouse_inside_bounds = False
     disabled: not app.nymphes_connected
     tooltip_text: 'SHOW CHORDS EDITOR'
 
