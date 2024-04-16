@@ -24,6 +24,7 @@ from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.uix.checkbox import CheckBox
+from kivy.uix.spinner import Spinner, SpinnerOption
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -38,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.1-beta'
+app_version_string = 'v0.2.2-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -647,7 +648,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'osc.voice_mode.value: {voice_mode_int}')
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
+        self.send_nymphes_osc('/osc/voice_mode/value', voice_mode_int)
 
     def set_legato(self, val):
         """
@@ -661,7 +662,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'osc.legato.value: {val}')
 
         # Send the command to the Nymphes
-        self._send_nymphes_osc('/osc/legato/value', val)
+        self.send_nymphes_osc('/osc/legato/value', val)
 
     def set_fine_mode(self, enable_fine_mode):
         # Update the property
@@ -686,7 +687,7 @@ class BlueAndPinkSynthEditorApp(App):
                          preset_info['preset_type'])
 
     def load_preset(self, bank_name, preset_num, preset_type):
-        self._send_nymphes_osc(
+        self.send_nymphes_osc(
             '/load_preset',
             preset_type,
             bank_name,
@@ -726,7 +727,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the init file
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_file',
                 str(self._curr_preset_file_path)
             )
@@ -737,7 +738,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the file
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_file',
                 str(self._curr_preset_file_path)
             )
@@ -749,7 +750,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Write the current settings to the slot
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/save_to_preset',
                 self._curr_preset_slot_type,
                 self._curr_preset_slot_bank_and_number[0],
@@ -767,7 +768,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.debug(f'load path: {path}, filename: {filepaths}')
 
             # Send message to nymphes controller to load the preset file
-            self._send_nymphes_osc('/load_file', filepaths[0])
+            self.send_nymphes_osc('/load_file', filepaths[0])
 
     def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
@@ -788,7 +789,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Saving preset to {filepath}')
 
             # Send message to nymphes controller to load the preset file
-            self._send_nymphes_osc('/save_to_file', filepath)
+            self.send_nymphes_osc('/save_to_file', filepath)
 
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
         if self._curr_presets_spinner_index != spinner_index:
@@ -802,7 +803,7 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 if spinner_index == 0:
                     # Load the init preset file
-                    self._send_nymphes_osc('/load_init_file')
+                    self.send_nymphes_osc('/load_init_file')
 
                 else:
                     # This is a preset slot
@@ -816,11 +817,11 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 if spinner_index == 0:
                     # Reload the most recent preset file.
-                    self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                    self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
                 elif spinner_index == 1:
                     # Load the init preset file
-                    self._send_nymphes_osc('/load_init_file')
+                    self.send_nymphes_osc('/load_init_file')
 
                 else:
                     # This is a preset slot
@@ -839,7 +840,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_presets_spinner_index = 0
 
                 # Load the init preset file
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             else:
                 # Load the next preset slot
@@ -858,12 +859,12 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_presets_spinner_index = 0
 
                 # Reload the most recent preset file
-                self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
             elif self._curr_presets_spinner_index + 1 == 1:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 1
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             else:
                 # Load the next preset slot
@@ -879,7 +880,7 @@ class BlueAndPinkSynthEditorApp(App):
             if self._curr_presets_spinner_index - 1 == 0:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 0
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             elif self._curr_presets_spinner_index - 1 < 0:
                 # Wrap around to the end of the list
@@ -900,12 +901,12 @@ class BlueAndPinkSynthEditorApp(App):
             if self._curr_presets_spinner_index - 1 == 1:
                 # Load the init preset file
                 self._curr_presets_spinner_index = 1
-                self._send_nymphes_osc('/load_init_file')
+                self.send_nymphes_osc('/load_init_file')
 
             elif self._curr_presets_spinner_index - 1 == 0:
                 # Reload the most recent preset file
                 self._curr_presets_spinner_index = 0
-                self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
             elif self._curr_presets_spinner_index - 1 < 0:
                 # Wrap around to the end of the list
@@ -973,10 +974,10 @@ class BlueAndPinkSynthEditorApp(App):
         :return:
         """
         if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
-            self._send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
+            self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
 
         elif self.curr_preset_type == 'init':
-            self._send_nymphes_osc('/load_init_file')
+            self.send_nymphes_osc('/load_init_file')
 
         elif self.curr_preset_type == 'preset_slot':
             # Get the index of the last preset slot that was loaded
@@ -996,7 +997,7 @@ class BlueAndPinkSynthEditorApp(App):
         """
         if self.curr_preset_type == 'file' and self._curr_preset_file_path is not None:
             Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
-            self._send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
+            self.send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
 
 
 
@@ -1004,7 +1005,7 @@ class BlueAndPinkSynthEditorApp(App):
         if active:
             if port_name not in self._connected_midi_inputs:
                 # Connect to this MIDI input
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_midi_input',
                     port_name
                 )
@@ -1012,7 +1013,7 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             if port_name in self._connected_midi_inputs:
                 # Disconnect from this MIDI input
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/disconnect_midi_input',
                     port_name
                 )
@@ -1021,7 +1022,7 @@ class BlueAndPinkSynthEditorApp(App):
         if active:
             if port_name not in self._connected_midi_outputs:
                 # Connect to this MIDI output
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_midi_output',
                     port_name
                 )
@@ -1029,7 +1030,7 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             if port_name in self._connected_midi_outputs:
                 # Disconnect from this MIDI output
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/disconnect_midi_output',
                     port_name
                 )
@@ -1046,7 +1047,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Try connecting if we have both input and output names
             #
             if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
                     self.nymphes_output_name
@@ -1054,7 +1055,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             else:
                 if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
+                    self.send_nymphes_osc('/disconnect_nymphes')
                     
     def nymphes_output_spinner_text_changed(self, new_text):
         if new_text != self.nymphes_output_name:
@@ -1068,7 +1069,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Try connecting if we have both input and output names
             #
             if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
-                self._send_nymphes_osc(
+                self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
                     self.nymphes_output_name
@@ -1076,7 +1077,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             else:
                 if self.nymphes_connected:
-                    self._send_nymphes_osc('/disconnect_nymphes')
+                    self.send_nymphes_osc('/disconnect_nymphes')
 
     def on_mouse_entered_param_control(self, param_name):
         # When the mouse enters a parameter control and Nymphes
@@ -1091,18 +1092,17 @@ class BlueAndPinkSynthEditorApp(App):
                 # Store the name of the parameter
                 self.curr_mouse_hover_param_name = param_name
 
-                if param_name not in ['mod_wheel', 'aftertouch']:
-                    # Get the value and type for the parameter
-                    value = self._get_prop_value_for_param_name(param_name)
-                    param_type = NymphesPreset.type_for_param_name(param_name)
+                # Get the value and type for the parameter
+                value = self._get_prop_value_for_param_name(param_name)
+                param_type = NymphesPreset.type_for_param_name(param_name)
 
-                    if param_type == float:
-                        value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+                if param_type == float:
+                    value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
 
-                    elif param_type == int:
-                        value_string = str(value)
+                elif param_type == int:
+                    value_string = str(value)
 
-                    self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
+                self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
@@ -1148,7 +1148,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.mod_wheel = new_val
 
             # Send the new value to Nymphes
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/mod_wheel',
                 new_val
             )
@@ -1167,7 +1167,7 @@ class BlueAndPinkSynthEditorApp(App):
             self.aftertouch = new_val
 
             # Send the new value to Nymphes
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/aftertouch',
                 new_val
             )
@@ -1181,7 +1181,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
 
             # Send a message to nymphes-osc to change the channel
-            self._send_nymphes_osc(
+            self.send_nymphes_osc(
                 '/set_nymphes_midi_channel',
                 midi_channel
             )
@@ -1216,7 +1216,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
         # Send an OSC message for this parameter with the new value
-        self._send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
+        self.send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
 
     def _bind_keyboard_events(self):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
@@ -1414,9 +1414,9 @@ class BlueAndPinkSynthEditorApp(App):
         # with the port we are listening on.
         Logger.info(
             f'Registering as client with nymphes-osc server at {self._nymphes_osc_sender_host}:{self._nymphes_osc_sender_port}...')
-        self._send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
+        self.send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
 
-    def _send_nymphes_osc(self, address, *args):
+    def send_nymphes_osc(self, address, *args):
         """
         Send an OSC message to nymphes_osc
         :param address: The osc address including the forward slash ie: /register_host
@@ -1491,7 +1491,7 @@ class BlueAndPinkSynthEditorApp(App):
             if not self.nymphes_connected:
                 if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
                     Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
+                    self.send_nymphes_osc(
                         '/connect_nymphes',
                         self._detected_nymphes_midi_inputs[0],
                         self._detected_nymphes_midi_outputs[0]
@@ -1532,7 +1532,7 @@ class BlueAndPinkSynthEditorApp(App):
             if not self.nymphes_connected:
                 if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
                     Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self._send_nymphes_osc(
+                    self.send_nymphes_osc(
                         '/connect_nymphes',
                         self._detected_nymphes_midi_inputs[0],
                         self._detected_nymphes_midi_outputs[0]
@@ -2555,6 +2555,44 @@ class BlueAndPinkSynthEditorApp(App):
         """
         subprocess.call(['open', '-R', Path(os.path.expanduser('~/.kivy/logs/'))])
 
+    def activate_chord_number(self, chord_number):
+        """
+        Send /pitch/chord/value to Nymphes to activate one
+        of the chords.
+        chord_number should be an int, from 0 to 7.
+        """
+        if chord_number == 0:
+            chord_val = 0
+
+        elif chord_number == 1:
+            chord_val = 10
+
+        elif chord_number == 2:
+            chord_val = 28
+
+        elif chord_number == 3:
+            chord_val = 46
+
+        elif chord_number == 4:
+            chord_val = 64
+
+        elif chord_number == 5:
+            chord_val = 64
+
+        elif chord_number == 6:
+            chord_val = 100
+
+        elif chord_number == 7:
+            chord_val = 118
+
+        else:
+            raise Exception(f'Invalid chord number: {chord_number}. Should be between 0 and 7')
+
+        # Send to Nymphes
+        self.send_nymphes_osc('/pitch/chord/value', chord_val)
+
+        # Update our property
+        self._set_prop_value_on_main_thread('pitch_chord_value', chord_val)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
@@ -3063,9 +3101,69 @@ class ModAmountLine(ButtonBehavior, Widget):
             return super(ModAmountLine, self).on_touch_up(touch)
 
 
-class VoiceModeButton(ButtonBehavior, Label):
-    voice_mode_name = StringProperty('')
+class HoverButton(ButtonBehavior, Label):
+    screen_name = StringProperty('')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+    def on_mouseover(self, _, pos):
+        if not self.disabled:
+            if App.get_running_app().curr_screen_name == self.screen_name:
+                if self.collide_point(*pos):
+                    if not self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = True
+                        self.on_mouse_enter()
+
+                else:
+                    if self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = False
+                        self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
+
+    def on_mouse_exit(self):
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
+
+class HoverSpinner(Spinner):
+    screen_name = StringProperty('')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouseover)
+
+    def on_mouseover(self, _, pos):
+        if not self.disabled:
+            if App.get_running_app().curr_screen_name == self.screen_name:
+                if self.collide_point(*pos):
+                    if not self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = True
+                        self.on_mouse_enter()
+
+                else:
+                    if self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = False
+                        self.on_mouse_exit()
+
+    def on_mouse_enter(self):
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
+
+    def on_mouse_exit(self):
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
+
+
+class VoiceModeButton(HoverButton):
+    voice_mode_name = StringProperty('')
 
 
 class SectionRelativeLayout(RelativeLayout):
@@ -3096,30 +3194,39 @@ class ChordsMainControlsBox(BoxLayout):
 class MainSettingsGrid(GridLayout):
     corner_radius = NumericProperty(0)
 
+
 class SettingsSubBox(BoxLayout):
     corner_radius = NumericProperty(0)
+
 
 class VoiceModeBox(BoxLayout):
     num_voice_modes = NumericProperty(6)
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class LegatoBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class ChordsButtonBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class FineModeBox(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
 
 class LeftBar(BoxLayout):
     corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
 
 
 class TopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3129,9 +3236,12 @@ class BottomBar(BoxLayout):
 
 
 class SettingsTopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
+
 class ChordsTopBar(BoxLayout):
+    screen_name = StringProperty('')
     corner_radius = NumericProperty(0)
 
 
@@ -3228,12 +3338,12 @@ class ModWheelValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('mod_wheel')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouseover)
-
-        self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
         if App.get_running_app().curr_screen_name == self.screen_name:
@@ -3248,10 +3358,12 @@ class ModWheelValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
 
     def handle_touch(self, device, button):
         #
@@ -3333,12 +3445,12 @@ class AftertouchValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('aftertouch')
+    mouse_inside_bounds = BooleanProperty(False)
+    tooltip_text = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouseover)
-
-        self.mouse_inside_bounds = False
 
     def on_mouseover(self, _, pos):
         if App.get_running_app().curr_screen_name == self.screen_name:
@@ -3353,10 +3465,12 @@ class AftertouchValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(self.param_name)
+        App.get_running_app().status_bar_text = self.tooltip_text
+        Window.set_system_cursor('hand')
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
+        App.get_running_app().status_bar_text = ''
+        Window.set_system_cursor('arrow')
 
     def handle_touch(self, device, button):
         #
@@ -3577,5 +3691,6 @@ class ChordParamValueLabel(ButtonBehavior, Label):
             return super(ChordParamValueLabel, self).on_touch_up(touch)
 
 
-class ChordSectionTitleLabel(ButtonBehavior, Label):
+class ChordSectionTitleLabel(HoverButton):
     this_chord_active = BooleanProperty(False)
+
