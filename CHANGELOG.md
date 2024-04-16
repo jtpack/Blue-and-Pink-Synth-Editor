@@ -2,8 +2,7 @@
 
 - All user-controllable UI elements now show visual feedback when the mouse touches them
   - A short helpful description also appears in the status bar at the bottom left of the window
-- In the Chords screen, clicking on a specific chord section title now sends the MIDI CC value to activate the chord 
-- 
+- In the Chords screen, clicking on a specific chord section title now sends the MIDI CC value to activate the chord
 - All buttons are now activated on click, not on release.
   - This improves the responsiveness
 - Fixed bug where changing Nymphes output port also affected the input port.
