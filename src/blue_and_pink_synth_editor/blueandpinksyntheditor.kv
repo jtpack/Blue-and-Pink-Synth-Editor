@@ -148,7 +148,7 @@ ScreenManager:
         screen_name: root.screen_name
         size_hint_x: 2/20
         tooltip_text: 'RETURN TO MAIN SCREEN'
-        on_release:
+        on_press:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
             app.set_curr_screen_name('dashboard')
@@ -216,7 +216,7 @@ ScreenManager:
         text: 'CHORD 0 (0-9)'
         this_chord_active: 0 <= app.pitch_chord_value <= 9
         tooltip_text: 'ACTIVATE CHORD 0'
-        on_release: app.activate_chord_number(0)
+        on_press: app.activate_chord_number(0)
 
 
     ChordParamsGrid:
@@ -284,7 +284,7 @@ ScreenManager:
         text: 'CHORD 1 (10-27)'
         this_chord_active: 10 <= app.pitch_chord_value <= 27
         tooltip_text: 'ACTIVATE CHORD 1'
-        on_release: app.activate_chord_number(1)
+        on_press: app.activate_chord_number(1)
 
     ChordParamsGrid:
 
@@ -351,7 +351,7 @@ ScreenManager:
         text: 'CHORD 2 (28-45)'
         this_chord_active: 28 <= app.pitch_chord_value <= 45
         tooltip_text: 'ACTIVATE CHORD 2'
-        on_release: app.activate_chord_number(2)
+        on_press: app.activate_chord_number(2)
 
     ChordParamsGrid:
 
@@ -418,7 +418,7 @@ ScreenManager:
         text: 'CHORD 3 (46-63)'
         this_chord_active: 46 <= app.pitch_chord_value <= 63
         tooltip_text: 'ACTIVATE CHORD 3'
-        on_release: app.activate_chord_number(3)
+        on_press: app.activate_chord_number(3)
 
     ChordParamsGrid:
 
@@ -485,7 +485,7 @@ ScreenManager:
         text: 'CHORD 4 (64-81)'
         this_chord_active: 64 <= app.pitch_chord_value <= 81
         tooltip_text: 'ACTIVATE CHORD 4'
-        on_release: app.activate_chord_number(4)
+        on_press: app.activate_chord_number(4)
 
     ChordParamsGrid:
 
@@ -552,7 +552,7 @@ ScreenManager:
         text: 'CHORD 5 (82-99)'
         this_chord_active: 82 <= app.pitch_chord_value <= 99
         tooltip_text: 'ACTIVATE CHORD 5'
-        on_release: app.activate_chord_number(5)
+        on_press: app.activate_chord_number(5)
 
     ChordParamsGrid:
 
@@ -619,7 +619,7 @@ ScreenManager:
         text: 'CHORD 6 (100-117)'
         this_chord_active: 100 <= app.pitch_chord_value <= 117
         tooltip_text: 'ACTIVATE CHORD 6'
-        on_release: app.activate_chord_number(6)
+        on_press: app.activate_chord_number(6)
 
     ChordParamsGrid:
 
@@ -686,7 +686,7 @@ ScreenManager:
         text: 'CHORD 7 (118-127)'
         this_chord_active: 118 <= app.pitch_chord_value <= 127
         tooltip_text: 'ACTIVATE CHORD 7'
-        on_release: app.activate_chord_number(7)
+        on_press: app.activate_chord_number(7)
 
     ChordParamsGrid:
 
@@ -759,7 +759,7 @@ ScreenManager:
     TopBarButton:
         screen_name: root.screen_name
         tooltip_text: 'RETURN TO MAIN SCREEN'
-        on_release:
+        on_press:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
             app.set_curr_screen_name('dashboard')
@@ -787,7 +787,7 @@ ScreenManager:
         size_hint_x: 1/20
         text: '-'
         font_size: self.height * 1.2
-        on_release: app.load_prev_preset()
+        on_press: app.load_prev_preset()
 
     TopBarSpinner:
         size_hint_x: 7/20
@@ -802,14 +802,14 @@ ScreenManager:
         tooltip_text: 'RECALL NEXT PRESET'
         size_hint_x: 1/20
         text: '+'
-        on_release: app.load_next_preset()
+        on_press: app.load_next_preset()
 
     TopBarButton:
         screen_name: root.screen_name
         tooltip_text: 'SAVE CURRENT CHANGES TO ' + app.presets_spinner_text
         size_hint_x: 2/20
         text: 'SAVE'
-        on_release: app.update_current_preset()
+        on_press: app.update_current_preset()
         disabled: not app.nymphes_connected or app.unsaved_preset_changes == False
 
     TopBarButton:
@@ -817,7 +817,7 @@ ScreenManager:
         tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
         size_hint_x: 2/20
         text: 'REVERT'
-        on_release: app.reload()
+        on_press: app.reload()
         disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
 
     Widget:
@@ -828,7 +828,7 @@ ScreenManager:
         size_hint_x: 2/20
         text: 'OPEN'
         tooltip_text: 'LOAD PRESET FILE'
-        on_release: app.show_load_dialog()
+        on_press: app.show_load_dialog()
         disabled: not app.nymphes_connected
 
     TopBarButton:
@@ -836,7 +836,7 @@ ScreenManager:
         size_hint_x: 2/20
         text: 'SAVE AS'
         tooltip_text: 'SAVE TO NEW PRESET FILE'
-        on_release: app.show_save_dialog()
+        on_press: app.show_save_dialog()
         disabled: not app.nymphes_connected
 
     Widget:
@@ -846,7 +846,7 @@ ScreenManager:
         screen_name: root.screen_name
         size_hint_x: 3/20
         tooltip_text: 'SHOW SETTINGS SCREEN'
-        on_release:
+        on_press:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
             app.set_curr_screen_name('settings')
@@ -992,7 +992,7 @@ ScreenManager:
     text: self.voice_mode_name
     color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_inside_bounds else C('#06070FFF')
     font_size: (self.height * 0.425) if app.voice_mode_name == self.voice_mode_name else (self.height * 0.375)
-    on_release: app.set_voice_mode_by_name(self.voice_mode_name)
+    on_press: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected
 
 
@@ -1016,7 +1016,7 @@ ScreenManager:
     size_hint: 1, 1
     color: C('#06070FFF') if app.osc_legato_value == 0 and not self.mouse_inside_bounds else C('#ECBFEBFF')
     font_size: (self.height * 0.35) if app.osc_legato_value == 0 else (self.height * 0.375)
-    on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
+    on_press: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     disabled: not app.nymphes_connected
     tooltip_text: 'LEGATO MODE'
 
@@ -1040,7 +1040,7 @@ ScreenManager:
     text: 'CHORDS'
     color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.35
-    on_release:
+    on_press:
         app.root.transition = SlideTransition(direction='left')
         app.root.current = 'chords'
         app.set_curr_screen_name('chords')
@@ -1071,7 +1071,7 @@ ScreenManager:
     valign: 'middle'
     color: C('#ECBFEBFF') if app.fine_mode or self.mouse_inside_bounds else C('#06070FFF')
     font_size: (self.height * 0.4) if app.fine_mode else (self.height * 0.35)
-    on_release: app.set_fine_mode(not app.fine_mode)
+    on_press: app.set_fine_mode(not app.fine_mode)
     disabled: not app.nymphes_connected
     tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
 
@@ -2020,7 +2020,7 @@ ScreenManager:
             halign: 'center'
             valign: 'middle'
             text: "CANCEL"
-            on_release: root.cancel()
+            on_press: root.cancel()
 
         Button:
             text_size: self.size
@@ -2028,7 +2028,7 @@ ScreenManager:
             halign: 'center'
             valign: 'middle'
             text: "OK"
-            on_release: root.load(filechooser.path, filechooser.selection)
+            on_press: root.load(filechooser.path, filechooser.selection)
 
 
 <SaveDialog>:
@@ -2057,7 +2057,7 @@ ScreenManager:
             halign: 'center'
             valign: 'middle'
             text: "CANCEL"
-            on_release: root.cancel()
+            on_press: root.cancel()
 
         Button:
             text_size: self.size
@@ -2065,7 +2065,7 @@ ScreenManager:
             halign: 'center'
             valign: 'middle'
             text: "OK"
-            on_release: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
+            on_press: root.save(filechooser.path, filechooser.path + '/' + text_input.text)
 
 
 <NymphesPortsSection@ControlSection>:
@@ -2211,11 +2211,11 @@ ScreenManager:
                 spacing: 1/8
 
                 MiscSettingsButton:
-                    on_release: app.open_presets_folder_in_native_file_browser()
+                    on_press: app.open_presets_folder_in_native_file_browser()
                     text: 'OPEN PRESETS FOLDER'
 
                 MiscSettingsButton:
-                    on_release: app.open_logs_folder_in_native_file_browser()
+                    on_press: app.open_logs_folder_in_native_file_browser()
                     text: 'OPEN LOGS FOLDER'
 
                 Widget:
