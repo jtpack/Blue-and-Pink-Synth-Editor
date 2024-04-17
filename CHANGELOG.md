@@ -1,3 +1,7 @@
+- Added file drag support for both txt preset files and syx files 
+  - Need to add error message if the file is invalid.
+
+
 ## v0.2.2-beta
 
 - All user-controllable UI elements now show visual feedback when the mouse touches them
