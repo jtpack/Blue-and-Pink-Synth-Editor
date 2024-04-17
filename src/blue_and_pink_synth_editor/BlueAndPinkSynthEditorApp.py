@@ -39,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.2-beta'
+app_version_string = 'v0.2.2-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -572,6 +572,9 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Load contents of config file
         self._load_config_file(self._config_file_path)
+
+        # Bind file drop onto window
+        Window.bind(on_drop_file=self._on_file_drop)
 
     def on_start(self):
         # Store the current window size
@@ -2593,6 +2596,29 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Update our property
         self._set_prop_value_on_main_thread('pitch_chord_value', chord_val)
+
+    def _on_file_drop(self, window, file_path, x, y):
+        # file_path is bytes. Convert to string
+        file_path = str(file_path)
+
+        # Remove leading "b'" and trailing "'"
+        file_path = file_path[2:-1]
+
+        Logger.info(f'_on_file_drop: {file_path}')
+
+        if Path(file_path).suffix == '.txt':
+            #
+            # This may be a preset file
+            #
+            self.send_nymphes_osc('/load_file', file_path)
+
+        if Path(file_path).suffix == '.syx':
+            #
+            # This may be a sysex file containing a preset
+            self.send_nymphes_osc('/load_syx_file', file_path)
+
+
+
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
