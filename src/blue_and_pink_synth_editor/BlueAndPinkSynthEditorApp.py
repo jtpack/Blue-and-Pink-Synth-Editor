@@ -484,7 +484,7 @@ class BlueAndPinkSynthEditorApp(App):
         # Presets Spinner Stuff
         #
 
-        values = ['init.txt']
+        values = ['init']
         values.extend(
             [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
              for num in [1, 2, 3, 4, 5, 6, 7]])
@@ -1675,10 +1675,10 @@ class BlueAndPinkSynthEditorApp(App):
             # Update the presets spinner.
             # This also sets the spinner's current text
             # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
 
             # Status bar message
-            msg = f'LOADED {filepath.name} PRESET FILE '
+            msg = f'LOADED {filepath.name}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_init_file':
@@ -1706,7 +1706,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the presets spinner
             # Select the init option
-            self.presets_spinner_text = 'init.txt'
+            self.presets_spinner_text = 'init'
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
 
             # Status bar message
@@ -2005,7 +2005,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {midi_channel}')
 
             # Store the new MIDI channel
-            self.nymphes_midi_channel = midi_channel
+            self._set_prop_value_on_main_thread('nymphes_midi_channel', midi_channel)
 
             # Save the config file
             self._save_config_file(self._config_file_path)
@@ -2016,7 +2016,7 @@ class BlueAndPinkSynthEditorApp(App):
         elif address == '/osc/legato/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
             val = int(args[0])
-            self._set_legato_prop_on_main_thread('osc_legato_value', val)
+            self._set_prop_value_on_main_thread('osc_legato_value', val)
 
         elif address == '/osc/voice_mode/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
@@ -2047,7 +2047,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the voice mode name property
             # used by the UI
-            self.voice_mode_name = voice_mode_name
+            self._set_prop_value_on_main_thread('voice_mode_name', voice_mode_name)
 
         else:
             # This could be a Nymphes parameter message
@@ -2078,7 +2078,7 @@ class BlueAndPinkSynthEditorApp(App):
                 Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
 
                 # Set our property for this parameter
-                setattr(self, param_name.replace('.', '_'), value)
+                self._set_prop_value_on_main_thread(param_name.replace('.', '_'), value)
 
             else:
                 # This is an unrecognized OSC message
@@ -2612,7 +2612,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             self.send_nymphes_osc('/load_file', file_path)
 
-        if Path(file_path).suffix == '.syx':
+        elif Path(file_path).suffix == '.syx':
             #
             # This may be a sysex file containing a preset
             self.send_nymphes_osc('/load_syx_file', file_path)
