@@ -1,3 +1,11 @@
+## v0.2.3-beta
+
+- Added file drag support for both txt preset files and syx files 
+- Fixed possible bug - some properties received by OSC were not being updated on the main thread
+- Presets spinner now shows the loaded filename without its extension
+- Added Error Dialog which pops up when an error occurs
+
+
 ## v0.2.2-beta
 
 - All user-controllable UI elements now show visual feedback when the mouse touches them

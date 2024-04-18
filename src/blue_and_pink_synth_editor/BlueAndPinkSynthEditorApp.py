@@ -39,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.2-beta'
+app_version_string = 'v0.2.3-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -77,6 +77,8 @@ class BlueAndPinkSynthEditorApp(App):
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
+    error_text = StringProperty('')
+    error_detail_text = StringProperty('')
 
     unsaved_preset_changes = BooleanProperty(False)
 
@@ -484,7 +486,7 @@ class BlueAndPinkSynthEditorApp(App):
         # Presets Spinner Stuff
         #
 
-        values = ['init.txt']
+        values = ['init']
         values.extend(
             [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
              for num in [1, 2, 3, 4, 5, 6, 7]])
@@ -572,6 +574,9 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Load contents of config file
         self._load_config_file(self._config_file_path)
+
+        # Bind file drop onto window
+        Window.bind(on_drop_file=self._on_file_drop)
 
     def on_start(self):
         # Store the current window size
@@ -710,6 +715,22 @@ class BlueAndPinkSynthEditorApp(App):
         )
         self._popup = Popup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
+        self._popup.bind(on_open=self._on_popup_open)
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
+        self._popup.open()
+
+    def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
+        def work_func(_, error_text, error_detail_text):
+            self.error_text = error_text
+            self.error_detail_text = error_detail_text
+            self.show_error_dialog()
+
+        Clock.schedule_once(lambda dt: work_func(dt, error_string, error_detail_string), 0)
+
+    def show_error_dialog(self):
+        content = ErrorDialog(ok=self._dismiss_popup)
+        self._popup = Popup(title="ERROR", content=content,
+                            size_hint=(0.5, 0.5))
         self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
@@ -1135,8 +1156,6 @@ class BlueAndPinkSynthEditorApp(App):
         return v1 == v2
 
     def increment_mod_wheel(self, amount):
-        print(f'increment_mod_wheel: {amount}')
-
         new_val = self.mod_wheel + int(amount)
         if new_val > 127:
             new_val = 127
@@ -1154,8 +1173,6 @@ class BlueAndPinkSynthEditorApp(App):
             )
 
     def increment_aftertouch(self, amount):
-        print(f'increment_aftertouch: {amount}')
-
         new_val = self.aftertouch + int(amount)
         if new_val > 127:
             new_val = 127
@@ -1672,10 +1689,10 @@ class BlueAndPinkSynthEditorApp(App):
             # Update the presets spinner.
             # This also sets the spinner's current text
             # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
 
             # Status bar message
-            msg = f'LOADED {filepath.name} PRESET FILE '
+            msg = f'LOADED {filepath.name}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_init_file':
@@ -1703,7 +1720,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the presets spinner
             # Select the init option
-            self.presets_spinner_text = 'init.txt'
+            self.presets_spinner_text = 'init'
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
 
             # Status bar message
@@ -2002,18 +2019,24 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {midi_channel}')
 
             # Store the new MIDI channel
-            self.nymphes_midi_channel = midi_channel
+            self._set_prop_value_on_main_thread('nymphes_midi_channel', midi_channel)
 
             # Save the config file
             self._save_config_file(self._config_file_path)
 
         elif address == '/status':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
+            self._set_prop_value_on_main_thread('status_bar_text', f'status: {args[0]}')
+
+        elif address == '/error':
+            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}, {args[1]}')
+
+            self.show_error_dialog_on_main_thread(args[0], args[1])
 
         elif address == '/osc/legato/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
             val = int(args[0])
-            self._set_legato_prop_on_main_thread('osc_legato_value', val)
+            self._set_prop_value_on_main_thread('osc_legato_value', val)
 
         elif address == '/osc/voice_mode/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
@@ -2044,7 +2067,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the voice mode name property
             # used by the UI
-            self.voice_mode_name = voice_mode_name
+            self._set_prop_value_on_main_thread('voice_mode_name', voice_mode_name)
 
         else:
             # This could be a Nymphes parameter message
@@ -2075,7 +2098,7 @@ class BlueAndPinkSynthEditorApp(App):
                 Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
 
                 # Set our property for this parameter
-                setattr(self, param_name.replace('.', '_'), value)
+                self._set_prop_value_on_main_thread(param_name.replace('.', '_'), value)
 
             else:
                 # This is an unrecognized OSC message
@@ -2593,6 +2616,19 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Update our property
         self._set_prop_value_on_main_thread('pitch_chord_value', chord_val)
+
+        self._set_prop_value_on_main_thread('status_bar_text', f'pitch.chord.value: {chord_val}')
+
+    def _on_file_drop(self, window, file_path, x, y):
+        # file_path is bytes. Convert to string
+        file_path = str(file_path)
+
+        # Remove leading "b'" and trailing "'"
+        file_path = file_path[2:-1]
+
+        Logger.info(f'_on_file_drop: {file_path}')
+
+        self.send_nymphes_osc('/load_file', file_path)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
@@ -3694,3 +3730,32 @@ class ChordParamValueLabel(ButtonBehavior, Label):
 class ChordSectionTitleLabel(HoverButton):
     this_chord_active = BooleanProperty(False)
 
+
+class ErrorDialog(BoxLayout):
+    ok = ObjectProperty(None)
+    
+    def __init__(self, **kwargs):
+        super(ErrorDialog, self).__init__(**kwargs)
+        self._keyboard = None
+
+    def _keyboard_closed(self):
+        Logger.debug('ErrorDialog Keyboard Closed')
+        if self._keyboard is not None:
+            self._keyboard.unbind(on_key_down=self._on_key_down)
+            self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        Logger.debug(f'ErrorDialog on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+
+    def _on_key_up(self, keyboard, keycode):
+        Logger.debug(f'ErrorDialog on_key_up: {keyboard}, {keycode}')
+
+        # Handle Enter and Escape keys
+        # This is the same as clicking the OK button
+        enter_keycode = 13
+        numpad_enter_keycode = 271
+        escape_keycode = 27
+        if keycode[0] in [escape_keycode, enter_keycode, numpad_enter_keycode]:
+            App.get_running_app()._dismiss_popup()
+    
