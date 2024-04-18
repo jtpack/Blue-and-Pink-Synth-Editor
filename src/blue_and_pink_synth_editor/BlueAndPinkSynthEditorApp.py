@@ -39,7 +39,7 @@ from .nymphes_osc_process import NymphesOscProcess
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.2-beta_dev'
+app_version_string = 'v0.2.3-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -77,6 +77,8 @@ class BlueAndPinkSynthEditorApp(App):
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
+    error_text = StringProperty('')
+    error_detail_text = StringProperty('')
 
     unsaved_preset_changes = BooleanProperty(False)
 
@@ -717,6 +719,22 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
+    def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
+        def work_func(_, error_text, error_detail_text):
+            self.error_text = error_text
+            self.error_detail_text = error_detail_text
+            self.show_error_dialog()
+
+        Clock.schedule_once(lambda dt: work_func(dt, error_string, error_detail_string), 0)
+
+    def show_error_dialog(self):
+        content = ErrorDialog(ok=self._dismiss_popup)
+        self._popup = Popup(title="ERROR", content=content,
+                            size_hint=(0.5, 0.5))
+        self._popup.bind(on_open=self._on_popup_open)
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
+        self._popup.open()
+
     def update_current_preset(self):
         """
         If a preset of any kind has been loaded, then update
@@ -1138,8 +1156,6 @@ class BlueAndPinkSynthEditorApp(App):
         return v1 == v2
 
     def increment_mod_wheel(self, amount):
-        print(f'increment_mod_wheel: {amount}')
-
         new_val = self.mod_wheel + int(amount)
         if new_val > 127:
             new_val = 127
@@ -1157,8 +1173,6 @@ class BlueAndPinkSynthEditorApp(App):
             )
 
     def increment_aftertouch(self, amount):
-        print(f'increment_aftertouch: {amount}')
-
         new_val = self.aftertouch + int(amount)
         if new_val > 127:
             new_val = 127
@@ -2012,6 +2026,12 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/status':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
+            self._set_prop_value_on_main_thread('status_bar_text', f'status: {args[0]}')
+
+        elif address == '/error':
+            Logger.info(f'Received from nymphes-osc: {address}: {args[0]}, {args[1]}')
+
+            self.show_error_dialog_on_main_thread(args[0], args[1])
 
         elif address == '/osc/legato/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
@@ -2597,6 +2617,8 @@ class BlueAndPinkSynthEditorApp(App):
         # Update our property
         self._set_prop_value_on_main_thread('pitch_chord_value', chord_val)
 
+        self._set_prop_value_on_main_thread('status_bar_text', f'pitch.chord.value: {chord_val}')
+
     def _on_file_drop(self, window, file_path, x, y):
         # file_path is bytes. Convert to string
         file_path = str(file_path)
@@ -2606,19 +2628,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         Logger.info(f'_on_file_drop: {file_path}')
 
-        if Path(file_path).suffix == '.txt':
-            #
-            # This may be a preset file
-            #
-            self.send_nymphes_osc('/load_file', file_path)
-
-        elif Path(file_path).suffix == '.syx':
-            #
-            # This may be a sysex file containing a preset
-            self.send_nymphes_osc('/load_syx_file', file_path)
-
-
-
+        self.send_nymphes_osc('/load_file', file_path)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
@@ -3720,3 +3730,32 @@ class ChordParamValueLabel(ButtonBehavior, Label):
 class ChordSectionTitleLabel(HoverButton):
     this_chord_active = BooleanProperty(False)
 
+
+class ErrorDialog(BoxLayout):
+    ok = ObjectProperty(None)
+    
+    def __init__(self, **kwargs):
+        super(ErrorDialog, self).__init__(**kwargs)
+        self._keyboard = None
+
+    def _keyboard_closed(self):
+        Logger.debug('ErrorDialog Keyboard Closed')
+        if self._keyboard is not None:
+            self._keyboard.unbind(on_key_down=self._on_key_down)
+            self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard = None
+
+    def _on_key_down(self, keyboard, keycode, text, modifiers):
+        Logger.debug(f'ErrorDialog on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+
+    def _on_key_up(self, keyboard, keycode):
+        Logger.debug(f'ErrorDialog on_key_up: {keyboard}, {keycode}')
+
+        # Handle Enter and Escape keys
+        # This is the same as clicking the OK button
+        enter_keycode = 13
+        numpad_enter_keycode = 271
+        escape_keycode = 27
+        if keycode[0] in [escape_keycode, enter_keycode, numpad_enter_keycode]:
+            App.get_running_app()._dismiss_popup()
+    
