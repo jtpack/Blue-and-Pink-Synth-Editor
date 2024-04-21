@@ -32,7 +32,7 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
 
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["debug"])
+Logger.setLevel(LOG_LEVELS["info"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
 from .nymphes_osc_process import NymphesOscProcess
@@ -45,6 +45,7 @@ app_version_string = 'v0.2.3-beta'
 class BlueAndPinkSynthEditorApp(App):
     nymphes_connected = BooleanProperty(False)
     nymphes_midi_channel = NumericProperty(1)
+    midi_feedback_suppression_enabled = BooleanProperty(False)
 
     mod_wheel = NumericProperty(0)
     velocity = NumericProperty(0)
@@ -2024,6 +2025,18 @@ class BlueAndPinkSynthEditorApp(App):
             # Save the config file
             self._save_config_file(self._config_file_path)
 
+        elif address == '/midi_feedback_suppression_enabled':
+            Logger.info(f'Received from nymphes-osc: {address}')
+
+            # Store the value
+            self._set_prop_value_on_main_thread('midi_feedback_suppression_enabled', True)
+
+        elif address == '/midi_feedback_suppression_disabled':
+            Logger.info(f'Received from nymphes-osc: {address}')
+
+            # Store the value
+            self._set_prop_value_on_main_thread('midi_feedback_suppression_enabled', False)
+
         elif address == '/status':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
             self._set_prop_value_on_main_thread('status_bar_text', f'status: {args[0]}')
@@ -2118,8 +2131,8 @@ class BlueAndPinkSynthEditorApp(App):
                 client_host=self._nymphes_osc_listener_host,
                 client_port=self._nymphes_osc_listener_port,
                 nymphes_midi_channel=self.nymphes_midi_channel,
-                osc_log_level=logging.DEBUG,
-                midi_log_level=logging.DEBUG,
+                osc_log_level=logging.INFO,
+                midi_log_level=logging.INFO,
                 presets_directory_path=self._presets_directory_path
             )
 
