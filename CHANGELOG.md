@@ -1,3 +1,5 @@
+- Added automatic font size adjustment on presets spinner text, so that filenames longer than 20 characters can still be read.
+
 ## v0.2.3-beta
 
 - Added file drag support for both txt preset files and syx files 
