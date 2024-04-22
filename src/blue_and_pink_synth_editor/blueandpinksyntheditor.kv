@@ -1976,7 +1976,7 @@ ScreenManager:
     text_size: self.size
     size_hint_y: None
     height: self.parent.height
-    halign: 'center'
+    halign: 'center' if len(self.text) <= 20 else 'left'
     valign: 'middle'
     background_color: C('#00000000')
     option_cls: 'TopBarSpinnerOption'
