@@ -2119,6 +2119,7 @@ ScreenManager:
             cols: 2
             row_default_height: app.curr_height * 1/16
             row_force_default: True
+            spacing: (self.height / 3.0) * 1/10
 
 
             # First Row
@@ -2131,6 +2132,8 @@ ScreenManager:
                 values: app.nymphes_input_spinner_names
                 text: app.nymphes_input_name
                 on_text: app.nymphes_input_spinner_text_changed(self.text)
+                screen_name: 'settings'
+                tooltip_text: 'MIDI PORT FOR INPUT FROM NYMPHES'
 
             # Second Row
             NymphesPortSpinnerLabel:
@@ -2142,6 +2145,8 @@ ScreenManager:
                 values: app.nymphes_output_spinner_names
                 text: app.nymphes_output_name
                 on_text: app.nymphes_output_spinner_text_changed(self.text)
+                screen_name: 'settings'
+                tooltip_text: 'MIDI PORT FOR OUTPUT TO NYMPHES'
 
             # Third Row
             NymphesPortSpinnerLabel:
@@ -2154,6 +2159,8 @@ ScreenManager:
                 halign: 'center'
                 text: str(app.nymphes_midi_channel)
                 on_text: app.on_nymphes_midi_channel_spinner(self.text)
+                screen_name: 'settings'
+                tooltip_text: 'MIDI CHANNEL FOR COMMUNICATION WITH NYMPHES'
 
 
 
@@ -2231,23 +2238,26 @@ ScreenManager:
         SectionTitleLabel:
             text: 'MISC'
 
-        ScrollView:
-            do_scroll_x: False
-            do_scroll_y: True
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 1/8
 
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: 1/8
+            MiscSettingsButton:
+                on_press: app.open_presets_folder_in_native_file_browser()
+                size_hint_y: 1/2
+                text: 'OPEN PRESETS FOLDER'
+                screen_name: 'settings'
+                tooltip_text: 'SHOW PRESETS FOLDER IN SYSTEM FILE BROWSER'
 
-                MiscSettingsButton:
-                    on_press: app.open_presets_folder_in_native_file_browser()
-                    text: 'OPEN PRESETS FOLDER'
+            MiscSettingsButton:
+                on_press: app.open_logs_folder_in_native_file_browser()
+                size_hint_y: 1/2
+                text: 'OPEN LOGS FOLDER'
+                screen_name: 'settings'
+                tooltip_text: 'SHOW LOGS FOLDER IN SYSTEM FILE BROWSER'
 
-                MiscSettingsButton:
-                    on_press: app.open_logs_folder_in_native_file_browser()
-                    text: 'OPEN LOGS FOLDER'
 
-                Widget:
+            Widget:
 
 
 
@@ -2286,13 +2296,14 @@ ScreenManager:
 
 
 <NymphesPortSpinner@HoverSpinner>:
-    color: C('#06070FFF')
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
     font_size: self.height * 0.5
     text_size: self.size
     halign: 'center'
     valign: 'middle'
     background_color: C('#00000000')
     option_cls: 'NymphesPortSpinnerOption'
+    spacing: 0
 
 
 <NymphesPortSpinnerOption@SpinnerOption>:
@@ -2465,10 +2476,9 @@ ScreenManager:
     disabled: not app.nymphes_connected
     screen_name: 'chords'
 
-<MiscSettingsButton@ButtonBehavior+Label>:
-    color: C('#06070FFF')
-    font_size: self.height * 0.7
+<MiscSettingsButton@HoverButton>:
+    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
+    font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
     valign: 'middle'
-    size_hint_y: 1/6
