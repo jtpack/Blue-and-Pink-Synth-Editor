@@ -1014,8 +1014,8 @@ ScreenManager:
 <LegatoButton@HoverButton>:
     text: 'LEGATO'
     size_hint: 1, 1
-    color: C('#06070FFF') if app.osc_legato_value == 0 and not self.mouse_inside_bounds else C('#ECBFEBFF')
-    font_size: (self.height * 0.35) if app.osc_legato_value == 0 else (self.height * 0.375)
+    base_font_size: self.height * 0.35
+    color: C('#ECBFEBFF') if app.osc_legato_value == 127 else C('#06070FFF')
     on_press: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     disabled: not app.nymphes_connected
     tooltip_text: 'LEGATO MODE'
@@ -1038,8 +1038,8 @@ ScreenManager:
 
 <ChordsButton@HoverButton>:
     text: 'CHORDS'
-    color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
-    font_size: self.height * 0.35
+    color: C('#06070FFF')
+    base_font_size: self.height * 0.35
     on_press:
         app.root.transition = SlideTransition(direction='left')
         app.root.current = 'chords'
@@ -1070,7 +1070,7 @@ ScreenManager:
     halign: 'center'
     valign: 'middle'
     color: C('#ECBFEBFF') if app.fine_mode or self.mouse_inside_bounds else C('#06070FFF')
-    font_size: (self.height * 0.4) if app.fine_mode else (self.height * 0.35)
+    base_font_size: self.height
     on_press: app.set_fine_mode(not app.fine_mode)
     disabled: not app.nymphes_connected
     tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
@@ -2001,7 +2001,7 @@ ScreenManager:
     size_hint_y: None
     height: self.parent.height
     color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
-    font_size: self.height * 0.45
+    base_font_size: self.height * 0.45
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -2260,9 +2260,6 @@ ScreenManager:
             Widget:
 
 
-
-
-
 <MidiInputPortsGrid>:
     row_default_height: app.curr_height * 1/16
     row_force_default: True
@@ -2478,7 +2475,10 @@ ScreenManager:
 
 <MiscSettingsButton@HoverButton>:
     color: C('#ECBFEBFF') if self.mouse_inside_bounds else C('#06070FFF')
-    font_size: self.height * 0.5
+    base_font_size: self.height * 0.5
     text_size: self.size
     halign: 'left'
     valign: 'middle'
+
+<HoverButton>:
+    font_size: (self.base_font_size * 1.08) if self.font_enlarged else self.base_font_size
