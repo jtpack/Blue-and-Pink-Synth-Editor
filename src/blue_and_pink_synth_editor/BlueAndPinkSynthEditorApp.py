@@ -1021,8 +1021,6 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Updating preset file at {self._curr_preset_file_path}')
             self.send_nymphes_osc('/save_to_file', str(self._curr_preset_file_path))
 
-
-
     def midi_input_port_checkbox_toggled(self, port_name, active):
         if active:
             if port_name not in self._connected_midi_inputs:
@@ -2613,7 +2611,7 @@ class BlueAndPinkSynthEditorApp(App):
             chord_val = 64
 
         elif chord_number == 5:
-            chord_val = 64
+            chord_val = 82
 
         elif chord_number == 6:
             chord_val = 100
@@ -2664,6 +2662,8 @@ class FloatParamValueLabel(ButtonBehavior, Label):
     text_color_string = StringProperty('#06070FFF')
     mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
+    base_font_size = NumericProperty(20)
+    font_enlarged = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2682,11 +2682,13 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+        if App.get_running_app().curr_mouse_dragging_param_name == '':
+            App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+            self.font_enlarged = True
 
     def on_mouse_exit(self):
         App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
-
+        self.font_enlarged = False
 
     def handle_touch(self, device, button):
         #
@@ -2786,7 +2788,7 @@ class FloatParamValueLabel(ButtonBehavior, Label):
                 App.get_running_app().set_curr_mouse_dragging_param_name('')
 
                 # The mouse is no longer pressed
-                self.mouse_pressed = True
+                self.mouse_pressed = False
 
                 return True
             return super(FloatParamValueLabel, self).on_touch_up(touch)
@@ -2800,6 +2802,8 @@ class IntParamValueLabel(ButtonBehavior, Label):
     text_color_string = StringProperty('#06070FFF')
     mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
+    base_font_size = NumericProperty(20)
+    font_enlarged = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2818,10 +2822,13 @@ class IntParamValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+        if App.get_running_app().curr_mouse_dragging_param_name == '':
+            App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+            self.font_enlarged = True
 
     def on_mouse_exit(self):
         App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+        self.font_enlarged = False
 
     def handle_touch(self, device, button):
         #
@@ -2902,8 +2909,6 @@ class IntParamValueLabel(ButtonBehavior, Label):
 
                 return True
             return super(IntParamValueLabel, self).on_touch_up(touch)
-
-    
 
 class ParamsGridModCell(BoxLayout):
     screen_name = StringProperty('')
@@ -3228,6 +3233,8 @@ class HoverSpinner(Spinner):
     screen_name = StringProperty('')
     mouse_inside_bounds = BooleanProperty(False)
     tooltip_text = StringProperty('')
+    base_font_size = NumericProperty(20)
+    font_enlarged = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -3249,10 +3256,12 @@ class HoverSpinner(Spinner):
     def on_mouse_enter(self):
         App.get_running_app().status_bar_text = self.tooltip_text
         Window.set_system_cursor('hand')
+        self.font_enlarged = True
 
     def on_mouse_exit(self):
         App.get_running_app().status_bar_text = ''
         Window.set_system_cursor('arrow')
+        self.font_enlarged = False
 
 
 class VoiceModeButton(HoverButton):
@@ -3431,8 +3440,11 @@ class ModWheelValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('mod_wheel')
+    mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
     tooltip_text = StringProperty('')
+    base_font_size = NumericProperty(20)
+    font_enlarged = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -3451,12 +3463,15 @@ class ModWheelValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().status_bar_text = self.tooltip_text
-        Window.set_system_cursor('hand')
+        if App.get_running_app().curr_mouse_dragging_param_name == '':
+            App.get_running_app().status_bar_text = self.tooltip_text
+            Window.set_system_cursor('hand')
+            self.font_enlarged = True
 
     def on_mouse_exit(self):
         App.get_running_app().status_bar_text = ''
         Window.set_system_cursor('arrow')
+        self.font_enlarged = False
 
     def handle_touch(self, device, button):
         #
@@ -3489,6 +3504,9 @@ class ModWheelValueLabel(ButtonBehavior, Label):
 
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
+
+                # The mouse is pressed
+                self.mouse_pressed = True
 
                 # Inform the app that a drag has started
                 App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
@@ -3529,6 +3547,9 @@ class ModWheelValueLabel(ButtonBehavior, Label):
                 # Inform the app that a drag has ended
                 App.get_running_app().set_curr_mouse_dragging_param_name('')
 
+                # The mouse is no longer pressed
+                self.mouse_pressed = False
+
                 return True
             return super(ModWheelValueLabel, self).on_touch_up(touch)
         
@@ -3538,8 +3559,11 @@ class AftertouchValueLabel(ButtonBehavior, Label):
     drag_start_pos = NumericProperty(0)
     text_color_string = StringProperty('#06070FFF')
     param_name = StringProperty('aftertouch')
+    mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
     tooltip_text = StringProperty('')
+    base_font_size = NumericProperty(20)
+    font_enlarged = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -3558,12 +3582,15 @@ class AftertouchValueLabel(ButtonBehavior, Label):
                     self.on_mouse_exit()
 
     def on_mouse_enter(self):
-        App.get_running_app().status_bar_text = self.tooltip_text
-        Window.set_system_cursor('hand')
+        if App.get_running_app().curr_mouse_dragging_param_name == '':
+            App.get_running_app().status_bar_text = self.tooltip_text
+            Window.set_system_cursor('hand')
+            self.font_enlarged = True
 
     def on_mouse_exit(self):
         App.get_running_app().status_bar_text = ''
         Window.set_system_cursor('arrow')
+        self.font_enlarged = False
 
     def handle_touch(self, device, button):
         #
@@ -3596,6 +3623,9 @@ class AftertouchValueLabel(ButtonBehavior, Label):
 
                 # Store the starting y position of the touch
                 self.drag_start_pos = int(touch.pos[1])
+
+                # The mouse is pressed
+                self.mouse_pressed = True
 
                 # Inform the app that a drag has started
                 App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
@@ -3635,6 +3665,9 @@ class AftertouchValueLabel(ButtonBehavior, Label):
 
                 # Inform the app that a drag has ended
                 App.get_running_app().set_curr_mouse_dragging_param_name('')
+
+                # The mouse is no longer pressed
+                self.mouse_pressed = False
 
                 return True
             return super(AftertouchValueLabel, self).on_touch_up(touch)
