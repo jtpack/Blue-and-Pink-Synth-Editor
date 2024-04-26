@@ -1803,7 +1803,7 @@ ScreenManager:
     FloatParamValueLabel:
         text: str(float(root.value_prop))
         screen_name: root.screen_name
-        param_name: root.param_name
+        param_name: root.param_name + '.value'
         text_color_string: root.value_color_string
 
     ModAmountsBox:
@@ -1913,7 +1913,7 @@ ScreenManager:
     IntParamValueLabel:
         base_font_size: self.width * 0.2
         screen_name: root.screen_name
-        param_name: root.section_name + '.type'
+        param_name: root.section_name + '.type.value'
         text_color_string: root.value_color_string
         text: 'BPM' if root.type_prop == 0 else 'LOW' if root.type_prop == 1 else 'HIGH' if root.type_prop == 2 else 'TRACK' if root.type_prop == 3 else ''
 
@@ -1925,7 +1925,7 @@ ScreenManager:
     IntParamValueLabel:
         base_font_size: self.width * 0.2
         screen_name: root.screen_name
-        param_name: root.section_name + '.key_sync'
+        param_name: root.section_name + '.key_sync.value'
         text_color_string: root.value_color_string
         text: "ON" if root.key_sync_prop == 1 else "OFF"
 
@@ -1949,7 +1949,7 @@ ScreenManager:
     FloatParamValueLabel:
         text: str(float(root.value_prop))
         screen_name: root.screen_name
-        param_name: root.param_name
+        param_name: root.param_name + '.value'
         text_color_string: root.value_color_string
 
     # A placeholder to take up the empty space in the lower

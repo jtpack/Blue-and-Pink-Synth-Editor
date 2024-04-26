@@ -2681,10 +2681,10 @@ class ValueControl(ButtonBehavior, Label):
     def on_mouse_enter(self):
         if App.get_running_app().curr_mouse_dragging_param_name == '':
             self.mouse_inside_bounds = True
-            App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+            App.get_running_app().on_mouse_entered_param_control(self.param_name)
 
     def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+        App.get_running_app().on_mouse_exited_param_control(self.param_name)
         self.mouse_inside_bounds = False
 
     def on_touch_down(self, touch):
@@ -2702,7 +2702,7 @@ class ValueControl(ButtonBehavior, Label):
                 self.mouse_pressed = True
 
                 # Inform the app that a drag has started
-                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name + '.value')
+                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
 
                 return True
 
@@ -2723,43 +2723,31 @@ class ValueControl(ButtonBehavior, Label):
 
             return super().on_touch_up(touch)
 
-class FloatParamValueLabel(ValueControl):
     def handle_touch(self, device, button):
         #
         # Mouse Wheel
         #
-        if not self.disabled:
-            if device == 'mouse':
-                if button == 'scrollup':
-                    direction = -1 if App.get_running_app().invert_mouse_wheel else 1
+        if self.disabled:
+            return
 
-                    if App.get_running_app().fine_mode:
-                        # We are in fine mode, so use the minimum increment defined by
-                        # NymphesPreset's float precision property
-                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+        if device == 'mouse' and button in ['scrollup', 'scrolldown']:
+            # Determine direction
+            direction = 1 if button == 'scrollup' else -1
 
-                    else:
-                        increment = int(direction)
+            # Apply mouse wheel inversion, if enabled
+            if App.get_running_app().invert_mouse_wheel:
+                direction *= -1
 
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-                elif button == 'scrolldown':
-                    direction = 1 if App.get_running_app().invert_mouse_wheel else -1
-
-                    if App.get_running_app().fine_mode:
-                        # We are in fine mode, so use the minimum decrement defined by
-                        # NymphesPreset's float precision property
-                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
-
-                    else:
-                        increment = int(direction)
-
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
+            # Determine the increment
+            #
+            increment = self.get_mouse_wheel_increment()
+            if isinstance(increment, float):
+                increment *= float(direction)
             else:
-                Logger.debug(f'{self.param_name} {device} {button}')
+                increment *= direction
+
+            # Increment the property
+            App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
 
     def on_touch_move(self, touch):
         #
@@ -2774,16 +2762,10 @@ class FloatParamValueLabel(ValueControl):
                 curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
 
                 # Scale the drag distance and use as the increment
-                if App.get_running_app().fine_mode:
-                    # Use the minimum increment defined by
-                    # NymphesPreset's float precision property
-                    increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
-
-                else:
-                    increment = int(round(curr_drag_distance * (1/3)))
+                increment = self.get_mouse_drag_increment(curr_drag_distance)
 
                 # Increment the property's value
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
+                App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
 
                 # Reset the drag start position to the current position
                 self.drag_start_pos = curr_pos
@@ -2792,54 +2774,36 @@ class FloatParamValueLabel(ValueControl):
 
             return super().on_touch_move(touch)
 
+    def get_mouse_wheel_increment(self):
+        return 1
+
+    def get_mouse_drag_increment(self, drag_distance):
+        return int(round(drag_distance * (1 / 3)))
+
+class FloatParamValueLabel(ValueControl):
+    def get_mouse_wheel_increment(self):
+        if App.get_running_app().fine_mode:
+            # We are in fine mode, so use the minimum increment defined by
+            # NymphesPreset's float precision property
+            return 1.0 / pow(10, NymphesPreset.float_precision_num_decimals)
+
+        else:
+            return 1
+
+    def get_mouse_drag_increment(self, drag_distance):
+        if App.get_running_app().fine_mode:
+            return round(drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
+
+        else:
+            return int(round(drag_distance * (1 / 3)))
 
 class IntParamValueLabel(ValueControl):
-    def handle_touch(self, device, button):
-        #
-        # Mouse Wheel
-        #
-        if not self.disabled:
-            if device == 'mouse':
-                if button == 'scrollup':
-                    increment = -1 if App.get_running_app().invert_mouse_wheel else 1
+    def get_mouse_drag_increment(self, drag_distance):
+        return int(round(drag_distance * 0.2))
 
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-                elif button == 'scrolldown':
-                    increment = 1 if App.get_running_app().invert_mouse_wheel else -1
-
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-            else:
-                Logger.debug(f'{self.param_name} {device} {button}')
-
-    def on_touch_move(self, touch):
-        #
-        # This is called when the mouse drags
-        #
-        if not self.disabled:
-            if touch.grab_current == self:
-                # Get the current y position
-                curr_pos = int(touch.pos[1])
-
-                # Calculate the distance from the starting drag position
-                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
-
-                # Scale the drag distance and use as the increment
-                increment = int(round(curr_drag_distance * 0.2))
-
-                # Increment the property's value
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name + '.value', increment)
-
-                # Reset the drag start position to the current position
-                self.drag_start_pos = curr_pos
-
-                return True
-
-            return super(IntParamValueLabel, self).on_touch_move(touch)
-
+class ChordParamValueLabel(ValueControl):
+    def get_mouse_drag_increment(self, drag_distance):
+        return int(round(drag_distance * 0.2))
 
 class ParamsGridModCell(BoxLayout):
     screen_name = StringProperty('')
@@ -3661,57 +3625,6 @@ class ChordParamsGridCell(ButtonBehavior, BoxLayout):
     background_color_string = StringProperty('#438EFFFF')
     
     
-class ChordParamValueLabel(ValueControl):
-    def handle_touch(self, device, button):
-        #
-        # Mouse Wheel
-        #
-        if not self.disabled:
-            if device == 'mouse':
-                if button == 'scrollup':
-                    direction = -1 if App.get_running_app().invert_mouse_wheel else 1
-
-                    increment = int(direction)
-
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
-
-                elif button == 'scrolldown':
-                    direction = 1 if App.get_running_app().invert_mouse_wheel else -1
-
-                    increment = int(direction)
-
-                    # Increment the property
-                    App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
-
-            else:
-                Logger.debug(f'{self.param_name} {device} {button}')
-
-    def on_touch_move(self, touch):
-        #
-        # This is called when the mouse drags
-        #
-        if not self.disabled:
-            if touch.grab_current == self:
-                # Get the current y position
-                curr_pos = int(touch.pos[1])
-
-                # Calculate the distance from the starting drag position
-                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
-
-                # Scale the drag distance and use as the increment
-                increment = int(round(curr_drag_distance * (1/3)))
-
-                # Increment the property's value
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
-
-                # Reset the drag start position to the current position
-                self.drag_start_pos = curr_pos
-
-                return True
-
-            return super(ChordParamValueLabel, self).on_touch_move(touch)
-
 
 class ChordSectionTitleLabel(HoverButton):
     this_chord_active = BooleanProperty(False)
