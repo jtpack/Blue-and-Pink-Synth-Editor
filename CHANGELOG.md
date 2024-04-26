@@ -1,4 +1,7 @@
 - Added automatic font size adjustment on presets spinner text, so that filenames longer than 20 characters can still be read.
+- Improved UI on all mouse-controllable elements
+  - Now when the mouse enters any control, the control grows slightly
+  - Control element size is used to show that a click has happened
 
 
 ## v0.2.3-beta
