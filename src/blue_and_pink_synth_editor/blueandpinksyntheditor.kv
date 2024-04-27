@@ -1101,19 +1101,8 @@ ScreenManager:
     valign: 'middle'
     disabled: not app.nymphes_connected
 
-<FloatParamValueLabel>:
-    background_color: 0, 1, 1, 0.7
-    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
-    base_font_size: self.width * 0.35
-    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-    disabled: not app.nymphes_connected
 
-
-<IntParamValueLabel>:
+<ValueControl>:
     background_color: 0, 1, 1, 0.7
     color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     base_font_size: self.width * 0.35
@@ -1800,7 +1789,7 @@ ScreenManager:
         text: root.title
         text_color_string: root.param_name_color_string
 
-    FloatParamValueLabel:
+    FloatValueControl:
         text: str(float(root.value_prop))
         screen_name: root.screen_name
         param_name: root.param_name + '.value'
@@ -1910,7 +1899,7 @@ ScreenManager:
         text: 'TYPE'
         text_color_string: root.param_name_color_string
 
-    IntParamValueLabel:
+    IntValueControl:
         base_font_size: self.width * 0.2
         screen_name: root.screen_name
         param_name: root.section_name + '.type.value'
@@ -1922,7 +1911,7 @@ ScreenManager:
         text: 'SYNC'
         text_color_string: root.param_name_color_string
 
-    IntParamValueLabel:
+    IntValueControl:
         base_font_size: self.width * 0.2
         screen_name: root.screen_name
         param_name: root.section_name + '.key_sync.value'
@@ -1946,7 +1935,7 @@ ScreenManager:
         text: root.title
         text_color_string: root.param_name_color_string
 
-    FloatParamValueLabel:
+    FloatValueControl:
         text: str(float(root.value_prop))
         screen_name: root.screen_name
         param_name: root.param_name + '.value'
@@ -2441,24 +2430,11 @@ ScreenManager:
     ParamNameLabel:
         text: root.title
 
-    ChordParamValueLabel:
+    IntValueControl:
         text: str(root.value_prop)
         screen_name: root.screen_name
         param_name: root.param_name
         text_color_string: root.value_color_string
-
-
-<ChordParamValueLabel>:
-    background_color: 0, 1, 1, 0.7
-    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
-    base_font_size: self.width * 0.35
-    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-    disabled: not app.nymphes_connected
-
 
 <ChordSectionTitleLabel>:
     size_hint_y: None

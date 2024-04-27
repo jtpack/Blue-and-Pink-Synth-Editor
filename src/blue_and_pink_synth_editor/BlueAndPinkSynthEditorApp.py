@@ -71,10 +71,7 @@ class BlueAndPinkSynthEditorApp(App):
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
 
-    detected_midi_input_names_for_gui = ListProperty([])
     midi_inputs_spinner_curr_value = StringProperty('Not Connected')
-
-    detected_midi_output_names_for_gui = ListProperty([])
     midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
@@ -779,7 +776,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_preset_slot_bank_and_number[1]
             )
 
-    def on_file_load_dialog(self, path=None, filepaths=[]):
+    def on_file_load_dialog(self, path, filepaths):
         # Close the file load dialog
         self._dismiss_popup()
 
@@ -1117,7 +1114,7 @@ class BlueAndPinkSynthEditorApp(App):
                 if param_type == float:
                     value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
 
-                elif param_type == int:
+                else:
                     value_string = str(value)
 
                 self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
@@ -1224,7 +1221,7 @@ class BlueAndPinkSynthEditorApp(App):
         if param_type == float:
             value_string = format(round(value, NymphesPreset.float_precision_num_decimals),
                                   f'.{NymphesPreset.float_precision_num_decimals}f')
-        elif param_type == int:
+        else:
             value_string = str(value)
 
         self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
@@ -1342,7 +1339,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Nymphes MIDI Channel
         config['MIDI'] = {
-            'nymphes midi channel': self.nymphes_midi_channel
+            'nymphes midi channel': str(self.nymphes_midi_channel)
         }
 
         # Write to the config file
@@ -1760,7 +1757,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            filepath = str(args[0])
+            filepath = Path(str(args[0]))
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
@@ -2074,6 +2071,11 @@ class BlueAndPinkSynthEditorApp(App):
             elif voice_mode == 5:
                 voice_mode_name = 'MONO'
 
+            else:
+                # This is an unsupported voice mode value
+                Logger.warning(f'Invalid voice mode value: {voice_mode}')
+                return
+
             # Update the voice mode name property
             # used by the UI
             self._set_prop_value_on_main_thread('voice_mode_name', voice_mode_name)
@@ -2382,7 +2384,7 @@ class BlueAndPinkSynthEditorApp(App):
         the option at the beginning of the list and then select it.
         This is needed if the change occurs in response to an OSC message on a
         background thread.
-        :param new_text: str
+        :param option_text: str
         :return:
         """
         def work_func(_, new_text):
@@ -2652,6 +2654,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         return 'ON' if lfo_key_sync == 1 else 'OFF'
 
+
 class ValueControl(ButtonBehavior, Label):
     screen_name = StringProperty('')
     section_name = StringProperty('')
@@ -2780,7 +2783,7 @@ class ValueControl(ButtonBehavior, Label):
     def get_mouse_drag_increment(self, drag_distance):
         return int(round(drag_distance * (1 / 3)))
 
-class FloatParamValueLabel(ValueControl):
+class FloatValueControl(ValueControl):
     def get_mouse_wheel_increment(self):
         if App.get_running_app().fine_mode:
             # We are in fine mode, so use the minimum increment defined by
@@ -2797,19 +2800,16 @@ class FloatParamValueLabel(ValueControl):
         else:
             return int(round(drag_distance * (1 / 3)))
 
-class IntParamValueLabel(ValueControl):
+
+class IntValueControl(ValueControl):
     def get_mouse_drag_increment(self, drag_distance):
         return int(round(drag_distance * 0.2))
 
-class ChordParamValueLabel(ValueControl):
-    def get_mouse_drag_increment(self, drag_distance):
-        return int(round(drag_distance * 0.2))
 
 class ParamsGridModCell(BoxLayout):
     screen_name = StringProperty('')
     section_name = StringProperty('')
     title = StringProperty('')
-    screen_name = StringProperty('')
     param_name = StringProperty('')
     param_name_color_string = StringProperty('#ECBFEBFF')
     value_color_string = StringProperty('#06070FFF')
@@ -3282,10 +3282,6 @@ class ChordsTopBar(BoxLayout):
     corner_radius = NumericProperty(0)
 
 
-class ChordsMainControlsBox(BoxLayout):
-    corner_radius = NumericProperty(0)
-
-
 class ControlSectionsGrid(GridLayout):
     corner_radius = NumericProperty(0)
 
@@ -3336,7 +3332,8 @@ class MidiInputPortsGrid(GridLayout):
 
             # Add a checkbox
             self.add_widget(MidiInputPortCheckBox(port_name=port_name))
-            
+
+
 class MidiOutputPortsGrid(GridLayout):
     midi_ports = ListProperty([])
 
