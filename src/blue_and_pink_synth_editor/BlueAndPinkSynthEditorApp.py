@@ -25,6 +25,7 @@ from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.spinner import Spinner, SpinnerOption
+from kivy.uix.textinput import TextInput
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -2655,7 +2656,7 @@ class BlueAndPinkSynthEditorApp(App):
         return 'ON' if lfo_key_sync == 1 else 'OFF'
 
 
-class ValueControl(ButtonBehavior, Label):
+class ValueControl(TextInput):
     screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
@@ -2664,66 +2665,151 @@ class ValueControl(ButtonBehavior, Label):
     mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
     base_font_size = NumericProperty(20)
+    curr_state = StringProperty('idle')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.multiline = False
+        self.readonly = False
+        self.background_color = (0, 0, 0, 0)
         Window.bind(mouse_pos=self.on_mouseover)
+        self.bind(focus=self.on_focus)
+        self.bind(on_text_validate=self.on_enter_key)
+        self.bind(disabled=self.on_disabled)
+        self.bind(curr_state=self.on_curr_state)
+
+        self._prev_text = self.text
+
+    def on_disabled(self, _, value):
+        self.curr_state = 'disabled' if value else 'idle'
+
+    def on_curr_state(self, _, state):
+        print(f'curr_state: {self.curr_state}')
+        match state:
+            case 'mouse_over':
+                # Register as the currently-dragging control if there isn't
+                # one already
+                #
+                if App.get_running_app().curr_mouse_dragging_param_name == '':
+                    App.get_running_app().on_mouse_entered_param_control(self.param_name)
+
+            case 'dragging':
+                pass
+
+            case 'idle':
+                # If this was the currently-dragging control, then unregister
+                #
+                if App.get_running_app().curr_mouse_dragging_param_name == self.param_name:
+                    App.get_running_app().on_mouse_exited_param_control(self.param_name)
+
+
+
+            case _:
+                pass
 
     def on_mouseover(self, _, pos):
-        if self.disabled or App.get_running_app().curr_screen_name != self.screen_name:
-            return
-
         if self.collide_point(*pos):
-            if not self.mouse_inside_bounds:
-                self.on_mouse_enter()
+            #
+            # The mouse is inside the control's bounds
+            #
+            if self.curr_state == 'idle':
+                self.curr_state = 'mouse_over'
 
         else:
-            if self.mouse_inside_bounds:
-                self.on_mouse_exit()
-
-    def on_mouse_enter(self):
-        if App.get_running_app().curr_mouse_dragging_param_name == '':
-            self.mouse_inside_bounds = True
-            App.get_running_app().on_mouse_entered_param_control(self.param_name)
-
-    def on_mouse_exit(self):
-        App.get_running_app().on_mouse_exited_param_control(self.param_name)
-        self.mouse_inside_bounds = False
+            #
+            # The mouse is outside the control's bounds
+            #
+            if self.curr_state == 'mouse_over':
+                self.curr_state = 'idle'
 
     def on_touch_down(self, touch):
         #
         # This is called when the mouse is clicked
         #
-        if not self.disabled:
-            if self.collide_point(*touch.pos) and touch.button == 'left':
-                touch.grab(self)
+        if self.curr_state == 'idle' and self.collide_point(*touch.pos) and touch.button == 'left':
+            #
+            # We were idle, the left mouse button has been clicked, and it was inside our bounds
+            #
 
-                # Store the starting y position of the touch
-                self.drag_start_pos = int(touch.pos[1])
+            super().on_touch_down(touch)
 
-                # The mouse is pressed
-                self.mouse_pressed = True
+            touch.grab(self)
 
-                # Inform the app that a drag has started
-                App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+            # Store the starting y position of the touch
+            self.drag_start_pos = int(touch.pos[1])
 
-                return True
+            # The mouse is pressed
+            self.curr_state = 'mouse_pressed'
 
+            # Inform the app that a drag has started
+            App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+
+            return True
+
+        else:
             return super().on_touch_down(touch)
 
+    def on_touch_move(self, touch):
+        #
+        # This is called when the mouse drags
+        #
+
+        if touch.grab_current == self:
+            super().on_touch_move(touch)
+
+            # The mouse is dragging
+            if self.curr_state == 'mouse_pressed':
+                self.curr_state = 'mouse_dragging'
+
+            # Get the current y position
+            curr_pos = int(touch.pos[1])
+
+            # Calculate the distance from the starting drag position
+            curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
+
+            # Scale the drag distance and use as the increment
+            increment = self.get_mouse_drag_increment(curr_drag_distance)
+
+            # Increment the property's value
+            App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
+
+            # Reset the drag start position to the current position
+            self.drag_start_pos = curr_pos
+
+            return True
+
+        else:
+            return super().on_touch_move(touch)
+
     def on_touch_up(self, touch):
-        if not self.disabled:
-            if touch.grab_current == self:
-                touch.ungrab(self)
 
-                # Inform the app that a drag has ended
+        if touch.grab_current == self:
+            super().on_touch_up(touch)
+
+            touch.ungrab(self)
+
+            if self.curr_state == 'mouse_dragging':
+                #
+                # We are no longer dragging
+                #
+
                 App.get_running_app().set_curr_mouse_dragging_param_name('')
+                self.curr_state = 'idle'
 
-                # The mouse is no longer pressed
-                self.mouse_pressed = False
+                print('drag ended')
 
-                return True
+            elif self.curr_state == 'mouse_pressed':
+                #
+                # The mouse has been released after a click,
+                # but not a drag
+                #
 
+                self.curr_state = 'idle'
+                print('mouse click ended')
+
+            return True
+
+        else:
             return super().on_touch_up(touch)
 
     def handle_touch(self, device, button):
@@ -2731,7 +2817,7 @@ class ValueControl(ButtonBehavior, Label):
         # Mouse Wheel
         #
         if self.disabled:
-            return
+            return False
 
         if device == 'mouse' and button in ['scrollup', 'scrolldown']:
             # Determine direction
@@ -2752,36 +2838,69 @@ class ValueControl(ButtonBehavior, Label):
             # Increment the property
             App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
 
-    def on_touch_move(self, touch):
-        #
-        # This is called when the mouse drags
-        #
-        if not self.disabled:
-            if touch.grab_current == self:
-                # Get the current y position
-                curr_pos = int(touch.pos[1])
-
-                # Calculate the distance from the starting drag position
-                curr_drag_distance = (self.drag_start_pos - curr_pos) * -1
-
-                # Scale the drag distance and use as the increment
-                increment = self.get_mouse_drag_increment(curr_drag_distance)
-
-                # Increment the property's value
-                App.get_running_app().increment_prop_value_for_param_name(self.param_name, increment)
-
-                # Reset the drag start position to the current position
-                self.drag_start_pos = curr_pos
-
-                return True
-
-            return super().on_touch_move(touch)
-
     def get_mouse_wheel_increment(self):
         return 1
 
     def get_mouse_drag_increment(self, drag_distance):
         return int(round(drag_distance * (1 / 3)))
+
+    def on_focus(self, instance, value):
+        if value:
+            #
+            # Editing has started
+            #
+
+            # Store the previous text value, in
+            # case we need to restore it when
+            # editing ends because an invalid
+            # value has been entered.
+            self._prev_text = self.text
+
+            print(f'prev_text: {self._prev_text}')
+
+        if not value:
+            #
+            # Focus has been lost, which means
+            # that editing has just ended.
+            #
+
+            # Get the new text converted to a
+            # number
+            new_value = self._get_value()
+
+            if new_value is not None:
+                print(f'New Value: {new_value}')
+
+            else:
+                print('New value was None')
+
+    def on_enter_key(self, instance):
+        #
+        # The Enter key has been pressed.
+        #
+
+        # Get the new text converted to a
+        # number
+        new_value = self._get_value()
+
+        if new_value is not None:
+            print(f'New Value: {new_value}')
+
+        else:
+            print('New value was None')
+
+    def on_double_tap(self):
+        print('on_double_tap')
+
+
+    def _get_value(self):
+        # Convert our current text into a number
+        try:
+            return int(self.text)
+
+        except ValueError:
+            return None
+
 
 class FloatValueControl(ValueControl):
     def get_mouse_wheel_increment(self):
