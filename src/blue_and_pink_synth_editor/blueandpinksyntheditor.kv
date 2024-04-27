@@ -1103,14 +1103,14 @@ ScreenManager:
 
 
 <ValueControl>:
-    background_color: 0, 1, 1, 0.7
+    #background_color: 0, 1, 1, 0.7
     color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
     base_font_size: self.width * 0.35
     font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    #on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
     disabled: not app.nymphes_connected
 
 
@@ -1794,6 +1794,10 @@ ScreenManager:
         screen_name: root.screen_name
         param_name: root.param_name + '.value'
         text_color_string: root.value_color_string
+        fine_mode: app.fine_mode
+        setter_function: app._get_prop_value_for_param_name
+        min_value: 0.0
+        max_value: 127.0
 
     ModAmountsBox:
         mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
