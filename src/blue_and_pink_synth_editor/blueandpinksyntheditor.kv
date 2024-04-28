@@ -1102,16 +1102,16 @@ ScreenManager:
     disabled: not app.nymphes_connected
 
 
-<ValueControl>:
-    #background_color: 0, 1, 1, 0.7
-    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
-    base_font_size: self.width * 0.35
-    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    #on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-    disabled: not app.nymphes_connected
+#<ValueControl>:
+#    #background_color: 0, 1, 1, 0.7
+#    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+#    base_font_size: self.width * 0.35
+#    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+#    text_size: self.size
+#    halign: 'center'
+#    valign: 'middle'
+#    #on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+#    disabled: not app.nymphes_connected
 
 
 <OscillatorControlSection@ControlSection>:
@@ -1790,14 +1790,21 @@ ScreenManager:
         text_color_string: root.param_name_color_string
 
     FloatValueControl:
-        text: str(float(root.value_prop))
-        screen_name: root.screen_name
-        param_name: root.param_name + '.value'
-        text_color_string: root.value_color_string
-        fine_mode: app.fine_mode
-        setter_function: app._get_prop_value_for_param_name
         min_value: 0.0
         max_value: 127.0
+        float_value_decimal_places: app.fine_mode_decimal_places
+        external_value: root.value_prop
+        enable_float_value: True
+        value_changed_callback: app.value_changed
+
+#        text: str(float(root.value_prop))
+#        screen_name: root.screen_name
+#        param_name: root.param_name + '.value'
+#        text_color_string: root.value_color_string
+#        fine_mode: app.fine_mode
+#        setter_function: app._get_prop_value_for_param_name
+
+
 
     ModAmountsBox:
         mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
@@ -1940,10 +1947,13 @@ ScreenManager:
         text_color_string: root.param_name_color_string
 
     FloatValueControl:
-        text: str(float(root.value_prop))
-        screen_name: root.screen_name
-        param_name: root.param_name + '.value'
-        text_color_string: root.value_color_string
+        min_value: 0.0
+        max_value: 127.0
+        value: root.value_prop
+#        text: str(float(root.value_prop))
+#        screen_name: root.screen_name
+#        param_name: root.param_name + '.value'
+#        text_color_string: root.value_color_string
 
     # A placeholder to take up the empty space in the lower
     # part of the cell
@@ -2462,3 +2472,6 @@ ScreenManager:
 
 <HoverButton>:
     font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+
+
+<FloatValueControl@ValueControl>

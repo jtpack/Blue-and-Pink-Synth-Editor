@@ -381,6 +381,7 @@ class BlueAndPinkSynthEditorApp(App):
     # If True then increment float value parameters using
     # float values.
     fine_mode = BooleanProperty(False)
+    fine_mode_decimal_places = NumericProperty(NymphesPreset.float_precision_num_decimals)
 
     invert_mouse_wheel = BooleanProperty(True)
 
@@ -970,12 +971,12 @@ class BlueAndPinkSynthEditorApp(App):
             # Set the property's value only if the new value is different
             # than the current value
             if new_val != curr_val:
-                self._set_prop_value_for_param_name(param_name, new_val)
+                self.set_prop_value_for_param_name(param_name, new_val)
 
         else:
             # Apply the increment amount and round using the precision
             # specified in NymphesPreset
-            new_val = round(curr_val + amount, NymphesPreset.float_precision_num_decimals)
+            new_val = round(curr_val + amount, self.fine_mode_decimal_places)
 
             # Keep within the min and max value range
             if new_val < min_val:
@@ -986,8 +987,8 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Set the property's value only if the new value is different
             # than the current value
-            if not self.float_equals(curr_val, new_val, NymphesPreset.float_precision_num_decimals):
-                self._set_prop_value_for_param_name(param_name, new_val)
+            if not self.float_equals(curr_val, new_val, self.fine_mode_decimal_places):
+                self.set_prop_value_for_param_name(param_name, new_val)
 
     def reload(self):
         """
@@ -1112,11 +1113,11 @@ class BlueAndPinkSynthEditorApp(App):
                 self.curr_mouse_hover_param_name = param_name
 
                 # Get the value and type for the parameter
-                value = self._get_prop_value_for_param_name(param_name)
+                value = self.get_prop_value_for_param_name(param_name)
                 param_type = NymphesPreset.type_for_param_name(param_name)
 
                 if param_type == float:
-                    value_string = format(round(value, NymphesPreset.float_precision_num_decimals), f'.{NymphesPreset.float_precision_num_decimals}f')
+                    value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
 
                 else:
                     value_string = str(value)
@@ -1207,7 +1208,7 @@ class BlueAndPinkSynthEditorApp(App):
     def set_curr_mouse_dragging_param_name(self, param_name):
         self.curr_mouse_dragging_param_name = param_name
 
-    def _get_prop_value_for_param_name(self, param_name):
+    def get_prop_value_for_param_name(self, param_name):
         # Convert the parameter name to the name
         # of our corresponding property
         property_name = param_name.replace('.', '_')
@@ -1215,7 +1216,7 @@ class BlueAndPinkSynthEditorApp(App):
         # Get the property's current value
         return getattr(self, property_name)
 
-    def _set_prop_value_for_param_name(self, param_name, value):
+    def set_prop_value_for_param_name(self, param_name, value):
         # Update our property for this parameter name
         setattr(self, param_name.replace('.', '_'), value)
 
@@ -1223,8 +1224,8 @@ class BlueAndPinkSynthEditorApp(App):
         #
         param_type = NymphesPreset.type_for_param_name(param_name)
         if param_type == float:
-            value_string = format(round(value, NymphesPreset.float_precision_num_decimals),
-                                  f'.{NymphesPreset.float_precision_num_decimals}f')
+            value_string = format(round(value, self.fine_mode_decimal_places),
+                                  f'.{self.fine_mode_decimal_places}f')
         else:
             value_string = str(value)
 
@@ -2108,7 +2109,7 @@ class BlueAndPinkSynthEditorApp(App):
                     #
                     # This is a float value parameter.
                     #
-                    value = round(args[0], NymphesPreset.float_precision_num_decimals)
+                    value = round(args[0], self.fine_mode_decimal_places)
 
                 else:
                     #
@@ -2666,23 +2667,24 @@ class BlueAndPinkSynthEditorApp(App):
 
 
 
-class FloatValueControl(ValueControl):
-    def get_mouse_wheel_increment(self):
-        if App.get_running_app().fine_mode:
-            # We are in fine mode, so use the minimum increment defined by
-            # NymphesPreset's float precision property
-            return 1.0 / pow(10, NymphesPreset.float_precision_num_decimals)
-
-        else:
-            return 1
-
-    def get_mouse_drag_increment(self, drag_distance):
-        if App.get_running_app().fine_mode:
-            return round(drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
-
-        else:
-            return int(round(drag_distance * (1 / 3)))
-
+# class FloatValueControl(ValueControl):
+#     def get_mouse_wheel_increment(self):
+#         if App.get_running_app().fine_mode:
+#             # We are in fine mode, so use the minimum increment defined by
+#             # NymphesPreset's float precision property
+#             return 1.0 / pow(10, self.fine_mode_decimal_places)
+#
+#         else:
+#             return 1
+#
+#     def get_mouse_drag_increment(self, drag_distance):
+#         if App.get_running_app().fine_mode:
+#             return round(drag_distance * 0.05, self.fine_mode_decimal_places)
+#
+#         else:
+#             return int(round(drag_distance * (1 / 3)))
+    def value_changed(self, value):
+        print(f'value_changed: {value}')
 
 class IntValueControl(ValueControl):
     def get_mouse_drag_increment(self, drag_distance):
@@ -2858,7 +2860,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                     if App.get_running_app().fine_mode:
                         # Use the minimum increment defined by
                         # NymphesPreset's float precision property
-                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                        increment = float(direction) / pow(10, self.fine_mode_decimal_places)
 
                     else:
                         # We are not in fine mode, so increment by 1
@@ -2873,7 +2875,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                     if App.get_running_app().fine_mode:
                         # Use the minimum decrement defined by
                         # NymphesPreset's float precision property
-                        increment = float(direction) / pow(10, NymphesPreset.float_precision_num_decimals)
+                        increment = float(direction) / pow(10, self.fine_mode_decimal_places)
 
                     else:
                         # We are not in fine mode, so decrement by 1
@@ -2921,7 +2923,7 @@ class ModAmountLine(ButtonBehavior, Widget):
                 if App.get_running_app().fine_mode:
                     # Use the minimum increment defined by
                     # NymphesPreset's float precision property
-                    increment = round(curr_drag_distance * 0.05, NymphesPreset.float_precision_num_decimals)
+                    increment = round(curr_drag_distance * 0.05, self.fine_mode_decimal_places)
 
                 else:
                     increment = int(round(curr_drag_distance * 0.5))
