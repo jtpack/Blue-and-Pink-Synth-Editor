@@ -2,6 +2,7 @@ from kivy.properties import NumericProperty, StringProperty, ObjectProperty, Boo
 from kivy.uix.textinput import TextInput, CutBuffer
 from kivy.base import EventLoop
 from kivy.clock import Clock
+from kivy.core.window import Window
 import re
 
 class ValueControl(TextInput):
@@ -16,7 +17,8 @@ class ValueControl(TextInput):
     value_changed_callback = ObjectProperty(None)
     float_value_decimal_places = NumericProperty(1)
     invert_mouse_wheel = BooleanProperty(False)
-    magnification_amount = NumericProperty(1.08)
+    base_font_size = NumericProperty(0.5)
+    mouseover_magnification_amount = NumericProperty(1.08)
     enable_float_drag = BooleanProperty(True)
 
     def __init__(self, **kwargs):
@@ -28,14 +30,18 @@ class ValueControl(TextInput):
         self.bind(external_value=self.on_external_value)
         self.bind(focus=self.on_focus)
         self.bind(on_text_validate=self.on_enter_key)
+        Window.bind(mouse_pos=self.on_mouseover)
 
         self._drag_start_pos = 0.0
-
+        self._drag_value = 0.0
+        self.font_size = self.base_font_size
 
     def on_kv_post(self, base_widget):
         self._update_text()
-
-
+        self.font_size = self.base_font_size
+        self.text_size = self.size
+        self.halign = 'center'
+        self.valign = 'middle'
 
     #
     # Limit text input to numbers and decimal point
@@ -219,14 +225,36 @@ class ValueControl(TextInput):
 
         if self.collide_point(*touch.pos):
             # Store the starting y position of the touch
+            # in case it becomes a mouse drag
             self._drag_start_pos = float(touch.pos[1])
 
+            # Store the current value as well
+            self._drag_value = self.value
+
+            #
+            # Don't let the parent TextInput class start editing
+            # on the first click
+            #
             if super().on_touch_down(touch):
-                # Don't let the parent TextInput class start editing
-                # on the first click
-                #
                 if self.focus:
                     self.focus = False
+
+            #
+            # Handle mouse wheel
+            #
+            if 'button' in touch.profile and touch.button.startswith('scroll'):
+                scroll_type = touch.button[6:]
+                if scroll_type == 'down':
+                    if self.invert_mouse_wheel:
+                        self.increment_value()
+                    else:
+                        self.decrement_value()
+
+                elif scroll_type == 'up':
+                    if self.invert_mouse_wheel:
+                        self.decrement_value()
+                    else:
+                        self.increment_value()
 
             return True
 
@@ -239,25 +267,28 @@ class ValueControl(TextInput):
 
         # Calculate the distance from the starting drag position
         curr_drag_distance = (self._drag_start_pos - curr_pos) * -1
-        print(curr_drag_distance)
 
-        # Convert to a value increment
+        # Store the new drag start position
+        self._drag_start_pos = float(touch.pos[1])
+
+        # Calculate how much the value should change
+        #
         distance_for_full_value_range = 500.0
         if self.fine_mode:
             distance_for_full_value_range *= 10.0
 
-        curr_drag_value = (curr_drag_distance / distance_for_full_value_range) * (abs(self.max_value - self.min_value))
+        drag_amount = (curr_drag_distance / distance_for_full_value_range) * (abs(self.max_value - self.min_value))
 
-        # Calculate the new value
-        new_value = self.value + curr_drag_value
+        # Apply the amount and store the new fractional value
+        # to be used during further dragging, even if float
+        # value is not currently enabled.
+        self._drag_value += drag_amount
 
-        # Store the current position as the new drag start
-        self._drag_start_pos = float(touch.pos[1])
-
+        # Apply the new value
         if self.enable_float_drag:
-            self.set_value(new_value)
+            self.set_value(self._drag_value)
         else:
-            self.set_value(int(round(new_value, 0)))
+            self.set_value(int(round(self._drag_value, 0)))
 
     def on_double_tap(self):
         #
@@ -277,3 +308,18 @@ class ValueControl(TextInput):
 
     def get_mouse_drag_increment(self, drag_distance):
         return drag_distance * (1 / 3)
+
+    def increment_value(self):
+        self.set_value(self.value + (self.fine_increment if self.fine_mode else self.coarse_increment))
+
+    def decrement_value(self):
+        self.set_value(self.value - (self.fine_increment if self.fine_mode else self.coarse_increment))
+
+    def on_mouseover(self, _, pos):
+        if self.collide_point(*pos):
+            # The mouse has entered the control
+            self.font_size = self.base_font_size * self.mouseover_magnification_amount
+
+        else:
+            # The mouse has exited
+            self.font_size = self.base_font_size

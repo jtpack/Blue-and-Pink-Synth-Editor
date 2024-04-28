@@ -1793,12 +1793,13 @@ ScreenManager:
         min_value: 0.0
         max_value: 127.0
         float_value_decimal_places: app.fine_mode_decimal_places
-        external_value: root.value_prop
         enable_float_value: True
         enable_float_drag: app.fine_mode
         fine_mode: app.fine_mode
+        invert_mouse_wheel: app.invert_mouse_wheel
+        external_value: root.value_prop
         value_changed_callback: (lambda val: app.set_prop_value_for_param_name(root.param_name + '.value', self.value))
-
+        base_font_size: app.curr_height * 1/30
 #        text: str(float(root.value_prop))
 #        screen_name: root.screen_name
 #        param_name: root.param_name + '.value'
