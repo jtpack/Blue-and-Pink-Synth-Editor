@@ -1231,8 +1231,18 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
+        #
         # Send an OSC message for this parameter with the new value
-        self.send_nymphes_osc(f'/{param_name.replace(".", "/")}', value)
+        #
+
+        # Send the value as an int if it is equivalent to an int
+        if not abs(value - int(value)) > 0.0:
+            value = int(value)
+
+        self.send_nymphes_osc(
+            f'/{param_name.replace(".", "/")}',
+            value
+        )
 
     def min_val_for_param_name(self, param_name):
         return NymphesPreset.min_val_for_param_name(param_name)

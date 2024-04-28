@@ -1,5 +1,7 @@
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty, BooleanProperty
-from kivy.uix.textinput import TextInput
+from kivy.uix.textinput import TextInput, CutBuffer
+from kivy.base import EventLoop
+from kivy.clock import Clock
 import re
 
 class ValueControl(TextInput):
@@ -15,6 +17,7 @@ class ValueControl(TextInput):
     float_value_decimal_places = NumericProperty(1)
     invert_mouse_wheel = BooleanProperty(False)
     magnification_amount = NumericProperty(1.08)
+    enable_float_drag = BooleanProperty(True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -26,13 +29,19 @@ class ValueControl(TextInput):
         self.bind(focus=self.on_focus)
         self.bind(on_text_validate=self.on_enter_key)
 
+        self._drag_start_pos = 0.0
+
+
+    def on_kv_post(self, base_widget):
+        self._update_text()
+
 
 
     #
     # Limit text input to numbers and decimal point
     #
 
-    pat = re.compile('[^0-9]')
+    pat = re.compile('[^0-9.-]')
 
     def insert_text(self, substring, from_undo=False):
         """
@@ -201,3 +210,70 @@ class ValueControl(TextInput):
         v1 = int(round(first_value, num_decimals) * pow(10, num_decimals))
         v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
         return v1 == v2
+
+    def on_touch_down(self, touch):
+        if not self.collide_point(*touch.pos):
+            if self.focus:
+                self.focus = False
+            return False
+
+        if self.collide_point(*touch.pos):
+            # Store the starting y position of the touch
+            self._drag_start_pos = float(touch.pos[1])
+
+            if super().on_touch_down(touch):
+                # Don't let the parent TextInput class start editing
+                # on the first click
+                #
+                if self.focus:
+                    self.focus = False
+
+            return True
+
+    def on_touch_move(self, touch):
+        if touch.grab_current is not self:
+            return
+
+        # Get the current Y position
+        curr_pos = float(touch.pos[1])
+
+        # Calculate the distance from the starting drag position
+        curr_drag_distance = (self._drag_start_pos - curr_pos) * -1
+        print(curr_drag_distance)
+
+        # Convert to a value increment
+        distance_for_full_value_range = 500.0
+        if self.fine_mode:
+            distance_for_full_value_range *= 10.0
+
+        curr_drag_value = (curr_drag_distance / distance_for_full_value_range) * (abs(self.max_value - self.min_value))
+
+        # Calculate the new value
+        new_value = self.value + curr_drag_value
+
+        # Store the current position as the new drag start
+        self._drag_start_pos = float(touch.pos[1])
+
+        if self.enable_float_drag:
+            self.set_value(new_value)
+        else:
+            self.set_value(int(round(new_value, 0)))
+
+    def on_double_tap(self):
+        #
+        # A double-click has occurred. Start editing.
+        #
+        self.start_editing()
+
+    def start_editing(self):
+        """
+        Start editing by setting focus and then selecting all text.
+        """
+        def work_func(_):
+            self.focus = True
+            self.select_all()
+
+        Clock.schedule_once(lambda dt: work_func(dt), 0)
+
+    def get_mouse_drag_increment(self, drag_distance):
+        return drag_distance * (1 / 3)
