@@ -17,15 +17,13 @@ class ValueControl(TextInput):
     value_changed_callback = ObjectProperty(None)
     float_value_decimal_places = NumericProperty(1)
     invert_mouse_wheel = BooleanProperty(False)
-    base_font_size = NumericProperty(0.5)
+    base_font_size = NumericProperty(30)
     mouseover_magnification_amount = NumericProperty(1.08)
     enable_float_drag = BooleanProperty(True)
+    mouse_inside_bounds = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.multiline = False
-        self.readonly = False
-        self.background_color = (0, 0, 0, 0)
 
         self.bind(external_value=self.on_external_value)
         self.bind(focus=self.on_focus)
@@ -34,14 +32,16 @@ class ValueControl(TextInput):
 
         self._drag_start_pos = 0.0
         self._drag_value = 0.0
-        self.font_size = self.base_font_size
 
-    def on_kv_post(self, base_widget):
-        self._update_text()
+        self.multiline = False
+        self.readonly = False
+        self.background_color = (0, 0, 0, 0)
         self.font_size = self.base_font_size
-        self.text_size = self.size
-        self.halign = 'center'
-        self.valign = 'middle'
+        self._update_text()
+
+    # def on_kv_post(self, base_widget):
+    #     print('on_kv_post')
+
 
     #
     # Limit text input to numbers and decimal point
@@ -318,8 +318,9 @@ class ValueControl(TextInput):
     def on_mouseover(self, _, pos):
         if self.collide_point(*pos):
             # The mouse has entered the control
-            self.font_size = self.base_font_size * self.mouseover_magnification_amount
+            self.mouse_inside_bounds = True
 
         else:
-            # The mouse has exited
-            self.font_size = self.base_font_size
+            if self.mouse_inside_bounds:
+                # The mouse has exited
+                self.mouse_inside_bounds = False

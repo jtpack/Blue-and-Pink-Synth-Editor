@@ -1799,8 +1799,9 @@ ScreenManager:
         invert_mouse_wheel: app.invert_mouse_wheel
         external_value: root.value_prop
         value_changed_callback: (lambda val: app.set_prop_value_for_param_name(root.param_name + '.value', self.value))
-        base_font_size: app.curr_height * 1/30
-        height: app.curr_height * 1/24
+        #base_font_size: app.curr_height * 1/30
+        size_hint_y: None
+        height: app.curr_height * 1/16
 #        text: str(float(root.value_prop))
 #        screen_name: root.screen_name
 #        param_name: root.param_name + '.value'
@@ -2479,3 +2480,15 @@ ScreenManager:
 
 
 <FloatValueControl@ValueControl>
+    canvas.before:
+        Color:
+            rgba: C('#FF000055')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    text_size: self.size
+    halign: 'center'
+    base_font_size: self.height * 0.8
+    font_size: self.base_font_size * self.mouseover_magnification_amount if self.mouse_inside_bounds else self.base_font_size
+    padding: 0, self.font_size * 1/5 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
