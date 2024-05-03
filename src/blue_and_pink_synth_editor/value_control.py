@@ -197,10 +197,7 @@ class ValueControl(TextInput):
         """
         Convert the current value to a string and set the text with it
         """
-        if not self.enable_float_value:
-            self.text = str(int(self.value))
-        else:
-            self.text = f'{round(self.value, self.float_value_decimal_places):.{self.float_value_decimal_places}f}'
+        self.text = f'{round(self.value, self.float_value_decimal_places):.{self.float_value_decimal_places}f}'
 
 
     @staticmethod

@@ -1802,13 +1802,6 @@ ScreenManager:
         #base_font_size: app.curr_height * 1/30
         size_hint_y: None
         height: app.curr_height * 1/16
-#        text: str(float(root.value_prop))
-#        screen_name: root.screen_name
-#        param_name: root.param_name + '.value'
-#        text_color_string: root.value_color_string
-#        fine_mode: app.fine_mode
-#        setter_function: app._get_prop_value_for_param_name
-
 
 
     ModAmountsBox:
@@ -2480,15 +2473,8 @@ ScreenManager:
 
 
 <FloatValueControl@ValueControl>
-    canvas.before:
-        Color:
-            rgba: C('#FF000055')
-        Rectangle:
-            pos: self.pos
-            size: self.size
-
     text_size: self.size
     halign: 'center'
-    base_font_size: self.height * 0.8
+    base_font_size: self.height * 0.7
     font_size: self.base_font_size * self.mouseover_magnification_amount if self.mouse_inside_bounds else self.base_font_size
-    padding: 0, self.font_size * 1/5 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
+    padding: 0, self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
