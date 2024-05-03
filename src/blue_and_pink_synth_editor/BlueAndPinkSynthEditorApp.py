@@ -2676,31 +2676,6 @@ class BlueAndPinkSynthEditorApp(App):
         return 'ON' if lfo_key_sync == 1 else 'OFF'
 
 
-
-# class FloatValueControl(ValueControl):
-#     def get_mouse_wheel_increment(self):
-#         if App.get_running_app().fine_mode:
-#             # We are in fine mode, so use the minimum increment defined by
-#             # NymphesPreset's float precision property
-#             return 1.0 / pow(10, self.fine_mode_decimal_places)
-#
-#         else:
-#             return 1
-#
-#     def get_mouse_drag_increment(self, drag_distance):
-#         if App.get_running_app().fine_mode:
-#             return round(drag_distance * 0.05, self.fine_mode_decimal_places)
-#
-#         else:
-#             return int(round(drag_distance * (1 / 3)))
-    def value_changed(self, value):
-        print(f'value_changed: {value}')
-
-class IntValueControl(ValueControl):
-    def get_mouse_drag_increment(self, drag_distance):
-        return int(round(drag_distance * 0.2))
-
-
 class ParamsGridModCell(BoxLayout):
     screen_name = StringProperty('')
     section_name = StringProperty('')

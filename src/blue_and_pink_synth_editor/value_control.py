@@ -1,4 +1,4 @@
-from kivy.properties import NumericProperty, StringProperty, ObjectProperty, BooleanProperty
+from kivy.properties import NumericProperty, StringProperty, ObjectProperty, BooleanProperty, ListProperty
 from kivy.uix.textinput import TextInput, CutBuffer
 from kivy.base import EventLoop
 from kivy.clock import Clock
@@ -38,10 +38,6 @@ class ValueControl(TextInput):
         self.background_color = (0, 0, 0, 0)
         self.font_size = self.base_font_size
         self._update_text()
-
-    # def on_kv_post(self, base_widget):
-    #     print('on_kv_post')
-
 
     #
     # Limit text input to numbers and decimal point
@@ -321,3 +317,45 @@ class ValueControl(TextInput):
             if self.mouse_inside_bounds:
                 # The mouse has exited
                 self.mouse_inside_bounds = False
+
+
+class DiscreteValuesControl(ValueControl):
+    """
+    A control which can be set only to specific values.
+    Internally it uses a mapping of the values to integers.
+    """
+    values_list = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.coarse_increment = 1
+        self.fine_increment = 1
+        self.enable_float_drag = False
+        self.enable_float_value = False
+        self.float_value_decimal_places = 0
+
+        self.bind(values_list=self.on_values_list)
+
+    def _update_text(self):
+        """
+        Convert the current value to a string and set the text with it
+        """
+        if 0 <= self.value < len(self.values_list):
+            self.text = str(self.values_list[self.value])
+
+        else:
+            self.text = str(self.value)
+
+    def on_values_list(self, _, value):
+        # A new values list has been supplied.
+        # Update max value to the length of the list minus 1
+        self.max_value = len(self.values_list) - 1
+
+        if self.value >= len(self.values_list):
+            self.value = len(self.values_list) - 1
+
+            self._update_text()
+
+
+
