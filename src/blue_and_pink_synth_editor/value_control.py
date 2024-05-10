@@ -5,6 +5,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 import re
 
+
 class ValueControl(TextInput):
     value = NumericProperty(0)
     external_value = NumericProperty(0)
@@ -193,7 +194,10 @@ class ValueControl(TextInput):
         """
         Convert the current value to a string and set the text with it
         """
-        self.text = f'{round(self.value, self.float_value_decimal_places):.{self.float_value_decimal_places}f}'
+        if self.float_value_decimal_places == 0:
+            self.text = str(int(self.value))
+        else:
+            self.text = f'{round(self.value, self.float_value_decimal_places):.{self.float_value_decimal_places}f}'
 
 
     @staticmethod
@@ -355,7 +359,7 @@ class DiscreteValuesControl(ValueControl):
         if self.value >= len(self.values_list):
             self.value = len(self.values_list) - 1
 
-            self._update_text()
+        self._update_text()
 
 
 

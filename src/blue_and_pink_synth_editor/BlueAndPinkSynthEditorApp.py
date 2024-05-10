@@ -3525,7 +3525,7 @@ class ErrorDialog(BoxLayout):
         if keycode[0] in [escape_keycode, enter_keycode, numpad_enter_keycode]:
             App.get_running_app().dismiss_popup()
 
-class FloatValueControl(ValueControl):
+class SynthEditorValueControl(ValueControl):
     """
     A ValueControl subclass which provides functionality specific to the
     Blue and Pink Synth Editor app
@@ -3551,11 +3551,35 @@ class FloatValueControl(ValueControl):
                 App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
 
 
-class LfoTypeValueControl(DiscreteValuesControl):
+class FloatValueControl(SynthEditorValueControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = 0.0
+        self.max_value = 127.0
+
+
+class ChordValueControl(SynthEditorValueControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = -127
+        self.max_value = 127
+        self.float_value_decimal_places = 0
+        self.enable_float_drag = False
+        self.enable_float_value = False
+        self.fine_mode = False
+
+        self._update_text()
+
+
+class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
     """
-        A ValueControl subclass which provides functionality specific to the
-        Blue and Pink Synth Editor app
-        """
+    A ValueControl subclass which provides functionality specific to the
+    Blue and Pink Synth Editor app
+    """
     screen_name = StringProperty('')
     section_name = StringProperty('')
     param_name = StringProperty('')
@@ -3569,7 +3593,21 @@ class LfoTypeValueControl(DiscreteValuesControl):
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
             if inside:
-                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}')
+                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
             else:
-                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
 
+
+class LfoTypeValueControl(SynthEditorDiscreteValuesControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.values_list = ['BPM', 'LOW', 'HIGH', 'TRACK']
+
+
+class LfoSyncValueControl(SynthEditorDiscreteValuesControl):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.values_list = ['OFF', 'ON']
