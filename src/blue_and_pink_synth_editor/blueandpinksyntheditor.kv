@@ -1790,8 +1790,10 @@ ScreenManager:
         text_color_string: root.param_name_color_string
 
     FloatValueControl:
-        min_value: 0.0
-        max_value: 127.0
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.param_name
+        text_color_string: root.value_color_string
         float_value_decimal_places: app.fine_mode_decimal_places
         enable_float_value: True
         enable_float_drag: app.fine_mode
@@ -2478,12 +2480,10 @@ ScreenManager:
     font_size: self.base_font_size * self.mouseover_magnification_amount if self.mouse_inside_bounds else self.base_font_size
     padding: 0, self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
 
-<FloatValueControl@ValueControl>
-    min_value: 0.0
-    max_value: 127.0
+<FloatValueControl>
     base_font_size: self.height * 0.7
 
-<LfoTypeValueControl@DiscreteValuesControl>:
+<LfoTypeValueControl>:
     values_list: ['BPM', 'LOW', 'HIGH', 'TRACK']
     base_font_size: self.width * 0.2
 

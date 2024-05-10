@@ -39,7 +39,7 @@ Logger.setLevel(LOG_LEVELS["info"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 from .nymphes_osc_process import NymphesOscProcess
 
-from value_control import ValueControl
+from value_control import ValueControl, DiscreteValuesControl
 
 kivy.require('2.1.0')
 
@@ -483,7 +483,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Once a preset has been loaded, this will contain
         # the bank name ('A' to 'G') and preset number (1 to 7)
-        self._curr_preset_slot_bank_and_number = (None, None)
+        self._curr_preset_slot_bank_and_number = None, None
 
         #
         # Presets Spinner Stuff
@@ -703,7 +703,7 @@ class BlueAndPinkSynthEditorApp(App):
         )
 
     def show_load_dialog(self):
-        content = LoadDialog(load=self.on_file_load_dialog, cancel=self._dismiss_popup)
+        content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
@@ -713,7 +713,7 @@ class BlueAndPinkSynthEditorApp(App):
     def show_save_dialog(self):
         content = SaveDialog(
             save=self.on_file_save_dialog,
-            cancel=self._dismiss_popup,
+            cancel=self.dismiss_popup,
             default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
         )
         self._popup = Popup(title="Save file", content=content,
@@ -731,7 +731,7 @@ class BlueAndPinkSynthEditorApp(App):
         Clock.schedule_once(lambda dt: work_func(dt, error_string, error_detail_string), 0)
 
     def show_error_dialog(self):
-        content = ErrorDialog(ok=self._dismiss_popup)
+        content = ErrorDialog(ok=self.dismiss_popup)
         self._popup = Popup(title="ERROR", content=content,
                             size_hint=(0.5, 0.5))
         self._popup.bind(on_open=self._on_popup_open)
@@ -783,7 +783,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_load_dialog(self, path, filepaths):
         # Close the file load dialog
-        self._dismiss_popup()
+        self.dismiss_popup()
 
         # Re-bind keyboard events
         self._bind_keyboard_events()
@@ -796,7 +796,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
-        self._dismiss_popup()
+        self.dismiss_popup()
 
         # Get the filename by removing all occurrences of the
         # directory path (with a trailing slash added)
@@ -2183,7 +2183,7 @@ class BlueAndPinkSynthEditorApp(App):
             on_key_up=popup_instance.content._on_key_up
         )
 
-    def _dismiss_popup(self):
+    def dismiss_popup(self):
         self._popup.dismiss()
 
     def _on_popup_dismiss(self, popup_instance):
@@ -2754,7 +2754,7 @@ class LoadDialog(BoxLayout):
         # This is the same as clicking the Cancel button
         escape_keycode = 27
         if keycode[0] in [escape_keycode]:
-            App.get_running_app()._dismiss_popup()
+            App.get_running_app().dismiss_popup()
 
 
 class SaveDialog(BoxLayout):
@@ -2792,7 +2792,7 @@ class SaveDialog(BoxLayout):
         # This is the same as clicking the Cancel button
         escape_keycode = 27
         if keycode[0] in [escape_keycode]:
-            App.get_running_app()._dismiss_popup()
+            App.get_running_app().dismiss_popup()
 
 
 Factory.register('LoadDialog', cls=LoadDialog)
@@ -3523,5 +3523,53 @@ class ErrorDialog(BoxLayout):
         numpad_enter_keycode = 271
         escape_keycode = 27
         if keycode[0] in [escape_keycode, enter_keycode, numpad_enter_keycode]:
-            App.get_running_app()._dismiss_popup()
-    
+            App.get_running_app().dismiss_popup()
+
+class FloatValueControl(ValueControl):
+    """
+    A ValueControl subclass which provides functionality specific to the
+    Blue and Pink Synth Editor app
+    """
+    screen_name = StringProperty('')
+    section_name = StringProperty('')
+    param_name = StringProperty('')
+    text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = 0.0
+        self.max_value = 127.0
+
+        self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
+
+    def on_mouse_inside_bounds(self, _, inside):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if inside:
+                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+            else:
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+
+
+class LfoTypeValueControl(DiscreteValuesControl):
+    """
+        A ValueControl subclass which provides functionality specific to the
+        Blue and Pink Synth Editor app
+        """
+    screen_name = StringProperty('')
+    section_name = StringProperty('')
+    param_name = StringProperty('')
+    text_color_string = StringProperty('#06070FFF')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
+
+    def on_mouse_inside_bounds(self, _, inside):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if inside:
+                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}')
+            else:
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
+
