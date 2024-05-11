@@ -22,6 +22,7 @@ class ValueControl(TextInput):
     mouseover_magnification_amount = NumericProperty(1.08)
     enable_float_drag = BooleanProperty(True)
     mouse_inside_bounds = BooleanProperty(False)
+    currently_dragging = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -215,12 +216,20 @@ class ValueControl(TextInput):
         return v1 == v2
 
     def on_touch_down(self, touch):
-        if not self.collide_point(*touch.pos):
+        #
+        # Handle Mouse Clicks
+        #
+        if self.disabled:
+            return False
+
+        if not self.collide_point(*touch.pos) and touch.button == 'left':
             if self.focus:
                 self.focus = False
             return False
 
-        if self.collide_point(*touch.pos):
+        if self.collide_point(*touch.pos) and touch.button == 'left':
+            touch.grab(self)
+
             # Store the starting y position of the touch
             # in case it becomes a mouse drag
             self._drag_start_pos = float(touch.pos[1])
@@ -236,28 +245,48 @@ class ValueControl(TextInput):
                 if self.focus:
                     self.focus = False
 
-            #
-            # Handle mouse wheel
-            #
-            if 'button' in touch.profile and touch.button.startswith('scroll'):
-                scroll_type = touch.button[6:]
-                if scroll_type == 'down':
-                    if self.invert_mouse_wheel:
-                        self.increment_value()
-                    else:
-                        self.decrement_value()
+            return True
 
-                elif scroll_type == 'up':
-                    if self.invert_mouse_wheel:
-                        self.decrement_value()
-                    else:
-                        self.increment_value()
+        #
+        # Handle mouse wheel
+        #
+        if self.collide_point(*touch.pos) and 'button' in touch.profile and touch.button.startswith('scroll'):
+            # If editing was occurring and
+            # a scroll has now happened, cancel
+            # focus
+            if self.focus:
+                self.focus = False
+
+            scroll_type = touch.button[6:]
+            if scroll_type == 'down':
+                if self.invert_mouse_wheel:
+                    self.increment_value()
+                else:
+                    self.decrement_value()
+
+            elif scroll_type == 'up':
+                if self.invert_mouse_wheel:
+                    self.decrement_value()
+                else:
+                    self.increment_value()
 
             return True
+
+        # If we get here then let the textinput
+        # handle the touch
+        return super().on_touch_down(touch)
 
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return
+
+        self.currently_dragging = True
+
+        # If editing was occurring and
+        # a drag has now happened, cancel
+        # focus
+        if self.focus:
+            self.focus = False
 
         # Get the current Y position
         curr_pos = float(touch.pos[1])
@@ -287,6 +316,12 @@ class ValueControl(TextInput):
         else:
             self.set_value(int(round(self._drag_value, 0)))
 
+    def on_touch_up(self, touch):
+        if not self.disabled:
+            if touch.grab_current == self:
+                touch.ungrab(self)
+                return True
+
     def on_double_tap(self):
         #
         # A double-click has occurred. Start editing.
@@ -300,6 +335,7 @@ class ValueControl(TextInput):
         def work_func(_):
             self.focus = True
             self.select_all()
+            super(ValueControl, self)._bind_keyboard()
 
         Clock.schedule_once(lambda dt: work_func(dt), 0)
 
@@ -313,14 +349,23 @@ class ValueControl(TextInput):
         self.set_value(self.value - (self.fine_increment if self.fine_mode else self.coarse_increment))
 
     def on_mouseover(self, _, pos):
-        if self.collide_point(*pos):
-            # The mouse has entered the control
-            self.mouse_inside_bounds = True
+        if not self.disabled:
+            if self.collide_point(*pos):
+                # The mouse has entered the control
+                self.mouse_inside_bounds = True
 
-        else:
-            if self.mouse_inside_bounds:
-                # The mouse has exited
-                self.mouse_inside_bounds = False
+            else:
+                if self.mouse_inside_bounds:
+                    # The mouse has exited
+                    self.mouse_inside_bounds = False
+
+    def _bind_keyboard(self):
+        # Do not actually bind the keyboard until
+        # editing starts
+        pass
+
+    def _unbind_keyboard(self):
+        super()._unbind_keyboard()
 
 
 class DiscreteValuesControl(ValueControl):
@@ -361,5 +406,12 @@ class DiscreteValuesControl(ValueControl):
 
         self._update_text()
 
+    def start_editing(self):
+        def work_func(_):
+            # Replace the text value with its numeric value
+            self.text = str(int(self.value))
 
+            # Let superclass handle the rest
+            super(DiscreteValuesControl, self).start_editing()
 
+        Clock.schedule_once(lambda dt: work_func(dt), 0)

@@ -34,7 +34,7 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
 
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["info"])
+Logger.setLevel(LOG_LEVELS["debug"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
 from .nymphes_osc_process import NymphesOscProcess
@@ -86,6 +86,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     curr_mouse_hover_param_name = StringProperty('')
     curr_mouse_dragging_param_name = StringProperty('')
+    curr_keyboard_editing_param_name = StringProperty('')
     curr_screen_name = StringProperty('dashboard')
 
     #
@@ -401,7 +402,7 @@ class BlueAndPinkSynthEditorApp(App):
         #
 
         # Bind keyboard events
-        self._bind_keyboard_events()
+        self._bind_keyboard()
 
         # Keep track of currently held modifier keys
         self._shift_key_pressed = False
@@ -786,7 +787,7 @@ class BlueAndPinkSynthEditorApp(App):
         self.dismiss_popup()
 
         # Re-bind keyboard events
-        self._bind_keyboard_events()
+        self._bind_keyboard()
 
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')
@@ -1208,6 +1209,13 @@ class BlueAndPinkSynthEditorApp(App):
     def set_curr_mouse_dragging_param_name(self, param_name):
         self.curr_mouse_dragging_param_name = param_name
 
+    def set_curr_keyboard_editing_param_name(self, param_name):
+        self.curr_keyboard_editing_param_name = param_name
+
+        if self.curr_keyboard_editing_param_name == '':
+            # Rebind keyboard events
+            self._bind_keyboard()
+
     def get_prop_value_for_param_name(self, param_name):
         # Convert the parameter name to the name
         # of our corresponding property
@@ -1250,8 +1258,10 @@ class BlueAndPinkSynthEditorApp(App):
     def max_val_for_param_name(self, param_name):
         return NymphesPreset.max_val_for_param_name(param_name)
 
-    def _bind_keyboard_events(self):
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self.root)
+    def _bind_keyboard(self):
+        Logger.debug('App: _bind_keyboard')
+        self._keyboard = Window.request_keyboard(self._unbind_keyboard, self.root)
+        Logger.debug(f'self._keyboard: {self._keyboard}')
         self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
 
     def _load_config_file(self, filepath):
@@ -2176,7 +2186,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def _on_popup_open(self, popup_instance):
         # Bind keyboard events for the popup
-        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._keyboard_closed,
+        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._unbind_keyboard,
                                                                    popup_instance)
         popup_instance.content._keyboard.bind(
             on_key_down=popup_instance.content._on_key_down,
@@ -2194,12 +2204,13 @@ class BlueAndPinkSynthEditorApp(App):
             popup_instance.content._keyboard = None
 
         # Rebind keyboard events for the app itself
-        self._bind_keyboard_events()
+        self._bind_keyboard()
 
-    def _keyboard_closed(self):
-        Logger.debug('Keyboard Closed')
+    def _unbind_keyboard(self):
+        Logger.debug('App: _unbind_keyboard')
         self._keyboard.unbind(on_key_down=self._on_key_down)
         self._keyboard.unbind(on_key_up=self._on_key_up)
+        self._keyboard.release()
         self._keyboard = None
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
@@ -2729,11 +2740,12 @@ class LoadDialog(BoxLayout):
         super(LoadDialog, self).__init__(**kwargs)
         self._keyboard = None
 
-    def _keyboard_closed(self):
-        Logger.debug('LoadDialog Keyboard Closed')
+    def _unbind_keyboard(self):
+        Logger.debug('LoadDialog: _unbind_keyboard')
         if self._keyboard is not None:
             self._keyboard.unbind(on_key_down=self._on_key_down)
             self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard.release()
             self._keyboard = None
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
@@ -2767,11 +2779,13 @@ class SaveDialog(BoxLayout):
         super(SaveDialog, self).__init__(**kwargs)
         self._keyboard = None
 
-    def _keyboard_closed(self):
-        Logger.debug('SaveDialog Keyboard Closed')
+    def _unbind_keyboard(self):
+        pass
+        # Logger.debug('SaveDialog: _unbind_keyboard')
         # if self._keyboard is not None:
         #     self._keyboard.unbind(on_key_down=self._on_key_down)
         #     self._keyboard.unbind(on_key_up=self._on_key_up)
+        #     self._keyboard.release()
         #     self._keyboard = None
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
@@ -2810,6 +2824,7 @@ class ModAmountLine(ButtonBehavior, Widget):
     background_color_string = StringProperty('#72777BFF')
     mouse_pressed = BooleanProperty(False)
     mouse_inside_bounds = BooleanProperty(False)
+    fine_mode_decimal_places = NumericProperty(1)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2976,7 +2991,7 @@ class HoverButton(ButtonBehavior, Label):
         #
         # This is called when the mouse is clicked
         #
-        if self.collide_point(*touch.pos) and touch.button == 'left':
+        if not self.disabled and self.collide_point(*touch.pos) and touch.button == 'left':
             super().on_touch_down(touch)
             self.mouse_pressed = True
             return True
@@ -2989,7 +3004,7 @@ class HoverButton(ButtonBehavior, Label):
         # This is called when the mouse is released
         #
 
-        if touch.button == 'left':
+        if not self.disabled and touch.button == 'left':
             super().on_touch_up(touch)
             self.mouse_pressed = False
 
@@ -3159,6 +3174,7 @@ class ControlSectionsGrid(GridLayout):
 class ControlSection(BoxLayout):
     corner_radius = NumericProperty(0)
     screen_name = StringProperty('')
+    param_name_color_string = StringProperty('#ECBFEB')
 
 
 class ChordsControlSectionsGrid(GridLayout):
@@ -3509,6 +3525,7 @@ class ErrorDialog(BoxLayout):
         if self._keyboard is not None:
             self._keyboard.unbind(on_key_down=self._on_key_down)
             self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard.release()
             self._keyboard = None
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
@@ -3549,6 +3566,35 @@ class SynthEditorValueControl(ValueControl):
                 App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
             else:
                 App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+        if not self.disabled and self.collide_point(*touch.pos) and touch.button == 'left':
+            # Inform the app that a drag has started
+            App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+            super().on_touch_down(touch)
+            return True
+        else:
+            super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if not self.disabled and App.get_running_app().curr_mouse_dragging_param_name == self.param_name:
+            # Inform the app that a drag has ended
+            App.get_running_app().set_curr_mouse_dragging_param_name('')
+            super().on_touch_up(touch)
+            return True
+        else:
+            return super().on_touch_up(touch)
+
+    def start_editing(self):
+        App.get_running_app().set_curr_keyboard_editing_param_name(self.param_name)
+        super().start_editing()
+
+    def _unbind_keyboard(self):
+        super()._unbind_keyboard()
+        App.get_running_app().set_curr_keyboard_editing_param_name('')
 
 
 class FloatValueControl(SynthEditorValueControl):
@@ -3596,6 +3642,27 @@ class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
                 App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
             else:
                 App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+
+    def on_touch_down(self, touch):
+        #
+        # This is called when the mouse is clicked
+        #
+        if not self.disabled and self.collide_point(*touch.pos) and touch.button == 'left':
+            # Inform the app that a drag has started
+            App.get_running_app().set_curr_mouse_dragging_param_name(self.param_name)
+            super().on_touch_down(touch)
+            return True
+        else:
+            super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if not self.disabled and App.get_running_app().curr_mouse_dragging_param_name == self.param_name:
+            # Inform the app that a drag has ended
+            App.get_running_app().set_curr_mouse_dragging_param_name('')
+            super().on_touch_up(touch)
+            return True
+        else:
+            return super().on_touch_up(touch)
 
 
 class LfoTypeValueControl(SynthEditorDiscreteValuesControl):
