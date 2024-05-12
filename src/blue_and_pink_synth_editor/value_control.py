@@ -49,7 +49,7 @@ class ValueControl(TextInput):
     min_value = NumericProperty(0)
     max_value = NumericProperty(127)
     fine_mode = BooleanProperty(False)
-    coarse_increment = NumericProperty(5)
+    coarse_increment = NumericProperty(1)
     fine_increment = NumericProperty(0.1)
     enable_float_value = BooleanProperty(False)
     value_changed_callback = ObjectProperty(None)
@@ -86,6 +86,9 @@ class ValueControl(TextInput):
     #
 
     pat = re.compile('[^0-9.-]')
+
+    def on_kv_post(self, base_widget):
+        self._update_coarse_increment_values_list()
 
     def insert_text(self, substring, from_undo=False):
         """
@@ -506,6 +509,7 @@ class ValueControl(TextInput):
         self._update_coarse_increment_values_list()
         
     def on_coarse_increment(self, _, __):
+        print('on_coarse_increment')
         # Ensure the increment is an integer
         self.coarse_increment = int(self.coarse_increment)
 
