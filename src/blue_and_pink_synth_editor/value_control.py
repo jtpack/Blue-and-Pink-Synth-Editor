@@ -7,12 +7,49 @@ import re
 
 
 class ValueControl(TextInput):
+    """
+    This is a numeric value control that allows users to
+    adjust the value by mouse dragging up and down,
+    using the mouse scroll wheel to increment/decrement
+    or typing in the desired value.
+
+    It is also possible to simply increment/decrement
+    the value using coarse or fine increment amounts.
+
+    min_value, max_value and coarse_increment are all integers.
+    fine_increment is a float.
+    value will be an integer if fine_mode if False.
+    It will be a float if fine_mode is True.
+
+    min_value must be lower than max_value. An Exception will be
+    raised if min_value or max_value are set in a way that violates
+    this rule.
+
+    If value is manually set to a float value (by typing the value),
+    then it will temporarily be a float even if fine_mode is not True.
+    However, dragging or incrementing the value will cause the value
+    to jump to the next coarse integer value, and then continue to
+    use the coarse increment values after that.
+
+    If the min and max values are both >= 0, or are both <= 0
+    (ie: 0 to 127 or -127 to 0),
+    then the values accessible by incrementing/decrementing
+    will start at the min value and step by the increment
+    amount until reaching the max value. If the max value
+    is not a multiple of the increment amount, then it is
+    included in the list as the final value.
+
+    If the min and max values cross 0 (ie: a range of -127 to 127),
+    then the values accessible via incrementing/decrementing will
+    be generated symmetrically around 0 (ie: for a range of
+    -12 to 12 with increment amount 5: -12, -10, -5, 0, 5, 10, 12)
+    """
     value = NumericProperty(0)
     external_value = NumericProperty(0)
     min_value = NumericProperty(0)
     max_value = NumericProperty(127)
     fine_mode = BooleanProperty(False)
-    coarse_increment = NumericProperty(1)
+    coarse_increment = NumericProperty(5)
     fine_increment = NumericProperty(0.1)
     enable_float_value = BooleanProperty(False)
     value_changed_callback = ObjectProperty(None)
@@ -23,6 +60,7 @@ class ValueControl(TextInput):
     enable_float_drag = BooleanProperty(True)
     mouse_inside_bounds = BooleanProperty(False)
     currently_dragging = BooleanProperty(False)
+    coarse_increment_values_list = ListProperty([])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -31,6 +69,9 @@ class ValueControl(TextInput):
         self.bind(focus=self.on_focus)
         self.bind(on_text_validate=self.on_enter_key)
         Window.bind(mouse_pos=self.on_mouseover)
+        self.bind(on_min_value=self.on_min_value)
+        self.bind(on_max_value=self.on_max_value)
+        self.bind(on_coarse_increment=self.on_coarse_increment)
 
         self._drag_start_pos = 0.0
         self._drag_value = 0.0
@@ -41,7 +82,6 @@ class ValueControl(TextInput):
         self.font_size = self.base_font_size
         self._update_text()
 
-    #
     # Limit text input to numbers and decimal point
     #
 
@@ -200,6 +240,64 @@ class ValueControl(TextInput):
         else:
             self.text = f'{round(self.value, self.float_value_decimal_places):.{self.float_value_decimal_places}f}'
 
+    def _update_coarse_increment_values_list(self):
+        """
+        Recalculate the coarse increment values list based
+        on min and max values and increment amount.
+
+        If the min and max values are both >= 0, or are both <= 0
+        (ie: 0 to 127 or -127 to 0),
+        then the values accessible by incrementing/decrementing
+        will start at the min value and step by the increment
+        amount until reaching the max value. If the max value
+        is not a multiple of the increment amount, then it is
+        included in the list as the final value.
+
+        If the min and max values cross 0 (ie: a range of -127 to 127),
+        then the values accessible via incrementing/decrementing will
+        be generated symmetrically around 0 (ie: for a range of
+        -12 to 12 with increment amount 5: -12, -10, -5, 0, 5, 10, 12)
+        """
+        if (self.min_value <= 0 and self.max_value <= 0) or (self.min_value >= 0 and self.max_value >= 0):
+            #
+            # Min and max values are on the same side of zero, so our values list
+            # is a simple list starting at the min value and ending with the max
+            # value.
+            #
+
+            values_list = [x for x in range(self.min_value, self.max_value, self.coarse_increment)]
+
+            # Make sure max value is in the list
+            if self.max_value not in values_list:
+                values_list.append(self.max_value)
+
+            # Store the list
+            self.coarse_increment_values_list = values_list
+
+        else:
+            #
+            # The min and max values are on either side of zero, so we
+            # need to create the two halves to they are symmetrical
+            # around zero.
+            #
+
+            #
+            # Create the positive and negative portions of the list separately
+            #
+
+            positive_values_list = [x for x in range(0, self.max_value, self.coarse_increment)]
+            if self.max_value not in positive_values_list:
+                positive_values_list.append(self.max_value)
+
+            negative_values_list = sorted([-x for x in range(0, self.min_value * -1, self.coarse_increment)])
+            if self.min_value not in negative_values_list:
+                negative_values_list.append(self.min_value)
+                negative_values_list.sort()
+
+            combined_values_list = sorted(set(positive_values_list + negative_values_list))
+
+            # Store the list
+            self.coarse_increment_values_list = combined_values_list
 
     @staticmethod
     def float_equals(first_value, second_value, num_decimals):
@@ -343,10 +441,26 @@ class ValueControl(TextInput):
         return drag_distance * (1 / 3)
 
     def increment_value(self):
-        self.set_value(self.value + (self.fine_increment if self.fine_mode else self.coarse_increment))
+        if self.fine_mode:
+            self.set_value(self.value + self.fine_increment)
+
+        else:
+            # Find the next value in the coarse increment values list
+            for val in self.coarse_increment_values_list:
+                if val > self.value:
+                    self.set_value(val)
+                    break
 
     def decrement_value(self):
-        self.set_value(self.value - (self.fine_increment if self.fine_mode else self.coarse_increment))
+        if self.fine_mode:
+            self.set_value(self.value - self.fine_increment)
+
+        else:
+            # Find the prev value in the coarse increment values list
+            for val in sorted(self.coarse_increment_values_list, reverse=True):
+                if val < self.value:
+                    self.set_value(val)
+                    break
 
     def on_mouseover(self, _, pos):
         if not self.disabled:
@@ -366,6 +480,37 @@ class ValueControl(TextInput):
 
     def _unbind_keyboard(self):
         super()._unbind_keyboard()
+
+    def on_min_value(self, _, __):
+        # Ensure min_value is an integer
+        self.min_value = int(self.min_value)
+
+        # Ensure min_value is not equal to or greater
+        # than max_value
+        if self.min_value >= self.max_value:
+            raise Exception(f'min_value must be smaller than max_value')
+
+        # Update the coarse increment values list
+        self._update_coarse_increment_values_list()
+
+    def on_max_value(self, _, __):
+        # Ensure max_value is an integer
+        self.max_value = int(self.max_value)
+
+        # Ensure max_value is not equal to or smaller
+        # than min_value
+        if self.max_value <= self.min_value:
+            raise Exception(f'max_value must be greater than min_value')
+
+        # Update the coarse increment values list
+        self._update_coarse_increment_values_list()
+        
+    def on_coarse_increment(self, _, __):
+        # Ensure the increment is an integer
+        self.coarse_increment = int(self.coarse_increment)
+
+        # Update the coarse increment values list
+        self._update_coarse_increment_values_list()
 
 
 class DiscreteValuesControl(ValueControl):
