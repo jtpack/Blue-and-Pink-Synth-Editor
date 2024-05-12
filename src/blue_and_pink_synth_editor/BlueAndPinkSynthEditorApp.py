@@ -1139,15 +1139,25 @@ class BlueAndPinkSynthEditorApp(App):
 
                 # Get the value and type for the parameter
                 value = self.get_prop_value_for_param_name(param_name)
-                param_type = NymphesPreset.type_for_param_name(param_name)
 
-                if param_type == float:
-                    value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
-
+                if param_name in ['mod_wheel', 'aftertouch']:
+                    #
+                    # This is performance parameter, not a Nymphes preset parameter.
+                    #
+                    pass
                 else:
-                    value_string = str(value)
+                    #
+                    # This should be a Nymphes preset parameter.
+                    #
+                    param_type = NymphesPreset.type_for_param_name(param_name)
 
-                self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
+                    if param_type == float:
+                        value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
+
+                    else:
+                        value_string = str(value)
+
+                    self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
@@ -1258,7 +1268,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # This is performance parameter, not a Nymphes preset parameter.
             #
-            value_string = str(value)
+            pass
         else:
             # This must be a Nymphes preset parameter.
             param_type = NymphesPreset.type_for_param_name(param_name)
@@ -1268,7 +1278,7 @@ class BlueAndPinkSynthEditorApp(App):
             else:
                 value_string = str(value)
 
-        self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
+            self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
         #
         # Send an OSC message for this parameter with the new value

@@ -24,9 +24,9 @@ class SynthEditorValueControl(ValueControl):
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
             if inside:
-                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}')
             else:
-                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
 
     def on_touch_down(self, touch):
         #
@@ -115,9 +115,9 @@ class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
             if inside:
-                App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.value')
+                App.get_running_app().on_mouse_entered_param_control(self.param_name)
             else:
-                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}.value')
+                App.get_running_app().on_mouse_exited_param_control(self.param_name)
 
     def on_touch_down(self, touch):
         #
