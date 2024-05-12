@@ -47,6 +47,11 @@ app_version_string = 'v0.2.3-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
+    # Disable the built-in kivy settings editor activated
+    # by pressing F1 key.
+    def open_settings(self, *args):
+        pass
+
     nymphes_connected = BooleanProperty(False)
     nymphes_midi_channel = NumericProperty(1)
     midi_feedback_suppression_enabled = BooleanProperty(False)
