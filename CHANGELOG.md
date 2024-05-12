@@ -2,6 +2,15 @@
 - Improved UI on all mouse-controllable elements
   - Now when the mouse enters any control, the control grows slightly
   - Control element size is used to show that a click has happened
+- Disabled kivy settings editor activated by pressing F1 key because it is not needed and is confusing
+  - I didn't even know that it existed until I accidentally pressed F1 and the dialog appeared.
+- Reorganization to make it a lot easier to navigate the project:
+  - Moved most of the miscellaneous kivy subclasses into a new file: misc_widgets.py
+  - Moved dialog classes to their own files
+  - Moved SynthEditorValueControl-related classes to a new file: synth_editor_value_controls.py
+  - Now BlueAndPinkSynthEditorApp.py can be used for only the app class.
+  - 
+
 
 
 ## v0.2.3-beta
