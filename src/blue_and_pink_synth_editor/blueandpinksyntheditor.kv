@@ -1667,7 +1667,6 @@ ScreenManager:
         size_hint_y: None
         height: app.curr_height * 1/16
 
-
     ModAmountsBox:
         mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
         size_hint_x: 0.75
@@ -2230,10 +2229,18 @@ ScreenManager:
         valign: 'middle'
         disabled: not app.nymphes_connected
 
-    ModWheelValueLabel:
+    MidiIntValueControl:
         screen_name: root.screen_name
-        size_hint_x: 2/40
+        param_name: 'mod_wheel'
         text_color_string: '#092042FF'
+        invert_mouse_wheel: app.invert_mouse_wheel
+        external_value: app.mod_wheel
+        value_changed_callback: (lambda val: app.set_prop_value_for_param_name(self.param_name, self.value))
+        disabled: not app.nymphes_connected
+        tooltip_text: 'SEND MOD WHEEL AMOUNT TO NYMPHES'
+
+        size_hint_x: 2/40
+
 
     # Velocity
     Label:
@@ -2273,17 +2280,17 @@ ScreenManager:
         text_color_string: '#092042FF'
 
 
-<ModWheelValueLabel>:
-    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+<MidiIntValueControl>:
     base_font_size: self.height * 0.7
-    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-    text: str(app.mod_wheel)
-    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-    disabled: not app.nymphes_connected
-    tooltip_text: 'SEND MOD WHEEL AMOUNT TO NYMPHES'
+
+#
+#    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
+#    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+#    text_size: self.size
+#    halign: 'center'
+#    valign: 'middle'
+#    text: str(app.mod_wheel)
+#    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
 
 <AftertouchValueLabel>:
     color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')

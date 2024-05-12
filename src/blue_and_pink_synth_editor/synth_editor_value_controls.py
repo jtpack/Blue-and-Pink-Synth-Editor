@@ -82,6 +82,21 @@ class ChordValueControl(SynthEditorValueControl):
         self._update_text()
 
 
+class MidiIntValueControl(SynthEditorValueControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = 0
+        self.max_value = 127
+        self.float_value_decimal_places = 0
+        self.enable_float_drag = False
+        self.enable_float_value = False
+        self.fine_mode = False
+
+        self._update_text()
+
+
 class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
     """
     A ValueControl subclass which provides functionality specific to the

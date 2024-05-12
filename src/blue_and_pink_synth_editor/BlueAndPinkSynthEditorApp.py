@@ -50,6 +50,7 @@ from misc_widgets import ChordsControlSectionsGrid, SectionTitleLabel, ParamsGri
 from misc_widgets import ParamNameLabel, MidiInputPortsGrid, MidiOutputPortsGrid
 from misc_widgets import MidiPortLabel, MidiInputPortCheckBox, MidiOutputPortCheckBox
 from misc_widgets import ChordParamsGrid, ChordParamsGridCell, ChordSectionTitleLabel
+
 from load_dialog import LoadDialog
 from save_dialog import SaveDialog
 from error_dialog import ErrorDialog
@@ -1253,12 +1254,19 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Set status bar text
         #
-        param_type = NymphesPreset.type_for_param_name(param_name)
-        if param_type == float:
-            value_string = format(round(value, self.fine_mode_decimal_places),
-                                  f'.{self.fine_mode_decimal_places}f')
-        else:
+        if param_name in ['mod_wheel', 'aftertouch']:
+            #
+            # This is performance parameter, not a Nymphes preset parameter.
+            #
             value_string = str(value)
+        else:
+            # This must be a Nymphes preset parameter.
+            param_type = NymphesPreset.type_for_param_name(param_name)
+            if param_type == float:
+                value_string = format(round(value, self.fine_mode_decimal_places),
+                                      f'.{self.fine_mode_decimal_places}f')
+            else:
+                value_string = str(value)
 
         self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
