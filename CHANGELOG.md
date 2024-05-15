@@ -8,8 +8,8 @@
   - Moved most of the miscellaneous kivy subclasses into a new file: misc_widgets.py
   - Moved dialog classes to their own files
   - Moved SynthEditorValueControl-related classes to a new file: synth_editor_value_controls.py
-  - Now BlueAndPinkSynthEditorApp.py can be used for only the app class.
-  - 
+  - Now BlueAndPinkSynthEditorApp.py contains just the app class.
+- Added handling of /poly_aftertouch OSC message that has just been added to nymphes-osc
 
 
 

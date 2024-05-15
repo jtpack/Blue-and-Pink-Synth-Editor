@@ -2056,6 +2056,13 @@ class BlueAndPinkSynthEditorApp(App):
 
             self._set_prop_value_on_main_thread('aftertouch', val)
 
+        elif address == '/poly_aftertouch':
+            channel = int(args[0])
+            val = int(args[1])
+            Logger.debug(f'Received from nymphes-osc: {address}: {channel}, {val}')
+
+            self._set_prop_value_on_main_thread('aftertouch', val)
+
         elif address == '/sustain_pedal':
             val = bool(args[0])
             Logger.debug(f'Received from nymphes-osc: {address}: {val}')
