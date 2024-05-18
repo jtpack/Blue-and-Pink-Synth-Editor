@@ -329,7 +329,16 @@ class ValueControl(TextInput):
             return False
 
         if self.collide_point(*touch.pos) and touch.button == 'left':
-            touch.grab(self)
+            #
+            # Don't let TextInput parent class start editing on the first click
+            #
+            if super().on_touch_down(touch):
+                if self.focus:
+                    self.focus = False
+
+            # Grab the touch
+            if touch.grab_current != self:
+                touch.grab(self)
 
             # Store the starting y position of the touch
             # in case it becomes a mouse drag
@@ -337,14 +346,6 @@ class ValueControl(TextInput):
 
             # Store the current value as well
             self._drag_value = self.value
-
-            #
-            # Don't let the parent TextInput class start editing
-            # on the first click
-            #
-            if super().on_touch_down(touch):
-                if self.focus:
-                    self.focus = False
 
             return True
 
@@ -381,7 +382,8 @@ class ValueControl(TextInput):
         if touch.grab_current is not self:
             return
 
-        self.currently_dragging = True
+        if not self.currently_dragging:
+            self.currently_dragging = True
 
         # If editing was occurring and
         # a drag has now happened, cancel
@@ -418,10 +420,15 @@ class ValueControl(TextInput):
             self.set_value(int(round(self._drag_value, 0)))
 
     def on_touch_up(self, touch):
-        if not self.disabled:
-            if touch.grab_current == self:
-                touch.ungrab(self)
-                return True
+        if touch.grab_current == self:
+            if self.currently_dragging:
+                self.currently_dragging = False
+
+            touch.ungrab(self)
+            return True
+
+        else:
+            return False
 
     def on_double_tap(self):
         #
@@ -509,7 +516,6 @@ class ValueControl(TextInput):
         self._update_coarse_increment_values_list()
         
     def on_coarse_increment(self, _, __):
-        print('on_coarse_increment')
         # Ensure the increment is an integer
         self.coarse_increment = int(self.coarse_increment)
 
