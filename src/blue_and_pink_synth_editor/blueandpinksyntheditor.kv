@@ -2236,13 +2236,8 @@ ScreenManager:
     MidiIntValueControl:
         screen_name: root.screen_name
         param_name: 'mod_wheel'
-        text_color_string: '#092042FF'
-        invert_mouse_wheel: app.invert_mouse_wheel
         external_value: app.mod_wheel
-        value_changed_callback: (lambda val: app.set_prop_value_for_param_name(self.param_name, self.value))
-        disabled: not app.nymphes_connected
         tooltip_text: 'SEND MOD WHEEL AMOUNT TO NYMPHES'
-
         size_hint_x: 2/40
 
 
@@ -2278,14 +2273,20 @@ ScreenManager:
         valign: 'middle'
         disabled: not app.nymphes_connected
 
-    AftertouchValueLabel:
+    MidiIntValueControl:
         screen_name: root.screen_name
+        param_name: 'aftertouch'
+        external_value: app.aftertouch
+        tooltip_text: 'SEND AFTERTOUCH AMOUNT TO NYMPHES'
         size_hint_x: 2/40
-        text_color_string: '#092042FF'
 
 
 <MidiIntValueControl>:
     base_font_size: self.height * 0.7
+    text_color_string: '#092042FF'
+    invert_mouse_wheel: app.invert_mouse_wheel
+    value_changed_callback: (lambda val: app.set_prop_value_for_param_name(self.param_name, self.value))
+    disabled: not app.nymphes_connected
 
 #
 #    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
