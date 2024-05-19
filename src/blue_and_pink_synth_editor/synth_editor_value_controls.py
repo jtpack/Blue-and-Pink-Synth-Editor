@@ -22,6 +22,8 @@ class SynthEditorValueControl(ValueControl):
         self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
 
         self.value_changed_callback = (lambda val: App.get_running_app().set_prop_value_for_param_name(self.param_name, self.value))
+        self.invert_mouse_wheel = App.get_running_app().invert_mouse_wheel
+
 
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
@@ -67,6 +69,10 @@ class FloatValueControl(SynthEditorValueControl):
 
         self.min_value = 0.0
         self.max_value = 127.0
+
+        self.fine_mode = App.get_running_app().fine_mode
+        self.enable_float_drag = App.get_running_app().fine_mode
+        self.float_value_decimal_places = App.get_running_app().fine_mode_decimal_places
 
 
 class ChordValueControl(SynthEditorValueControl):

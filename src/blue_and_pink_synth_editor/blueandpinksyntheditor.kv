@@ -971,7 +971,6 @@ ScreenManager:
     base_font_size: self.height * 0.35
     color: C('#ECBFEBFF') if app.osc_legato_value == 127 or self.mouse_pressed else C('#06070FFF')
     on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
-    disabled: not app.nymphes_connected
     tooltip_text: 'LEGATO MODE'
 
 
@@ -999,7 +998,6 @@ ScreenManager:
         app.root.current = 'chords'
         app.set_curr_screen_name('chords')
         self.mouse_inside_bounds = False
-    disabled: not app.nymphes_connected
     tooltip_text: 'SHOW CHORDS EDITOR'
 
 <FineModeBox>:
@@ -1026,7 +1024,6 @@ ScreenManager:
     color: C('#ECBFEBFF') if app.fine_mode and not self.disabled or self.mouse_pressed else C('#06070FFF')
     base_font_size: self.height * 0.35
     on_release: app.set_fine_mode(not app.fine_mode)
-    disabled: not app.nymphes_connected
     tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
 
 <ControlSection>:
@@ -1054,18 +1051,6 @@ ScreenManager:
     halign: 'center'
     valign: 'middle'
     disabled: not app.nymphes_connected
-
-
-#<ValueControl>:
-#    #background_color: 0, 1, 1, 0.7
-#    color: C('#EDC0ECFF') if self.mouse_pressed else C(self.text_color_string) if app.nymphes_connected else C('#ECBFEBFF')
-#    base_font_size: self.width * 0.35
-#    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-#    text_size: self.size
-#    halign: 'center'
-#    valign: 'middle'
-#    #on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
-#    disabled: not app.nymphes_connected
 
 
 <OscillatorControlSection@ControlSection>:
@@ -1661,11 +1646,7 @@ ScreenManager:
         section_name: root.section_name
         param_name: root.param_name + '.value'
         text_color_string: root.value_color_string
-        float_value_decimal_places: app.fine_mode_decimal_places
         enable_float_value: True
-        enable_float_drag: app.fine_mode
-        fine_mode: app.fine_mode
-        invert_mouse_wheel: app.invert_mouse_wheel
         external_value: root.value_prop
         size_hint_y: None
         height: app.curr_height * 1/16
@@ -1781,7 +1762,6 @@ ScreenManager:
         section_name: root.section_name
         param_name: root.section_name + '.type.value'
         external_value: root.type_prop
-        invert_mouse_wheel: app.invert_mouse_wheel
         text_color_string: root.value_color_string
 
     ParamNameLabel:
@@ -1794,7 +1774,6 @@ ScreenManager:
         section_name: root.section_name
         param_name: root.section_name + '.key_sync.value'
         external_value: root.key_sync_prop
-        invert_mouse_wheel: app.invert_mouse_wheel
         text_color_string: root.value_color_string
 
 
@@ -1820,11 +1799,6 @@ ScreenManager:
         section_name: root.section_name
         param_name: root.param_name + '.value'
         text_color_string: root.value_color_string
-        float_value_decimal_places: app.fine_mode_decimal_places
-        enable_float_value: True
-        enable_float_drag: app.fine_mode
-        fine_mode: app.fine_mode
-        invert_mouse_wheel: app.invert_mouse_wheel
         external_value: root.value_prop
         size_hint_y: None
         height: app.curr_height * 1/16
@@ -1841,7 +1815,6 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    disabled: not app.nymphes_connected
 
 
 <TopBarSpinner@HoverSpinner>:
@@ -2278,8 +2251,6 @@ ScreenManager:
 <ModWheelValueControl, AftertouchValueControl>:
     base_font_size: self.height * 0.7
     text_color_string: '#092042FF'
-    invert_mouse_wheel: app.invert_mouse_wheel
-    disabled: not app.nymphes_connected
 
 
 <ChordParamsGrid>:
@@ -2308,7 +2279,6 @@ ScreenManager:
         section_name: root.section_name
         param_name: root.param_name + '.value'
         external_value: root.value_prop
-        invert_mouse_wheel: app.invert_mouse_wheel
         text_color_string: root.value_color_string
 
 <ChordSectionTitleLabel>:
@@ -2333,6 +2303,7 @@ ScreenManager:
 
 <HoverButton>:
     font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+    disabled: not app.nymphes_connected
 
 <ValueControl>:
     text_size: self.size
@@ -2352,4 +2323,3 @@ ScreenManager:
     
 <ChordValueControl>:
     base_font_size: self.height * 0.7
-    
