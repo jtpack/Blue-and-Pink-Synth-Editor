@@ -105,6 +105,35 @@ class MidiIntValueControl(SynthEditorValueControl):
         self._update_text()
 
 
+class NymphesMidiChannelValueControl(SynthEditorValueControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = 1
+        self.max_value = 16
+        self.float_value_decimal_places = 0
+        self.enable_float_drag = False
+        self.enable_float_value = False
+        self.fine_mode = False
+        self.external_value = App.get_running_app().nymphes_midi_channel
+        self.value_changed_callback = (
+            lambda val: App.get_running_app().set_nymphes_midi_channel(self.value)
+        )
+
+        self._update_text()
+
+    def on_mouse_inside_bounds(self, _, inside):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if inside:
+                App.get_running_app().on_mouse_entered_param_control(
+                    param_name=f'{self.param_name}',
+                    tooltip_text='SET MIDI CHANNEL TO MATCH NYMPHES'
+                )
+            else:
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
+
+
 class ModWheelValueControl(MidiIntValueControl):
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:

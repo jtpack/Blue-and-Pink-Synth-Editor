@@ -1947,6 +1947,7 @@ ScreenManager:
 
 <NymphesPortsSection@ControlSection>:
     spacing: self.parent.spacing
+    screen_name: 'settings'
 
     canvas.before:
         Color:
@@ -1980,7 +1981,7 @@ ScreenManager:
                 values: app.nymphes_input_spinner_names
                 text: app.nymphes_input_name
                 on_text: app.nymphes_input_spinner_text_changed(self.text)
-                screen_name: 'settings'
+                screen_name: root.screen_name
                 tooltip_text: 'MIDI PORT FOR INPUT FROM NYMPHES'
 
             # Second Row
@@ -1993,7 +1994,7 @@ ScreenManager:
                 values: app.nymphes_output_spinner_names
                 text: app.nymphes_output_name
                 on_text: app.nymphes_output_spinner_text_changed(self.text)
-                screen_name: 'settings'
+                screen_name: root.screen_name
                 tooltip_text: 'MIDI PORT FOR OUTPUT TO NYMPHES'
 
             # Third Row
@@ -2001,14 +2002,17 @@ ScreenManager:
                 text: 'MIDI CHANNEL'
                 size_hint_x: 3/8
 
-            NymphesPortSpinner:
+            NymphesMidiChannelValueControl:
                 size_hint_x: 5/8
-                values: [str(i) for i in range(1, 17)]
+                screen_name: root.screen_name
+                param_name: 'nymphes_midi_channel'
+                external_value: app.nymphes_midi_channel
+                disabled: False
+                base_font_size: self.height * 0.55
+                spacing: 0
+                padding: 0, self.height * 1/10 + (self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10), 0, 0
                 halign: 'center'
-                text: str(app.nymphes_midi_channel)
-                on_text: app.on_nymphes_midi_channel_spinner(self.text)
-                screen_name: 'settings'
-                tooltip_text: 'MIDI CHANNEL FOR COMMUNICATION WITH NYMPHES'
+                valign: 'middle'
 
 
 <MidiInputPortsSection@ControlSection>:
@@ -2098,9 +2102,9 @@ ScreenManager:
             MiscSettingsButton:
                 on_release: app.open_logs_folder_in_native_file_browser()
                 size_hint_y: 1/6
-                text: 'OPEN LOGS FOLDER'
+                text: 'OPEN DEBUG LOGS FOLDER'
                 screen_name: 'settings'
-                tooltip_text: 'SHOW LOGS FOLDER IN SYSTEM FILE BROWSER'
+                tooltip_text: 'SHOW DEBUG LOGS FOLDER IN SYSTEM FILE BROWSER'
 
             Widget:
                 size_hint_y: 4/6

@@ -1129,40 +1129,40 @@ class BlueAndPinkSynthEditorApp(App):
         # is connected, display the name and value in the status
         # bar, or display the control's tooltip_text if provided.
         #
-        if self.nymphes_connected:
-            if self.curr_mouse_dragging_param_name == '':
-                # Change the mouse cursor to a hand indicate that
-                # this is a control
-                Window.set_system_cursor('hand')
+        if self.curr_mouse_dragging_param_name == '':
+            # Change the mouse cursor to a hand indicate that
+            # this is a control
+            Window.set_system_cursor('hand')
 
-                # Store the name of the parameter
-                self.curr_mouse_hover_param_name = param_name
+            # Store the name of the parameter
+            self.curr_mouse_hover_param_name = param_name
 
-                if tooltip_text is not None:
-                    self._set_prop_value_on_main_thread('status_bar_text', tooltip_text)
+            if tooltip_text is not None:
+                self._set_prop_value_on_main_thread('status_bar_text', tooltip_text)
+
+            else:
+                # Get the value and type for the parameter
+                value = self.get_prop_value_for_param_name(param_name)
+
+                if param_name in ['mod_wheel', 'aftertouch']:
+                    #
+                    # This is performance parameter, not a Nymphes preset parameter.
+                    #
+                    value_string = str(value)
 
                 else:
-                    # Get the value and type for the parameter
-                    value = self.get_prop_value_for_param_name(param_name)
+                    #
+                    # This should be a Nymphes preset parameter.
+                    #
+                    param_type = NymphesPreset.type_for_param_name(param_name)
 
-                    if param_name in ['mod_wheel', 'aftertouch']:
-                        #
-                        # This is performance parameter, not a Nymphes preset parameter.
-                        #
-                        value_string = str(value)
+                    if param_type == float:
+                        value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
+
                     else:
-                        #
-                        # This should be a Nymphes preset parameter.
-                        #
-                        param_type = NymphesPreset.type_for_param_name(param_name)
+                        value_string = str(value)
 
-                        if param_type == float:
-                            value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
-
-                        else:
-                            value_string = str(value)
-
-                    self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
+                self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
     def on_mouse_exited_param_control(self, param_name):
         # When Nymphes is connected and the mouse exits a parameter
@@ -1194,44 +1194,14 @@ class BlueAndPinkSynthEditorApp(App):
         v2 = int(round(second_value, num_decimals) * pow(10, num_decimals))
         return v1 == v2
 
-    def increment_mod_wheel(self, amount):
-        new_val = self.mod_wheel + int(amount)
-        if new_val > 127:
-            new_val = 127
-        elif new_val < 0:
-            new_val = 0
-
-        if new_val != self.mod_wheel:
-            # Update the property
-            self.mod_wheel = new_val
-
-            # Send the new value to Nymphes
-            self.send_nymphes_osc(
-                '/mod_wheel',
-                new_val
-            )
-
-    def increment_aftertouch(self, amount):
-        new_val = self.aftertouch + int(amount)
-        if new_val > 127:
-            new_val = 127
-        elif new_val < 0:
-            new_val = 0
-
-        if new_val != self.aftertouch:
-            # Update the property
-            self.aftertouch = new_val
-
-            # Send the new value to Nymphes
-            self.send_nymphes_osc(
-                '/aftertouch',
-                new_val
-            )
-
-    def on_nymphes_midi_channel_spinner(self, new_val):
-        # The spinner's values are strings, so
-        # convert new_val to an int
-        midi_channel = int(new_val)
+    def set_nymphes_midi_channel(self, midi_channel):
+        """
+        Set the MIDI channel used for communication with
+        Nymphes.
+        This is an int, with a range of 1 to 16
+        """
+        # Make sure midi_channel is an int
+        midi_channel = int(midi_channel)
 
         if midi_channel != self.nymphes_midi_channel:
             Logger.info(f'Changing Nymphes MIDI channel to {midi_channel}')
