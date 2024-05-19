@@ -21,6 +21,8 @@ class SynthEditorValueControl(ValueControl):
 
         self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
 
+        self.value_changed_callback = (lambda val: App.get_running_app().set_prop_value_for_param_name(self.param_name, self.value))
+
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
             if inside:
@@ -96,6 +98,29 @@ class MidiIntValueControl(SynthEditorValueControl):
 
         self._update_text()
 
+
+class ModWheelValueControl(MidiIntValueControl):
+    def on_mouse_inside_bounds(self, _, inside):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if inside:
+                App.get_running_app().on_mouse_entered_param_control(
+                    param_name=f'{self.param_name}',
+                    tooltip_text='SEND MOD WHEEL AMOUNT TO NYMPHES'
+                )
+            else:
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
+
+
+class AftertouchValueControl(MidiIntValueControl):
+    def on_mouse_inside_bounds(self, _, inside):
+        if App.get_running_app().curr_screen_name == self.screen_name:
+            if inside:
+                App.get_running_app().on_mouse_entered_param_control(
+                    param_name=f'{self.param_name}',
+                    tooltip_text='SEND AFTERTOUCH AMOUNT TO NYMPHES'
+                )
+            else:
+                App.get_running_app().on_mouse_exited_param_control(f'{self.param_name}')
 
 class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
     """

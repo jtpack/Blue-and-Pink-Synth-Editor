@@ -1124,10 +1124,11 @@ class BlueAndPinkSynthEditorApp(App):
                 if self.nymphes_connected:
                     self.send_nymphes_osc('/disconnect_nymphes')
 
-    def on_mouse_entered_param_control(self, param_name):
+    def on_mouse_entered_param_control(self, param_name, tooltip_text=None):
         # When the mouse enters a parameter control and Nymphes
         # is connected, display the name and value in the status
-        # bar.
+        # bar, or display the control's tooltip_text if provided.
+        #
         if self.nymphes_connected:
             if self.curr_mouse_dragging_param_name == '':
                 # Change the mouse cursor to a hand indicate that
@@ -1137,25 +1138,29 @@ class BlueAndPinkSynthEditorApp(App):
                 # Store the name of the parameter
                 self.curr_mouse_hover_param_name = param_name
 
-                # Get the value and type for the parameter
-                value = self.get_prop_value_for_param_name(param_name)
+                if tooltip_text is not None:
+                    self._set_prop_value_on_main_thread('status_bar_text', tooltip_text)
 
-                if param_name in ['mod_wheel', 'aftertouch']:
-                    #
-                    # This is performance parameter, not a Nymphes preset parameter.
-                    #
-                    pass
                 else:
-                    #
-                    # This should be a Nymphes preset parameter.
-                    #
-                    param_type = NymphesPreset.type_for_param_name(param_name)
+                    # Get the value and type for the parameter
+                    value = self.get_prop_value_for_param_name(param_name)
 
-                    if param_type == float:
-                        value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
-
-                    else:
+                    if param_name in ['mod_wheel', 'aftertouch']:
+                        #
+                        # This is performance parameter, not a Nymphes preset parameter.
+                        #
                         value_string = str(value)
+                    else:
+                        #
+                        # This should be a Nymphes preset parameter.
+                        #
+                        param_type = NymphesPreset.type_for_param_name(param_name)
+
+                        if param_type == float:
+                            value_string = format(round(value, self.fine_mode_decimal_places), f'.{self.fine_mode_decimal_places}f')
+
+                        else:
+                            value_string = str(value)
 
                     self._set_prop_value_on_main_thread('status_bar_text', f'{param_name}: {value_string}')
 
