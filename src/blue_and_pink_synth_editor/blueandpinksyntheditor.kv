@@ -2092,6 +2092,24 @@ ScreenManager:
             orientation: 'vertical'
             spacing: self.height * 1/24
 
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 1/6
+
+                Label:
+                    text: 'INVERT MOUSE WHEEL'
+                    size_hint_x: 5/6
+                    color: C('#06070FFF')
+                    text_size: self.size
+                    font_size: self.height * 0.6
+                    halign: 'center'
+                    valign: 'middle'
+
+                CheckBox:
+                    size_hint_x: 1/6
+                    active: app.invert_mouse_wheel
+                    on_active: app.set_invert_mouse_wheel(self.active)
+
             MiscSettingsButton:
                 on_release: app.open_presets_folder_in_native_file_browser()
                 size_hint_y: 1/6
@@ -2107,7 +2125,7 @@ ScreenManager:
                 tooltip_text: 'SHOW DEBUG LOGS FOLDER IN SYSTEM FILE BROWSER'
 
             Widget:
-                size_hint_y: 4/6
+                size_hint_y: 3/6
 
 
 <MidiInputPortsGrid>:
@@ -2315,6 +2333,7 @@ ScreenManager:
     font_size: self.base_font_size * self.mouseover_magnification_amount if self.mouse_inside_bounds else self.base_font_size
     padding: 0, self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
     disabled: not app.nymphes_connected
+    invert_mouse_wheel: app.invert_mouse_wheel
 
 <FloatValueControl>
     base_font_size: self.height * 0.7

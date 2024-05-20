@@ -22,7 +22,6 @@ class SynthEditorValueControl(ValueControl):
         self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
 
         self.value_changed_callback = (lambda val: App.get_running_app().set_prop_value_for_param_name(self.param_name, self.value))
-        self.invert_mouse_wheel = App.get_running_app().invert_mouse_wheel
 
 
     def on_mouse_inside_bounds(self, _, inside):
@@ -91,6 +90,21 @@ class ChordValueControl(SynthEditorValueControl):
 
 
 class MidiIntValueControl(SynthEditorValueControl):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.min_value = 0
+        self.max_value = 127
+        self.float_value_decimal_places = 0
+        self.enable_float_drag = False
+        self.enable_float_value = False
+        self.fine_mode = False
+
+        self._update_text()
+
+
+class GenericIntValueControl(SynthEditorValueControl):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -207,6 +221,7 @@ class LfoTypeValueControl(SynthEditorDiscreteValuesControl):
         super().__init__(**kwargs)
 
         self.values_list = ['BPM', 'LOW', 'HIGH', 'TRACK']
+        self.drag_distance_for_full_value_range = 100
 
 
 class LfoSyncValueControl(SynthEditorDiscreteValuesControl):
@@ -214,3 +229,4 @@ class LfoSyncValueControl(SynthEditorDiscreteValuesControl):
         super().__init__(**kwargs)
 
         self.values_list = ['OFF', 'ON']
+        self.drag_distance_for_full_value_range = 100

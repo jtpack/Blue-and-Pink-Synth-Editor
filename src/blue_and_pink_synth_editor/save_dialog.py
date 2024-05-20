@@ -2,6 +2,8 @@ from kivy.app import App
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.popup import Popup
+from kivy.clock import Clock
 
 
 class SaveDialog(BoxLayout):
@@ -24,6 +26,7 @@ class SaveDialog(BoxLayout):
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
         Logger.debug(f'SaveDialog on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
+        self.text_input.focus = True
 
     def _on_key_up(self, keyboard, keycode):
         Logger.debug(f'SaveDialog on_key_up: {keyboard}, {keycode}')
@@ -41,3 +44,14 @@ class SaveDialog(BoxLayout):
         escape_keycode = 27
         if keycode[0] in [escape_keycode]:
             App.get_running_app().dismiss_popup()
+
+class SavePopup(Popup):
+    def on_open(self):
+        def select_all_delayed(_):
+            self.content.text_input.select_all()
+
+        # Start editing the text input
+        self.content.text_input.focus = True
+
+        # Make it select all the text
+        Clock.schedule_once(lambda dt: select_all_delayed(dt), 0)

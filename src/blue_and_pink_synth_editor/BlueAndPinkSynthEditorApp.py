@@ -52,7 +52,7 @@ from misc_widgets import MidiPortLabel, MidiInputPortCheckBox, MidiOutputPortChe
 from misc_widgets import ChordParamsGrid, ChordParamsGridCell, ChordSectionTitleLabel
 
 from load_dialog import LoadDialog
-from save_dialog import SaveDialog
+from save_dialog import SaveDialog, SavePopup
 from error_dialog import ErrorDialog
 from synth_editor_value_controls import FloatValueControl, ChordValueControl
 from synth_editor_value_controls import LfoTypeValueControl, LfoSyncValueControl
@@ -62,7 +62,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.3-beta'
+app_version_string = 'v0.2.4-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -641,6 +641,9 @@ class BlueAndPinkSynthEditorApp(App):
         # Stop the nymphes_osc child process
         self._stop_nymphes_osc_child_process()
 
+        # Save the config file
+        self._save_config_file(self._config_file_path)
+
     def set_voice_mode_by_name(self, voice_mode_name):
         """
         Used to set the voice mode by name instead of using a number.
@@ -741,7 +744,7 @@ class BlueAndPinkSynthEditorApp(App):
             cancel=self.dismiss_popup,
             default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
         )
-        self._popup = Popup(title="Save file", content=content,
+        self._popup = SavePopup(title="Save file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
@@ -1345,6 +1348,20 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.warning(
                 f'[MIDI][nymphes midi channel] not specified. Using channel {self.nymphes_midi_channel}')
 
+        #
+        # GUI
+        #
+
+        if config.has_option('GUI', 'invert mouse wheel'):
+            raw_value = config['GUI']['invert mouse wheel']
+
+            if raw_value in ['0', '1']:
+                self.invert_mouse_wheel = True if raw_value == '1' else False
+                Logger.info(f'[GUI][invert mouse wheel]: {self.invert_mouse_wheel}')
+
+            else:
+                Logger.warning(f"[GUI][invert mouse wheel] was invalid: {raw_value}. Using {self.invert_mouse_wheel}")
+
     def _reload_config_file(self):
         Logger.info(f'Reloading config file at {self._config_file_path}')
         self._load_config_file(self._config_file_path)
@@ -1362,6 +1379,11 @@ class BlueAndPinkSynthEditorApp(App):
         # Nymphes MIDI Channel
         config['MIDI'] = {
             'nymphes midi channel': '1'
+        }
+
+        # GUI
+        config['GUI'] = {
+            'invert mouse wheel': '0'
         }
 
         # Write to a new config file
@@ -1387,6 +1409,11 @@ class BlueAndPinkSynthEditorApp(App):
         # Nymphes MIDI Channel
         config['MIDI'] = {
             'nymphes midi channel': str(self.nymphes_midi_channel)
+        }
+
+        # GUI
+        config['GUI'] = {
+            'invert mouse wheel': '1' if self.invert_mouse_wheel else '0'
         }
 
         # Write to the config file
@@ -2465,6 +2492,12 @@ class BlueAndPinkSynthEditorApp(App):
             setattr(self, _prop_name, _value)
             
         Clock.schedule_once(lambda dt: work_func(dt, prop_name, value), 0)
+
+    def set_invert_mouse_wheel(self, value):
+        self.invert_mouse_wheel = value
+
+        # Save the config file
+        self._save_config_file(self._config_file_path)
 
     def _add_name_to_nymphes_input_spinner_on_main_thread(self, port_name):
         def work_func(_, new_port_name):

@@ -61,6 +61,7 @@ class ValueControl(TextInput):
     mouse_inside_bounds = BooleanProperty(False)
     currently_dragging = BooleanProperty(False)
     coarse_increment_values_list = ListProperty([])
+    drag_distance_for_full_value_range = NumericProperty(500.0)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -402,11 +403,10 @@ class ValueControl(TextInput):
 
         # Calculate how much the value should change
         #
-        distance_for_full_value_range = 500.0
         if self.fine_mode:
-            distance_for_full_value_range *= 10.0
+            self.drag_distance_for_full_value_range *= 10.0
 
-        drag_amount = (curr_drag_distance / distance_for_full_value_range) * (abs(self.max_value - self.min_value))
+        drag_amount = (curr_drag_distance / self.drag_distance_for_full_value_range) * (abs(self.max_value - self.min_value))
 
         # Apply the amount and store the new fractional value
         # to be used during further dragging, even if float
