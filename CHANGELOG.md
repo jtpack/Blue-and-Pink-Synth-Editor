@@ -1,7 +1,22 @@
+## v0.2.4-beta
+
 - Added automatic font size adjustment on presets spinner text, so that filenames longer than 20 characters can still be read.
 - Improved UI on all mouse-controllable elements
   - Now when the mouse enters any control, the control grows slightly
   - Control element size is used to show that a click has happened
+  - Now you can double-click a control and type a value
+- Preset Save dialog now opens with the filename selected and focused so there's no need to click on it before you start typing
+- Disabled kivy settings editor activated by pressing F1 key because it is not needed and is confusing
+  - I didn't even know that it existed until I accidentally pressed F1 and the dialog appeared.
+- Reorganization of code for much easier project navigation:
+  - Moved most of the miscellaneous kivy subclasses into a new file: misc_widgets.py
+  - Moved dialog classes to their own files
+  - Moved SynthEditorValueControl-related classes to a new file: synth_editor_value_controls.py
+  - Now BlueAndPinkSynthEditorApp.py contains just the app class.
+- Added handling of the /poly_aftertouch OSC message that has just been added to nymphes-osc
+  - We are simply displaying the value part of the message in the same place we show channel aftertouch
+- Updated version in pyproject.toml
+  - Had forgotten to do this for a while
 
 
 ## v0.2.3-beta
