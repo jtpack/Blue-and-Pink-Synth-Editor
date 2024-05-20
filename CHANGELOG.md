@@ -15,6 +15,8 @@
   - Now BlueAndPinkSynthEditorApp.py contains just the app class.
 - Added handling of the /poly_aftertouch OSC message that has just been added to nymphes-osc
   - We are simply displaying the value part of the message in the same place we show channel aftertouch
+- Updated version in pyproject.toml
+  - Had forgotten to do this for a while
 
 
 ## v0.2.3-beta
