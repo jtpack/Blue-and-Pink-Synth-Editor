@@ -1,3 +1,9 @@
+## v0.2.5-beta
+
+- Fixed import bugs preventing app from compiling
+- Forgot to mention in previous changelog that an INVERT MOUSE WHEEL control had been added to settings screen
+
+
 ## v0.2.4-beta
 
 - Added automatic font size adjustment on presets spinner text, so that filenames longer than 20 characters can still be read.

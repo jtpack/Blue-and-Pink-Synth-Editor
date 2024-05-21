@@ -1,4 +1,4 @@
-from value_control import ValueControl, DiscreteValuesControl
+from .value_control import ValueControl, DiscreteValuesControl
 from kivy.properties import StringProperty
 from kivy.app import App
 
