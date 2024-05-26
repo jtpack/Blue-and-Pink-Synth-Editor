@@ -8,8 +8,11 @@
 - Fixed bugs where certain OSC messages were still setting kivy property values on a background thread rather than scheduling the change on the main thread
   - I don't know that there will be a noticeable difference after changing this, but I do know that similar fixes done in the past improved app stability and responsiveness
 - Fixed mistake: LFO1 parameter labels in Oscillator and Filter sections were supposed to be purple
-- 
-
+- Expanded the use of colors
+  - LFO2 parameter labels are now the same color as the LFO2 modulation amount lines
+  - MOD WHEEL control's label now is the same color as MOD WHEEL modulation amount lines
+  - VELOCITY label is now the same color as the VELOCITY modulation amount lines
+  - AFTERTOUCH control's label is now the same color as the AFTERTOUCH modulation amount lines
 
 
 ## v0.2.5-beta
