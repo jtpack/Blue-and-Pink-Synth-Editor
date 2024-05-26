@@ -7,6 +7,10 @@
 - Fixed bug which allowed mod amount lines to set status bar text on mouseover even if Nymphes was not connected
 - Fixed bugs where certain OSC messages were still setting kivy property values on a background thread rather than scheduling the change on the main thread
   - I don't know that there will be a noticeable difference after changing this, but I do know that similar fixes done in the past improved app stability and responsiveness
+- Fixed mistake: LFO1 parameter labels in Oscillator and Filter sections were supposed to be purple
+- 
+
+
 
 ## v0.2.5-beta
 
