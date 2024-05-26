@@ -806,6 +806,7 @@ ScreenManager:
             app.set_curr_screen_name('settings')
             self.mouse_inside_bounds = False
         text: 'SETTINGS'
+        #disabled: False
 
 
 <MainControlsBox>:
@@ -972,6 +973,7 @@ ScreenManager:
     color: C('#ECBFEBFF') if app.osc_legato_value == 127 or self.mouse_pressed else C('#06070FFF')
     on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     tooltip_text: 'LEGATO MODE'
+    disabled: not app.nymphes_connected
 
 
 <ChordsButtonBox>:
@@ -999,6 +1001,7 @@ ScreenManager:
         app.set_curr_screen_name('chords')
         self.mouse_inside_bounds = False
     tooltip_text: 'SHOW CHORDS EDITOR'
+    disabled: not app.nymphes_connected
 
 <FineModeBox>:
     padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
@@ -1025,6 +1028,7 @@ ScreenManager:
     base_font_size: self.height * 0.35
     on_release: app.set_fine_mode(not app.fine_mode)
     tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
+    disabled: not app.nymphes_connected
 
 <ControlSection>:
     orientation: 'vertical'
@@ -1815,6 +1819,7 @@ ScreenManager:
     text_size: self.size
     halign: 'center'
     valign: 'middle'
+    disabled: not app.nymphes_connected
 
 
 <TopBarSpinner@HoverSpinner>:
@@ -2325,7 +2330,6 @@ ScreenManager:
 
 <HoverButton>:
     font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
-    disabled: not app.nymphes_connected
 
 <ValueControl>:
     text_size: self.size

@@ -3,7 +3,8 @@
   - Also, now resizing the window from a corner should be a lot smoother
   - MIDI Port Checkboxes in the settings page now look a bit better when the window has been moved from a higher dpi display to a lower one
     - They are about twice the size they should be, but at least you can see the entire checkbox now
-    
+- Fixed bug which would disable SETTINGS button if Nymphes was not connected
+- 
 
 ## v0.2.5-beta
 
