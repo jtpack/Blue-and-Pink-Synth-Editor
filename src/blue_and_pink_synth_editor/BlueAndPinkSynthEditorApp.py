@@ -422,7 +422,8 @@ class BlueAndPinkSynthEditorApp(App):
         # Set the app title
         self.title = f'Blue and Pink Synth Editor {app_version_string}'
 
-        self.icon = 'icon.png'
+        # Set the app icon
+        self.icon = str(Path(__file__).resolve().parent / 'icon.png')
 
         #
         # Keyboard Stuff
