@@ -1,3 +1,4 @@
+## v0.2.6-beta
 
 - Improved handling of window resizing and moving between displays with different dpi
   - Now sizing should stay consistent
