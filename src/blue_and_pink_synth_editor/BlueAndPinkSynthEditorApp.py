@@ -62,7 +62,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.5-beta_dev'
+app_version_string = 'v0.2.5-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -421,6 +421,8 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Set the app title
         self.title = f'Blue and Pink Synth Editor {app_version_string}'
+
+        self.icon = 'icon.png'
 
         #
         # Keyboard Stuff

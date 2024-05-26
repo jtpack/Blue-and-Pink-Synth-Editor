@@ -1,3 +1,4 @@
+
 - Improved handling of window resizing and moving between displays with different dpi
   - Now sizing should stay consistent
   - Also, now resizing the window from a corner should be a lot smoother
@@ -13,6 +14,7 @@
   - MOD WHEEL control's label now is the same color as MOD WHEEL modulation amount lines
   - VELOCITY label is now the same color as the VELOCITY modulation amount lines
   - AFTERTOUCH control's label is now the same color as the AFTERTOUCH modulation amount lines
+  - Added an icon for the app
 
 
 ## v0.2.5-beta

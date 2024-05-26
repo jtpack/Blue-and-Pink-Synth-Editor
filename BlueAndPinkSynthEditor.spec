@@ -16,7 +16,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/save_dialog.py', 'src/blue_and_pink_synth_editor'),
         ('src/blue_and_pink_synth_editor/error_dialog.py', 'src/blue_and_pink_synth_editor'),
         ('src/blue_and_pink_synth_editor/synth_editor_value_controls.py', 'src/blue_and_pink_synth_editor'),
-
+        ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor')
     ],
     hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],
@@ -56,6 +56,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='BlueAndPinkSynthEditor.app',
-    icon=None,
+    icon='icons.icns',
     bundle_identifier=None,
 )
