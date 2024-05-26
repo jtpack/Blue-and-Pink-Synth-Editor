@@ -4,7 +4,9 @@
   - MIDI Port Checkboxes in the settings page now look a bit better when the window has been moved from a higher dpi display to a lower one
     - They are about twice the size they should be, but at least you can see the entire checkbox now
 - Fixed bug which would disable SETTINGS button if Nymphes was not connected
-- 
+- Fixed bug which allowed mod amount lines to set status bar text on mouseover even if Nymphes was not connected
+- Fixed bugs where certain OSC messages were still setting kivy property values on a background thread rather than scheduling the change on the main thread
+  - I don't know that there will be a noticeable difference after changing this, but I do know that similar fixes done in the past improved app stability and responsiveness
 
 ## v0.2.5-beta
 

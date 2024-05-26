@@ -1652,11 +1652,9 @@ class BlueAndPinkSynthEditorApp(App):
             self._nymphes_input_port = input_port
             self._nymphes_output_port = output_port
             
+            self._set_prop_value_on_main_thread('nymphes_connected', True)
             self._set_prop_value_on_main_thread('nymphes_input_name', input_port)
             self._set_prop_value_on_main_thread('nymphes_output_name', output_port)
-
-            # Update app state
-            self.nymphes_connected = True
 
             # Status message
             self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES CONNECTED')
@@ -1669,13 +1667,19 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}')
 
             # Update app state
-            self.nymphes_connected = False
             self._nymphes_input_port = None
             self._nymphes_output_port = None
 
-            self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES NOT CONNECTED')
+            self._set_prop_value_on_main_thread('nymphes_connected', False)
             self._set_prop_value_on_main_thread('nymphes_input_name', 'Not Connected')
             self._set_prop_value_on_main_thread('nymphes_output_name', 'Not Connected')
+
+            # Status message
+            self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES NOT CONNECTED')
+
+            # Set the system cursor to an arrow, just in case it was a hand
+            # when Nymphes disconnected
+            self.set_system_cursor_on_main_thread('arrow')
 
         elif address == '/loaded_preset':
             #
@@ -1690,8 +1694,8 @@ class BlueAndPinkSynthEditorApp(App):
             # Reset the unsaved changes flag
             self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
-            # Update the current preset type
-            self.curr_preset_type = 'preset_slot'
+            # Update the current preset type property
+            self._set_prop_value_on_main_thread('curr_preset_type', 'preset_slot')
 
             # Store preset slot info
             self._curr_preset_slot_type = preset_slot_type
@@ -1743,7 +1747,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
             # Update the current preset type
-            self.curr_preset_type = 'file'
+            self._set_prop_value_on_main_thread('curr_preset_type', 'file')
 
             # Store the path to the file
             self._curr_preset_file_path = filepath
@@ -1778,7 +1782,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_file_path = filepath
 
             # Update the current preset type
-            self.curr_preset_type = 'init'
+            self._set_prop_value_on_main_thread('curr_preset_type', 'init')
 
             # Reset current preset slot info
             self._curr_preset_slot_type = None
@@ -1789,7 +1793,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the presets spinner
             # Select the init option
-            self.presets_spinner_text = 'init'
+            self._set_prop_value_on_main_thread('presets_spinner_text', 'init')
             self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
 
             # Status bar message
@@ -1805,7 +1809,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
             # Update the current preset type
-            self.curr_preset_type = 'file'
+            self._set_prop_value_on_main_thread('curr_preset_type', 'file')
 
             # Store the path to the file
             self._curr_preset_file_path = filepath
@@ -2062,32 +2066,27 @@ class BlueAndPinkSynthEditorApp(App):
         elif address == '/mod_wheel':
             val = int(args[0])
             Logger.debug(f'Received from nymphes-osc: {address}: {val}')
-
             self._set_prop_value_on_main_thread('mod_wheel', val)
 
         elif address == '/velocity':
             val = int(args[0])
             Logger.debug(f'Received from nymphes-osc: {address}: {val}')
-
             self._set_prop_value_on_main_thread('velocity', val)
 
         elif address == '/aftertouch':
             val = int(args[0])
             Logger.debug(f'Received from nymphes-osc: {address}: {val}')
-
             self._set_prop_value_on_main_thread('aftertouch', val)
 
         elif address == '/poly_aftertouch':
             channel = int(args[0])
             val = int(args[1])
             Logger.debug(f'Received from nymphes-osc: {address}: {channel}, {val}')
-
             self._set_prop_value_on_main_thread('aftertouch', val)
 
         elif address == '/sustain_pedal':
             val = bool(args[0])
             Logger.debug(f'Received from nymphes-osc: {address}: {val}')
-
             self._set_prop_value_on_main_thread('sustain_pedal', val)
 
         elif address == '/nymphes_midi_channel_changed':
@@ -2118,7 +2117,6 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/error':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}, {args[1]}')
-
             self.show_error_dialog_on_main_thread(args[0], args[1])
 
         elif address == '/osc/legato/value':
@@ -2132,7 +2130,7 @@ class BlueAndPinkSynthEditorApp(App):
             voice_mode = int(args[0])
 
             # Store the new voice mode as an int
-            self.osc_voice_mode_value = voice_mode
+            self._set_prop_value_on_main_thread('osc_voice_mode_value', voice_mode)
 
             # Get the name of the voice mode
             if voice_mode == 0:
@@ -2502,8 +2500,16 @@ class BlueAndPinkSynthEditorApp(App):
     def _set_prop_value_on_main_thread(self, prop_name, value):
         def work_func(_, _prop_name, _value):
             setattr(self, _prop_name, _value)
-            
+            setattr(self, _prop_name, _value)
+
         Clock.schedule_once(lambda dt: work_func(dt, prop_name, value), 0)
+
+    @staticmethod
+    def set_system_cursor_on_main_thread(cursor_name):
+        def work_func(_, _cursor_name):
+            Window.set_system_cursor(_cursor_name)
+
+        Clock.schedule_once(lambda dt: work_func(dt, cursor_name), 0)
 
     def set_invert_mouse_wheel(self, value):
         self.invert_mouse_wheel = value

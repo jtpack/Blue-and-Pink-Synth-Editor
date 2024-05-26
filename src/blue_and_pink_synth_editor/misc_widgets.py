@@ -70,16 +70,17 @@ class ModAmountLine(ButtonBehavior, Widget):
         Window.bind(mouse_pos=self.on_mouseover)
 
     def on_mouseover(self, _, pos):
-        if App.get_running_app().curr_screen_name == self.screen_name:
-            if self.collide_point(*pos):
-                if not self.mouse_inside_bounds:
-                    self.mouse_inside_bounds = True
-                    self.on_mouse_enter()
+        if not self.disabled:
+            if App.get_running_app().curr_screen_name == self.screen_name:
+                if self.collide_point(*pos):
+                    if not self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = True
+                        self.on_mouse_enter()
 
-            else:
-                if self.mouse_inside_bounds:
-                    self.mouse_inside_bounds = False
-                    self.on_mouse_exit()
+                else:
+                    if self.mouse_inside_bounds:
+                        self.mouse_inside_bounds = False
+                        self.on_mouse_exit()
 
     def on_mouse_enter(self):
         App.get_running_app().on_mouse_entered_param_control(f'{self.param_name}.{self.mod_type}')
