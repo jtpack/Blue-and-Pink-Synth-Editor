@@ -1,3 +1,8 @@
+- Removed mentions of Windows and Linux in README
+  - Support for these other platforms is expected in the future, but for now it is difficult enough to handle macOS
+  - Linux should be the easier of the two. It probably already works. I just don't have the time for testing right now
+
+
 ## v0.2.6-beta
 
 - Improved handling of window resizing and moving between displays with different dpi
