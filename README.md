@@ -8,15 +8,17 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 
 ## Features
 
-- Supports all MIDI-controllable Nymphes functions
-- User and Factory preset recall via MIDI Program Change and Bank MSB Messages
-- MIDI CC control of preset parameters, including the modulation matrix
+- View and edit all MIDI-controllable Nymphes parameters in a preset, including modulation matrix and chords
+- Recall presets via MIDI Program Change and Bank MSB Messages
 - Request SYSEX dump of all presets
-- Decode and generate SYSEX messages to access all preset parameters, including chords settings
-  - This also means that most parameters have full floating-point resolution, not just 0-127 MIDI CC values
-- Save and load presets as files
-- User-controllable pass-through from MIDI input ports to Nymphes
-- User-controllable pass-through from Nymphes to MIDI output ports
+- Decode and generate Nymphes preset SYSEX messages
+  - This allows full floating-point resolution for most parameters, not just 0-127 MIDI CC values
+- Save and load preset files
+  - These are human-readable txt files
+- Convert syx SYSEX preset files to txt preset files
+  - This allows you to see their settings, and to choose where or whether to store them in Nymphes' preset slots
+- MIDI pass-through from input ports to Nymphes
+- MIDI pass-through from Nymphes to output ports
 
 
 ## Nymphes Settings

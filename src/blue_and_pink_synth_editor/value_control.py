@@ -403,21 +403,18 @@ class ValueControl(TextInput):
 
         # Calculate how much the value should change
         #
-        if self.fine_mode:
-            self.drag_distance_for_full_value_range *= 10.0
-
         drag_amount = (curr_drag_distance / self.drag_distance_for_full_value_range) * (abs(self.max_value - self.min_value))
 
-        # Apply the amount and store the new fractional value
-        # to be used during further dragging, even if float
-        # value is not currently enabled.
+        if self.fine_mode:
+            drag_amount *= 0.05
+
         self._drag_value += drag_amount
 
         # Apply the new value
         if self.enable_float_drag:
             self.set_value(self._drag_value)
         else:
-            self.set_value(int(round(self._drag_value, 0)))
+            self.set_value(int(round(self._drag_value + drag_amount, 0)))
 
     def on_touch_up(self, touch):
         if touch.grab_current == self:

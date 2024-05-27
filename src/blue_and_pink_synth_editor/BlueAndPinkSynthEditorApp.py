@@ -708,8 +708,6 @@ class BlueAndPinkSynthEditorApp(App):
         # Update the property
         self.fine_mode = enable_fine_mode
 
-
-
     def load_preset_by_index(self, preset_index):
         """
         Load the Nymphes preset at preset_index.
@@ -2121,6 +2119,9 @@ class BlueAndPinkSynthEditorApp(App):
         elif address == '/error':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}, {args[1]}')
             self.show_error_dialog_on_main_thread(args[0], args[1])
+
+        elif address == '/midi_feedback_detected':
+            Logger.info(f'Received from nymphes-osc: {address}')
 
         elif address == '/osc/legato/value':
             Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')

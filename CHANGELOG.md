@@ -1,7 +1,12 @@
 - Removed mentions of Windows and Linux in README
   - Support for these other platforms is expected in the future, but for now it is difficult enough to handle macOS
   - Linux should be the easier of the two. It probably already works. I just don't have the time for testing right now
-
+- Handling /midi_feedback_detected message now
+  - Just logging it
+- In nymphes-osc, added virtual MIDI ports for easy communication with DAWs
+  - Make sure you pull in changes from nymphes-osc repository
+- Fixed major bug in ValueControl that prevented float value dragging from working
+  
 
 ## v0.2.6-beta
 
