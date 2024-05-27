@@ -28,10 +28,8 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 
 ## Platforms:
 - macOS
-- Linux (Including RPi)
-- Windows (Not extensively tested)
-  - Known issue: due to a Windows limitation on MIDI message length, SYSEX preset dumps from Nymphes are not received
-  - macOS and Linux do not have this limitation
+
+Support for Linux and Windows is planned for the future
 
   
 # Installation
@@ -52,17 +50,11 @@ Change to the Blue-and-Pink-Synth-Editor directory:
   - `cd ~/Blue-and-Pink-Synth-Editor`
 
 Create and activate the virtual environment:
-- On Mac OS / Linux:
-  - `python3 -m venv venv`
-  - `source venv/bin/activate`
-
-- On Windows:
-  - `py -3 -m venv venv`
-  - `venv\scripts\activate`
+- `python3 -m venv venv`
+- `source venv/bin/activate`
 
 ## Install nymphes-osc in the virtual environment as an editable package
   - `pip install -e ~/nymphes-osc`
-    - _Note: On Windows you may need to replace ~ with the full path to your home directory_
 
 ## 4. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `pip install -e .`
@@ -78,7 +70,7 @@ Note: The app checks for the Blue and Pink Synth Editor folder in /Applications 
 ## 7. Move the compiled app into the folder in /Applications
 - `mv dist/BlueAndPinkSynthEditor.app /Applications/Blue\ and\ Pink\ Synth\ Editor`
 
-## 8a. Run the compiled app by double-clicking on it
+## 8. Run the compiled app by double-clicking on it
 
-## 8b. To see debug output on the console, run the app from the command line instead
-- `/Applications/Blue\ and\ Pink\ Synth\ Editor/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+- To see debug output on the console, run the app from the command line instead
+  - `/Applications/Blue\ and\ Pink\ Synth\ Editor/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`

@@ -62,7 +62,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.6-beta'
+app_version_string = 'v0.2.6-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
