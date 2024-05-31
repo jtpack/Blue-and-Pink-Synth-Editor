@@ -1,3 +1,10 @@
+- The OPEN PRESETS FOLDER button on the SETTINGS page now opens the presets folder itself, rather than its parent folder
+  - In order to achieve this it is necessary to have Finder select a file inside the folder
+    - We have chosen the init.txt preset file because we know that it will exist
+- The OPEN DEBUG LOGS FOLDER button now does the same thing: it selects the most recent log file (if one exists), so that the logs folder itself is shown rather than its parent folder
+  - If there are no log files, then the parent is shown
+
+
 ## v0.2.7-beta
 
 - Removed mentions of Windows and Linux in README

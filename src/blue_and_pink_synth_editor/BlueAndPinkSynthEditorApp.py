@@ -7,6 +7,7 @@ import netifaces
 import platform
 import subprocess
 import re
+import glob
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -62,7 +63,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.7-beta'
+app_version_string = 'v0.2.7-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -599,6 +600,9 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Create the path for the config file
             self._config_file_path = self._app_data_folder_path / 'config.txt'
+
+        # Path to init preset
+        self._init_preset_file_path = self._presets_directory_path / 'init.txt'
 
         # Create a config file if one doesn't exist
         if not Path(self._config_file_path).exists():
@@ -2687,17 +2691,48 @@ class BlueAndPinkSynthEditorApp(App):
 
     def open_presets_folder_in_native_file_browser(self):
         """
-        Opens a new native filebrowser (Finder on macOS, Windows Explorer on Windows)
+        Opens a new native filebrowser (Finder on macOS)
         showing the presets folder.
         """
-        subprocess.call(['open', '-R', self._presets_directory_path])
+        #
+        # In order to make open -R show the contents of a directory,
+        # we need to provide a path to a file inside the directory.
+        # Otherwise it opens the parent folder of the directory instead.
+        # We will use the init.txt preset file because we know that
+        # it exists.
+        #
+
+        subprocess.call(['open', '-R', self._init_preset_file_path])
 
     def open_logs_folder_in_native_file_browser(self):
         """
-        Opens a new native filebrowser (Finder on macOS, Windows Explorer on Windows)
+        Opens a new native filebrowser (Finder on macOS)
         showing the kivy logs folder.
         """
-        subprocess.call(['open', '-R', Path(os.path.expanduser('~/.kivy/logs/'))])
+        #
+        # In order to make open -R show the contents of a directory,
+        # we need to provide a path to a file inside the directory.
+        # Otherwise it opens the parent folder of the directory instead.
+        # We will select the most recently created log file in the directory.
+        #
+
+        # Check whether the logs directory contains any files
+        logs_dir_path = Path(os.path.expanduser('~/.kivy/logs/'))
+        log_files = glob.glob(os.path.join(logs_dir_path, '*'))
+
+        if not log_files:
+            # The directory is empty.
+            # Open the directory itself, which will cause Finder
+            # to show the directory inside its parent directory.
+            subprocess.call(['open', '-R', logs_dir_path])
+
+        else:
+            # The directory contains files.
+            # Open the most recent one, which will cause
+            # Finder to show the contents of the folder
+            # and select the file.
+            most_recent_file = max(log_files, key=os.path.getctime)
+            subprocess.call(['open', '-R', most_recent_file])
 
     def activate_chord_number(self, chord_number):
         """
