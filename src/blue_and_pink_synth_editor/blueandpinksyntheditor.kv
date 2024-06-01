@@ -148,7 +148,7 @@ ScreenManager:
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 2/20
-        tooltip_text: 'RETURN TO MAIN SCREEN'
+        tooltip_text: ''
         on_release:
             app.root.transition = SlideTransition(direction='right')
             app.root.current = 'dashboard'
@@ -799,7 +799,7 @@ ScreenManager:
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 3/20
-        tooltip_text: 'SHOW SETTINGS SCREEN'
+        tooltip_text: ''
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
@@ -945,7 +945,7 @@ ScreenManager:
 
 <VoiceModeButton>:
     text: self.voice_mode_name
-    color: C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_pressed else C('#06070FFF')
+    color: C('#66A3FFFF') if self.disabled else C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_pressed else C('#06070FFF')
     base_font_size: self.height * 0.375
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected

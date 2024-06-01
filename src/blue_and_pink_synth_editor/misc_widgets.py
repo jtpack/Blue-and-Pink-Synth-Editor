@@ -218,14 +218,20 @@ class HoverButton(ButtonBehavior, Label):
 
     def on_mouse_enter(self):
         self.mouse_inside_bounds = True
+
         Window.set_system_cursor('hand')
-        App.get_running_app().status_bar_text = self.tooltip_text
+
+        if self.tooltip_text != '':
+            App.get_running_app().status_bar_text = self.tooltip_text
 
     def on_mouse_exit(self):
         self.mouse_inside_bounds = False
         self.mouse_pressed = False
-        App.get_running_app().status_bar_text = ''
+
         Window.set_system_cursor('arrow')
+
+        if self.tooltip_text != '':
+            App.get_running_app().status_bar_text = ''
 
     def on_touch_down(self, touch):
         #
@@ -284,14 +290,20 @@ class HoverSpinner(Spinner):
 
     def on_mouse_enter(self):
         self.mouse_inside_bounds = True
+
         Window.set_system_cursor('hand')
-        App.get_running_app().status_bar_text = self.tooltip_text
+
+        if self.tooltip_text != '':
+            App.get_running_app().status_bar_text = self.tooltip_text
 
     def on_mouse_exit(self):
         self.mouse_inside_bounds = False
         self.mouse_pressed = False
-        App.get_running_app().status_bar_text = ''
+
         Window.set_system_cursor('arrow')
+
+        if self.tooltip_text != '':
+            App.get_running_app().status_bar_text = ''
 
     def on_touch_down(self, touch):
         #

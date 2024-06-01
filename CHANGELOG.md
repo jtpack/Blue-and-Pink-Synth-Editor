@@ -3,6 +3,9 @@
     - We have chosen the init.txt preset file because we know that it will exist
 - The OPEN DEBUG LOGS FOLDER button now does the same thing: it selects the most recent log file (if one exists), so that the logs folder itself is shown rather than its parent folder
   - If there are no log files, then the parent is shown
+- SETTINGS and BACK buttons no longer change the status area text
+  - This is primarily to prevent the status area text from changing when Nymphes is not connected, but it also just wasn't necessary to provide tooltips for these buttons
+- Fixed bug where the currently active Voice Mode button looked enabled when Nymphes was disconnected
 
 
 ## v0.2.7-beta
