@@ -6,9 +6,13 @@
 - SETTINGS and BACK buttons no longer change the status area text
   - This is primarily to prevent the status area text from changing when Nymphes is not connected, but it also just wasn't necessary to provide tooltips for these buttons
 - Fixed bug where the currently active Voice Mode button looked enabled when Nymphes was disconnected
-- Added preset controls to the top bar in the CHORDS screen
-  - It was annoying to not be able to scroll through presets in the CHORDS screen, especially when trying to explore factory presets to see how they used chords
-
+- Chords Screen Improvements:
+  - Added preset controls to the top bar in the CHORDS screen
+    - It was annoying to not be able to scroll through presets in the CHORDS screen, especially when trying to explore factory presets to see how they used chords
+  - Added a Left Bar to the CHORDS screen
+    - This allows voice mode changes while in the CHORDS screen
+    - While in the CHORDS screen, the CHORDS button becomes a BACK button
+  - The far-right button in CHORDS screen TopBar is now a SETTINGS button, just like on the MAIN screen 
 
 
 ## v0.2.7-beta

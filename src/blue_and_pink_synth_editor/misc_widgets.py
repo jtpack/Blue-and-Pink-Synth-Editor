@@ -385,12 +385,27 @@ class ChordsButtonBox(BoxLayout):
     screen_name = StringProperty('')
 
 
+class ChordsScreenBackButtonBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
+
+class BackButtonBox(BoxLayout):
+    corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
+
 class FineModeBox(BoxLayout):
     corner_radius = NumericProperty(0)
     screen_name = StringProperty('')
 
 
-class LeftBar(BoxLayout):
+class MainScreenLeftBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
+
+class ChordsScreenLeftBar(BoxLayout):
     corner_radius = NumericProperty(0)
     screen_name = StringProperty('')
 

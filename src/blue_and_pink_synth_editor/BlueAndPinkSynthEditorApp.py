@@ -45,9 +45,9 @@ from .misc_widgets import ParamsGridModCell, ParamsGridNonModCell, ModAmountLine
 from .misc_widgets import HoverButton, HoverSpinner, VoiceModeButton, ModAmountsBox
 from .misc_widgets import MainControlsBox, ChordsMainControlsBox, MainSettingsGrid
 from .misc_widgets import SettingsSubBox, VoiceModeBox, LegatoBox, ChordsButtonBox
-from .misc_widgets import FineModeBox, LeftBar, TopBar, BottomBar, SettingsTopBar
+from .misc_widgets import FineModeBox, MainScreenLeftBar, TopBar, BottomBar, SettingsTopBar
 from .misc_widgets import ChordsTopBar, ControlSectionsGrid, ControlSection
-from .misc_widgets import ChordsControlSectionsGrid, SectionTitleLabel, ParamsGrid
+from .misc_widgets import ChordsControlSectionsGrid, SectionTitleLabel, ParamsGrid, ChordsScreenLeftBar
 from .misc_widgets import ParamNameLabel, MidiInputPortsGrid, MidiOutputPortsGrid
 from .misc_widgets import MidiPortLabel, MidiInputPortCheckBox, MidiOutputPortCheckBox
 from .misc_widgets import ChordParamsGrid, ChordParamsGridCell, ChordSectionTitleLabel
@@ -112,7 +112,8 @@ class BlueAndPinkSynthEditorApp(App):
     curr_mouse_hover_param_name = StringProperty('')
     curr_mouse_dragging_param_name = StringProperty('')
     curr_keyboard_editing_param_name = StringProperty('')
-    curr_screen_name = StringProperty('dashboard')
+    curr_screen_name = StringProperty('main')
+    prev_screen_name = StringProperty('main')
 
     #
     # Nymphes Parameters
@@ -1223,6 +1224,9 @@ class BlueAndPinkSynthEditorApp(App):
 
     def set_curr_screen_name(self, screen_name):
         self.curr_screen_name = screen_name
+        
+    def set_prev_screen_name(self, screen_name):
+        self.prev_screen_name = screen_name
 
     def set_curr_mouse_dragging_param_name(self, param_name):
         self.curr_mouse_dragging_param_name = param_name
