@@ -206,13 +206,13 @@ ScreenManager:
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 3/20
+        text: 'SETTINGS'
         tooltip_text: ''
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
             app.set_curr_screen_name('settings')
             self.mouse_inside_bounds = False
-        text: 'SETTINGS'
 
 
 <ChordsMainControlsBox>:
@@ -774,13 +774,13 @@ ScreenManager:
 
     TopBarButton:
         screen_name: root.screen_name
+        text: 'BACK'
         tooltip_text: 'RETURN TO MAIN SCREEN'
         on_release:
             app.root.transition = SlideTransition(direction='right')
-            app.root.current = 'main'
-            app.set_curr_screen_name('main')
+            app.root.current = app.prev_screen_name
+            app.set_curr_screen_name(app.prev_screen_name)
             self.mouse_inside_bounds = False
-        text: 'BACK'
         size_hint_x: 2/20
 
 <TopBar>:
@@ -822,11 +822,11 @@ ScreenManager:
 
     TopBarButton:
         screen_name: root.screen_name
+        text: 'SAVE'
         tooltip_text: 'SAVE CURRENT CHANGES TO ' + app.presets_spinner_text
         size_hint_x: 2/20
-        text: 'SAVE'
         on_release: app.update_current_preset()
-        disabled: not app.nymphes_connected or app.unsaved_preset_changes == False
+        disabled: not app.nymphes_connected or app.unsaved_preset_changes == False or app.curr_preset_type == 'init'
 
     TopBarButton:
         screen_name: root.screen_name
@@ -861,13 +861,13 @@ ScreenManager:
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 3/20
+        text: 'SETTINGS'
         tooltip_text: ''
         on_release:
             app.root.transition = SlideTransition(direction='left')
             app.root.current = 'settings'
             app.set_curr_screen_name('settings')
             self.mouse_inside_bounds = False
-        text: 'SETTINGS'
 
 
 <MainControlsBox>:

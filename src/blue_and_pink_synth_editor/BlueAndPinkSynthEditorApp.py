@@ -752,7 +752,7 @@ class BlueAndPinkSynthEditorApp(App):
             default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
         )
         self._popup = SavePopup(title="Save file", content=content,
-                            size_hint=(0.9, 0.9))
+                                size_hint=(0.9, 0.9))
         self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
@@ -1111,7 +1111,7 @@ class BlueAndPinkSynthEditorApp(App):
             else:
                 if self.nymphes_connected:
                     self.send_nymphes_osc('/disconnect_nymphes')
-                    
+
     def nymphes_output_spinner_text_changed(self, new_text):
         if new_text != self.nymphes_output_name:
             #
@@ -1223,10 +1223,11 @@ class BlueAndPinkSynthEditorApp(App):
             )
 
     def set_curr_screen_name(self, screen_name):
+        # Store the previous screen name
+        self.prev_screen_name = self.curr_screen_name
+
+        # Store the new screen name
         self.curr_screen_name = screen_name
-        
-    def set_prev_screen_name(self, screen_name):
-        self.prev_screen_name = screen_name
 
     def set_curr_mouse_dragging_param_name(self, param_name):
         self.curr_mouse_dragging_param_name = param_name
@@ -1283,7 +1284,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def min_val_for_param_name(self, param_name):
         return NymphesPreset.min_val_for_param_name(param_name)
-    
+
     def max_val_for_param_name(self, param_name):
         return NymphesPreset.max_val_for_param_name(param_name)
 
@@ -1660,7 +1661,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the names of the MIDI input and output ports
             self._nymphes_input_port = input_port
             self._nymphes_output_port = output_port
-            
+
             self._set_prop_value_on_main_thread('nymphes_connected', True)
             self._set_prop_value_on_main_thread('nymphes_input_name', input_port)
             self._set_prop_value_on_main_thread('nymphes_output_name', output_port)
@@ -1727,7 +1728,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Status bar message
             self._set_prop_value_on_main_thread('status_bar_text',
-                f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+                                                f'LOADED {preset_slot_type.upper()} PRESET {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
         elif address == '/loaded_preset_dump_from_midi_input_port':
             port_name = str(args[0])
@@ -2508,7 +2509,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_presets_spinner_index = 0
 
         Clock.schedule_once(lambda dt: work_func(dt, option_text), 0)
-        
+
     def _set_prop_value_on_main_thread(self, prop_name, value):
         def work_func(_, _prop_name, _value):
             setattr(self, _prop_name, _value)

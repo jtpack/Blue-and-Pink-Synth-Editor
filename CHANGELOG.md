@@ -12,7 +12,9 @@
   - Added a Left Bar to the CHORDS screen
     - This allows voice mode changes while in the CHORDS screen
     - While in the CHORDS screen, the CHORDS button becomes a BACK button
-  - The far-right button in CHORDS screen TopBar is now a SETTINGS button, just like on the MAIN screen 
+  - In the CHORDS screen, the far-right top bar button is now a SETTINGS button, just like on the MAIN screen
+- The BACK button in the SETTINGS screen now takes you back to either the MAIN screen or CHORDS screen, whichever you were last in
+- The SAVE button now is disabled when the init preset is loaded so you don't accidentally overwrite the init preset 
 
 
 ## v0.2.7-beta
