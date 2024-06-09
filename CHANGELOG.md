@@ -15,6 +15,7 @@
   - In the CHORDS screen, the far-right top bar button is now a SETTINGS button, just like on the MAIN screen
 - The BACK button in the SETTINGS screen now takes you back to either the MAIN screen or CHORDS screen, whichever you were last in
 - The SAVE button now is disabled when the init preset is loaded so you don't accidentally overwrite the init preset 
+- Fixed bug where the LFO TYPE and SYNC controls weren't actually doing anything!
 
 
 ## v0.2.7-beta

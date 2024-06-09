@@ -187,6 +187,12 @@ class SynthEditorDiscreteValuesControl(DiscreteValuesControl):
 
         self.bind(mouse_inside_bounds=self.on_mouse_inside_bounds)
 
+        self.value_changed_callback = (
+            lambda val: App.get_running_app().set_prop_value_for_param_name(
+                self.param_name, self.value
+            )
+        )
+
     def on_mouse_inside_bounds(self, _, inside):
         if App.get_running_app().curr_screen_name == self.screen_name:
             if inside:
