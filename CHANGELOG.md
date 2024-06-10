@@ -1,3 +1,5 @@
+## v0.2.8-beta
+
 - The OPEN PRESETS FOLDER button on the SETTINGS page now opens the presets folder itself, rather than its parent folder
   - In order to achieve this it is necessary to have Finder select a file inside the folder
     - We have chosen the init.txt preset file because we know that it will exist
