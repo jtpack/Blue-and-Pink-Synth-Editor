@@ -63,7 +63,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.2.8-beta'
+app_version_string = 'v0.2.8-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -746,10 +746,21 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup.open()
 
     def show_save_dialog(self):
+        if self.curr_preset_type == 'init':
+            default_filename = 'new_preset.txt'
+        elif self.curr_preset_type == 'file' and self._curr_preset_file_path.name == 'init.txt':
+            default_filename = 'new_preset.txt'
+        elif self.curr_preset_type == 'preset_slot':
+            default_filename = f'{self._curr_preset_slot_type.upper()} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}.txt'
+        elif self.curr_preset_type == 'file':
+            default_filename = self._curr_preset_file_path.name
+        else:
+            default_filename = ''
+
         content = SaveDialog(
             save=self.on_file_save_dialog,
             cancel=self.dismiss_popup,
-            default_filename=self._curr_preset_file_path.name if self._curr_preset_file_path is not None else ''
+            default_filename=default_filename
         )
         self._popup = SavePopup(title="Save file", content=content,
                                 size_hint=(0.9, 0.9))
@@ -826,8 +837,14 @@ class BlueAndPinkSynthEditorApp(App):
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')
 
-            # Send message to nymphes controller to load the preset file
-            self.send_nymphes_osc('/load_file', filepaths[0])
+            if Path(filepaths[0]).name == 'init.txt':
+                # This is the init file. Don't load it as a regular
+                # preset file. Load it as init.
+                self.send_nymphes_osc('/load_init_file')
+
+            else:
+                # Send message to nymphes controller to load the preset file
+                self.send_nymphes_osc('/load_file', filepaths[0])
 
     def on_file_save_dialog(self, directory_path, filepath):
         # Close the dialogue
@@ -1818,11 +1835,40 @@ class BlueAndPinkSynthEditorApp(App):
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
-            # Update the current preset type
-            self._set_prop_value_on_main_thread('curr_preset_type', 'file')
+            if filepath.name != 'init.txt':
+                # Update the current preset type
+                self._set_prop_value_on_main_thread('curr_preset_type', 'file')
 
-            # Store the path to the file
-            self._curr_preset_file_path = filepath
+                # Store the path to the file
+                self._curr_preset_file_path = filepath
+
+                # Update the presets spinner.
+                # This also sets the spinner's current text
+                # and updates self._curr_presets_spinner_index.
+                self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+
+                # Status bar message
+                msg = f'SAVED {filepath.name} PRESET FILE'
+                self._set_prop_value_on_main_thread('status_bar_text', msg)
+
+            else:
+                # The init file was overwritten.
+                # Treat this as if init was loaded/saved rather
+                # than a regular preset file
+
+                # Update the current preset type
+                self._set_prop_value_on_main_thread('curr_preset_type', 'init')
+
+                # Store the path to the file
+                self._curr_preset_file_path = filepath
+
+                # Update the presets spinner
+                # Sending it None removes the file option and selects the first entry (init)
+                self._set_presets_spinner_file_option_on_main_thread(None)
+
+                # Status bar message
+                msg = f'UPDATED INIT PRESET (init.txt)'
+                self._set_prop_value_on_main_thread('status_bar_text', msg)
 
             # Reset current preset slot info
             self._curr_preset_slot_type = None
@@ -1830,15 +1876,6 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Reset the unsaved changes flag
             self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
-
-            # Update the presets spinner.
-            # This also sets the spinner's current text
-            # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
-
-            # Status bar message
-            msg = f'SAVED {filepath.name} PRESET FILE'
-            self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_preset_to_file':
             #
@@ -2487,26 +2524,38 @@ class BlueAndPinkSynthEditorApp(App):
         with new_text and update the spinner text, but do it on the Main thread.
         If a file has just been loaded or saved for the first time, then insert
         the option at the beginning of the list and then select it.
+        If option_text is None, then remove the file option from the list.
         This is needed if the change occurs in response to an OSC message on a
         background thread.
         :param option_text: str
         :return:
         """
         def work_func(_, new_text):
-            if len(self.presets_spinner_values) == 99:
-                # No file has previously been loaded or saved,
-                # so we need to insert the new value at the
-                # beginning of the list
-                self.presets_spinner_values.insert(0, new_text)
+            if new_text is None:
+                # We need to remove the file option from the list
+                if len(self.presets_spinner_values) != 99:
+                    self.presets_spinner_values.pop(0)
 
+                # Select the first entry
+                self.presets_spinner_text = self.presets_spinner_values[0]
+                self._curr_presets_spinner_index = 0
             else:
-                # There is already a spot at the beginning of
-                # the list for filename
-                self.presets_spinner_values[0] = new_text
+                # new_text is not None, so we are setting the file
+                # option or adding it if it doesn't exist
+                if len(self.presets_spinner_values) == 99:
+                    # No file has previously been loaded or saved,
+                    # so we need to insert the new filename at the
+                    # beginning of the list
+                    self.presets_spinner_values.insert(0, new_text)
 
-            # Update the preset spinner text
-            self.presets_spinner_text = self.presets_spinner_values[0]
-            self._curr_presets_spinner_index = 0
+                else:
+                    # There is already a spot at the beginning of
+                    # the list for the filename
+                    self.presets_spinner_values[0] = new_text
+
+                # Update the preset spinner text
+                self.presets_spinner_text = self.presets_spinner_values[0]
+                self._curr_presets_spinner_index = 0
 
         Clock.schedule_once(lambda dt: work_func(dt, option_text), 0)
 
