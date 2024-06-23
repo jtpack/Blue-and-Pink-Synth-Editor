@@ -7,7 +7,8 @@ update the Reference Manual Scrivener document and commit a zipped copy
 of the document to the repository.
 
 When a new version of Blue and Pink Synth Editor is released, we compile
-the reference manual into a pdf file and place it here in the docs directory.
+the reference manual into a pdf file (and possibly other formats, like html)
+and place it here in the docs directory.
 
 Note:
 A Scrivener document is actually a folder containing lots of non-text files, so 

@@ -1,0 +1,495 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>User Manual</title>
+  <meta name="CreationTime" content="2024-06-23T10:36:02Z">
+  <meta name="ModificationTime" content="2024-06-23T10:36:02Z">
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2299.7">
+  <style type="text/css">
+    p.p1 {margin: 13.0px 0.0px 0.0px 0.0px; font: 28.0px Avenir}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 28.0px Avenir; min-height: 38.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir; min-height: 18.0px}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Avenir}
+    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Avenir; min-height: 16.0px}
+    p.p9 {margin: 0.0px 0.0px 0.0px 36.0px; text-indent: -36.0px; font: 12.0px Avenir; min-height: 16.0px}
+    p.p10 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px}
+    p.p11 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p12 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    p.p13 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; min-height: 15.0px}
+    p.p14 {margin: 0.0px 0.0px 0.0px 0.0px; text-indent: 18.0px; font: 13.0px Avenir; min-height: 18.0px}
+    p.p15 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Neue'; min-height: 14.0px}
+    p.p16 {margin: 0.0px 0.0px 0.0px 36.0px; text-indent: -36.0px; font: 12.0px Avenir}
+    p.p17 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Helvetica; min-height: 16.0px}
+    p.p18 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Helvetica}
+    p.p19 {margin: 0.0px 0.0px 0.0px 0.0px; text-indent: 18.0px; font: 13.0px Avenir}
+    li.li6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Avenir}
+    li.li7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Avenir; min-height: 16.0px}
+    span.s1 {font: 12.0px Avenir}
+    span.Apple-tab-span {white-space:pre}
+    ol.ol1 {list-style-type: decimal}
+    ul.ul1 {list-style-type: disc}
+    ul.ul2 {list-style-type: '—  '}
+  </style>
+</head>
+<body>
+<div style="width: 600px; margin: 0 auto">
+
+<p class="p1">BLUE AND PINK SYNTH EDITOR</p>
+<p class="p2"><br></p>
+<p class="p3">Blue and Pink Synth Editor uses MIDI to control a connected Dreadbox Nymphes synthesizer. It supports every kind of MIDI message that Nymphes can send or receive, including SYSEX preset dumps and dump requests. Blue and Pink Synth Editor also acts as a MIDI router, allowing you virtually connect MIDI input and output ports to Nymphes.</p>
+<p class="p4"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>REALTIME EDITOR</b></h1>
+<p class="p4"><br></p>
+<p class="p3">Blue and Pink Synth Editor is a realtime editor, which means that the onscreen controls always show Nymphes’ current values, and when you adjust a control you hear the effect immediately.</p>
+<p class="p6"><img src="Images/Screenshot 2024-06-01 at 9.38.03 AM.png" width="100%" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p3">If no Nymphes is connected to the computer, then all controls will be disabled (except the SETTINGS button) and you’ll see something that looks like this:</p>
+<p class="p6"><img src="Images/Pasted Graphic 1.png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>MIDI CONTROL CHANGE MESSAGES</b></h1>
+<p class="p6">When you move a slider on Nymphes’ control panel, Blue and Pink Synth Editor receives a MIDI Control Change message and display the new value.</p>
+<p class="p7"><br></p>
+<p class="p6">When FINE MODE is not enabled, adjusting most onscreen controls in Blue and Pink Synth Editor sends Control Change messages to Nymphes.</p>
+<p class="p7"><br></p>
+<p class="p6">This is true for all parameter types except CHORDS (which are only accessible via SYSEX) and AFTERTOUCH.</p>
+<p class="p7"><br></p>
+<p class="p6">Blue and Pink Synth Editor understands and can generate every MIDI Control Change message supported by Nymphes.<span class="Apple-converted-space"> </span></p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>MIDI SYSEX MESSAGES</b></h1>
+<p class="p4"><br></p>
+<p class="p3">Blue and Pink Synth Editor can decode and generate Nymphes SYSEX messages, unlocking some Nymphes features that are not accessible in any other way.</p>
+<p class="p4"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>FLOATING POINT VALUES AND FINE MODE</b></h2>
+<p class="p6">As mentioned earlier, Nymphes generates a MIDI Control Change message when a slider is moved. MIDI Control Change messages use 7-bit integers for their values, for a range of just 0 to 127.<span class="Apple-converted-space"> </span></p>
+<p class="p7"><br></p>
+<p class="p6">Internally, Nymphes measures slider positions with greater precision, and these values are represented as floating-point numbers inside presets.<span class="Apple-converted-space"> </span></p>
+<p class="p7"><br></p>
+<p class="p6">When a preset is recalled, Nymphes outputs a MIDI SYSEX preset dump with the full contents of the preset. Blue and Pink Synth Editor decodes this message and displays the floating-point parameters as 0.0 to 127.0 (this is 10x the precision of MIDI CC).</p>
+<p class="p7"><br></p>
+<p class="p6">Blue and Pink Synth Editor also has the ability to generate SYSEX preset dump messages to send to Nymphes, making it possible to set Nymphes values with floating-point precision.</p>
+<p class="p7"><br></p>
+<p class="p6">There are two ways to send float values to Nymphes:</p>
+<p class="p7"><br></p>
+<ol class="ol1">
+  <li class="li6">Enable FINE MODE by clicking the FINE MODE Button, or holding the Command key while adjusting a control<img src="Images/Pasted Graphic 3.png" width="530px" height="123px" alt="Image"></li>
+  <li class="li6">Double-click a control with a decimal place and then type the desired value<img src="Images/Pasted Graphic 4.png" width="226px" height="207px" alt="Image"></li>
+  <li class="li7"><br></li>
+</ol>
+<p class="p9"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>CHORDS</b></h2>
+<p class="p6">Accessing and controlling chords settings requires the use of SYSEX preset dumps.<span class="Apple-converted-space"> </span></p>
+<p class="p6"><img src="Images/Pasted Graphic .png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p1">GETTING STARTED</p>
+<p class="p2"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>SETTING UP NYMPHES</b></h1>
+<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px"><br></h1>
+<p class="p1">USER INTERFACE</p>
+<p class="p6">Most of the oscreen items in Blue and Pink Synth Editor act as both a parameter value display and a control for adjusting the parameter’s value.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>MOUSE CURSOR</b></h2>
+<p class="p6">When the mouse touches something that can be controlled, the cursor turns into a hand.</p>
+<p class="p6"><img src="Images/Pasted Graphic 6.png" width="483px" height="60px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic.png" width="106px" height="127px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">For most controls, a short informative message will also appear in the INFO MESSAGE AREA in the BOTTOM BAR.</p>
+<p class="p6"><img src="Images/Pasted Graphic 7.png" width="303px" height="50px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic 2.png" width="218px" height="45px" alt="Image"></p>
+<p class="p12"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>DISABLED CONTROLS</b></h2>
+<p class="p6">A control may be disabled if its function is not currently applicable.</p>
+<p class="p6">It will appear greyed-out, and the mouse cursor will not change to a hand when touching it.</p>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 8.png" width="246px" height="47px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">If Nymphes is not connected, only the SETTINGS button will be enabled.</p>
+<p class="p6"><img src="Images/Pasted Graphic 5.png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p1">TOP BAR</p>
+<p class="p11"><img src="Images/Pasted Graphic1.png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">The TOP BAR contains preset controls and a SETTINGS button.</p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>PRESET CONTROLS</b></h1>
+<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px"><br></h1>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>PRESET SELECTOR</b></h2>
+<p class="p6">The PRESET SELECTOR shows the name of the currently-loaded preset and lets you recall a different preset by clicking and choosing from the PRESETS LIST.</p>
+<p class="p7"><br></p>
+<p class="p6">You can scroll the list up and down using the mouse wheel.</p>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic 9.png" width="362px" height="458px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">If a preset file has been loaded or saved, then it will be listed above the INIT PRESET:</p>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic 10.png" width="362px" height="490px" alt="Image"></p>
+<p class="p12"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>NEXT PRESET BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 11.png" width="71px" height="57px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Recalls the next preset in the list.</p>
+<p class="p7"><br></p>
+<p class="p6">The list order is as follows:</p>
+<ul class="ul1">
+  <li class="li6">The currently-loaded preset file (if there is one)</li>
+  <li class="li6">The INIT PRESET</li>
+  <li class="li6">USER A1 to USER G7</li>
+  <li class="li6">FACTORY A1 to FACTORY G7</li>
+</ul>
+<p class="p9"><br></p>
+<p class="p6">If the current preset is the last preset in the list (FACTORY G7), then pressing the NEXT PRESET BUTTON will load the first preset.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>PREVIOUS PRESET BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 12.png" width="56px" height="56px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Recalls the previous preset in the list.<span class="Apple-converted-space"> </span></p>
+<p class="p7"><br></p>
+<p class="p6">If the current preset is the first preset in the list, then pressing the PREVIOUS PRESET BUTTON will recall FACTORY G7.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>SAVE BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic2.png" width="104px" height="56px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Saves the current changes to the currently-loaded preset.</p>
+<p class="p7"><br></p>
+<p class="p6">The SAVE BUTTON is disabled if no changes have been made since loading the current preset.</p>
+<p class="p7"><br></p>
+<p class="p6">If the currently-loaded preset is one of Nymphes’ memory slots (USER A1 through FACTORY G7), then it will be updated in Nymphes memory<a id="fnlink1"></a><a href="#fn1"><sup>[1]</sup></a>.</p>
+<p class="p7"><br></p>
+<p class="p6">If the currently-loaded preset is a file, then the current sound settings will be saved to the file.</p>
+<p class="p7"><br></p>
+<p class="p6">To prevent accidental changes to the INIT preset, the SAVE BUTTON is always disabled when the INIT preset is loaded.</p>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic3.png" width="350px" height="34px" alt="Image"></p>
+<p class="p12"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>REVERT BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 13.png" width="125px" height="55px" alt="Image"></p>
+<p class="p13"><br></p>
+<p class="p6">Reloads the current preset.</p>
+<p class="p7"><br></p>
+<p class="p6">The REVERT BUTTON is disabled if no changes have been made since loading the current preset.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>OPEN BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 14.png" width="111px" height="55px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Click the OPEN BUTTON to load a preset file<a id="fnlink2"></a><a href="#fn2"><sup>[2]</sup></a>.</p>
+<p class="p7"><br></p>
+<p class="p6">Select a file by clicking it and then click the OK button or press the Enter key.</p>
+<p class="p7"><br></p>
+<p class="p6">Click the CANCEL button or press the ESC key to close the dialog without doing anything.</p>
+<p class="p11"><img src="Images/Pasted Graphic 15.png" width="100%" alt="Image"></p>
+<p class="p12"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>SAVE AS BUTTON</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic4.png" width="119px" height="58px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Click the SAVE AS BUTTON to save the current preset as a file.</p>
+<p class="p7"><br></p>
+<p class="p6">Type a name for the new file, and click the OK button or press the Enter key.</p>
+<p class="p7"><br></p>
+<p class="p6">Click the CANCEL button or press the ESC key to close the dialog without doing anything.</p>
+<p class="p11"><img src="Images/Pasted Graphic5.png" width="100%" alt="Image"></p>
+<p class="p12"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>SETTINGS BUTTON</b></h1>
+<p class="p11"><img src="Images/Pasted Graphic 16.png" width="141px" height="56px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">Click the SETTINGS BUTTON to go to the SETTINGS SCREEN</p>
+<p class="p7"><br></p>
+<p class="p1">BOTTOM BAR</p>
+<p class="p6"><img src="Images/Pasted Graphic 17.png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>INFO MESSAGE AREA</b></h1>
+<p class="p3">The left half of the Bottom Bar is the INFO MESSAGE AREA. It displays status messages and provides extra information as the mouse cursor passes over controls.</p>
+<p class="p4"><b></b><br></p>
+<p class="p3">When Nymphes is not connected, a message is displayed in the INFO MESSAGE AREA:</p>
+<p class="p6"><img src="Images/Pasted Graphic 18.png" width="100%" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p3">Messages are displayed when SYSEX messages containing Nymphes presets are received:</p>
+<p class="p6"><img src="Images/Pasted Graphic6.png" width="370px" height="47px" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p3">When the mouse touches a value or modulation control, the INFO MESSAGE AREA displays the full name of the parameter that the control targets.</p>
+<p class="p6"><img src="Images/Pasted Graphic 19.png" width="227px" height="193px" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p4"><br></p>
+<p class="p3">When the mouse touches a button, the INFO MESSAGE AREA shows a short description of what the button does:</p>
+<p class="p6"><img src="Images/Pasted Graphic 20.png" width="542px" height="120px" alt="Image"></p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>PERFORMANCE CONTROLS</b></h1>
+<p class="p14"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 21.png" width="552px" height="64px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>MOD WHEEL CONTROL</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 22.png" width="147px" height="41px" alt="Image"></p>
+<p class="p13"><br></p>
+<p class="p6">The MOD WHEEL CONTROL displays the most recent mod wheel (MIDI CC 1) value received from connected MIDI input ports.</p>
+<p class="p7"><br></p>
+<p class="p6">It can also be used to send mod wheel messages (MIDI CC 1) to Nymphes and connected MIDI output ports. The message is sent on Nymphes’ MIDI channel (found on SETTINGS SCREEN).</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>VELOCITY DISPLAY</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 23.png" width="128px" height="44px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">This displays the velocity of the most recent MIDI note-on message received from connected MIDI input ports.</p>
+<p class="p7"><br></p>
+<p class="p6">The VELOCITY DISPLAY is read-only. It cannot be used to generate MIDI messages, because velocity is an attribute of MIDI note-on messages.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>AFTERTOUCH CONTROL</b></h2>
+<p class="p11"><img src="Images/Pasted Graphic 24.png" width="152px" height="45px" alt="Image"></p>
+<p class="p15"><br></p>
+<p class="p6">The AFTERTOUCH CONTROL displays the most recent MIDI aftertouch amount received from connected MIDI input ports.</p>
+<p class="p7"><br></p>
+<p class="p6">It handles both channel aftertouch and poly aftertouch MIDI messages.</p>
+<p class="p7"><br></p>
+<p class="p6">You can also use the AFTERTOUCH CONTROL to send a channel aftertouch message to Nymphes and connected MIDI output ports.</p>
+<p class="p7"><br></p>
+<p class="p16">The message is sent on Nymphes’ MIDI channel (found on SETTINGS SCREEN).</p>
+<p class="p9"><br></p>
+<p class="p1">LEFT BAR</p>
+<p class="p6">The LEFT BAR contains the PLAY MODE CONTROLS, CHORDS BUTTON, AND FINE MODE BUTTON. It is found on both the MAIN SCREEN and the CHORDS SCREEN.</p>
+<p class="p13"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic 25.png" width="100px" height="626px" alt="Image"></p>
+<p class="p12"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>PLAY MODE CONTROLS</b></h1>
+<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px"><br></h1>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>CHORDS BUTTON</b></h1>
+<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px"><br></h1>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>FINE MODE BUTTON</b></h1>
+<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir; min-height: 25.0px"><br></h1>
+<p class="p1">MAIN SCREEN</p>
+<p class="p2"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>FLOAT-VALUE PARAMETER CONTROLS</b></h1>
+<p class="p6"><img src="Images/Pasted Graphic 26.png" width="108px" height="115px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">FLOAT-VALUE PARAMETER CONTROLS provide access to both value and modulation amounts for most of Nymphes’ sound parameters.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>PARAMETER VALUE</b></h2>
+<p class="p6">The value is shown in black text as a number from 0.0 to 127.0:</p>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 27.png" width="96px" height="48px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">There are three ways to set the value:</p>
+<ol class="ol1">
+  <li class="li6">Click the value and drag up or down</li>
+  <li class="li6">With the cursor over the value, use the mouse wheel to scroll up or down
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+  <li class="li6">Double-click, and then type a new value:</li>
+</ol>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 28.png" width="107px" height="115px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>MODULATION AMOUNTS</b></h2>
+<p class="p6">Amounts for the four modulation sources are shown in the sliders below the main value text.</p>
+<p class="p6">From left to right:</p>
+<ul class="ul1">
+  <li class="li6">LFO2 (red)</li>
+  <li class="li6">MOD WHEEL (yellow)</li>
+  <li class="li6">VELOCITY (green)</li>
+  <li class="li6">AFTERTOUCH (violet)</li>
+</ul>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 29.png" width="110px" height="52px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">To adjust modulation amounts, move the mouse over a slider and do one of the following:</p>
+<ul class="ul1">
+  <li class="li6">Click and drag up or down</li>
+  <li class="li6">Scroll with the mouse wheel
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+</ul>
+<p class="p7"><br></p>
+<p class="p6">The modulation amount is also shown as a number in the INFO MESSAGE AREA in the BOTTOM BAR of the screen:</p>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 30.png" width="282px" height="230px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>FINE MODE</b></h2>
+<p class="p6">All Nymphes parameters that are modulation matrix targets (as well as the modulation amounts themselves) are stored internally as floating-point values. Enabling FINE MODE provides higher-precision control over these values, incrementing in 0.1 steps instead of 1.0</p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>MAIN LEVEL CONTROL (LVL)</b></h1>
+<p class="p6"><img src="Images/Pasted Graphic 31.png" width="109px" height="117px" alt="Image"></p>
+<p class="p10"><b></b><br></p>
+<p class="p6">Nymphes has a software-controlled output gain stage connected in series with the physical volume control located on its front panel. The MAIN LEVEL CONTROL responds to MIDI Control Change #7, and its value is stored as a floating point number.<span class="Apple-converted-space"> </span></p>
+<p class="p7"><br></p>
+<p class="p6">It is the only floating-point value parameter that is not a modulation matrix target.</p>
+<p class="p7"><br></p>
+<p class="p6">Blue and Pink Synth Editor groups the MAIN LEVEL CONTROL together with the AMP section controls.</p>
+<p class="p7"><br></p>
+<p class="p6">As with other numerical controls, there are three ways to set the value:</p>
+<ul class="ul1">
+  <li class="li6">Click the value and drag up or down</li>
+  <li class="li6">With the cursor over the value, use the mouse wheel to scroll up or down
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+  <li class="li6">Double-click, and then type a new value:</li>
+  <li class="li6"><img src="Images/Pasted Graphic 32.png" width="104px" height="116px" alt="Image"></li>
+</ul>
+<p class="p9"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>LFO TYPE AND SYNC CONTROLS</b></h1>
+<p class="p6">These controls are found in the LFO1 AND LFO2 sections.</p>
+<p class="p13"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 33.png" width="107px" height="115px" alt="Image"></p>
+<p class="p4"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>LFO TYPE</b></h2>
+<p class="p6">The TYPE control lets you set the speed range for the LFO.</p>
+<p class="p7"><br></p>
+<p class="p6">There are four options:</p>
+<p class="p6">0:<span class="Apple-tab-span">	</span>BPM</p>
+<p class="p6">1:<span class="Apple-tab-span">	</span>LOW</p>
+<p class="p6">2:<span class="Apple-tab-span">	</span>HIGH</p>
+<p class="p6">3:<span class="Apple-tab-span">	</span>TRACK</p>
+<p class="p7"><br></p>
+<p class="p6">There are three ways to set the LFO TYPE:</p>
+<ul class="ul1">
+  <li class="li6">Click the type name and drag up or down</li>
+  <li class="li6">With the cursor over the type name, use the mouse wheel to scroll up or down
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+  <li class="li6">Double-click the type name, and then enter the number of the new type:</li>
+</ul>
+<p class="p7"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 34.png" width="107px" height="117px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">As with many other controls, the current numerical value of the control is displayed in the INFO MESSAGE AREA of the BOTTOM BAR:</p>
+<p class="p6"><img src="Images/Pasted Graphic 35.png" width="100%" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>SYNC</b></h2>
+<p class="p6">The SYNC control lets you enable Key Sync for the LFO.</p>
+<p class="p7"><br></p>
+<p class="p6">It has two values:</p>
+<p class="p6">0:<span class="Apple-tab-span">	</span>OFF</p>
+<p class="p6">1:<span class="Apple-tab-span">	</span>ON</p>
+<p class="p7"><br></p>
+<p class="p6">There are three ways to set SYNC:</p>
+<ul class="ul1">
+  <li class="li6">Click the value and drag up or down</li>
+  <li class="li6">With the cursor over the value, use the mouse wheel to scroll up or down
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+  <li class="li6">Double-click the value, and then type 0 or 1</li>
+</ul>
+<p class="p7"><br></p>
+<p class="p11"><img src="Images/Pasted Graphic 36.png" width="108px" height="116px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p7"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>PARAMETER SECTIONS</b></h1>
+<p class="p6">All of the parameters on the MAIN screen are grouped into sections. Where possible, the groups have been laid out similarly to the Nymphes front panel.</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>OSCILLATOR SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic 37.png" width="533px" height="300px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>FILTER SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic7.png" width="536px" height="300px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>AMP SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic 38.png" width="536px" height="154px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>LFO1 SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic 39.png" width="536px" height="157px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>LFO2 SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic 40.png" width="537px" height="156px" alt="Image"></p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>REVERB SECTION</b></h2>
+<p class="p6"><img src="Images/Pasted Graphic 41.png" width="535px" height="155px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p1">CHORDS SCREEN</p>
+<p class="p2"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>CHORD PARAMETER CONTROLS</b></h1>
+<p class="p11"><img src="Images/Pasted Graphic 42.png" width="88px" height="102px" alt="Image"></p>
+<p class="p17"><br></p>
+<p class="p6">CHORD PARAMETER CONTROLS are used in the CHORDS screen to set the pitch of the individual notes that make up each chord.</p>
+<p class="p7"><br></p>
+<p class="p6">The value is an integer with a range from -127 to 127.</p>
+<p class="p7"><br></p>
+<p class="p6">As with other numerical controls, there are three ways to set the value:</p>
+<ul class="ul1">
+  <li class="li6">Click the value and drag up or down</li>
+  <li class="li6">With the cursor over the value, use the mouse wheel to scroll up or down
+  <ul class="ul2">
+    <li class="li6">Helpful tip: You can invert the mouse wheel direction in the SETTINGS screen</li>
+  </ul></li>
+  <li class="li6">Double-click, and then type a new value</li>
+</ul>
+<p class="p9"><br></p>
+<p class="p18">Root doesn’t do anything</p>
+<p class="p17"><br></p>
+<p class="p1">SETTINGS SCREEN</p>
+<p class="p2"><br></p>
+<p class="p19">Preset files are human-readable txt files, with their data stored in CSV (comma-separated-values).</p>
+<p class="p6"><img src="Images/Pasted Graphic 43.png" width="335px" height="687px" alt="Image"></p>
+<p class="p19">Don’t change anything in the first row, as it contains the preset file version:</p>
+<p class="p6"><img src="Images/Pasted Graphic 44.png" width="390px" height="29px" alt="Image"></p>
+<p class="p14"><br></p>
+<p class="p14"><br></p>
+<p class="p19">The next four rows provide information on the preset slot that the file was generated from (or None if the file was created from scratch).</p>
+<p class="p14"><br></p>
+<p class="p19">At the time of writing, these values are read-only, and nothing will happen if you change these values in the file, This may change in the future.</p>
+<p class="p14"><br></p>
+<p class="p19">This is from a file saved from User bank A1:</p>
+<p class="p6"><img src="Images/Pasted Graphic 45.png" width="490px" height="104px" alt="Image"></p>
+<p class="p14"><br></p>
+<p class="p19">This is from a file created from scratch:</p>
+<p class="p6"><img src="Images/Pasted Graphic 46.png" width="380px" height="103px" alt="Image"></p>
+<p class="p14"><br></p>
+<p class="p14"><br></p>
+<p class="p19">The next row contains the float precision used at the time of preset creation. This value is read-only, so nothing will happen if you change this in the file. This might change in the future.</p>
+<p class="p6"><img src="Images/Pasted Graphic 47.png" width="471px" height="29px" alt="Image"></p>
+<p class="p14"><br></p>
+<p class="p14"><br></p>
+<p class="p19">The remaining rows contain all parameters that make up a Nymphes preset. You can edit these and set them to whatever values you wish.</p>
+<p class="p14"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>Float Parameters</b></h1>
+<p class="p14"><br></p>
+<p class="p19">Notice that some values contain a decimal. These are float values, and their range is 0.0 to 127.0</p>
+<p class="p14"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 48.png" width="468px" height="640px" alt="Image"></p>
+<p class="p4"><br></p>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>Integer Parameters</b></h1>
+<p class="p4"><br></p>
+<p class="p3">Voice Mode is an integer with a range of 0 to 5.</p>
+<p class="p3">Legato is an integer with a range of 0 to 1.</p>
+<p class="p6"><img src="Images/Pasted Graphic 49.png" width="359px" height="51px" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p4"><br></p>
+<p class="p3">LFO Type is an integer with a range of 0 to 3.</p>
+<p class="p3">LFO Key Sync is an integer with a range of 0 to 1.</p>
+<p class="p6"><img src="Images/Pasted Graphic 50.png" width="350px" height="61px" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p6"><img src="Images/Pasted Graphic 51.png" width="332px" height="62px" alt="Image"></p>
+<p class="p4"><br></p>
+<p class="p3">Chord parameters are integers with a range of -127 to 127.</p>
+<p class="p6"><img src="Images/Pasted Graphic 52.png" width="410px" height="620px" alt="Image"></p>
+<p class="p7"><br></p>
+<p class="p6">INIT Preset</p>
+<p class="p7"><br></p>
+<p class="p6">- Will always be regerated if deleted</p>
+<p class="p6">- You can edit it via text or by clicking the save as button</p>
+<p class="p7"><br></p>
+<h2 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir"><b>PRESETS FOLDER</b></h2>
+<h2 style="margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Avenir; min-height: 18.0px"><br></h2>
+<h1 style="margin: 13.0px 0.0px 0.0px 0.0px; font: 18.0px Avenir"><b>PRESET FILES</b></h1>
+<hr>
+<p class="p11"><a id="fn1"></a><a href="#fnlink1"><span class="s1">[1]</span></a><span class="s1"> </span>Behind the scenes, this is accomplished using a ‘persistent import’ via SYSEX:</p>
+<p class="p12"><span class="Apple-converted-space"> </span></p>
+<p class="p11">1) A new preset object is created using the current values of all sound parameters</p>
+<p class="p11">2) The preset object’s import type is set to ‘persistent’, and its bank and preset are set to match that of the currently loaded preset</p>
+<p class="p11">3) The preset object is sent to Nymphes via SYSEX</p>
+<p class="p11">4) When Nymphes receives the SYSEX message, the contents of the memory slot are overwritten</p>
+<p class="p11"><a id="fn2"></a><a href="#fnlink2"><span class="s1">[2]</span></a><span class="s1"> </span>Behind the scenes, this is accomplished using a ‘non-persistent’ import via SYSEX:</p>
+<p class="p12"><span class="Apple-converted-space"> </span></p>
+<p class="p11">1) A new preset object is created using the contents of the preset file</p>
+<p class="p11">2) The preset object’s import type is set to ‘non-persistent’</p>
+<p class="p11">3) The preset object is sent to Nymphes via SYSEX</p>
+<p class="p11">4) When Nymphes receives the SYSEX message, all sound parameters are loaded into current memory but no Nymphes memory slots are overwritten</p>
+</div>
+</body>
+</html>
