@@ -1,4 +1,7 @@
+## v0.2.9-beta
+
 - The default filename in the SAVE AS dialog is better now
+- Fixed bug in ErrorDialog
 
 
 ## v0.2.8-beta

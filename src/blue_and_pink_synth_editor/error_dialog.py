@@ -32,3 +32,11 @@ class ErrorDialog(BoxLayout):
         escape_keycode = 27
         if keycode[0] in [escape_keycode, enter_keycode, numpad_enter_keycode]:
             App.get_running_app().dismiss_popup()
+
+    def _unbind_keyboard(self):
+        Logger.debug('ErrorDialog: _unbind_keyboard')
+        if self._keyboard is not None:
+            self._keyboard.unbind(on_key_down=self._on_key_down)
+            self._keyboard.unbind(on_key_up=self._on_key_up)
+            self._keyboard.release()
+            self._keyboard = None
