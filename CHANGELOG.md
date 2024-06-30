@@ -1,3 +1,9 @@
+## v0.2.9-beta
+
+- The default filename in the SAVE AS dialog is better now
+- Fixed bug in ErrorDialog
+
+
 ## v0.2.8-beta
 
 - The OPEN PRESETS FOLDER button on the SETTINGS page now opens the presets folder itself, rather than its parent folder
