@@ -2,6 +2,9 @@
 
 - The default filename in the SAVE AS dialog is better now
 - Fixed bug in ErrorDialog
+- Added docs directory
+  - Added pdf and html of the current work-in-progress version of the manual
+  - Added Scrivener Files directory to contain the Scrivener document that the manual is generated from
 
 
 ## v0.2.8-beta
