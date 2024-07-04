@@ -1,3 +1,10 @@
+## v0.3.0-beta
+
+- A fix was made in nymphes-osc to compensate for the reversed order of the TRI and DUO modes in SYSEX dumps
+  - Whenever a preset file was loaded, or whenever fine mode was enabled, or whenever adjusting chords settings, if the play mode was set to TRI or DUO, the opposite play mode would be activated
+  - This was hard to figure out, but now things behave as they should
+
+
 ## v0.2.9-beta
 
 - The default filename in the SAVE AS dialog is better now
