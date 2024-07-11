@@ -1,3 +1,8 @@
+## v0.3.1-beta
+
+- A bug was fixed in nymphes-osc that was causing LFO2 type and key sync to not be set when loading a preset file or when using fine mode
+
+
 ## v0.3.0-beta
 
 - A fix was made in nymphes-osc to compensate for the reversed order of the TRI and DUO modes in SYSEX dumps
