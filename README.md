@@ -69,10 +69,10 @@ Note: The app checks for the Blue and Pink Synth Editor folder in /Applications 
 ## 6. Compile the app into an executable binary
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
-## 7. Move the compiled app into the folder in /Applications
-- `mv dist/BlueAndPinkSynthEditor.app /Applications/Blue\ and\ Pink\ Synth\ Editor`
+## 7. Move the compiled app to /Applications
+- `mv dist/BlueAndPinkSynthEditor.app /Applications/`
 
 ## 8. Run the compiled app by double-clicking on it
 
 - To see debug output on the console, run the app from the command line instead
-  - `/Applications/Blue\ and\ Pink\ Synth\ Editor/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+  - `/Applications/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
