@@ -30,8 +30,9 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 
 ## Platforms:
 - macOS
+- Linux (Including Raspberry Pi)
 
-Support for Linux and Windows is planned for the future
+Support for Windows is planned for the future
 
   
 # Installation
@@ -64,12 +65,10 @@ Create and activate the virtual environment:
 ## 5. Run Blue-and-Pink-Synth-Editor to make sure it works
 - `python -m blue_and_pink_synth_editor`
 
-Note: The app checks for the Blue and Pink Synth Editor folder in /Applications when it runs. If the folder doesn't exist then it is created. Inside that the presets folder is created.
-
 ## 6. Compile the app into an executable binary
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
-## 7. Move the compiled app into the folder in /Applications
+## 7. macOS: Move the compiled app into the folder in /Applications
 - `mv dist/BlueAndPinkSynthEditor.app /Applications/Blue\ and\ Pink\ Synth\ Editor`
 
 ## 8. Run the compiled app by double-clicking on it
