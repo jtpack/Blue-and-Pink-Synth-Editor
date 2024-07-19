@@ -18,7 +18,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/synth_editor_value_controls.py', 'src/blue_and_pink_synth_editor'),
         ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor')
     ],
-    hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
+    hiddenimports=['nymphes-osc', 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
