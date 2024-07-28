@@ -1,7 +1,8 @@
 - Fixed a mistake in the README instructions for where to move the app once compiled
   - In the distant past, we were creating a subfolder in the Applications folder (/Applications/Blue\ and\ Pink\ Synth\ Editor/)
   - However, when we switched to using no subfolder I failed to update the README
-  
+- Now using antialiased versions of RoundedRectangle and Rectangle
+
 
 ## v0.3.1-beta
 
