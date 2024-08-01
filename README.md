@@ -45,7 +45,7 @@ Clone the repository to your home directory
 ## 2. Download Blue and Pink Synth Editor
 Clone the repository to your home directory
 - `cd ~`
-- `git clone git@github.com:jtpack/Blue-and-Pink-Synth-Editor.git`
+- `git clone https://github.com/jtpack/Blue-and-Pink-Synth-Editor.git`
 
 ## 2. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
 Change to the Blue-and-Pink-Synth-Editor directory:
