@@ -440,7 +440,7 @@ class ValueControl(TextInput):
         def work_func(_):
             self.focus = True
             self.select_all()
-            super(ValueControl, self)._bind_keyboard()
+            #super(ValueControl, self)._bind_keyboard()
 
         Clock.schedule_once(lambda dt: work_func(dt), 0)
 

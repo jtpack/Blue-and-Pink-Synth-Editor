@@ -1308,6 +1308,10 @@ class BlueAndPinkSynthEditorApp(App):
     def _bind_keyboard(self):
         Logger.debug('App: _bind_keyboard')
         self._keyboard = Window.request_keyboard(self._unbind_keyboard, self.root)
+        if self._keyboard.widget:
+            # self._keyboard.widget.setup_mode(docked=True)
+            vkeyboard = self._keyboard.widget
+            vkeyboard.layout = 'numeric.json'
         Logger.debug(f'self._keyboard: {self._keyboard}')
         self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
 
