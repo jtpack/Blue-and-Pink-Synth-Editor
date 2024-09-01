@@ -20,7 +20,8 @@ dependencies = [
     "netifaces",
     "kivy[base]",
     "zeroconf",
-    "pyinstaller"
+    "pyinstaller",
+    "cryptography"
 ]
 requires-python = ">=3.9"
 

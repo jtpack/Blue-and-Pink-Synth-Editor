@@ -58,6 +58,37 @@ from .error_dialog import ErrorDialog
 from .synth_editor_value_controls import FloatValueControl, ChordValueControl
 from .synth_editor_value_controls import LfoTypeValueControl, LfoSyncValueControl
 
+from .code_verification import verify_license_file, load_data_from_license_file
+
+#
+# Make sure that activation_code_checking.py file exists.
+# The file is not a part of the git repository
+# so that open-source users automatically don't
+# need to have an activation code to use the app.
+# However, those who do want to enable
+# activation code-checking, demo-mode and other
+# related features can do so by setting
+# the return value in this file to True
+#
+
+activation_code_checking_file_path = Path(__file__).parent / 'activation_code_checking.py'
+if not activation_code_checking_file_path.exists():
+    print(f'activation_code_checking.py does not exist at {activation_code_checking_file_path}')
+    # Create the file and populate it with its only function
+    activation_code_checking_file_contents = """def activation_code_checking_enabled():
+    return False
+    """
+
+    try:
+        with open(activation_code_checking_file_path, 'w') as file:
+            file.write(activation_code_checking_file_contents)
+            print(f'Created activation_code_checking.py file at {activation_code_checking_file_path}')
+    except Exception as e:
+        print(f'Failed to create activation_code_checking.py file at {activation_code_checking_file_path}')
+
+# Now import it
+from .activation_code_checking import activation_code_checking_enabled
+
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
 
@@ -67,7 +98,7 @@ app_version_string = 'v0.3.1-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
-    # Disable the built-in kivy settings editor activated
+    # Disable the built-in kivy settings editor normally activated
     # by pressing F1 key.
     def open_settings(self, *args):
         pass
@@ -418,11 +449,19 @@ class BlueAndPinkSynthEditorApp(App):
     curr_height = NumericProperty(480)
     curr_scaling = NumericProperty(1)
 
+    # App Activation
+    #
+    app_activated = BooleanProperty(False)
+    if not activation_code_checking_enabled():
+        app_activated = True
+
+    user_name = StringProperty('')
+    user_email = StringProperty('')
+    license_type = StringProperty('')
+    expiration_date = StringProperty('')
+
     def __init__(self, **kwargs):
         super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
-
-        # Set the app title
-        self.title = f'Blue and Pink Synth Editor {app_version_string}'
 
         # Set the app icon
         self.icon = str(Path(__file__).resolve().parent / 'icon.png')
@@ -536,7 +575,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         #
         # Create directories to hold app data, like presets
-        # and config files.
+        # config files and activate code file.
         # The location varies with platform. On macOS, we
         # create a folder inside /Applications, and then
         # both the app bundle and the presets folder go
@@ -611,6 +650,58 @@ class BlueAndPinkSynthEditorApp(App):
 
         # Load contents of config file
         self._load_config_file(self._config_file_path)
+
+        #
+        # Activation Code Verification
+        #
+        self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
+        self._public_key_path = Path(__file__).parent / 'BlueAndPinkSynthEditorLicenseKey_public.pem'
+
+        if activation_code_checking_enabled():
+            #
+            # Activation code checking is enabled
+            #
+            if not self._activation_code_file_path.exists():
+                # No activation code file exists.
+                # Run the app in demo mode.
+                self.app_activated = False
+                Logger.info(f'No activation code file found at {self._activation_code_file_path}')
+
+            else:
+                # Load the activation code file and check whether it is valid.
+                try:
+                    self.app_activated = verify_license_file(self._activation_code_file_path, self._public_key_path)
+                    if self.app_activated:
+                        Logger.info(f'Valid activation code file found at {self._activation_code_file_path}')
+
+                        # Get user info from file
+                        user_info = load_data_from_license_file(self._activation_code_file_path)
+                        self.user_name = user_info['name']
+                        self.user_email = user_info['email']
+                        self.license_type = user_info['license_type']
+                        self.expiration_date = user_info['expiration_date'] if user_info['expiration_date'] is not None else 'None'
+
+                        Logger.info('Registered User Info:')
+                        Logger.info(f'Name: {self.user_name}')
+                        Logger.info(f'Email: {self.user_email}')
+                        Logger.info(f'License Type: {self.license_type}')
+                        Logger.info(f'Expiration Date: {self.expiration_date}')
+                    else:
+                        Logger.warning(f'Invalid activation code file found at {self._activation_code_file_path}')
+
+                except Exception as e:
+                    self.app_activated = False
+                    Logger.warning(f'Failed to validate activation code file found at {self._activation_code_file_path} ({e})')
+
+        else:
+            #
+            # Activation code checking is not enabled
+            #
+            print(f'Activation code checking is not enabled')
+            self.app_activated = True
+
+            # Set the app title
+            self.title = f'Blue and Pink Synth Editor {app_version_string}'
 
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)
