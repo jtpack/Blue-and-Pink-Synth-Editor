@@ -1,0 +1,160 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+
+<LeftBar>:
+    orientation: 'vertical'
+    spacing: self.parent.spacing
+    screen_name: ''
+
+    # Voice Mode Box
+    BoxLayout:
+        screen_name: root.screen_name
+        size_hint: 1, 19/28
+
+        orientation: 'vertical'
+        padding: [root.corner_radius * 0.25, root.corner_radius * 0.25]
+        spacing: self.height * 1/50
+
+        canvas.before:
+            Color:
+                rgba: C('#257CFFFF')
+
+            SmoothRoundedRectangle:
+                pos: self.pos
+                size: self.width, self.height
+                radius: [root.corner_radius]
+
+        VoiceModeButton:
+            voice_mode_name: 'POLY'
+            screen_name: root.screen_name
+            tooltip_text: 'POLY MODE (6 NOTES, 1 VOICE PER NOTE)'
+
+        VoiceModeButton:
+            voice_mode_name: 'UNI-A'
+            screen_name: root.screen_name
+            tooltip_text: 'UNISON-A MODE (1 NOTE, 6 VOICES PER NOTE)'
+
+        VoiceModeButton:
+            voice_mode_name: 'UNI-B'
+            screen_name: root.screen_name
+            tooltip_text: 'UNISON-B MODE (1 NOTE, 4 VOICES PER NOTE)'
+
+        VoiceModeButton:
+            voice_mode_name: 'TRI'
+            screen_name: root.screen_name
+            tooltip_text: 'TRI MODE (3 NOTES, 2 VOICES PER NOTE)'
+
+        VoiceModeButton:
+            voice_mode_name: 'DUO'
+            screen_name: root.screen_name
+            tooltip_text: 'DUO MODE (2 NOTES, 3 VOICES PER NOTE)'
+
+        VoiceModeButton:
+            voice_mode_name: 'MONO'
+            screen_name: root.screen_name
+            tooltip_text: 'MONO MODE (1 NOTE, 1 VOICE PER NOTE)'
+
+    LegatoBox:
+        size_hint: 1, 3/28
+        corner_radius: root.corner_radius
+        screen_name: root.screen_name
+
+    BoxLayout:
+        size_hint: 1, 3/28
+        corner_radius: root.corner_radius
+        padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+
+        canvas.before:
+            Color:
+                rgba: C('#257CFFFF')
+
+            SmoothRoundedRectangle:
+                pos: self.pos
+                size: self.width, self.height
+                radius: [root.corner_radius]
+
+        ChordsButton:
+            screen_name: root.screen_name
+
+
+    FineModeBox:
+        size_hint: 1, 3/28
+        corner_radius: root.corner_radius
+        screen_name: root.screen_name
+
+
+<VoiceModeButton>:
+    text: self.voice_mode_name
+    color: C('#66A3FFFF') if self.disabled else C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.45
+    on_release: app.set_voice_mode_by_name(self.voice_mode_name)
+    disabled: not app.nymphes_connected
+
+
+<LegatoBox>:
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    LegatoButton:
+        screen_name: root.screen_name
+
+<LegatoButton@HoverButton>:
+    text: 'LEGATO'
+    size_hint: 1, 1
+    base_font_size: self.height * 0.4
+    color: C('#ECBFEBFF') if app.osc_legato_value == 127 or self.mouse_pressed else C('#06070FFF')
+    on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
+    tooltip_text: 'LEGATO MODE'
+    disabled: not app.nymphes_connected
+
+
+
+<ChordsButton@HoverButton>:
+    text: 'MAIN' if app.curr_screen_name == 'chords' else 'CHORD'
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.4
+    on_release:
+        app.root.transition = NoTransition()
+        app.root.current = 'main' if app.curr_screen_name == 'chords' else 'chords'
+        app.set_curr_screen_name('main' if app.curr_screen_name == 'chords' else 'chords')
+        self.mouse_inside_bounds = False
+    tooltip_text: 'BACK TO MAIN SCREEN' if app.curr_screen_name == 'chords' else 'SHOW CHORDS EDITOR'
+    disabled: not app.nymphes_connected
+
+<FineModeBox>:
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    FineModeButton:
+        screen_name: root.screen_name
+
+<FineModeButton@HoverButton>:
+    text: 'FINE'
+    size_hint: 1, 1
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    color: C('#ECBFEBFF') if app.fine_mode and not self.disabled or self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.45
+    on_release: app.set_fine_mode(not app.fine_mode)
+    tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
+    disabled: not app.nymphes_connected

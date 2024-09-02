@@ -1,0 +1,145 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+
+<TopBar>:
+    orientation: 'horizontal'
+    padding: [0, 0, self.width * 0.01, 0]
+    spacing: self.parent.spacing
+    corner_radius: self.height * 0.015
+    right_button_is_settings: True
+    right_button_transition: 'left'
+    screen_name: ''
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL PREVIOUS PRESET'
+        size_hint_x: 1/20
+        text: '-'
+        base_font_size: self.height * 1.2
+        on_release: app.load_prev_preset()
+
+    TopBarSpinner:
+        size_hint_x: 7/20
+        values: app.presets_spinner_values
+        text: app.presets_spinner_text
+        on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
+        screen_name: root.screen_name
+        tooltip_text: 'SELECT A PRESET'
+
+    PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL NEXT PRESET'
+        size_hint_x: 1/20
+        text: '+'
+        on_release: app.load_next_preset()
+
+    TopBarButton:
+        screen_name: root.screen_name
+        text: 'SAVE'
+        tooltip_text: 'SAVE CURRENT CHANGES TO ' + app.presets_spinner_text
+        size_hint_x: 2/20
+        on_release: app.update_current_preset()
+        disabled: not app.nymphes_connected or app.unsaved_preset_changes == False or app.curr_preset_type == 'init'
+
+    TopBarButton:
+        screen_name: root.screen_name
+        tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
+        size_hint_x: 2/20
+        text: 'REVERT'
+        on_release: app.reload()
+        disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
+
+    Widget:
+        size_hint_x: 1/20
+
+    TopBarButton:
+        screen_name: root.screen_name
+        size_hint_x: 2/20
+        text: 'OPEN'
+        tooltip_text: 'LOAD PRESET FILE'
+        on_release: app.show_load_dialog()
+        disabled: not app.nymphes_connected
+
+    TopBarButton:
+        screen_name: root.screen_name
+        size_hint_x: 2/20
+        text: 'SAVE AS'
+        tooltip_text: 'SAVE TO NEW PRESET FILE'
+        on_release: app.show_save_dialog()
+        disabled: not app.nymphes_connected
+
+    Widget:
+        size_hint_x: 1/20
+
+    TopBarButton:
+        screen_name: root.screen_name
+        size_hint_x: 3/20
+        text: 'SETTINGS' if root.right_button_is_settings else 'MAIN'
+        tooltip_text: ''
+        halign: 'right'
+        on_release:
+            app.root.transition = SlideTransition(direction='left') if root.right_button_transition == 'left' else SlideTransition(direction='right') if root.right_button_transition == 'right' else NoTransition() 
+            app.root.current = 'settings' if root.right_button_is_settings else 'main'
+            app.set_curr_screen_name('settings' if root.right_button_is_settings else 'main')
+            self.mouse_inside_bounds = False
+
+
+<PresetIncButton@HoverButton>:
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.7
+    font_size: (self.base_font_size * 1.2) if self.mouse_inside_bounds else self.base_font_size
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    disabled: not app.nymphes_connected
+
+
+<TopBarSpinner@HoverSpinner>:
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.6 if len(self.text) <= 20 else self.height * 0.3
+    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+    text_size: self.size
+    size_hint_y: None
+    height: self.parent.height
+    halign: 'center' if len(self.text) <= 20 else 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
+    option_cls: 'TopBarSpinnerOption'
+    disabled: not app.nymphes_connected
+    spacing: self.height * 1/5
+
+
+<TopBarSpinnerOption@SpinnerOption>:
+    color: C('#06070FFF')
+    font_size: self.height * 0.75
+    text_size: self.size
+    size_hint_y: None
+    height: app.curr_height * app.curr_scaling * 2/40
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#1D60C5F5')
+    background_normal: ''
+
+
+<TopBarButton@HoverButton>:
+    size_hint_x: 1/6
+    size_hint_y: None
+    height: self.parent.height
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    

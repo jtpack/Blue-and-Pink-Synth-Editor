@@ -1,0 +1,198 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+
+<ParamsGridModCell>:
+    value_color_string: '#06070FFF'
+    background_color_string: '#438EFFFF'
+    mod_amount_line_background_color_string: '#6AA3F8FF'
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        SmoothRoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+        text_color_string: root.param_name_color_string
+        on_release: app.control_selected(self.parent.param_name)
+        size_hint_y: 0.25
+
+    FloatValueControl:
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.param_name + '.value'
+        text_color_string: root.value_color_string
+        enable_float_value: True
+        external_value: root.value_prop
+        size_hint_y: 0.4
+
+    ModAmountsBox:
+        mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
+        size_hint_x: 0.75
+        pos_hint: {'center_x': 0.5}
+        screen_name: root.screen_name
+        param_name: root.param_name
+        lfo2_prop: root.lfo2_prop
+        mod_wheel_prop: root.mod_wheel_prop
+        velocity_prop: root.velocity_prop
+        aftertouch_prop: root.aftertouch_prop
+        size_hint_y: 0.35
+
+
+<ModAmountsBox>:
+    orientation: 'horizontal'
+    spacing: self.height * 0.1
+    size_hint: 1, 1
+
+    Lfo2ModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'lfo2'
+        midi_val: root.lfo2_prop
+
+    WheelModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'mod_wheel'
+        midi_val: root.mod_wheel_prop
+
+    VelocityModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'velocity'
+        midi_val: root.velocity_prop
+
+    AftertouchModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'aftertouch'
+        midi_val: root.aftertouch_prop
+
+
+<SectionScreenParamsGridModCell>:
+    value_color_string: '#06070FFF'
+    background_color_string: '#438EFFFF'
+    mod_amount_line_background_color_string: '#6AA3F8FF'
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [0, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        SmoothRoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+        text_color_string: root.param_name_color_string
+        on_release: app.control_selected(self.parent.param_name)
+        size_hint_y: 0.2
+        font_size: self.height * 0.9
+
+    FloatValueControl:
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.param_name + '.value'
+        text_color_string: root.value_color_string
+        enable_float_value: True
+        external_value: root.value_prop
+        size_hint_y: 0.3
+
+    SectionScreenModAmountsBox:
+        mod_amount_line_background_color_string: root.mod_amount_line_background_color_string
+        size_hint_x: 0.75
+        pos_hint: {'center_x': 0.5}
+        size_hint_y: 0.5
+        screen_name: root.screen_name
+        param_name: root.param_name
+        lfo2_prop: root.lfo2_prop
+        mod_wheel_prop: root.mod_wheel_prop
+        velocity_prop: root.velocity_prop
+        aftertouch_prop: root.aftertouch_prop
+
+<SectionScreenModAmountsBox>:
+    orientation: 'horizontal'
+    spacing: self.width * 0.05
+    size_hint: 1, 1
+
+    Lfo2ModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'lfo2'
+        midi_val: root.lfo2_prop
+
+    WheelModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'mod_wheel'
+        midi_val: root.mod_wheel_prop
+
+    VelocityModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'velocity'
+        midi_val: root.velocity_prop
+
+    AftertouchModAmountLine:
+        background_color_string: root.mod_amount_line_background_color_string
+        param_name: root.param_name
+        screen_name: root.screen_name
+        mod_type: 'aftertouch'
+        midi_val: root.aftertouch_prop
+
+
+<ModAmountLine>:
+    fine_mode_decimal_places: app.fine_mode_decimal_places
+    canvas:
+        # Line Background
+
+        Color:
+            rgba: C(self.background_color_string)
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.width * 0.5]
+
+        # Line Which Grows with the Value
+        Color:
+            rgba: C(root.color_hex) if root.midi_val > 0 else C('#00000000')
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size[0], (root.midi_val / 127.0) * (root.height - root.height * 0.01)
+            radius: [self.width * 0.5]
+
+    on_touch_down: if self.collide_point(*args[1].pos): self.handle_touch(args[1].device, args[1].button)
+    disabled: not app.nymphes_connected
+
+    
+<Lfo2ModAmountLine@ModAmountLine>:
+    color_hex: '#F41513FF'
+
+
+<WheelModAmountLine@ModAmountLine>:
+    color_hex: '#FDFF00FF'
+
+
+<VelocityModAmountLine@ModAmountLine>:
+    color_hex: '#00FF1FFF'
+
+
+<AftertouchModAmountLine@ModAmountLine>:
+    color_hex: '#AA00FFFF'

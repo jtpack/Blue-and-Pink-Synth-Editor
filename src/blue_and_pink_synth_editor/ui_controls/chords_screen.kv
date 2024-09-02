@@ -1,0 +1,696 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+
+<ChordsScreen@Screen>:
+    name: 'chords'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        TopBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            right_button_is_settings: False
+            right_button_transition: ''
+
+        # Main Controls
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: self.parent.spacing
+            screen_name: root.name
+            size_hint_y: 34/40
+            corner_radius: root.height * 0.015
+
+            LeftBar:
+                size_hint: 1/12, 1
+                screen_name: root.name
+                corner_radius: self.parent.corner_radius
+
+            GridLayout:
+                cols: 2
+                spacing: self.parent.spacing
+                corner_radius: self.parent.corner_radius
+
+                # Row 1
+                Chord0ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                Chord1ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                # Row 2
+                Chord2ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                Chord3ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                # Row 3
+                Chord4ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                Chord5ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                # Row 4
+                Chord6ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+                Chord7ControlSection:
+                    screen_name: root.name
+                    size_hint_y: 1/4
+                    corner_radius: self.parent.corner_radius
+
+        BottomBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+
+
+<Chord0ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 0 (0-9)'
+        this_chord_active: 0 <= app.pitch_chord_value <= 9
+        tooltip_text: 'ACTIVATE CHORD 0'
+        on_release: app.activate_chord_number(0)
+
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'ROOT'
+            param_name: 'chord_0.root'
+            value_prop: app.chord_0_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 1'
+            param_name: 'chord_0.semi_1'
+            value_prop: app.chord_0_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 2'
+            param_name: 'chord_0.semi_2'
+            value_prop: app.chord_0_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 3'
+            param_name: 'chord_0.semi_3'
+            value_prop: app.chord_0_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 4'
+            param_name: 'chord_0.semi_4'
+            value_prop: app.chord_0_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_0'
+            title: 'SEMI 5'
+            param_name: 'chord_0.semi_5'
+            value_prop: app.chord_0_semi_5_value
+            corner_radius: self.parent.corner_radius
+            
+
+<Chord1ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 1 (10-27)'
+        this_chord_active: 10 <= app.pitch_chord_value <= 27
+        tooltip_text: 'ACTIVATE CHORD 1'
+        on_release: app.activate_chord_number(1)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'ROOT'
+            param_name: 'chord_1.root'
+            value_prop: app.chord_1_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'SEMI 1'
+            param_name: 'chord_1.semi_1'
+            value_prop: app.chord_1_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'SEMI 2'
+            param_name: 'chord_1.semi_2'
+            value_prop: app.chord_1_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'SEMI 3'
+            param_name: 'chord_1.semi_3'
+            value_prop: app.chord_1_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'SEMI 4'
+            param_name: 'chord_1.semi_4'
+            value_prop: app.chord_1_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_1'
+            title: 'SEMI 5'
+            param_name: 'chord_1.semi_5'
+            value_prop: app.chord_1_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<Chord2ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 2 (28-45)'
+        this_chord_active: 28 <= app.pitch_chord_value <= 45
+        tooltip_text: 'ACTIVATE CHORD 2'
+        on_release: app.activate_chord_number(2)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'ROOT'
+            param_name: 'chord_2.root'
+            value_prop: app.chord_2_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'SEMI 1'
+            param_name: 'chord_2.semi_1'
+            value_prop: app.chord_2_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'SEMI 2'
+            param_name: 'chord_2.semi_2'
+            value_prop: app.chord_2_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'SEMI 3'
+            param_name: 'chord_2.semi_3'
+            value_prop: app.chord_2_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'SEMI 4'
+            param_name: 'chord_2.semi_4'
+            value_prop: app.chord_2_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_2'
+            title: 'SEMI 5'
+            param_name: 'chord_2.semi_5'
+            value_prop: app.chord_2_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<Chord3ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 3 (46-63)'
+        this_chord_active: 46 <= app.pitch_chord_value <= 63
+        tooltip_text: 'ACTIVATE CHORD 3'
+        on_release: app.activate_chord_number(3)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'ROOT'
+            param_name: 'chord_3.root'
+            value_prop: app.chord_3_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'SEMI 1'
+            param_name: 'chord_3.semi_1'
+            value_prop: app.chord_3_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'SEMI 2'
+            param_name: 'chord_3.semi_2'
+            value_prop: app.chord_3_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'SEMI 3'
+            param_name: 'chord_3.semi_3'
+            value_prop: app.chord_3_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'SEMI 4'
+            param_name: 'chord_3.semi_4'
+            value_prop: app.chord_3_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_3'
+            title: 'SEMI 5'
+            param_name: 'chord_3.semi_5'
+            value_prop: app.chord_3_semi_5_value
+            corner_radius: self.parent.corner_radius
+          
+          
+<Chord4ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 4 (64-81)'
+        this_chord_active: 64 <= app.pitch_chord_value <= 81
+        tooltip_text: 'ACTIVATE CHORD 4'
+        on_release: app.activate_chord_number(4)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'ROOT'
+            param_name: 'chord_4.root'
+            value_prop: app.chord_4_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'SEMI 1'
+            param_name: 'chord_4.semi_1'
+            value_prop: app.chord_4_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'SEMI 2'
+            param_name: 'chord_4.semi_2'
+            value_prop: app.chord_4_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'SEMI 3'
+            param_name: 'chord_4.semi_3'
+            value_prop: app.chord_4_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'SEMI 4'
+            param_name: 'chord_4.semi_4'
+            value_prop: app.chord_4_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_4'
+            title: 'SEMI 5'
+            param_name: 'chord_4.semi_5'
+            value_prop: app.chord_4_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<Chord5ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 5 (82-99)'
+        this_chord_active: 82 <= app.pitch_chord_value <= 99
+        tooltip_text: 'ACTIVATE CHORD 5'
+        on_release: app.activate_chord_number(5)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'ROOT'
+            param_name: 'chord_5.root'
+            value_prop: app.chord_5_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'SEMI 1'
+            param_name: 'chord_5.semi_1'
+            value_prop: app.chord_5_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'SEMI 2'
+            param_name: 'chord_5.semi_2'
+            value_prop: app.chord_5_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'SEMI 3'
+            param_name: 'chord_5.semi_3'
+            value_prop: app.chord_5_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'SEMI 4'
+            param_name: 'chord_5.semi_4'
+            value_prop: app.chord_5_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_5'
+            title: 'SEMI 5'
+            param_name: 'chord_5.semi_5'
+            value_prop: app.chord_5_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<Chord6ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 6 (100-117)'
+        this_chord_active: 100 <= app.pitch_chord_value <= 117
+        tooltip_text: 'ACTIVATE CHORD 6'
+        on_release: app.activate_chord_number(6)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'ROOT'
+            param_name: 'chord_6.root'
+            value_prop: app.chord_6_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'SEMI 1'
+            param_name: 'chord_6.semi_1'
+            value_prop: app.chord_6_semi_1_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'SEMI 2'
+            param_name: 'chord_6.semi_2'
+            value_prop: app.chord_6_semi_2_value
+            corner_radius: self.parent.corner_radius
+            
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'SEMI 3'
+            param_name: 'chord_6.semi_3'
+            value_prop: app.chord_6_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'SEMI 4'
+            param_name: 'chord_6.semi_4'
+            value_prop: app.chord_6_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_6'
+            title: 'SEMI 5'
+            param_name: 'chord_6.semi_5'
+            value_prop: app.chord_6_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<Chord7ControlSection@ControlSection>:
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    ChordSectionTitleLabel:
+        text: 'CHORD 7 (118-127)'
+        this_chord_active: 118 <= app.pitch_chord_value <= 127
+        tooltip_text: 'ACTIVATE CHORD 7'
+        on_release: app.activate_chord_number(7)
+
+    GridLayout:
+        cols: 6
+        corner_radius: self.width * 0.03
+        spacing: self.width * 0.01
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'ROOT'
+            param_name: 'chord_7.root'
+            value_prop: app.chord_7_root_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'SEMI 1'
+            param_name: 'chord_7.semi_1'
+            value_prop: app.chord_7_semi_1_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'SEMI 2'
+            param_name: 'chord_7.semi_2'
+            value_prop: app.chord_7_semi_2_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'SEMI 3'
+            param_name: 'chord_7.semi_3'
+            value_prop: app.chord_7_semi_3_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'SEMI 4'
+            param_name: 'chord_7.semi_4'
+            value_prop: app.chord_7_semi_4_value
+            corner_radius: self.parent.corner_radius
+
+        ChordParamsGridCell:
+            screen_name: root.screen_name
+            section_name: 'chord_7'
+            title: 'SEMI 5'
+            param_name: 'chord_7.semi_5'
+            value_prop: app.chord_7_semi_5_value
+            corner_radius: self.parent.corner_radius
+
+
+<ChordParamsGridCell>:
+    orientation: 'vertical'
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        SmoothRoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+        on_release: app.control_selected(self.parent.param_name)
+        font_size: self.height * 0.55
+
+    IntValueControl:
+        min_value: -127
+        max_value: 127
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.param_name + '.value'
+        external_value: root.value_prop
+        text_color_string: root.value_color_string
+        base_font_size: self.height * 0.7
+
+<ChordSectionTitleLabel>:
+    size_hint_y: None
+    height: app.curr_height * app.curr_scaling * 1/16
+    size_hint_x: 2/5
+    background_color: 0, 1, 0, 0.3
+    color: C('#ECBFEBFF') if self.this_chord_active or self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    disabled: not app.nymphes_connected
+    screen_name: 'chords'

@@ -1,0 +1,15 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<ValueControl>:
+    text_size: self.size
+    halign: 'center'
+    font_size: self.base_font_size * self.mouseover_magnification_amount if self.mouse_inside_bounds else self.base_font_size
+    padding: 0, self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10, 0, 0
+    disabled: not app.nymphes_connected
+    invert_mouse_wheel: app.invert_mouse_wheel
+
+<FloatValueControl>:
+    base_font_size: self.height * 0.7
+    fine_mode: app.fine_mode
+    enable_float_drag: app.fine_mode
