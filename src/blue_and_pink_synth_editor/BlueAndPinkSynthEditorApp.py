@@ -42,7 +42,7 @@ from nymphes_midi.NymphesPreset import NymphesPreset
 from nymphes_osc_process import NymphesOscProcess
 
 from ui_controls.load_dialog import LoadDialog
-from ui_controls.save_dialog import SaveDialog
+from ui_controls.save_dialog import SaveDialog, SavePopup
 from ui_controls.error_dialog import ErrorDialog
 from ui_controls import chords_screen
 from ui_controls import value_control
