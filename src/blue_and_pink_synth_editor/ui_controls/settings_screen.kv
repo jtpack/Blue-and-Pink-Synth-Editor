@@ -3,6 +3,67 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 
+<SettingsScreen@Screen>:
+    name: 'settings'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        TopBar:
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            screen_name: root.name
+            right_button_is_settings: False
+            right_button_transition: 'right'
+
+        GridLayout:
+            cols: 3
+            spacing: root.height * 0.008
+            size_hint_y: 34/40
+            corner_radius: root.height * 0.015
+
+            # Row 1
+            BoxLayout:
+                corner_radius: self.parent.corner_radius
+                spacing: self.parent.spacing[0]
+                orientation: 'vertical'
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+                NymphesPortsSection:
+                    corner_radius: self.parent.corner_radius
+                    size_hint_y: 1/2
+
+                MiscSettingsSection:
+                    corner_radius: self.parent.corner_radius
+                    size_hint_y: 1/2
+
+            MidiInputPortsSection:
+                corner_radius: self.parent.corner_radius
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+            MidiOutputPortsSection:
+                corner_radius: self.parent.corner_radius
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+        BottomBar:
+            size_hint_y: 3/40
+            screen_name: root.name
+            corner_radius: root.height * 0.015
+
+
 <NymphesPortsSection@ControlSection>:
     orientation: 'vertical'
     padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
@@ -174,14 +235,16 @@
             MiscSettingsButton:
                 on_release: app.open_presets_folder_in_native_file_browser()
                 size_hint_y: 1/6
-                text: 'OPEN PRESETS FOLDER'
+                text: '[u]OPEN PRESETS FOLDER[/u]'
+                markup: True
                 screen_name: 'settings'
                 tooltip_text: 'SHOW PRESETS FOLDER IN SYSTEM FILE BROWSER'
 
             MiscSettingsButton:
                 on_release: app.open_logs_folder_in_native_file_browser()
                 size_hint_y: 1/6
-                text: 'OPEN DEBUG LOGS FOLDER'
+                text: '[u]OPEN DEBUG LOGS FOLDER[/u]'
+                markup: True
                 screen_name: 'settings'
                 tooltip_text: 'SHOW DEBUG LOGS FOLDER IN SYSTEM FILE BROWSER'
 

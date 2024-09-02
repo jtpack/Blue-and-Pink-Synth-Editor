@@ -19,7 +19,7 @@
         size_hint_x: 25/40
         text: app.status_bar_text
         color: C('#222754FF')
-        font_size: self.height * 0.6
+        font_size: self.height * 0.5 if len(self.text) < 50 else self.height * 0.3
         text_size: self.size
         halign: 'left'
         valign: 'middle'

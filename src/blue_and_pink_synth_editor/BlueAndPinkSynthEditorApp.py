@@ -41,9 +41,9 @@ Logger.setLevel(LOG_LEVELS["debug"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 from nymphes_osc_process import NymphesOscProcess
 
-from ui_controls import load_dialog
-from ui_controls import save_dialog
-from ui_controls import error_dialog
+from ui_controls.load_dialog import LoadDialog
+from ui_controls.save_dialog import SaveDialog
+from ui_controls.error_dialog import ErrorDialog
 from ui_controls import chords_screen
 from ui_controls import value_control
 from ui_controls import synth_editor_value_controls
@@ -55,10 +55,8 @@ from ui_controls import params_grid_lfo_config_cell
 from ui_controls import settings_screen
 from ui_controls import bottom_bar
 
-Factory.register('LoadDialog', cls=load_dialog.LoadDialog)
-Factory.register('SaveDialog', cls=save_dialog.SaveDialog)
-
-Builder.load_file(str(Path(__file__).parent / 'ui_controls/oscillator_section_screen.kv'))
+Factory.register('LoadDialog', cls=LoadDialog)
+Factory.register('SaveDialog', cls=SaveDialog)
 
 from demo_mode_popup import DemoModePopup
 from code_verification import verify_license_file, load_data_from_license_file
@@ -95,7 +93,7 @@ from activation_code_checking import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.3.1-beta'
+app_version_string = 'v0.3.1-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):

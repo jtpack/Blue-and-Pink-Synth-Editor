@@ -89,7 +89,7 @@
 <VoiceModeButton>:
     text: self.voice_mode_name
     color: C('#66A3FFFF') if self.disabled else C('#ECBFEBFF') if app.voice_mode_name == self.voice_mode_name or self.mouse_pressed else C('#06070FFF')
-    base_font_size: self.height * 0.45
+    base_font_size: self.height * 0.4
     on_release: app.set_voice_mode_by_name(self.voice_mode_name)
     disabled: not app.nymphes_connected
 
@@ -112,7 +112,7 @@
 <LegatoButton@HoverButton>:
     text: 'LEGATO'
     size_hint: 1, 1
-    base_font_size: self.height * 0.4
+    base_font_size: self.height * 0.35
     color: C('#ECBFEBFF') if app.osc_legato_value == 127 or self.mouse_pressed else C('#06070FFF')
     on_release: app.set_legato(127 if app.osc_legato_value == 0 else 0)
     tooltip_text: 'LEGATO MODE'
@@ -123,7 +123,7 @@
 <ChordsButton@HoverButton>:
     text: 'MAIN' if app.curr_screen_name == 'chords' else 'CHORD'
     color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
-    base_font_size: self.height * 0.4
+    base_font_size: self.height * 0.35
     on_release:
         app.root.transition = NoTransition()
         app.root.current = 'main' if app.curr_screen_name == 'chords' else 'chords'
@@ -148,13 +148,13 @@
         screen_name: root.screen_name
 
 <FineModeButton@HoverButton>:
-    text: 'FINE'
+    text: 'FINE MODE'
     size_hint: 1, 1
     text_size: self.size
     halign: 'center'
     valign: 'middle'
     color: C('#ECBFEBFF') if app.fine_mode and not self.disabled or self.mouse_pressed else C('#06070FFF')
-    base_font_size: self.height * 0.45
+    base_font_size: self.height * 0.4
     on_release: app.set_fine_mode(not app.fine_mode)
-    tooltip_text: 'HIGH RESOLUTION CONTROL (0.1 INCREMENT INSTEAD OF 1.0)'
+    tooltip_text: 'HIGH RES CONTROL (0.1 INSTEAD OF 1.0)'
     disabled: not app.nymphes_connected

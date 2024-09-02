@@ -2,6 +2,10 @@
   - In the distant past, we were creating a subfolder in the Applications folder (/Applications/Blue\ and\ Pink\ Synth\ Editor/)
   - However, when we switched to using no subfolder I failed to update the README
 - Now using antialiased versions of RoundedRectangle and Rectangle
+- Reorganized UI elements into separate py and kv files
+  - Now it is much easier to navigate the project
+- In the SETTINGS screen, now the OPEN PRESETS FOLDER and OPEN DEBUG LOGS FOLDER buttons are underlined
+  - This makes them look like hyperlinks, which is more in line with how they actually work
 
 
 ## v0.3.1-beta

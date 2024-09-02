@@ -7,7 +7,6 @@ ScreenManager:
     MainScreen
     SettingsScreen
     ChordsScreen
-    OscillatorSectionScreen
 
 
 <MainScreen@Screen>:
@@ -91,63 +90,6 @@ ScreenManager:
             corner_radius: root.height * 0.015
 
 
-<SettingsScreen@Screen>:
-    name: 'settings'
-
-    canvas.before:
-        Color:
-            rgba: C('#092042FF')
-        SmoothRectangle:
-            pos: self.pos
-            size: self.size
-
-    BoxLayout:
-        orientation: 'vertical'
-        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
-        spacing: root.height * 0.008
-
-        # Top Bar
-        TopBar:
-            size_hint_y: 3/40
-            corner_radius: root.height * 0.015
-            screen_name: root.name
-            right_button_is_settings: False
-            right_button_transition: 'right'
-
-        GridLayout:
-            cols: 3
-            spacing: root.height * 0.008
-            size_hint_y: 34/40
-            corner_radius: root.height * 0.015
-
-            # Row 1
-            BoxLayout:
-                corner_radius: self.parent.corner_radius
-                spacing: self.parent.spacing[0]
-                orientation: 'vertical'
-                size_hint_x: 1/3
-                size_hint_y: 4/5
-
-                NymphesPortsSection:
-                    size_hint_y: 1/2
-
-                MiscSettingsSection:
-                    size_hint_y: 1/2
-
-            MidiInputPortsSection:
-                size_hint_x: 1/3
-                size_hint_y: 4/5
-
-            MidiOutputPortsSection:
-                size_hint_x: 1/3
-                size_hint_y: 4/5
-
-        BottomBar:
-            size_hint_y: 3/40
-            screen_name: root.name
-            corner_radius: root.height * 0.015
-
-
 <SectionTitleLabel>:
     size_hint_y: None
     height: app.curr_height * app.curr_scaling * 1/16
@@ -185,10 +127,6 @@ ScreenManager:
 
     SectionTitleLabel:
         text: 'OSCILLATOR'
-        on_release:
-            app.root.transition = NoTransition()
-            app.root.current = 'oscillator'
-            app.set_curr_screen_name('oscillator')
 
     ParamsGrid:
         # Top Row
