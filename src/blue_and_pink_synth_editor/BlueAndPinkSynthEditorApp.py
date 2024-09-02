@@ -57,8 +57,10 @@ from .save_dialog import SaveDialog, SavePopup
 from .error_dialog import ErrorDialog
 from .synth_editor_value_controls import FloatValueControl, ChordValueControl
 from .synth_editor_value_controls import LfoTypeValueControl, LfoSyncValueControl
+from .demo_mode_popup import DemoModePopup
 
 from .code_verification import verify_license_file, load_data_from_license_file
+
 
 #
 # Make sure that activation_code_checking.py file exists.
@@ -567,11 +569,11 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._curr_presets_spinner_index = 0
 
+        self._popup = None
+
         #
         # Preset File Dialog
         #
-
-        self._popup = None
 
         #
         # Create directories to hold app data, like presets
@@ -2943,3 +2945,11 @@ class BlueAndPinkSynthEditorApp(App):
             raise Exception(f'lfo_key_sync must be between 0 and 1: {lfo_key_sync}')
 
         return 'ON' if lfo_key_sync == 1 else 'OFF'
+
+    def _show_demo_mode_popup(self):
+        content = DemoModePopup()
+
+        self._popup = Popup(title='Demo Mode',
+                            content=content,
+                            size_hint=(0.6, 0.6)
+                            )
