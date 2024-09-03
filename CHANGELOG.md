@@ -6,6 +6,7 @@
   - Now it is much easier to navigate the project
 - In the SETTINGS screen, now the OPEN PRESETS FOLDER and OPEN DEBUG LOGS FOLDER buttons are underlined
   - This makes them look like hyperlinks, which is more in line with how they actually work
+- Getting started implementing activation code system
 
 
 ## v0.3.1-beta

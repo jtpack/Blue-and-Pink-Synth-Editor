@@ -59,11 +59,11 @@ Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
 
 from demo_mode_popup import DemoModePopup
-from code_verification import verify_license_file, load_data_from_license_file
+from activation_code_verification import verify_license_file, load_data_from_license_file
 
 
 #
-# Make sure that activation_code_checking.py file exists.
+# Make sure that activation_code_enabled.py file exists.
 # The file is not a part of the git repository
 # so that open-source users automatically don't
 # need to have an activation code to use the app.
@@ -73,23 +73,23 @@ from code_verification import verify_license_file, load_data_from_license_file
 # the return value in this file to True
 #
 
-activation_code_checking_file_path = Path(__file__).parent / 'activation_code_checking.py'
+activation_code_checking_file_path = Path(__file__).parent / 'activation_code_enabled.py'
 if not activation_code_checking_file_path.exists():
-    print(f'activation_code_checking.py does not exist at {activation_code_checking_file_path}')
+    print(f'activation_code_enabled.py does not exist at {activation_code_checking_file_path}')
     # Create the file and populate it with its only function
     activation_code_checking_file_contents = """def activation_code_checking_enabled():
     return False
     """
-
     try:
         with open(activation_code_checking_file_path, 'w') as file:
             file.write(activation_code_checking_file_contents)
-            print(f'Created activation_code_checking.py file at {activation_code_checking_file_path}')
+            print(f'Created activation_code_enabled.py file at {activation_code_checking_file_path}')
+
     except Exception as e:
-        print(f'Failed to create activation_code_checking.py file at {activation_code_checking_file_path}')
+        print(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
-from activation_code_checking import activation_code_checking_enabled
+from activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
@@ -657,12 +657,20 @@ class BlueAndPinkSynthEditorApp(App):
                         Logger.info(f'Email: {self.user_email}')
                         Logger.info(f'License Type: {self.license_type}')
                         Logger.info(f'Expiration Date: {self.expiration_date}')
+
                     else:
                         Logger.warning(f'Invalid activation code file found at {self._activation_code_file_path}')
 
                 except Exception as e:
                     self.app_activated = False
                     Logger.warning(f'Failed to validate activation code file found at {self._activation_code_file_path} ({e})')
+
+            # Set the app title
+            #
+            if self.app_activated:
+                self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+            else:
+                self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
 
         else:
             #

@@ -15,7 +15,7 @@
             radius: [root.corner_radius]
 
     ParamNameLabel:
-        font_size: self.width * 0.2
+        font_size: self.height * 0.8
         text: 'TYPE'
         text_color_string: root.param_name_color_string
         on_release: app.control_selected(self.parent.section_name + '.type')
@@ -28,7 +28,7 @@
         text_color_string: root.value_color_string
 
     ParamNameLabel:
-        font_size: self.width * 0.2
+        font_size: self.height * 0.8
         text: 'SYNC'
         text_color_string: root.param_name_color_string
         on_release: app.control_selected(self.parent.section_name + '.key_sync')
