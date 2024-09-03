@@ -73,7 +73,6 @@ class HoverButton(ButtonBehavior, Label):
             self.mouse_pressed = False
 
             if self.collide_point(*touch.pos):
-                Logger.info(f'on_touch_up: {self.text}')
                 return True
 
             else:
@@ -145,7 +144,6 @@ class HoverSpinner(Spinner):
             self.mouse_pressed = False
 
             if self.collide_point(*touch.pos):
-                Logger.info(f'on_touch_up: {self.text}')
                 return True
 
             else:

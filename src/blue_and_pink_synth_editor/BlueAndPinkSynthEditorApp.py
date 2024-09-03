@@ -6,7 +6,6 @@ import configparser
 import netifaces
 import platform
 import subprocess
-import re
 import glob
 
 from kivy.config import Config
@@ -14,21 +13,11 @@ Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
 
 from kivy.app import App
 import kivy
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, StringProperty, ObjectProperty, DictProperty, BooleanProperty, ListProperty
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
-from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.spinner import Spinner, SpinnerOption
-from kivy.uix.textinput import TextInput
-from kivy.lang.builder import Builder
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -58,7 +47,7 @@ from ui_controls import bottom_bar
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
 
-from demo_mode_popup import DemoModePopup
+from blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
 from activation_code_verification import verify_license_file, load_data_from_license_file
 
 
@@ -450,9 +439,9 @@ class BlueAndPinkSynthEditorApp(App):
 
     # App Activation
     #
-    app_activated = BooleanProperty(False)
+    demo_mode = BooleanProperty(False)
     if not activation_code_checking_enabled():
-        app_activated = True
+        demo_mode = True
 
     user_name = StringProperty('')
     user_email = StringProperty('')
@@ -632,17 +621,20 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # Activation code checking is enabled
             #
+            Logger.info('Activation code checking is enabled')
+
             if not self._activation_code_file_path.exists():
                 # No activation code file exists.
                 # Run the app in demo mode.
-                self.app_activated = False
+                self.demo_mode = True
                 Logger.info(f'No activation code file found at {self._activation_code_file_path}')
+                Logger.info('Running in Demo Mode')
 
             else:
                 # Load the activation code file and check whether it is valid.
                 try:
-                    self.app_activated = verify_license_file(self._activation_code_file_path, self._public_key_path)
-                    if self.app_activated:
+                    self.demo_mode = not verify_license_file(self._activation_code_file_path, self._public_key_path)
+                    if not self.demo_mode:
                         Logger.info(f'Valid activation code file found at {self._activation_code_file_path}')
 
                         # Get user info from file
@@ -660,14 +652,16 @@ class BlueAndPinkSynthEditorApp(App):
 
                     else:
                         Logger.warning(f'Invalid activation code file found at {self._activation_code_file_path}')
+                        Logger.info('Running in Demo Mode')
 
                 except Exception as e:
-                    self.app_activated = False
+                    self.demo_mode = True
                     Logger.warning(f'Failed to validate activation code file found at {self._activation_code_file_path} ({e})')
+                    Logger.info('Running in Demo Mode')
 
             # Set the app title
             #
-            if self.app_activated:
+            if not self.demo_mode:
                 self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
             else:
                 self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
@@ -677,7 +671,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Activation code checking is not enabled
             #
             print(f'Activation code checking is not enabled')
-            self.app_activated = True
+            self.demo_mode = False
 
             # Set the app title
             self.title = f'Blue and Pink Synth Editor {app_version_string}'
@@ -706,6 +700,12 @@ class BlueAndPinkSynthEditorApp(App):
         # Map Incoming OSC Messages
         #
         self._nymphes_osc_listener_dispatcher.map('*', self._on_nymphes_osc_message)
+
+        #
+        # Show Demo Mode Popup if we are in Demo Mode
+        #
+        if self.demo_mode:
+            self._show_demo_mode_popup()
 
     def on_stop(self):
         """
@@ -2790,7 +2790,8 @@ class BlueAndPinkSynthEditorApp(App):
     def _show_demo_mode_popup(self):
         content = DemoModePopup()
 
-        self._popup = Popup(title='Demo Mode',
+        self._popup = Popup(title='DEMO MODE',
                             content=content,
-                            size_hint=(0.6, 0.6)
-                            )
+                            size_hint=(0.6, 0.6))
+
+        self._popup.open()

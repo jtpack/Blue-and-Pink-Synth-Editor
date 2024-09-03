@@ -1,0 +1,22 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<DemoModePopup>:
+    orientation: 'vertical'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        size_hint_y: 0.1
+        text_size: self.size
+        font_size: self.height * 0.6
+        halign: 'center'
+        text: 'Blue and Pink Synth Editor is running in Demo Mode'
+
+    Widget:
+        size_hint_y: 0.9
