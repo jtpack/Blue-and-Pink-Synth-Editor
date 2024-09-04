@@ -18,6 +18,7 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from kivy.core.window import Window
+from kivy.lang.builder import Builder
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -28,27 +29,29 @@ from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["debug"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
-from nymphes_osc_process import NymphesOscProcess
+from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from ui_controls.load_dialog import LoadDialog
-from ui_controls.save_dialog import SaveDialog, SavePopup
-from ui_controls.error_dialog import ErrorDialog
-from ui_controls import chords_screen
-from ui_controls import value_control
-from ui_controls import synth_editor_value_controls
-from ui_controls import left_bar
-from ui_controls import top_bar
-from ui_controls import params_grid_mod_cell
-from ui_controls import params_grid_non_mod_cell
-from ui_controls import params_grid_lfo_config_cell
-from ui_controls import settings_screen
-from ui_controls import bottom_bar
+from src.blue_and_pink_synth_editor.ui_controls.load_dialog import LoadDialog
+from src.blue_and_pink_synth_editor.ui_controls.save_dialog import SaveDialog, SavePopup
+from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
+from src.blue_and_pink_synth_editor.ui_controls import chords_screen
+from src.blue_and_pink_synth_editor.ui_controls import value_control
+from src.blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
+from src.blue_and_pink_synth_editor.ui_controls import left_bar
+from src.blue_and_pink_synth_editor.ui_controls import top_bar
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
+from src.blue_and_pink_synth_editor.ui_controls import settings_screen
+from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
+from src.blue_and_pink_synth_editor.ui_controls import demo_mode_popup
+
 
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
 
 from blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from activation_code_verification import verify_license_file, load_data_from_license_file
+from blue_and_pink_synth_editor.activation_code_verification import verify_license_file, load_data_from_license_file
 
 
 #
@@ -78,7 +81,7 @@ if not activation_code_checking_file_path.exists():
         print(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
-from activation_code_enabled import activation_code_checking_enabled
+from blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
