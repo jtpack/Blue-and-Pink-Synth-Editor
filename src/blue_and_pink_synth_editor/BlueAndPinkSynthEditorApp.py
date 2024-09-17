@@ -77,7 +77,7 @@ if not activation_code_checking_file_path.exists():
         print(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
-from blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
+from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
@@ -439,7 +439,7 @@ class BlueAndPinkSynthEditorApp(App):
     # App Activation
     #
     demo_mode = BooleanProperty(False)
-    if not activation_code_checking_enabled():
+    if activation_code_checking_enabled():
         demo_mode = True
 
     user_name = StringProperty('')
