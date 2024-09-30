@@ -45,7 +45,7 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.activation_code_generator.activation_code_verification import verify_license_file, load_data_from_license_file
+from src.activation_code_verifier.activation_code_verification import verify_license_file, load_data_from_license_file
 
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)

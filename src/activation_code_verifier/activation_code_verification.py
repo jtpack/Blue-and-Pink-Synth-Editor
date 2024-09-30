@@ -3,7 +3,7 @@ import json
 import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from activation_code_generator.activation_code_common import hash_from_string, generate_license_string
+from activation_code_verifier.activation_code_common import hash_from_string, generate_license_string
 from cryptography.hazmat.primitives import serialization
 
 
