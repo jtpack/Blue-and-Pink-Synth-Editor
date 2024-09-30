@@ -45,7 +45,7 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.activation_code_verifier.activation_code_verification import verify_license_file, load_data_from_license_file
+from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code
 
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
@@ -632,13 +632,14 @@ class BlueAndPinkSynthEditorApp(App):
             else:
                 # Load the activation code file and check whether it is valid.
                 try:
-                    self.demo_mode = not verify_license_file(self._activation_code_file_path, self._public_key_path)
+                    activation_code = load_activation_code_from_file(self._activation_code_file_path)
+                    self.demo_mode = not verify_activation_code(activation_code, self._public_key_path)
                     if not self.demo_mode:
                         Logger.info(f'Valid activation code file found at {self._activation_code_file_path}')
 
                         # Get user info from file
-                        user_info = load_data_from_license_file(self._activation_code_file_path)
-                        self.user_name = user_info['name']
+                        user_info = data_from_activation_code(activation_code)
+                        self.user_name = user_info['display_name']
                         self.user_email = user_info['email']
                         self.license_type = user_info['license_type']
                         self.expiration_date = user_info['expiration_date'] if user_info['expiration_date'] is not None else 'None'
