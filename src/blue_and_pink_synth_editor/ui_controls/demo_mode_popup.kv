@@ -6,7 +6,7 @@
 
     canvas.before:
         Color:
-            rgba: C('#092042FF')
+            rgba: C('#000000FF')
         SmoothRectangle:
             pos: self.pos
             size: self.size
@@ -16,7 +16,38 @@
         text_size: self.size
         font_size: self.height * 0.6
         halign: 'center'
-        text: 'Blue and Pink Synth Editor is running in Demo Mode'
+        text: 'Blue and Pink Synth Editor is running in Demo Mode.'
+
+    Label:
+        size_hint_y: 0.1
+        text_size: self.size
+        font_size: self.height * 0.6
+        halign: 'center'
+        text: 'After 15 minutes you will need to quit and reopen it.'
+
+    Label:
+        size_hint_y: 0.1
+        text_size: self.size
+        font_size: self.height * 0.6
+        halign: 'center'
+        text: 'If you have an activation code, drag it onto this window.'
+
+    Label:
+        size_hint_y: 0.1
+        text_size: self.size
+        font_size: self.height * 0.6
+        halign: 'center'
+        text: 'You can purchase an activation code at'
+
+    WebsiteButtonLabel:
+        size_hint_y: 0.1
+        text_size: self.size
+        font_size: self.height * 0.7
+        halign: 'center'
+        text: 'www.scottlumsden.com/blueandpinksyntheditor'
+        color: C('548AF7FF')
+        on_press: self.button_clicked()
 
     Widget:
         size_hint_y: 0.9
+

@@ -128,3 +128,23 @@ def load_public_key_from_file(file_path):
             key_file.read()
         )
     return public_key
+
+
+def load_public_key():
+    """
+    Load and return the public key used for
+    verifcation of activation codes.
+    :return: RSAPublicKey
+    """
+    public_key_string = """
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuSXLpJWefz6WmhlwOarf
+    vh/ODhyNKNwYL4vTBFO3xo4SpoOvX+Lyc95DFkhATm/TqYOQAqHGBDMCSUEBKNU3
+    nyHICqJeVGU7tmm7VXLvK/P2TcNE88DPSER+lOCw9I+A1bfMDr6+DVR+S+8mZD+C
+    N0yKmFpHVLcPZscr+hBEYz8lE7v2TP7dUGc7+Zsz5N5Yqc7eSUVmgBxi4jS3yEnG
+    +NeIqPKQRMoBTK/+TD/E+Hv1004kZzLpQoyj0DHMhRaF+qHx8Ulevr37KLYdyxJk
+    8Ts2E1fxFeujYMzVlR6Khu7i3eEqQbVCc1pge3yTxj5LxVl9q6pxZYqj0ImVdo1W
+    wwIDAQAB
+    -----END PUBLIC KEY-----
+    """
+    return serialization.load_pem_public_key(public_key_string.encode())

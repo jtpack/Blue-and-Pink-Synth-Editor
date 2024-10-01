@@ -45,7 +45,7 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key_from_file
+from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
@@ -614,7 +614,6 @@ class BlueAndPinkSynthEditorApp(App):
         # Activation Code Verification
         #
         self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
-        self._public_key_path = Path(__file__).parent / 'BlueAndPinkSynthEditorLicenseKey_public.pem'
 
         if activation_code_checking_enabled():
             #
@@ -635,7 +634,7 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 try:
                     # Load the public key
-                    public_key = load_public_key_from_file(self._public_key_path)
+                    public_key = load_public_key()
                     activation_code = load_activation_code_from_file(self._activation_code_file_path)
                     self.demo_mode = not verify_activation_code(activation_code, public_key)
                     if not self.demo_mode:
