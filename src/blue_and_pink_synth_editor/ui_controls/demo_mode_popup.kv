@@ -3,51 +3,72 @@
 
 <DemoModePopup>:
     orientation: 'vertical'
+    spacing: self.height * 1/48
+    padding: self.height * 1/48
 
     canvas.before:
         Color:
-            rgba: C('#000000FF')
+            rgba: C('#092041FF')
         SmoothRectangle:
             pos: self.pos
             size: self.size
 
-    Label:
-        size_hint_y: 0.1
-        text_size: self.size
-        font_size: self.height * 0.6
-        halign: 'center'
-        text: 'Blue and Pink Synth Editor is running in Demo Mode.'
+    GeneralSectionBox:
+        orientation: 'vertical'
 
-    Label:
-        size_hint_y: 0.1
-        text_size: self.size
-        font_size: self.height * 0.6
-        halign: 'center'
-        text: 'After 15 minutes you will need to quit and reopen it.'
+        GeneralLabel:
+            size_hint_y: 1/2
+            halign: 'center'
+            text: 'Blue and Pink Synth Editor is running in Demo Mode'
 
-    Label:
-        size_hint_y: 0.1
-        text_size: self.size
-        font_size: self.height * 0.6
-        halign: 'center'
-        text: 'If you have an activation code, drag it onto this window.'
+        GeneralLabel:
+            size_hint_y: 1/2
+            font_size: self.height * 0.35
+            text: 'After 15 minutes it will stop working, and you will need to quit and reopen it'
 
-    Label:
-        size_hint_y: 0.1
-        text_size: self.size
-        font_size: self.height * 0.6
-        halign: 'center'
-        text: 'You can purchase an activation code at'
+    GeneralSectionBox:
+        orientation: 'vertical'
 
-    WebsiteButtonLabel:
-        size_hint_y: 0.1
-        text_size: self.size
-        font_size: self.height * 0.7
-        halign: 'center'
-        text: 'www.scottlumsden.com/blueandpinksyntheditor'
-        color: C('548AF7FF')
-        on_press: self.button_clicked()
+        GeneralLabel:
+            size_hint_y: 1/2
+            text: 'You can purchase an activation code at'
 
-    Widget:
-        size_hint_y: 0.9
+        WebsiteButtonLabel:
+            size_hint_y: 1/2
+            text_size: self.size
+            font_size: self.height * 0.45
+            halign: 'center'
+            valign: 'middle'
+            text: 'www.scottlumsden.com/blueandpinksyntheditor'
+            color: C('092041FF')
+            underline: True
+            on_press: self.button_clicked()
 
+    GeneralSectionBox:
+        orientation: 'vertical'
+
+        Widget:
+            size_hint_y: 1/4
+
+        GeneralLabel:
+            size_hint_y: 1/2
+            text: 'If you have an activation code, drag it onto this window'
+
+        Widget:
+            size_hint_y: 1/4
+
+<GeneralLabel@Label>:
+    valign: 'middle'
+    halign: 'center'
+    text_size: self.size
+    font_size: self.height * 0.45
+
+<GeneralSectionBox@BoxLayout>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: C('#548AF7FF')
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height * 1/10]

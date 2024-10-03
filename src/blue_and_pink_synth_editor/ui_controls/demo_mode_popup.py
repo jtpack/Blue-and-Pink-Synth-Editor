@@ -39,5 +39,4 @@ class WebsiteButtonLabel(ButtonBehavior, Label):
         Window.set_system_cursor('arrow')
 
     def button_clicked(self):
-        print('button_clicked')
         webbrowser.open('https://www.scottlumsden.com')
