@@ -21,6 +21,7 @@ class WebsiteButtonLabel(ButtonBehavior, Label):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.on_mouse_pos)
+        Window.bind(on_dropfile=self._on_file_drop)
 
     def on_mouse_pos(self, *args):
         pos = args[1]
@@ -40,3 +41,11 @@ class WebsiteButtonLabel(ButtonBehavior, Label):
 
     def button_clicked(self):
         webbrowser.open('https://www.scottlumsden.com')
+
+    def _on_file_drop(self, window, file_path):
+        file_path_string = file_path.decode('utf-8')
+        print(f'_on_file_drop: {file_path_string}')
+
+    def on_dismiss(self):
+        print('unbinding')
+        Window.unbind(on_dropfile=self._on_file_drop)

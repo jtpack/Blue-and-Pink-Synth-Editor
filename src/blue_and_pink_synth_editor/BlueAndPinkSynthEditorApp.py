@@ -850,8 +850,6 @@ class BlueAndPinkSynthEditorApp(App):
         content = ErrorDialog(ok=self.dismiss_popup)
         self._popup = Popup(title="ERROR", content=content,
                             size_hint=(0.5, 0.5))
-        self._popup.bind(on_open=self._on_popup_open)
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def update_current_preset(self):
@@ -2757,10 +2755,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def _on_file_drop(self, window, file_path, x, y):
         # file_path is bytes. Convert to string
-        file_path = str(file_path)
-
-        # Remove leading "b'" and trailing "'"
-        file_path = file_path[2:-1]
+        file_path = file_path.decode('utf-8')
 
         Logger.info(f'_on_file_drop: {file_path}')
 
