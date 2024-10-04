@@ -4,11 +4,11 @@
 <DemoModePopup>:
     orientation: 'vertical'
     spacing: self.height * 1/48
-    padding: self.height * 1/48
+#    padding: self.height * 1/48
 
     canvas.before:
         Color:
-            rgba: C('#092041FF')
+            rgba: C('#257CFFFF')
         SmoothRectangle:
             pos: self.pos
             size: self.size
@@ -16,15 +16,11 @@
     GeneralSectionBox:
         orientation: 'vertical'
 
-        GeneralLabel:
-            size_hint_y: 1/2
-            halign: 'center'
-            text: 'Blue and Pink Synth Editor is running in Demo Mode'
 
         GeneralLabel:
-            size_hint_y: 1/2
-            font_size: self.height * 0.35
-            text: 'After 15 minutes it will stop working, and you will need to quit and reopen it'
+            text: 'It will stop working after 15 minutes\nand you will need to quit and reopen'
+            font_size: self.height * 0.21
+
 
     GeneralSectionBox:
         orientation: 'vertical'
@@ -67,7 +63,7 @@
     orientation: 'vertical'
     canvas.before:
         Color:
-            rgba: C('#548AF7FF')
+            rgba: C('#438EFEFF')
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.size

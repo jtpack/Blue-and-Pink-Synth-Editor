@@ -19,6 +19,7 @@ from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
+from kivy.utils import get_color_from_hex
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -2793,8 +2794,11 @@ class BlueAndPinkSynthEditorApp(App):
     def _show_demo_mode_popup(self):
         content = DemoModePopup()
 
-        self._popup = Popup(title='DEMO MODE',
+        self._popup = Popup(title='BLUE AND PINK SYNTH EDITOR IS RUNNING IN DEMO MODE',
                             content=content,
-                            size_hint=(0.6, 0.6))
+                            size_hint=(0.6, 0.6),
+                            background='',
+                            background_color=get_color_from_hex('#257CFFFF'),
+                            separator_color=get_color_from_hex('#257CFFFF'))
 
         self._popup.open()
