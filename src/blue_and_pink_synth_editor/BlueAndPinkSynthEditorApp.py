@@ -7,6 +7,7 @@ import netifaces
 import platform
 import subprocess
 import glob
+import shutil
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -116,6 +117,7 @@ class BlueAndPinkSynthEditorApp(App):
     presets_spinner_values = ListProperty()
 
     # This is used to track what kind of preset is currently loaded.
+    # Valid values: 'init', 'file', 'preset_slot'
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
 
@@ -635,9 +637,8 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 try:
                     # Load the public key
-                    public_key = load_public_key()
                     activation_code = load_activation_code_from_file(self._activation_code_file_path)
-                    self.demo_mode = not verify_activation_code(activation_code, public_key)
+                    self.demo_mode = not verify_activation_code(activation_code)
                     if not self.demo_mode:
                         Logger.info(f'Valid activation code file found at {self._activation_code_file_path}')
 
@@ -654,6 +655,9 @@ class BlueAndPinkSynthEditorApp(App):
                         Logger.info(f'License Type: {self.license_type}')
                         Logger.info(f'Expiration Date: {self.expiration_date}')
 
+                        if self._popup is not None:
+                            self.dismiss_popup()
+
                     else:
                         Logger.warning(f'Invalid activation code file found at {self._activation_code_file_path}')
                         Logger.info('Running in Demo Mode')
@@ -662,6 +666,7 @@ class BlueAndPinkSynthEditorApp(App):
                     self.demo_mode = True
                     Logger.warning(f'Failed to validate activation code file found at {self._activation_code_file_path} ({e})')
                     Logger.info('Running in Demo Mode')
+                    self.show_error_dialog_on_main_thread('Activation code is invalid', str(e))
 
             # Set the app title
             #
@@ -815,6 +820,7 @@ class BlueAndPinkSynthEditorApp(App):
         content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def show_save_dialog(self):
@@ -836,6 +842,7 @@ class BlueAndPinkSynthEditorApp(App):
         )
         self._popup = SavePopup(title="Save file", content=content,
                                 size_hint=(0.9, 0.9))
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
@@ -850,6 +857,7 @@ class BlueAndPinkSynthEditorApp(App):
         content = ErrorDialog(ok=self.dismiss_popup)
         self._popup = Popup(title="ERROR", content=content,
                             size_hint=(0.5, 0.5))
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def update_current_preset(self):
@@ -2757,9 +2765,93 @@ class BlueAndPinkSynthEditorApp(App):
         # file_path is bytes. Convert to string
         file_path = file_path.decode('utf-8')
 
-        Logger.info(f'_on_file_drop: {file_path}')
+        # Convert to a Path
+        file_path = Path(file_path)
 
-        self.send_nymphes_osc('/load_file', file_path)
+        #
+        # Determine the file type
+        #
+        file_ext = file_path.suffix[1:].lower()
+        if file_ext == 'txt':
+
+            #
+            # This could be either a preset or an activation code
+            #
+
+            # Get the first line of the file
+            try:
+                with open(file_path, 'r') as file:
+                    first_line = file.readline()
+
+                    if first_line in NymphesPreset._csv_header_strings_version_map.keys():
+                        # This is a Nymphes preset
+                        Logger.info(f'A Nymphes Preset file has been dropped on the window ({file_path})')
+                        self.send_nymphes_osc('/load_file', file_path)
+
+                    else:
+                        # This might be an activation code file.
+                        try:
+                            activation_code = load_activation_code_from_file(file_path)
+                            activation_code_data = data_from_activation_code(activation_code)
+
+                            if set(activation_code_data.keys()) == {'name', 'display_name', 'email', 'app_name', 'license_type',
+                                                         'expiration_date', 'signature'}:
+                                # This is an activation code file. Check whether it is valid
+                                try:
+                                    if verify_activation_code(activation_code):
+                                        # The code was valid.
+                                        Logger.info(
+                                            f'A valid activation code file has been dropped on the window ({file_path})')
+                                        self.demo_mode = False
+
+                                        # Get user info from file
+                                        self.user_name = activation_code_data['display_name']
+                                        self.user_email = activation_code_data['email']
+                                        self.license_type = activation_code_data['license_type']
+                                        self.expiration_date = activation_code_data['expiration_date'] if activation_code_data[
+                                                                                                   'expiration_date'] is not None else 'None'
+
+                                        Logger.info('Registered User Info:')
+                                        Logger.info(f'Name: {self.user_name}')
+                                        Logger.info(f'Email: {self.user_email}')
+                                        Logger.info(f'License Type: {self.license_type}')
+                                        Logger.info(f'Expiration Date: {self.expiration_date}')
+
+                                        if self._popup is not None:
+                                            self.dismiss_popup()
+
+                                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+
+                                        # Copy the file to our folder
+                                        try:
+                                            shutil.copyfile(file_path, self._activation_code_file_path)
+                                            Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
+
+                                        except Exception as e:
+                                            Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
+                                            self.show_error_dialog_on_main_thread(f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
+
+                                except Exception as e:
+                                    Logger.warning(
+                                        f'Invalid activation code file dropped on window ({self._activation_code_file_path})')
+                                    Logger.info('Running in Demo Mode')
+                                    self.demo_mode = True
+                                    self.show_error_dialog_on_main_thread('Invalid activation code file', str(e))
+
+                        except Exception:
+                            # This must be some other kind of file.
+                            Logger.info(f'An unsupported file has been dropped on the window ({file_path})')
+                            self.show_error_dialog_on_main_thread(f'{file_path} is unsupported', '')
+
+            except Exception as e:
+                self.show_error_dialog_on_main_thread(f'Failed to read from the file at {file_path}', str(e))
+
+        elif file_ext == 'syx':
+            #
+            # This is a sysex file
+            #
+            Logger.info(f'A sysex file has been dropped on the window ({file_path})')
+            self.send_nymphes_osc('/load_file', file_path)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
@@ -2789,11 +2881,22 @@ class BlueAndPinkSynthEditorApp(App):
     def _show_demo_mode_popup(self):
         content = DemoModePopup()
 
-        self._popup = Popup(title='BLUE AND PINK SYNTH EDITOR IS RUNNING IN DEMO MODE',
+        self._popup = Popup(title='DEMO MODE',
                             content=content,
                             size_hint=(0.6, 0.6),
                             background='',
                             background_color=get_color_from_hex('#257CFFFF'),
                             separator_color=get_color_from_hex('#257CFFFF'))
 
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
+
+    def _on_popup_dismiss(self, _):
+        """
+        This is called when a popup is dismissed.
+        We use self._popup to know whether a popup
+        is currently open (self._popup will not be None).
+        """
+        if self._popup is not None:
+            self._popup = None
+

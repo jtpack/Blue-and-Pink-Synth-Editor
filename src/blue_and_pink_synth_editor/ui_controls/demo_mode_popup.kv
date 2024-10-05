@@ -15,24 +15,35 @@
 
     GeneralSectionBox:
         orientation: 'vertical'
-
+        spacing: 0
+        padding: self.height * 1/12
 
         GeneralLabel:
-            text: 'It will stop working after 15 minutes\nand you will need to quit and reopen'
-            font_size: self.height * 0.21
+            size_hint_y: 1/2
+            text: 'Blue and Pink Synth Editor is running in demo mode.'
+            font_size: self.height * 0.5
+
+        GeneralLabel:
+            size_hint_y: 1/2
+            text: 'It will stop working after 15 minutes.'
+            font_size: self.height * 0.5
 
 
     GeneralSectionBox:
         orientation: 'vertical'
+        spacing: 0
+        padding: self.height * 1/12
 
         GeneralLabel:
             size_hint_y: 1/2
+            font_size: self.height * 0.5
+            color: C('092041FF')
             text: 'You can purchase an activation code at'
 
         WebsiteButtonLabel:
             size_hint_y: 1/2
             text_size: self.size
-            font_size: self.height * 0.45
+            font_size: self.height * 0.5
             halign: 'center'
             valign: 'middle'
             text: 'www.scottlumsden.com/blueandpinksyntheditor'
@@ -48,7 +59,8 @@
 
         GeneralLabel:
             size_hint_y: 1/2
-            text: 'If you have an activation code, drag it onto this window'
+            font_size: 0.3
+            text: 'If you have an activation code, drag it onto the app window'
 
         Widget:
             size_hint_y: 1/4

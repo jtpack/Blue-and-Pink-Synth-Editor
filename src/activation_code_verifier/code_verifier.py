@@ -8,12 +8,11 @@ from cryptography.hazmat.primitives import serialization
 from activation_code_verifier.common import validate_activation_code_parameters
 
 
-def verify_activation_code(activation_code, public_key):
+def verify_activation_code(activation_code):
     """
     Verify that activation_code is valid.
     Raises an Exception if it is invalid or if anything else goes wrong.
     :param activation_code: str
-    :param public_key: RSAPublicKey
     :return: True if code is valid
     """
     if activation_code is None or len(activation_code) == 0:
@@ -39,8 +38,7 @@ def verify_activation_code(activation_code, public_key):
                       app_name=data_dict['app_name'],
                       license_type=data_dict['license_type'],
                       expiration_date=data_dict['expiration_date'],
-                      signature=data_dict['signature'],
-                      public_key=public_key)
+                      signature=data_dict['signature'])
 
     return True
 
@@ -71,7 +69,7 @@ def data_from_activation_code(activation_code):
 
 def _verify_signature(name, display_name, email,
                       app_name, license_type, expiration_date,
-                      signature, public_key):
+                      signature):
     """
     Verify that the supplied signature was generated
     using the private key which matches the supplied
@@ -86,7 +84,6 @@ def _verify_signature(name, display_name, email,
     :param license_type: str
     :param expiration_date: str or None. Should be formatted as YYYY-MM-DD
     :param signature: str
-    :param public_key: RSAPublicKey
     :return: True if signature is valid
     """
     # Generate a code string from the name, email, license_type and expiration date
@@ -100,6 +97,7 @@ def _verify_signature(name, display_name, email,
     # Generate a hash
     code_hash = hash_from_string(code_string=code_string)
 
+    public_key = load_public_key()
     public_key.verify(
         base64.b64decode(signature),
         code_hash,
