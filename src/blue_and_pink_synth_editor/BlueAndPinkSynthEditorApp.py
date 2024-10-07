@@ -635,45 +635,7 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 # Load the activation code file and check whether it is valid.
                 #
-                try:
-                    # Load the public key
-                    activation_code = load_activation_code_from_file(self._activation_code_file_path)
-                    self.demo_mode = not verify_activation_code(activation_code)
-                    if not self.demo_mode:
-                        Logger.info(f'Valid activation code file found at {self._activation_code_file_path}')
-
-                        # Get user info from file
-                        user_info = data_from_activation_code(activation_code)
-                        self.user_name = user_info['display_name']
-                        self.user_email = user_info['email']
-                        self.license_type = user_info['license_type']
-                        self.expiration_date = user_info['expiration_date'] if user_info['expiration_date'] is not None else 'None'
-
-                        Logger.info('Registered User Info:')
-                        Logger.info(f'Name: {self.user_name}')
-                        Logger.info(f'Email: {self.user_email}')
-                        Logger.info(f'License Type: {self.license_type}')
-                        Logger.info(f'Expiration Date: {self.expiration_date}')
-
-                        if self._popup is not None:
-                            self.dismiss_popup()
-
-                    else:
-                        Logger.warning(f'Invalid activation code file found at {self._activation_code_file_path}')
-                        Logger.info('Running in Demo Mode')
-
-                except Exception as e:
-                    self.demo_mode = True
-                    Logger.warning(f'Failed to validate activation code file found at {self._activation_code_file_path} ({e})')
-                    Logger.info('Running in Demo Mode')
-                    self.show_error_dialog_on_main_thread('Activation code is invalid', str(e))
-
-            # Set the app title
-            #
-            if not self.demo_mode:
-                self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
-            else:
-                self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
+                self._verify_activation_code_file(self._activation_code_file_path)
 
         else:
             #
@@ -847,6 +809,9 @@ class BlueAndPinkSynthEditorApp(App):
 
     def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
         def work_func(_, error_text, error_detail_text):
+            if self._popup is not None:
+                self.dismiss_popup()
+
             self.error_text = error_text
             self.error_detail_text = error_detail_text
             self.show_error_dialog()
@@ -2766,7 +2731,7 @@ class BlueAndPinkSynthEditorApp(App):
         file_path = file_path.decode('utf-8')
 
         # Convert to a Path
-        file_path = Path(file_path)
+        file_path = Path(file_path).expanduser()
 
         #
         # Determine the file type
@@ -2796,52 +2761,17 @@ class BlueAndPinkSynthEditorApp(App):
 
                             if set(activation_code_data.keys()) == {'name', 'display_name', 'email', 'app_name', 'license_type',
                                                          'expiration_date', 'signature'}:
-                                # This is an activation code file. Check whether it is valid
-                                try:
-                                    if verify_activation_code(activation_code):
-                                        # The code was valid.
-                                        Logger.info(
-                                            f'A valid activation code file has been dropped on the window ({file_path})')
-                                        self.demo_mode = False
 
-                                        # Get user info from file
-                                        self.user_name = activation_code_data['display_name']
-                                        self.user_email = activation_code_data['email']
-                                        self.license_type = activation_code_data['license_type']
-                                        self.expiration_date = activation_code_data['expiration_date'] if activation_code_data[
-                                                                                                   'expiration_date'] is not None else 'None'
+                                # This is an activation code file.
+                                Logger.info(f'Activation code file was dropped on the window ({file_path})')
 
-                                        Logger.info('Registered User Info:')
-                                        Logger.info(f'Name: {self.user_name}')
-                                        Logger.info(f'Email: {self.user_email}')
-                                        Logger.info(f'License Type: {self.license_type}')
-                                        Logger.info(f'Expiration Date: {self.expiration_date}')
+                                # Check whether it is valid
+                                self._verify_activation_code_file(file_path)
 
-                                        if self._popup is not None:
-                                            self.dismiss_popup()
-
-                                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
-
-                                        # Copy the file to our folder
-                                        try:
-                                            shutil.copyfile(file_path, self._activation_code_file_path)
-                                            Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
-
-                                        except Exception as e:
-                                            Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
-                                            self.show_error_dialog_on_main_thread(f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
-
-                                except Exception as e:
-                                    Logger.warning(
-                                        f'Invalid activation code file dropped on window ({self._activation_code_file_path})')
-                                    Logger.info('Running in Demo Mode')
-                                    self.demo_mode = True
-                                    self.show_error_dialog_on_main_thread('Invalid activation code file', str(e))
-
-                        except Exception:
+                        except Exception as e:
                             # This must be some other kind of file.
                             Logger.info(f'An unsupported file has been dropped on the window ({file_path})')
-                            self.show_error_dialog_on_main_thread(f'{file_path} is unsupported', '')
+                            self.show_error_dialog_on_main_thread(f'{file_path} is unsupported', str(e))
 
             except Exception as e:
                 self.show_error_dialog_on_main_thread(f'Failed to read from the file at {file_path}', str(e))
@@ -2900,3 +2830,67 @@ class BlueAndPinkSynthEditorApp(App):
         if self._popup is not None:
             self._popup = None
 
+
+    def _verify_activation_code_file(self, file_path):
+        """
+        Check the verification code file at file_path.
+        If it is valid and the file is not already in
+        our data folder then copy it.
+        :param file_path: Path or str
+        :return:
+        """
+        try:
+            # Get the file's contents as a string
+            activation_code_str = load_activation_code_from_file(file_path)
+
+            # It contains data encoded via json. Get it as a dict
+            activation_code_data_dict = data_from_activation_code(activation_code_str)
+
+            # Verify whether the code is valid.
+            verify_activation_code(activation_code_str)
+
+            # Get license info from file
+            self.user_name = activation_code_data_dict['display_name']
+            self.user_email = activation_code_data_dict['email']
+            self.license_type = activation_code_data_dict['license_type']
+            self.expiration_date = activation_code_data_dict['expiration_date'] if activation_code_data_dict[
+                                                                                       'expiration_date'] is not None else 'None'
+
+            Logger.info(f'Activation code file is valid ({file_path})')
+
+            Logger.info('License Info:')
+            Logger.info(f'Name: {self.user_name}')
+            Logger.info(f'Email: {self.user_email}')
+            Logger.info(f'License Type: {self.license_type}')
+            Logger.info(f'Expiration Date: {self.expiration_date}')
+
+            # Deactivate demo mode
+            self.demo_mode = False
+
+            # If a popup is open right now (ie: the Demo Mode popup), close it
+            if self._popup is not None:
+                self.dismiss_popup()
+
+            # Update the window title to indicate that
+            # the app is now activated
+            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+
+            # Copy the file to the data folder if necessary
+            if Path(file_path).expanduser() != self._activation_code_file_path:
+                try:
+                    shutil.copyfile(file_path, self._activation_code_file_path)
+                    Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
+
+                except Exception as e:
+                    Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
+                    self.show_error_dialog_on_main_thread(
+                        f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
+
+        except Exception as e1:
+            # The activation code was not valid.
+            Logger.warning(f'Activation code file at {file_path} was invalid ({e1})')
+
+            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', str(e1))
+
+            self.demo_mode = True
+            self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'

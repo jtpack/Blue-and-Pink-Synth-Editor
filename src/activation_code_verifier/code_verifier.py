@@ -10,10 +10,11 @@ from activation_code_verifier.common import validate_activation_code_parameters
 
 def verify_activation_code(activation_code):
     """
-    Verify that activation_code is valid.
-    Raises an Exception if it is invalid or if anything else goes wrong.
+    Verify whether activation_code is valid.
+    If it is invalid then an Exception is raised
+    with information on what went wrong.
     :param activation_code: str
-    :return: True if code is valid
+    :return: True if code is valid, False if not
     """
     if activation_code is None or len(activation_code) == 0:
         raise Exception('activation_code is None or empty')
@@ -22,7 +23,6 @@ def verify_activation_code(activation_code):
     data_dict = data_from_activation_code(activation_code)
 
     # Verify the data parameters.
-    # This will generate an Exception if any parameters are invalid.
     validate_activation_code_parameters(name=data_dict['name'],
                                         display_name=data_dict['display_name'],
                                         email=data_dict['email'],
@@ -31,7 +31,6 @@ def verify_activation_code(activation_code):
                                         expiration_date=data_dict['expiration_date'])
 
     # Verify signature matches the parameters and is valid.
-    # This will generate an Exception if it fails.
     _verify_signature(name=data_dict['name'],
                       display_name=data_dict['display_name'],
                       email=data_dict['email'],
@@ -39,8 +38,6 @@ def verify_activation_code(activation_code):
                       license_type=data_dict['license_type'],
                       expiration_date=data_dict['expiration_date'],
                       signature=data_dict['signature'])
-
-    return True
 
 
 def load_activation_code_from_file(file_path):
@@ -76,7 +73,8 @@ def _verify_signature(name, display_name, email,
     public key, and that the signature contains the
     correct hash for the supplied name, display_name, email,
     app_name, license type and expiration date.
-    Raises an Exception if the signature is not valid or if anything else goes wrong.
+    If the signature is invalid, then and Exception is raised
+    with information on what is wrong.
     :param name: str
     :param display_name: str
     :param email: str
@@ -84,7 +82,7 @@ def _verify_signature(name, display_name, email,
     :param license_type: str
     :param expiration_date: str or None. Should be formatted as YYYY-MM-DD
     :param signature: str
-    :return: True if signature is valid
+    :return:
     """
     # Generate a code string from the name, email, license_type and expiration date
     code_string = generate_license_string(name=name,
@@ -98,6 +96,7 @@ def _verify_signature(name, display_name, email,
     code_hash = hash_from_string(code_string=code_string)
 
     public_key = load_public_key()
+
     public_key.verify(
         base64.b64decode(signature),
         code_hash,
@@ -107,8 +106,6 @@ def _verify_signature(name, display_name, email,
         ),
         hashes.SHA256()
     )
-
-    return True
 
 
 def load_public_key_from_file(file_path):
