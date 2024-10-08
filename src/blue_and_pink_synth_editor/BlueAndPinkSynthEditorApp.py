@@ -65,7 +65,7 @@ Factory.register('SaveDialog', cls=SaveDialog)
 
 activation_code_checking_file_path = Path(__file__).parent / 'activation_code_enabled.py'
 if not activation_code_checking_file_path.exists():
-    print(f'activation_code_enabled.py does not exist at {activation_code_checking_file_path}')
+    Logger.info(f'activation_code_enabled.py does not exist at {activation_code_checking_file_path}')
     # Create the file and populate it with its only function
     activation_code_checking_file_contents = """def activation_code_checking_enabled():
     return False
@@ -73,10 +73,10 @@ if not activation_code_checking_file_path.exists():
     try:
         with open(activation_code_checking_file_path, 'w') as file:
             file.write(activation_code_checking_file_contents)
-            print(f'Created activation_code_enabled.py file at {activation_code_checking_file_path}')
+            Logger.info(f'Created activation_code_enabled.py file at {activation_code_checking_file_path}')
 
     except Exception as e:
-        print(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
+        Logger.info(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
 from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
@@ -617,6 +617,8 @@ class BlueAndPinkSynthEditorApp(App):
         # Activation Code Verification
         #
         self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
+        self._demo_mode_timer = None
+        self.demo_mode_timer_duration_sec = 60 * 15
 
         if activation_code_checking_enabled():
             #
@@ -631,6 +633,9 @@ class BlueAndPinkSynthEditorApp(App):
                 Logger.info(f'No activation code file found at {self._activation_code_file_path}')
                 Logger.info('Running in Demo Mode')
 
+                # Start the demo mode timer
+                self._start_demo_mode_timer()
+
             else:
                 #
                 # Load the activation code file and check whether it is valid.
@@ -641,7 +646,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # Activation code checking is not enabled
             #
-            print(f'Activation code checking is not enabled')
+            Logger.info(f'Activation code checking is not enabled')
             self.demo_mode = False
 
             # Set the app title
@@ -676,7 +681,7 @@ class BlueAndPinkSynthEditorApp(App):
         # Show Demo Mode Popup if we are in Demo Mode
         #
         if self.demo_mode:
-            self._show_demo_mode_popup()
+            self._show_demo_mode_popup(can_be_dismissed=True)
 
     def on_stop(self):
         """
@@ -779,6 +784,9 @@ class BlueAndPinkSynthEditorApp(App):
         )
 
     def show_load_dialog(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
         content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
@@ -786,6 +794,9 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup.open()
 
     def show_save_dialog(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
         if self.curr_preset_type == 'init':
             default_filename = 'new_preset.txt'
         elif self.curr_preset_type == 'file' and self._curr_preset_file_path.name == 'init.txt':
@@ -2808,7 +2819,10 @@ class BlueAndPinkSynthEditorApp(App):
         """
         print(name)
 
-    def _show_demo_mode_popup(self):
+    def _show_demo_mode_popup(self, can_be_dismissed):
+        if self._popup is not None:
+            self.dismiss_popup()
+
         content = DemoModePopup()
 
         self._popup = Popup(title='DEMO MODE',
@@ -2816,7 +2830,8 @@ class BlueAndPinkSynthEditorApp(App):
                             size_hint=(0.6, 0.6),
                             background='',
                             background_color=get_color_from_hex('#257CFFFF'),
-                            separator_color=get_color_from_hex('#257CFFFF'))
+                            separator_color=get_color_from_hex('#257CFFFF'),
+                            auto_dismiss=can_be_dismissed)
 
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
@@ -2875,6 +2890,9 @@ class BlueAndPinkSynthEditorApp(App):
             # the app is now activated
             self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
 
+            # Cancel the demo mode timer
+            self._cancel_demo_mode_timer()
+
             # Copy the file to the data folder if necessary
             if Path(file_path).expanduser() != self._activation_code_file_path:
                 try:
@@ -2894,3 +2912,19 @@ class BlueAndPinkSynthEditorApp(App):
 
             self.demo_mode = True
             self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
+
+    def _start_demo_mode_timer(self):
+        self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_ended, self.demo_mode_timer_duration_sec)
+        Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
+
+    def _cancel_demo_mode_timer(self):
+        if self._demo_mode_timer is not None:
+            Clock.unschedule(self._demo_mode_timer)
+            self._demo_mode_timer = None
+            Logger.info('Canceled demo mode timer')
+
+    def _demo_mode_timer_ended(self, dt):
+        self._demo_mode_timer = None
+        Logger.info('Demo mode timer ended')
+
+        self._show_demo_mode_popup(can_be_dismissed=False)
