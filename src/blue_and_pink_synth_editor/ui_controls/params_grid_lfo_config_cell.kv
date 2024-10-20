@@ -1,0 +1,49 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<ParamsGridLfoConfigCell>:
+    background_color_string: '#438EFFFF'
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        SmoothRoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        font_size: self.height * 0.8
+        text: 'TYPE'
+        text_color_string: root.param_name_color_string
+        on_release: app.control_selected(self.parent.section_name + '.type')
+
+    LfoTypeValueControl:
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.section_name + '.type.value'
+        external_value: root.type_prop
+        text_color_string: root.value_color_string
+
+    ParamNameLabel:
+        font_size: self.height * 0.8
+        text: 'SYNC'
+        text_color_string: root.param_name_color_string
+        on_release: app.control_selected(self.parent.section_name + '.key_sync')
+
+    LfoSyncValueControl:
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.section_name + '.key_sync.value'
+        external_value: root.key_sync_prop
+        text_color_string: root.value_color_string
+
+
+<LfoTypeValueControl>:
+    base_font_size: self.width * 0.2
+
+
+<LfoSyncValueControl>:
+    base_font_size: self.width * 0.2

@@ -1,0 +1,33 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<ParamsGridNonModCell>:
+    value_color_string: '#06070FFF'
+    orientation: 'vertical'
+    corner_radius: self.parent.corner_radius
+    padding: [self.corner_radius * 0.25, self.corner_radius * 0.25]
+    canvas.before:
+        Color:
+            rgba: C(self.background_color_string)
+        SmoothRoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [root.corner_radius]
+
+    ParamNameLabel:
+        text: root.title
+        text_color_string: root.param_name_color_string
+        on_release: app.control_selected(self.parent.param_name)
+
+    FloatValueControl:
+        screen_name: root.screen_name
+        section_name: root.section_name
+        param_name: root.param_name + '.value'
+        text_color_string: root.value_color_string
+        external_value: root.value_prop
+        size_hint_y: None
+        height: app.curr_height * app.curr_scaling * 1/16
+
+    # A placeholder to take up the empty space in the lower
+    # part of the cell
+    Widget

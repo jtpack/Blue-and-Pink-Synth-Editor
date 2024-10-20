@@ -6,28 +6,21 @@ import configparser
 import netifaces
 import platform
 import subprocess
-import re
 import glob
+import shutil
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
 
 from kivy.app import App
 import kivy
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, StringProperty, ObjectProperty, DictProperty, BooleanProperty, ListProperty
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
-from kivy.uix.label import Label
 from kivy.factory import Factory
 from kivy.core.window import Window
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.spinner import Spinner, SpinnerOption
-from kivy.uix.textinput import TextInput
+from kivy.lang.builder import Builder
+from kivy.utils import get_color_from_hex
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -38,36 +31,63 @@ from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["debug"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
-from .nymphes_osc_process import NymphesOscProcess
+from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from .value_control import ValueControl, DiscreteValuesControl
-from .misc_widgets import ParamsGridModCell, ParamsGridNonModCell, ModAmountLine, HoverButton
-from .misc_widgets import HoverButton, HoverSpinner, VoiceModeButton, ModAmountsBox
-from .misc_widgets import MainControlsBox, ChordsMainControlsBox, MainSettingsGrid
-from .misc_widgets import SettingsSubBox, VoiceModeBox, LegatoBox, ChordsButtonBox
-from .misc_widgets import FineModeBox, MainScreenLeftBar, TopBar, BottomBar, SettingsTopBar
-from .misc_widgets import ChordsTopBar, ControlSectionsGrid, ControlSection
-from .misc_widgets import ChordsControlSectionsGrid, SectionTitleLabel, ParamsGrid, ChordsScreenLeftBar
-from .misc_widgets import ParamNameLabel, MidiInputPortsGrid, MidiOutputPortsGrid
-from .misc_widgets import MidiPortLabel, MidiInputPortCheckBox, MidiOutputPortCheckBox
-from .misc_widgets import ChordParamsGrid, ChordParamsGridCell, ChordSectionTitleLabel
-
-from .load_dialog import LoadDialog
-from .save_dialog import SaveDialog, SavePopup
-from .error_dialog import ErrorDialog
-from .synth_editor_value_controls import FloatValueControl, ChordValueControl
-from .synth_editor_value_controls import LfoTypeValueControl, LfoSyncValueControl
+from src.blue_and_pink_synth_editor.ui_controls.load_dialog import LoadDialog
+from src.blue_and_pink_synth_editor.ui_controls.save_dialog import SaveDialog, SavePopup
+from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
+from src.blue_and_pink_synth_editor.ui_controls import chords_screen
+from src.blue_and_pink_synth_editor.ui_controls import value_control
+from src.blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
+from src.blue_and_pink_synth_editor.ui_controls import left_bar
+from src.blue_and_pink_synth_editor.ui_controls import top_bar
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
+from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
+from src.blue_and_pink_synth_editor.ui_controls import settings_screen
+from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
+from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 Factory.register('LoadDialog', cls=LoadDialog)
 Factory.register('SaveDialog', cls=SaveDialog)
 
+#
+# Make sure that activation_code_enabled.py file exists.
+# The file is not a part of the git repository
+# so that open-source users automatically don't
+# need to have an activation code to use the app.
+# However, those who do want to enable
+# activation code-checking, demo-mode and other
+# related features can do so by setting
+# the return value in this file to True
+#
+
+activation_code_checking_file_path = Path(__file__).parent / 'activation_code_enabled.py'
+if not activation_code_checking_file_path.exists():
+    Logger.info(f'activation_code_enabled.py does not exist at {activation_code_checking_file_path}')
+    # Create the file and populate it with its only function
+    activation_code_checking_file_contents = """def activation_code_checking_enabled():
+    return False
+    """
+    try:
+        with open(activation_code_checking_file_path, 'w') as file:
+            file.write(activation_code_checking_file_contents)
+            Logger.info(f'Created activation_code_enabled.py file at {activation_code_checking_file_path}')
+
+    except Exception as e:
+        Logger.info(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
+
+# Now import it
+from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
+
 kivy.require('2.1.0')
 
-app_version_string = 'v0.3.1-beta'
+app_version_string = 'v0.3.1-beta_dev'
 
 
 class BlueAndPinkSynthEditorApp(App):
-    # Disable the built-in kivy settings editor activated
+    # Disable the built-in kivy settings editor normally activated
     # by pressing F1 key.
     def open_settings(self, *args):
         pass
@@ -97,6 +117,7 @@ class BlueAndPinkSynthEditorApp(App):
     presets_spinner_values = ListProperty()
 
     # This is used to track what kind of preset is currently loaded.
+    # Valid values: 'init', 'file', 'preset_slot'
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
 
@@ -418,42 +439,22 @@ class BlueAndPinkSynthEditorApp(App):
     curr_height = NumericProperty(480)
     curr_scaling = NumericProperty(1)
 
+    # App Activation
+    #
+    demo_mode = BooleanProperty(False)
+    if activation_code_checking_enabled():
+        demo_mode = True
+
+    user_name = StringProperty('')
+    user_email = StringProperty('')
+    license_type = StringProperty('')
+    expiration_date = StringProperty('')
+
     def __init__(self, **kwargs):
         super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
 
-        # Set the app title
-        self.title = f'Blue and Pink Synth Editor {app_version_string}'
-
         # Set the app icon
         self.icon = str(Path(__file__).resolve().parent / 'icon.png')
-
-        #
-        # Keyboard Stuff
-        #
-
-        # Bind keyboard events
-        self._bind_keyboard()
-
-        # Keep track of currently held modifier keys
-        self._shift_key_pressed = False
-        self._caps_lock_key_on = False
-        self._meta_key_pressed = False
-        self._alt_key_pressed = False
-
-        # Choose the fine mode modifier key based on the
-        # current operating system
-        #
-        os_name = platform.system()
-        Logger.info(f'Operating system is {os_name}')
-
-        if os_name == 'Windows':
-            self.fine_mode_modifier_key = 'shift'
-        elif os_name == 'Darwin':
-            self.fine_mode_modifier_key = 'meta'
-        elif os_name == 'Linux':
-            self.fine_mode_modifier_key = 'shift'
-        else:
-            self.fine_mode_modifier_key = 'shift'
 
         #
         # Window Aspect Ratio Control
@@ -528,15 +529,15 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._curr_presets_spinner_index = 0
 
+        self._popup = None
+
         #
         # Preset File Dialog
         #
 
-        self._popup = None
-
         #
         # Create directories to hold app data, like presets
-        # and config files.
+        # config files and activate code file.
         # The location varies with platform. On macOS, we
         # create a folder inside /Applications, and then
         # both the app bundle and the presets folder go
@@ -612,6 +613,45 @@ class BlueAndPinkSynthEditorApp(App):
         # Load contents of config file
         self._load_config_file(self._config_file_path)
 
+        #
+        # Activation Code Verification
+        #
+        self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
+        self._demo_mode_timer = None
+        self.demo_mode_timer_duration_sec = 60 * 15
+
+        if activation_code_checking_enabled():
+            #
+            # Activation code checking is enabled
+            #
+            Logger.info('Activation code checking is enabled')
+
+            if not self._activation_code_file_path.exists():
+                # No activation code file exists.
+                # Run the app in demo mode.
+                self.demo_mode = True
+                Logger.info(f'No activation code file found at {self._activation_code_file_path}')
+                Logger.info('Running in Demo Mode')
+
+                # Start the demo mode timer
+                self._start_demo_mode_timer()
+
+            else:
+                #
+                # Load the activation code file and check whether it is valid.
+                #
+                self._verify_activation_code_file(self._activation_code_file_path)
+
+        else:
+            #
+            # Activation code checking is not enabled
+            #
+            Logger.info(f'Activation code checking is not enabled')
+            self.demo_mode = False
+
+            # Set the app title
+            self.title = f'Blue and Pink Synth Editor {app_version_string}'
+
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)
 
@@ -636,6 +676,12 @@ class BlueAndPinkSynthEditorApp(App):
         # Map Incoming OSC Messages
         #
         self._nymphes_osc_listener_dispatcher.map('*', self._on_nymphes_osc_message)
+
+        #
+        # Show Demo Mode Popup if we are in Demo Mode
+        #
+        if self.demo_mode:
+            self._show_demo_mode_popup(can_be_dismissed=True)
 
     def on_stop(self):
         """
@@ -738,14 +784,19 @@ class BlueAndPinkSynthEditorApp(App):
         )
 
     def show_load_dialog(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
         content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
-        self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def show_save_dialog(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
         if self.curr_preset_type == 'init':
             default_filename = 'new_preset.txt'
         elif self.curr_preset_type == 'file' and self._curr_preset_file_path.name == 'init.txt':
@@ -764,12 +815,14 @@ class BlueAndPinkSynthEditorApp(App):
         )
         self._popup = SavePopup(title="Save file", content=content,
                                 size_hint=(0.9, 0.9))
-        self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
     def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
         def work_func(_, error_text, error_detail_text):
+            if self._popup is not None:
+                self.dismiss_popup()
+
             self.error_text = error_text
             self.error_detail_text = error_detail_text
             self.show_error_dialog()
@@ -780,7 +833,6 @@ class BlueAndPinkSynthEditorApp(App):
         content = ErrorDialog(ok=self.dismiss_popup)
         self._popup = Popup(title="ERROR", content=content,
                             size_hint=(0.5, 0.5))
-        self._popup.bind(on_open=self._on_popup_open)
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
@@ -830,9 +882,6 @@ class BlueAndPinkSynthEditorApp(App):
     def on_file_load_dialog(self, path, filepaths):
         # Close the file load dialog
         self.dismiss_popup()
-
-        # Re-bind keyboard events
-        self._bind_keyboard()
 
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')
@@ -1252,10 +1301,6 @@ class BlueAndPinkSynthEditorApp(App):
     def set_curr_keyboard_editing_param_name(self, param_name):
         self.curr_keyboard_editing_param_name = param_name
 
-        if self.curr_keyboard_editing_param_name == '':
-            # Rebind keyboard events
-            self._bind_keyboard()
-
     def get_prop_value_for_param_name(self, param_name):
         # Convert the parameter name to the name
         # of our corresponding property
@@ -1304,12 +1349,6 @@ class BlueAndPinkSynthEditorApp(App):
 
     def max_val_for_param_name(self, param_name):
         return NymphesPreset.max_val_for_param_name(param_name)
-
-    def _bind_keyboard(self):
-        Logger.debug('App: _bind_keyboard')
-        self._keyboard = Window.request_keyboard(self._unbind_keyboard, self.root)
-        Logger.debug(f'self._keyboard: {self._keyboard}')
-        self._keyboard.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
 
     def _load_config_file(self, filepath):
         """
@@ -2283,139 +2322,8 @@ class BlueAndPinkSynthEditorApp(App):
 
             Logger.info('Stopped the nymphes_osc child process')
 
-    def _on_popup_open(self, popup_instance):
-        # Bind keyboard events for the popup
-        popup_instance.content._keyboard = Window.request_keyboard(popup_instance.content._unbind_keyboard,
-                                                                   popup_instance)
-        popup_instance.content._keyboard.bind(
-            on_key_down=popup_instance.content._on_key_down,
-            on_key_up=popup_instance.content._on_key_up
-        )
-
     def dismiss_popup(self):
         self._popup.dismiss()
-
-    def _on_popup_dismiss(self, popup_instance):
-        # Unbind keyboard events from the popup
-        if popup_instance.content._keyboard is not None:
-            popup_instance.content._keyboard.unbind(on_key_down=popup_instance.content._on_key_down)
-            popup_instance.content._keyboard.unbind(on_key_up=popup_instance.content._on_key_up)
-            popup_instance.content._keyboard = None
-
-        # Rebind keyboard events for the app itself
-        self._bind_keyboard()
-
-    def _unbind_keyboard(self):
-        Logger.debug('App: _unbind_keyboard')
-        self._keyboard.unbind(on_key_down=self._on_key_down)
-        self._keyboard.unbind(on_key_up=self._on_key_up)
-        self._keyboard.release()
-        self._keyboard = None
-
-    def _on_key_down(self, keyboard, keycode, text, modifiers):
-        Logger.debug(f'on_key_down: {keyboard}, {keycode}, {text}, {modifiers}')
-
-        # Check for either of the shift keys
-        left_shift_key_code = 304
-        right_shift_key_code = 303
-        if keycode in [left_shift_key_code, right_shift_key_code] or 'shift' in modifiers:
-            Logger.debug('Shift key pressed')
-            self._shift_key_pressed = True
-
-            if self.fine_mode_modifier_key == 'shift':
-                # Enable fine mode
-                Logger.debug('Fine Mode Enabled')
-                self.fine_mode = True
-
-        # Check for the meta key (CMD on macOS)
-        left_meta_key_code = 309
-        right_meta_key_code = 1073742055
-        if keycode in [left_meta_key_code, right_meta_key_code] or 'meta' in modifiers:
-            Logger.debug('meta key pressed')
-            self._meta_key_pressed = True
-
-            if self.fine_mode_modifier_key == 'meta':
-                # Enable fine mode
-                Logger.debug('Fine Mode Enabled')
-                self.fine_mode = True
-
-        # Check for the Alt key (Alt/Option on macOS)
-        left_alt_key_code = 308
-        right_alt_key_code = 307
-        if keycode in [left_alt_key_code, right_alt_key_code] or 'alt' in modifiers:
-            Logger.debug('alt key pressed')
-            self._alt_key_pressed = True
-
-            if self.fine_mode_modifier_key == 'alt':
-                # Enable fine mode
-                Logger.debug('Fine Mode Enabled')
-                self.fine_mode = True
-
-    def _on_key_up(self, keyboard, keycode):
-        Logger.debug(f'on_key_up: {keyboard}, {keycode}')
-
-        # Check for either of the shift keys
-        left_shift_key_code = 304
-        right_shift_key_code = 303
-        if keycode[0] in [left_shift_key_code, right_shift_key_code]:
-            Logger.debug('Shift key released')
-            self._shift_key_pressed = False
-
-            if self.fine_mode_modifier_key == 'shift':
-                # Disable fine mode
-                Logger.debug('Fine Mode Disabled')
-                self.fine_mode = False
-
-        # Check for the meta key (CMD on macOS)
-        left_meta_key_code = 309
-        right_meta_key_code = 1073742055
-        if keycode[0] in [left_meta_key_code, right_meta_key_code]:
-            Logger.debug('meta key released')
-            self._meta_key_pressed = False
-
-            if self.fine_mode_modifier_key == 'meta':
-                # Disable fine mode
-                Logger.debug('Fine Mode Disabled')
-                self.fine_mode = False
-
-        # Check for the Alt key (Alt/Option on macOS)
-        left_alt_key_code = 308
-        right_alt_key_code = 307
-        if keycode[0] in [left_alt_key_code, right_alt_key_code]:
-            Logger.debug('alt key released')
-            self._alt_key_pressed = False
-
-            if self.fine_mode_modifier_key == 'alt':
-                # Disable fine mode
-                Logger.debug('Fine Mode Disabled')
-                self.fine_mode = False
-
-        # File Open
-        if keycode[1] == 'o' and self._meta_key_pressed:
-            # Show the file load dialog
-            self.show_load_dialog()
-
-        # File Save / Save As
-        if keycode[1] == 's' and self._meta_key_pressed and self._alt_key_pressed:
-            #
-            # Save As
-            #
-
-            # Show the file save dialog
-            self.show_save_dialog()
-
-        elif keycode[1] == 's' and self._meta_key_pressed:
-            #
-            # Save
-            #
-
-            if self.curr_preset_type == 'file':
-                # A file is currently loaded. Update it.
-                self.update_current_preset_file()
-
-            else:
-                # Show the file save dialog
-                self.show_save_dialog()
 
     def _on_window_resize(self, instance, width, height):
         #
@@ -2831,14 +2739,60 @@ class BlueAndPinkSynthEditorApp(App):
 
     def _on_file_drop(self, window, file_path, x, y):
         # file_path is bytes. Convert to string
-        file_path = str(file_path)
+        file_path = file_path.decode('utf-8')
 
-        # Remove leading "b'" and trailing "'"
-        file_path = file_path[2:-1]
+        # Convert to a Path
+        file_path = Path(file_path).expanduser()
 
-        Logger.info(f'_on_file_drop: {file_path}')
+        #
+        # Determine the file type
+        #
+        file_ext = file_path.suffix[1:].lower()
+        if file_ext == 'txt':
 
-        self.send_nymphes_osc('/load_file', file_path)
+            #
+            # This could be either a preset or an activation code
+            #
+
+            # Get the first line of the file
+            try:
+                with open(file_path, 'r') as file:
+                    first_line = file.readline()
+
+                    if first_line in NymphesPreset._csv_header_strings_version_map.keys():
+                        # This is a Nymphes preset
+                        Logger.info(f'A Nymphes Preset file has been dropped on the window ({file_path})')
+                        self.send_nymphes_osc('/load_file', file_path)
+
+                    else:
+                        # This might be an activation code file.
+                        try:
+                            activation_code = load_activation_code_from_file(file_path)
+                            activation_code_data = data_from_activation_code(activation_code)
+
+                            if set(activation_code_data.keys()) == {'name', 'display_name', 'email', 'app_name', 'license_type',
+                                                         'expiration_date', 'signature'}:
+
+                                # This is an activation code file.
+                                Logger.info(f'Activation code file was dropped on the window ({file_path})')
+
+                                # Check whether it is valid
+                                self._verify_activation_code_file(file_path)
+
+                        except Exception as e:
+                            # This must be some other kind of file.
+                            Logger.info(f'An unsupported file has been dropped on the window ({file_path})')
+                            self.show_error_dialog_on_main_thread(f'{file_path} is unsupported', str(e))
+
+            except Exception as e:
+                self.show_error_dialog_on_main_thread(f'Failed to read from the file at {file_path}', str(e))
+
+        elif file_ext == 'syx':
+            #
+            # This is a sysex file
+            #
+            Logger.info(f'A sysex file has been dropped on the window ({file_path})')
+            self.send_nymphes_osc('/load_file', file_path)
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
@@ -2852,3 +2806,125 @@ class BlueAndPinkSynthEditorApp(App):
             raise Exception(f'lfo_key_sync must be between 0 and 1: {lfo_key_sync}')
 
         return 'ON' if lfo_key_sync == 1 else 'OFF'
+
+    def control_section_selected(self, name):
+        """
+        A control section has been selected by tapping its title
+        """
+        print(name)
+
+    def control_selected(self, name):
+        """
+        A control has been selected by tapping its title
+        """
+        print(name)
+
+    def _show_demo_mode_popup(self, can_be_dismissed):
+        if self._popup is not None:
+            self.dismiss_popup()
+
+        content = DemoModePopup()
+
+        self._popup = Popup(title='DEMO MODE',
+                            content=content,
+                            size_hint=(0.6, 0.6),
+                            background='',
+                            background_color=get_color_from_hex('#257CFFFF'),
+                            separator_color=get_color_from_hex('#257CFFFF'),
+                            auto_dismiss=can_be_dismissed)
+
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
+        self._popup.open()
+
+    def _on_popup_dismiss(self, _):
+        """
+        This is called when a popup is dismissed.
+        We use self._popup to know whether a popup
+        is currently open (self._popup will not be None).
+        """
+        if self._popup is not None:
+            self._popup = None
+
+
+    def _verify_activation_code_file(self, file_path):
+        """
+        Check the verification code file at file_path.
+        If it is valid and the file is not already in
+        our data folder then copy it.
+        :param file_path: Path or str
+        :return:
+        """
+        try:
+            # Get the file's contents as a string
+            activation_code_str = load_activation_code_from_file(file_path)
+
+            # It contains data encoded via json. Get it as a dict
+            activation_code_data_dict = data_from_activation_code(activation_code_str)
+
+            # Verify whether the code is valid.
+            verify_activation_code(activation_code_str)
+
+            # Get license info from file
+            self.user_name = activation_code_data_dict['display_name']
+            self.user_email = activation_code_data_dict['email']
+            self.license_type = activation_code_data_dict['license_type']
+            self.expiration_date = activation_code_data_dict['expiration_date'] if activation_code_data_dict[
+                                                                                       'expiration_date'] is not None else 'None'
+
+            Logger.info(f'Activation code file is valid ({file_path})')
+
+            Logger.info('License Info:')
+            Logger.info(f'Name: {self.user_name}')
+            Logger.info(f'Email: {self.user_email}')
+            Logger.info(f'License Type: {self.license_type}')
+            Logger.info(f'Expiration Date: {self.expiration_date}')
+
+            # Deactivate demo mode
+            self.demo_mode = False
+
+            # If a popup is open right now (ie: the Demo Mode popup), close it
+            if self._popup is not None:
+                self.dismiss_popup()
+
+            # Update the window title to indicate that
+            # the app is now activated
+            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+
+            # Cancel the demo mode timer
+            self._cancel_demo_mode_timer()
+
+            # Copy the file to the data folder if necessary
+            if Path(file_path).expanduser() != self._activation_code_file_path:
+                try:
+                    shutil.copyfile(file_path, self._activation_code_file_path)
+                    Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
+
+                except Exception as e:
+                    Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
+                    self.show_error_dialog_on_main_thread(
+                        f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
+
+        except Exception as e1:
+            # The activation code was not valid.
+            Logger.warning(f'Activation code file at {file_path} was invalid ({e1})')
+
+            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', str(e1))
+
+            self.demo_mode = True
+            self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
+
+    def _start_demo_mode_timer(self):
+        self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_ended, self.demo_mode_timer_duration_sec)
+        Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
+
+    def _cancel_demo_mode_timer(self):
+        if self._demo_mode_timer is not None:
+            Clock.unschedule(self._demo_mode_timer)
+            self._demo_mode_timer = None
+            Logger.info('Canceled demo mode timer')
+
+    def _demo_mode_timer_ended(self, dt):
+        self._demo_mode_timer = None
+        Logger.info('Demo mode timer ended')
+
+        self._show_demo_mode_popup(can_be_dismissed=False)

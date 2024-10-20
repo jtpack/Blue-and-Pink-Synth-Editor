@@ -1,0 +1,327 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+<SettingsScreen@Screen>:
+    name: 'settings'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        TopBar:
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            screen_name: root.name
+            right_button_is_settings: False
+            right_button_transition: 'right'
+
+        GridLayout:
+            cols: 3
+            spacing: root.height * 0.008
+            size_hint_y: 34/40
+            corner_radius: root.height * 0.015
+
+            # Row 1
+            BoxLayout:
+                corner_radius: self.parent.corner_radius
+                spacing: self.parent.spacing[0]
+                orientation: 'vertical'
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+                NymphesPortsSection:
+                    corner_radius: self.parent.corner_radius
+                    size_hint_y: 1/2
+
+                MiscSettingsSection:
+                    corner_radius: self.parent.corner_radius
+                    size_hint_y: 1/2
+
+            MidiInputPortsSection:
+                corner_radius: self.parent.corner_radius
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+            MidiOutputPortsSection:
+                corner_radius: self.parent.corner_radius
+                size_hint_x: 1/3
+                size_hint_y: 4/5
+
+        BottomBar:
+            size_hint_y: 3/40
+            screen_name: root.name
+            corner_radius: root.height * 0.015
+
+
+<NymphesPortsSection@ControlSection>:
+    orientation: 'vertical'
+    padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
+    spacing: self.parent.spacing
+    screen_name: 'settings'
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            text: 'NYMPHES'
+
+        GridLayout:
+            cols: 2
+            row_default_height: app.curr_height * app.curr_scaling * 1/16
+            row_force_default: True
+            spacing: (self.height / 3.0) * 1/10
+
+
+            # First Row
+            NymphesPortSpinnerLabel:
+                text: 'INPUT PORT'
+                size_hint_x: 3/8
+
+            NymphesPortSpinner:
+                size_hint_x: 5/8
+                values: app.nymphes_input_spinner_names
+                text: app.nymphes_input_name
+                on_text: app.nymphes_input_spinner_text_changed(self.text)
+                screen_name: root.screen_name
+                tooltip_text: 'MIDI PORT FOR INPUT FROM NYMPHES'
+
+            # Second Row
+            NymphesPortSpinnerLabel:
+                text: 'OUTPUT PORT'
+                size_hint_x: 3/8
+
+            NymphesPortSpinner:
+                size_hint_x: 5/8
+                values: app.nymphes_output_spinner_names
+                text: app.nymphes_output_name
+                on_text: app.nymphes_output_spinner_text_changed(self.text)
+                screen_name: root.screen_name
+                tooltip_text: 'MIDI PORT FOR OUTPUT TO NYMPHES'
+
+            # Third Row
+            NymphesPortSpinnerLabel:
+                text: 'MIDI CHANNEL'
+                size_hint_x: 3/8
+
+            NymphesMidiChannelValueControl:
+                size_hint_x: 5/8
+                screen_name: root.screen_name
+                param_name: 'nymphes_midi_channel'
+                external_value: app.nymphes_midi_channel
+                disabled: False
+                base_font_size: self.height * 0.55
+                spacing: 0
+                padding: 0, self.height * 1/10 + (self.font_size * 1/20 if self.mouse_inside_bounds else self.font_size * 1/10), 0, 0
+                halign: 'center'
+                valign: 'middle'
+
+
+<MidiInputPortsSection@ControlSection>:
+    orientation: 'vertical'
+    padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
+    spacing: self.parent.spacing[1]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            text: 'MIDI INPUTS'
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MidiInputPortsGrid:
+                midi_ports: app.detected_midi_input_names_for_gui
+
+
+<MidiOutputPortsSection@ControlSection>:
+    spacing: self.parent.spacing[1]
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            text: 'MIDI OUTPUTS'
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MidiOutputPortsGrid:
+                midi_ports: app.detected_midi_output_names_for_gui
+
+
+<MiscSettingsSection@ControlSection>:
+    orientation: 'vertical'
+    padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
+    spacing: self.parent.spacing
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius]
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        SectionTitleLabel:
+            text: 'MISC'
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: self.height * 1/24
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: 1/6
+
+                Label:
+                    text: 'INVERT MOUSE WHEEL'
+                    size_hint_x: 5/6
+                    color: C('#06070FFF')
+                    text_size: self.size
+                    font_size: self.height * 0.6
+                    halign: 'center'
+                    valign: 'middle'
+
+                CheckBox:
+                    size_hint_x: 1/6
+                    active: app.invert_mouse_wheel
+                    on_active: app.set_invert_mouse_wheel(self.active)
+
+            MiscSettingsButton:
+                on_release: app.open_presets_folder_in_native_file_browser()
+                size_hint_y: 1/6
+                text: '[u]OPEN PRESETS FOLDER[/u]'
+                markup: True
+                screen_name: 'settings'
+                tooltip_text: 'SHOW PRESETS FOLDER IN SYSTEM FILE BROWSER'
+
+            MiscSettingsButton:
+                on_release: app.open_logs_folder_in_native_file_browser()
+                size_hint_y: 1/6
+                text: '[u]OPEN DEBUG LOGS FOLDER[/u]'
+                markup: True
+                screen_name: 'settings'
+                tooltip_text: 'SHOW DEBUG LOGS FOLDER IN SYSTEM FILE BROWSER'
+
+            Widget:
+                size_hint_y: 3/6
+
+
+<MidiInputPortsGrid>:
+    row_default_height: app.curr_height * app.curr_scaling * 1/16
+    row_force_default: True
+    spacing: app.curr_height * app.curr_scaling * 1/60
+    padding: app.curr_height * app.curr_scaling * 1/60
+
+
+<MidiOutputPortsGrid>:
+    row_default_height: app.curr_height * app.curr_scaling * 1/16
+    row_force_default: True
+    spacing: app.curr_height * app.curr_scaling * 1/60
+    padding: app.curr_height * app.curr_scaling * 1/60
+
+
+<MidiPortLabel>:
+    size_hint_x: 7/8
+    color: C('#06070FFF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
+
+
+<MidiInputPortCheckBox>:
+    active: self.port_name in app.connected_midi_input_names_for_gui
+    on_active: app.midi_input_port_checkbox_toggled(self.port_name, self.active)
+    size_hint_x: 1/8
+
+
+<MidiOutputPortCheckBox>:
+    active: self.port_name in app.connected_midi_output_names_for_gui
+    on_active: app.midi_output_port_checkbox_toggled(self.port_name, self.active)
+    size_hint_x: 1/8
+
+
+<NymphesPortSpinner@HoverSpinner>:
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.5
+    font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#00000000')
+    option_cls: 'NymphesPortSpinnerOption'
+    spacing: 0
+
+
+<NymphesPortSpinnerOption@SpinnerOption>:
+    color: C('#06070FFF')
+    font_size: self.height * 0.5
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    background_color: C('#1D60C5F5')
+    background_normal: ''
+
+
+<NymphesPortSpinnerLabel@Label>:
+    color: C('#ECBFEBFF')
+    font_size: self.height * 0.4
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    background_color: C('#00000000')
+
+
+<MiscSettingsButton@HoverButton>:
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    base_font_size: self.height * 0.6
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'

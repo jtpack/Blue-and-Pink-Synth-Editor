@@ -1,0 +1,90 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<BottomBar>:
+    orientation: 'horizontal'
+    padding: [self.corner_radius * 1, self.corner_radius * 0.25]
+    spacing: 0
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius, root.corner_radius, root.corner_radius, root.corner_radius]
+
+    Label:
+        size_hint_x: 25/40
+        text: app.status_bar_text
+        color: C('#222754FF')
+        font_size: self.height * 0.5 if len(self.text) < 50 else self.height * 0.3
+        text_size: self.size
+        halign: 'left'
+        valign: 'middle'
+
+    # Mod Wheel
+    Label:
+        size_hint_x: 3/40
+        text: 'WHEEL'
+        color: C('#FDFF00FF')
+        font_size: self.height * 0.5
+        text_size: self.size
+        halign: 'right'
+        valign: 'middle'
+        disabled: not app.nymphes_connected
+
+    ModWheelValueControl:
+        screen_name: root.screen_name
+        param_name: 'mod_wheel'
+        external_value: app.mod_wheel
+        size_hint_x: 2/40
+        halign: 'center'
+        valign: 'middle'
+
+
+    # Velocity
+    Label:
+        size_hint_x: 3/40
+        text: 'VEL'
+        color: C('#00FF1FFF')
+        font_size: self.height * 0.5
+        text_size: self.size
+        halign: 'right'
+        valign: 'middle'
+        disabled: not app.nymphes_connected
+
+    Label:
+        size_hint_x: 2/40
+        text: str(app.velocity)
+        color: C('#222754FF') if app.nymphes_connected else C('#ECBFEBFF')
+        font_size: self.height * 0.7
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        disabled: not app.nymphes_connected
+
+    # Aftertouch
+    Label:
+        size_hint_x: 3/40
+        text: 'AFT'
+        color: C('#AA00FFFF')
+        font_size: self.height * 0.5
+        text_size: self.size
+        halign: 'right'
+        valign: 'middle'
+        disabled: not app.nymphes_connected
+
+    AftertouchValueControl:
+        screen_name: root.screen_name
+        param_name: 'aftertouch'
+        external_value: app.aftertouch
+        size_hint_x: 2/40
+        halign: 'center'
+        valign: 'middle'
+
+
+<ModWheelValueControl, AftertouchValueControl>:
+    base_font_size: self.height * 0.7
+    text_color_string: '#092042FF'

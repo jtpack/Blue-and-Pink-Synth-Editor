@@ -1,0 +1,29 @@
+#:kivy 2.1.0
+
+<ErrorDialog>:
+    orientation: 'vertical'
+
+    Label:
+        multiline: True
+        text: app.error_text
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        font_size: self.height * 1/6
+
+    Label:
+        multiline: True
+        text: app.error_detail_text
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        font_size: self.height * 1/8
+
+    Button:
+        size_hint_y: 1/4
+        text_size: self.size
+        font_size: self.height * 0.7
+        halign: 'center'
+        valign: 'middle'
+        text: "OK"
+        on_release: root.ok()
