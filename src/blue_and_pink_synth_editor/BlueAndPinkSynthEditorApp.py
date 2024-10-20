@@ -2836,3 +2836,13 @@ class BlueAndPinkSynthEditorApp(App):
         Logger.info('Demo mode timer ended')
 
         self._show_demo_mode_popup(can_be_dismissed=False)
+
+    def _get_next_and_prev_files_for_file_path(self, file_path):
+        """
+        Gets a list of files in the parent folder of file_path, and
+        returns the paths of the next file and the previous file in
+        the folder. Wraps around if file_path is the last or first
+        file in the folder.
+        returns: tuple of prev file and next file
+        """
+        pass

@@ -9,7 +9,9 @@
 - Implemented activation code functionality (disabled by default)
   - By default, the app does not require an activation code. However, if the function in activation_code_enabled.py is changed to return True then the app runs in demo mode unless a valid activation code has been loaded.
 - Swapped the incoming and outgoing port numbers for communicating with nymphes-osc. I had accidentally mixed them up a while ago, and I've only now realized that the port sending messages to nymphes-osc match nymphes-osc's default listening port. It's not a huge issue, but was a little confusing to me.
-
+- Changed presets spinner so it always has the same number of items
+  - The first one always shows the name of the current preset
+- Now the preset + and - buttons browse through the preset slots but do not pass through the init preset.
 
 
 ## v0.3.1-beta
