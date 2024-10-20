@@ -6,7 +6,10 @@
   - Now it is much easier to navigate the project
 - In the SETTINGS screen, now the OPEN PRESETS FOLDER and OPEN DEBUG LOGS FOLDER buttons are underlined
   - This makes them look like hyperlinks, which is more in line with how they actually work
-- Getting started implementing activation code system
+- Implemented activation code functionality (disabled by default)
+  - By default, the app does not require an activation code. However, if the function in activation_code_enabled.py is changed to return True then the app runs in demo mode unless a valid activation code has been loaded.
+- Swapped the incoming and outgoing port numbers for communicating with nymphes-osc. I had accidentally mixed them up a while ago, and I've only now realized that the port sending messages to nymphes-osc match nymphes-osc's default listening port. It's not a huge issue, but was a little confusing to me.
+
 
 
 ## v0.3.1-beta
