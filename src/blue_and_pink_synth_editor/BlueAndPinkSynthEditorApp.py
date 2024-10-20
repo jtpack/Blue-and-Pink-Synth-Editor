@@ -520,8 +520,7 @@ class BlueAndPinkSynthEditorApp(App):
         #
         # Presets Spinner Stuff
         #
-
-        values = ['init']
+        values = ['init', 'init']
         values.extend(
             [f'{kind} {bank}{num}' for kind in ['USER', 'FACTORY'] for bank in ['A', 'B', 'C', 'D', 'E', 'F', 'G']
              for num in [1, 2, 3, 4, 5, 6, 7]])
@@ -918,130 +917,71 @@ class BlueAndPinkSynthEditorApp(App):
 
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
         if self._curr_presets_spinner_index != spinner_index:
+
+            if spinner_index == 0:
+                # Don't do anything if the user taps the first
+                # option, as it is only supposed to be an indicator
+                # of which preset is loaded.
+                return
+
             # Store the new index
             self._curr_presets_spinner_index = spinner_index
 
-            if len(self.presets_spinner_values) == 99:
-                #
-                # No file has been loaded or saved, so the first
-                # item in the list is the init file.
-                #
-                if spinner_index == 0:
-                    # Load the init preset file
-                    self.send_nymphes_osc('/load_init_file')
-
-                else:
-                    # This is a preset slot
-                    self.load_preset_by_index(spinner_index - 1)
+            if spinner_index == 1:
+                # Load the init preset file
+                self.send_nymphes_osc('/load_init_file')
 
             else:
-                #
-                # A file has been loaded or saved, so the first item
-                # in the list is the filename, and the second item is
-                # the init file.
-                #
-                if spinner_index == 0:
-                    # Reload the most recent preset file.
-                    self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
-
-                elif spinner_index == 1:
-                    # Load the init preset file
-                    self.send_nymphes_osc('/load_init_file')
-
-                else:
-                    # This is a preset slot
-                    self.load_preset_by_index(spinner_index - 2)
+                # This is a preset slot
+                self.load_preset_by_index(spinner_index - 2)
 
     def load_next_preset(self):
 
-        if len(self.presets_spinner_values) == 99:
-            #
-            # No file has been loaded or saved, so the first
-            # item in the list is the init file.
-            #
+        if self.curr_preset_type == 'init':
+            # The init preset is loaded.
+            # Do nothing.
+            return
 
-            if self._curr_presets_spinner_index + 1 > 98:
-                # Wrap around to the beginning of the list
-                self._curr_presets_spinner_index = 0
+        elif self.curr_preset_type == 'preset_slot':
 
-                # Load the init preset file
-                self.send_nymphes_osc('/load_init_file')
-
-            else:
-                # Load the next preset slot
-                self._curr_presets_spinner_index += 1
-                self.load_preset_by_index(self._curr_presets_spinner_index - 1)
-
-        else:
-            #
-            # A file has been loaded or saved, so the first item
-            # in the list is the filename, and the second item is
-            # the init file.
-            #
-
-            if self._curr_presets_spinner_index + 1 >= len(self.presets_spinner_values):
-                # Wrap around to the beginning of the list
-                self._curr_presets_spinner_index = 0
-
-                # Reload the most recent preset file
-                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
-
-            elif self._curr_presets_spinner_index + 1 == 1:
-                # Load the init preset file
-                self._curr_presets_spinner_index = 1
-                self.send_nymphes_osc('/load_init_file')
-
-            else:
+            if self._curr_presets_spinner_index < 99:
                 # Load the next preset slot
                 self._curr_presets_spinner_index += 1
                 self.load_preset_by_index(self._curr_presets_spinner_index - 2)
+
+            else:
+                # Wrap around to the beginning of the list
+                self._curr_presets_spinner_index = 2
+
+                # Load the first preset slot
+                self.load_preset_by_index(0)
+
+        elif self.curr_preset_type == 'file':
+            print('load next file...')
+
 
     def load_prev_preset(self):
-        if len(self.presets_spinner_values) == 99:
-            #
-            # No file has been loaded or saved, so the first
-            # item in the list is the init file.
-            #
-            if self._curr_presets_spinner_index - 1 == 0:
-                # Load the init preset file
-                self._curr_presets_spinner_index = 0
-                self.send_nymphes_osc('/load_init_file')
+        if self.curr_preset_type == 'init':
+            # The init preset is loaded.
+            # Do nothing.
+            return
 
-            elif self._curr_presets_spinner_index - 1 < 0:
-                # Wrap around to the end of the list
-                self._curr_presets_spinner_index = 98
-                self.load_preset_by_index(97)
+        elif self.curr_preset_type == 'preset_slot':
+
+            if self._curr_presets_spinner_index > 2:
+                # Load the previous preset slot
+                self._curr_presets_spinner_index -= 1
+                self.load_preset_by_index(self._curr_presets_spinner_index - 2)
 
             else:
-                # Load the previous preset
-                self._curr_presets_spinner_index -= 1
-                self.load_preset_by_index(self._curr_presets_spinner_index - 1)
-
-        else:
-            #
-            # A file has been loaded or saved, so the first item
-            # in the list is the filename, and the second item is
-            # the init file.
-            #
-            if self._curr_presets_spinner_index - 1 == 1:
-                # Load the init preset file
-                self._curr_presets_spinner_index = 1
-                self.send_nymphes_osc('/load_init_file')
-
-            elif self._curr_presets_spinner_index - 1 == 0:
-                # Reload the most recent preset file
-                self._curr_presets_spinner_index = 0
-                self.send_nymphes_osc('/load_file', str(self._curr_preset_file_path))
-
-            elif self._curr_presets_spinner_index - 1 < 0:
                 # Wrap around to the end of the list
                 self._curr_presets_spinner_index = 99
+
+                # Load the last preset slot
                 self.load_preset_by_index(self._curr_presets_spinner_index - 2)
 
-            else:
-                # Load the previous preset
-                self._curr_presets_spinner_index = self._curr_presets_spinner_index - 1
-                self.load_preset_by_index(self._curr_presets_spinner_index - 2)
+        elif self.curr_preset_type == 'file':
+            print('load next file...')
 
     def increment_prop_value_for_param_name(self, param_name, amount):
         # Convert the parameter name to the name
@@ -1751,6 +1691,8 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # The Nymphes synthesizer has just loaded a preset
             #
+
+            # Parse it
             preset_slot_type = str(args[0])
             preset_slot_bank_and_number = str(args[1]), int(args[2])
 
@@ -1767,7 +1709,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_type = preset_slot_type
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
-            # Get the index of the loaded preset
+            # Get the index of the loaded preset slot
             preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
                 bank_name=self._curr_preset_slot_bank_and_number[0],
                 preset_num=self._curr_preset_slot_bank_and_number[1],
@@ -1775,12 +1717,12 @@ class BlueAndPinkSynthEditorApp(App):
             )
 
             # Calculate the index within the presets spinner options
-            preset_slot_start_index = 1 if len(self.presets_spinner_values) == 99 else 2
-            self._curr_presets_spinner_index = preset_slot_start_index + preset_slot_index
+            self._curr_presets_spinner_index = 2 + preset_slot_index
 
             # Update the preset spinner's text
-            if self.presets_spinner_text != self.presets_spinner_values[self._curr_presets_spinner_index]:
-                self.presets_spinner_text = self.presets_spinner_values[self._curr_presets_spinner_index]
+            preset_name = self.presets_spinner_values[self._curr_presets_spinner_index]
+            if self.presets_spinner_text != preset_name:
+                self._set_presets_spinner_first_option_on_main_thread(preset_name)
 
             # Status bar message
             self._set_prop_value_on_main_thread('status_bar_text',
@@ -1826,9 +1768,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
 
             # Update the presets spinner.
-            # This also sets the spinner's current text
-            # and updates self._curr_presets_spinner_index.
-            self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.stem)
+            self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
 
             # Status bar message
             msg = f'LOADED {filepath.name}'
@@ -1859,8 +1799,8 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Update the presets spinner
             # Select the init option
-            self._set_prop_value_on_main_thread('presets_spinner_text', 'init')
-            self._curr_presets_spinner_index = 0 if len(self.presets_spinner_values) == 99 else 1
+            self._set_presets_spinner_first_option_on_main_thread('init')
+            self._curr_presets_spinner_index = 1
 
             # Status bar message
             msg = f'LOADED INIT PRESET (init.txt)'
@@ -1882,9 +1822,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_preset_file_path = filepath
 
                 # Update the presets spinner.
-                # This also sets the spinner's current text
-                # and updates self._curr_presets_spinner_index.
-                self._set_presets_spinner_file_option_on_main_thread(self._curr_preset_file_path.name)
+                self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.name)
 
                 # Status bar message
                 msg = f'SAVED {filepath.name} PRESET FILE'
@@ -1896,14 +1834,11 @@ class BlueAndPinkSynthEditorApp(App):
                 # than a regular preset file
 
                 # Update the current preset type
+                self._set_presets_spinner_first_option_on_main_thread('init')
                 self._set_prop_value_on_main_thread('curr_preset_type', 'init')
 
                 # Store the path to the file
                 self._curr_preset_file_path = filepath
-
-                # Update the presets spinner
-                # Sending it None removes the file option and selects the first entry (init)
-                self._set_presets_spinner_file_option_on_main_thread(None)
 
                 # Status bar message
                 msg = f'UPDATED INIT PRESET (init.txt)'
@@ -2426,44 +2361,17 @@ class BlueAndPinkSynthEditorApp(App):
                 # Resize the window, using the scaling
                 Window.size = (width, new_height)
 
-    def _set_presets_spinner_file_option_on_main_thread(self, option_text):
+    def _set_presets_spinner_first_option_on_main_thread(self, option_text):
         """
         Replace the first item in the self.presets_spinner_values ListProperty
         with new_text and update the spinner text, but do it on the Main thread.
-        If a file has just been loaded or saved for the first time, then insert
-        the option at the beginning of the list and then select it.
-        If option_text is None, then remove the file option from the list.
-        This is needed if the change occurs in response to an OSC message on a
-        background thread.
+        Also set the preset_spinner_text property
         :param option_text: str
         :return:
         """
         def work_func(_, new_text):
-            if new_text is None:
-                # We need to remove the file option from the list
-                if len(self.presets_spinner_values) != 99:
-                    self.presets_spinner_values.pop(0)
-
-                # Select the first entry
-                self.presets_spinner_text = self.presets_spinner_values[0]
-                self._curr_presets_spinner_index = 0
-            else:
-                # new_text is not None, so we are setting the file
-                # option or adding it if it doesn't exist
-                if len(self.presets_spinner_values) == 99:
-                    # No file has previously been loaded or saved,
-                    # so we need to insert the new filename at the
-                    # beginning of the list
-                    self.presets_spinner_values.insert(0, new_text)
-
-                else:
-                    # There is already a spot at the beginning of
-                    # the list for the filename
-                    self.presets_spinner_values[0] = new_text
-
-                # Update the preset spinner text
-                self.presets_spinner_text = self.presets_spinner_values[0]
-                self._curr_presets_spinner_index = 0
+            self.presets_spinner_values[0] = new_text
+            self.presets_spinner_text = new_text
 
         Clock.schedule_once(lambda dt: work_func(dt, option_text), 0)
 
