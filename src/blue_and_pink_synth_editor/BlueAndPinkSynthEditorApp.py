@@ -2846,3 +2846,7 @@ class BlueAndPinkSynthEditorApp(App):
         returns: tuple of prev file and next file
         """
         pass
+
+    @staticmethod
+    def file_list_sort_func(file_paths, filesystem):
+        return sorted(file_paths, key=lambda file_path: file_path.lower())

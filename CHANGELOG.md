@@ -12,6 +12,7 @@
 - Changed presets spinner so it always has the same number of items
   - The first one always shows the name of the current preset
 - Now the preset + and - buttons browse through the preset slots but do not pass through the init preset.
+- File load and save dialogs now sort the files alphabetically
 
 
 ## v0.3.1-beta

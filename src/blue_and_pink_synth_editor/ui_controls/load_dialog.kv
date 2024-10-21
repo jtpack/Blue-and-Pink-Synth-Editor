@@ -5,6 +5,9 @@
     FileChooserListView:
         id: filechooser
         path: str(app._presets_directory_path)
+        dirselect: False
+        filters: ['*.txt', '*.TXT']
+        sort_func: app.file_list_sort_func
     BoxLayout:
         size_hint_y: 1/8
         Button:
