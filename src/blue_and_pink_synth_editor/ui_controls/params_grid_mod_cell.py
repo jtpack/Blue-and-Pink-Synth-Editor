@@ -8,7 +8,10 @@ from kivy.uix.widget import Widget
 from kivy.app import App
 from pathlib import Path
 
-Builder.load_file(str(Path(__file__).parent / 'params_grid_mod_cell.kv'))
+# Import the kv file with the same name as this file
+parent_directory = Path(__file__).resolve().parent
+this_file_name = Path(__file__).stem
+Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
 class ParamsGridModCell(BoxLayout):
