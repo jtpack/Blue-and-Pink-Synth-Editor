@@ -957,8 +957,8 @@ class BlueAndPinkSynthEditorApp(App):
                 self.load_preset_by_index(0)
 
         elif self.curr_preset_type == 'file':
-            print('load next file...')
-
+            _, next_file_path = self._get_next_and_prev_files_for_file_path(self._curr_preset_file_path)
+            self.send_nymphes_osc('/load_file', str(next_file_path))
 
     def load_prev_preset(self):
         if self.curr_preset_type == 'init':
@@ -981,7 +981,8 @@ class BlueAndPinkSynthEditorApp(App):
                 self.load_preset_by_index(self._curr_presets_spinner_index - 2)
 
         elif self.curr_preset_type == 'file':
-            print('load next file...')
+            prev_file_path, _ = self._get_next_and_prev_files_for_file_path(self._curr_preset_file_path)
+            self.send_nymphes_osc('/load_file', str(prev_file_path))
 
     def increment_prop_value_for_param_name(self, param_name, amount):
         # Convert the parameter name to the name
@@ -2837,15 +2838,47 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._show_demo_mode_popup(can_be_dismissed=False)
 
-    def _get_next_and_prev_files_for_file_path(self, file_path):
+    @staticmethod
+    def _get_next_and_prev_files_for_file_path(file_path):
         """
         Gets a list of files in the parent folder of file_path, and
         returns the paths of the next file and the previous file in
         the folder. Wraps around if file_path is the last or first
         file in the folder.
-        returns: tuple of prev file and next file
+        returns: tuple of prev and next file path (Path)
         """
-        pass
+        file_path = Path(file_path)
+        parent_folder = file_path.parent
+
+        # Get a list of all file paths in the parent folder of file_path
+        files = [f for f in parent_folder.iterdir() if f.is_file()]
+
+        # Remove all files whose names start with a dot
+        files = [f for f in files if not f.name.startswith('.')]
+
+        # Remove the init file
+        files = [f for f in files if f.name != 'init.txt']
+
+        # Convert to a list of strings
+        files = [str(f) for f in files]
+
+        files = sorted(files, key=lambda f: f.lower())
+
+        # Get the index of the current file within the list of files
+        i = files.index(str(file_path))
+
+        if i + 1 < len(files):
+            next_file_path = files[i + 1]
+        else:
+            next_file_path = files[0]
+
+        if i - 1 >= 0:
+            prev_file_path = files[i - 1]
+        else:
+            prev_file_path = files[-1]
+
+        return Path(prev_file_path), Path(next_file_path)
+
 
     @staticmethod
     def file_list_sort_func(file_paths, filesystem):

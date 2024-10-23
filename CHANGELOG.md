@@ -11,8 +11,9 @@
 - Swapped the incoming and outgoing port numbers for communicating with nymphes-osc. I had accidentally mixed them up a while ago, and I've only now realized that the port sending messages to nymphes-osc match nymphes-osc's default listening port. It's not a huge issue, but was a little confusing to me.
 - Changed presets spinner so it always has the same number of items
   - The first one always shows the name of the current preset
-- Now the preset + and - buttons browse through the preset slots but do not pass through the init preset.
+- Now the preset + and - buttons cycle through the preset slots but do not pass through the init preset.
 - File load and save dialogs now sort the files alphabetically
+- New Feature: Preset + and - buttons now cycle through preset files if one is currently loaded
 
 
 ## v0.3.1-beta
