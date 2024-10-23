@@ -7,7 +7,10 @@ from kivy.properties import BooleanProperty
 from kivy.core.window import Window
 import webbrowser
 
-Builder.load_file(str(Path(__file__).parent / 'demo_mode_popup.kv'))
+# Import the kv file with the same name as this file
+parent_directory = Path(__file__).resolve().parent
+this_file_name = Path(__file__).stem
+Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
 class DemoModePopup(BoxLayout):

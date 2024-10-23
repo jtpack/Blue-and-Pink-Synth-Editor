@@ -6,8 +6,11 @@ from kivy.lang.builder import Builder
 from .misc_widgets import HoverButton
 from pathlib import Path
 
-Builder.load_file(str(Path(__file__).parent / 'chords_screen.kv'))
- 
+# Import the kv file with the same name as this file
+parent_directory = Path(__file__).resolve().parent
+this_file_name = Path(__file__).stem
+Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
+
 
 class ChordsMainControlsBox(BoxLayout):
     screen_name = StringProperty('')
