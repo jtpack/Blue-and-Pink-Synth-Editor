@@ -35,5 +35,7 @@
 
     FileChooserListView:
         id: filechooser
-        path: str(app._presets_directory_path)
+        path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
         on_selection: text_input.text = self.selection and self.selection[0] or ''
+        filters: ['*.txt', '*.TXT']
+        sort_func: app.file_list_sort_func

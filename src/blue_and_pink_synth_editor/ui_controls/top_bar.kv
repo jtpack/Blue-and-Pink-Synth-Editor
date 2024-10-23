@@ -102,7 +102,7 @@
     text_size: self.size
     halign: 'center'
     valign: 'middle'
-    disabled: not app.nymphes_connected
+    disabled: not app.nymphes_connected or app.curr_preset_type == 'init'
 
 
 <TopBarSpinner@HoverSpinner>:
