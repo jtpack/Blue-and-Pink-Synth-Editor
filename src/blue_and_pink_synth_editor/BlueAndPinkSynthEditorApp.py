@@ -83,7 +83,7 @@ from src.blue_and_pink_synth_editor.activation_code_enabled import activation_co
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.3.2-beta_dev'
+app_version_string = 'v0.3.2-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
