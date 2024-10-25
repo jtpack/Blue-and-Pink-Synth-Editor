@@ -83,7 +83,7 @@ from src.blue_and_pink_synth_editor.activation_code_enabled import activation_co
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.3.3-beta'
+app_version_string = 'v0.3.4-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -2671,7 +2671,7 @@ class BlueAndPinkSynthEditorApp(App):
                     if first_line in NymphesPreset._csv_header_strings_version_map.keys():
                         # This is a Nymphes preset
                         Logger.info(f'A Nymphes Preset file has been dropped on the window ({file_path})')
-                        self._set_prop_value_on_main_thread('status_bar_text', f'LOADING {file_path.stem}...')
+                        self._set_prop_value_on_main_thread('status_bar_text', f'LOADING {file_path.name}...')
                         self.send_nymphes_osc('/load_file', str(file_path))
 
                     else:

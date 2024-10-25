@@ -1,3 +1,8 @@
+## v0.3.4-beta
+
+- Improved status message when loading preset file that has been dropped onto the window
+
+
 ## v0.3.3-beta
 
 - Fixed bug that broke preset and sysex file drag-and-drop functionality
