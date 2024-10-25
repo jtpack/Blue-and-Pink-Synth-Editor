@@ -1,3 +1,9 @@
+## v0.3.3-beta
+
+- Fixed bug that broke preset and sysex file drag-and-drop functionality
+- Fixed bug in nymphes-osc which made it load the last preset instead of the first after importing a SYSEX file
+
+
 ## v0.3.2-beta
 
 - Fixed a mistake in the README instructions for where to move the app once compiled
