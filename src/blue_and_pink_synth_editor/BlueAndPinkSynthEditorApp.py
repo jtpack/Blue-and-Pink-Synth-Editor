@@ -83,7 +83,7 @@ from src.blue_and_pink_synth_editor.activation_code_enabled import activation_co
 
 kivy.require('2.1.0')
 
-app_version_string = 'v0.3.2-beta'
+app_version_string = 'v0.3.3-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
@@ -2666,12 +2666,13 @@ class BlueAndPinkSynthEditorApp(App):
             # Get the first line of the file
             try:
                 with open(file_path, 'r') as file:
-                    first_line = file.readline()
+                    first_line = file.readline().strip()
 
                     if first_line in NymphesPreset._csv_header_strings_version_map.keys():
                         # This is a Nymphes preset
                         Logger.info(f'A Nymphes Preset file has been dropped on the window ({file_path})')
-                        self.send_nymphes_osc('/load_file', file_path)
+                        self._set_prop_value_on_main_thread('status_bar_text', f'LOADING {file_path.stem}...')
+                        self.send_nymphes_osc('/load_file', str(file_path))
 
                     else:
                         # This might be an activation code file.
@@ -2701,7 +2702,8 @@ class BlueAndPinkSynthEditorApp(App):
             # This is a sysex file
             #
             Logger.info(f'A sysex file has been dropped on the window ({file_path})')
-            self.send_nymphes_osc('/load_file', file_path)
+            self._set_prop_value_on_main_thread('status_bar_text', 'IMPORTING CONTENTS OF SYSEX FILE...')
+            self.send_nymphes_osc('/load_file', str(file_path))
 
     @staticmethod
     def string_for_lfo_key_sync(lfo_key_sync):
