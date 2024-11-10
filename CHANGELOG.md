@@ -1,3 +1,11 @@
+- In BlueAndPinkSynthEditor.spec: 
+  - Fixed path for nymphes-osc import
+    - Some people (including me with a fresh install of the code) would get an error complaining about an invalid hidden import when using pyinstaller to compile the app
+      - This is fixed now
+- Moved app_version_string to the top of BlueAndPinkSynthEditorApp.py
+  - It's easier to find now
+
+
 ## v0.3.4-beta
 
 - Improved status message when loading preset file that has been dropped onto the window

@@ -1,3 +1,5 @@
+app_version_string = 'v0.3.4-beta_dev'
+
 import logging
 from pathlib import Path
 import os
@@ -82,8 +84,6 @@ if not activation_code_checking_file_path.exists():
 from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
-
-app_version_string = 'v0.3.4-beta'
 
 
 class BlueAndPinkSynthEditorApp(App):
