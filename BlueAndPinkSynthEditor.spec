@@ -5,7 +5,7 @@ from pathlib import Path
 
 a = Analysis(
     ['src/blue_and_pink_synth_editor/__main__.py'],
-    pathex=[],
+    pathex=[str(Path(os.path.expanduser('~')) / 'nymphes-osc')],
     binaries=[],
     datas=[
         ('src/blue_and_pink_synth_editor/app_config.ini', 'src/blue_and_pink_synth_editor'),
@@ -25,7 +25,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/ui_controls/top_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor')
     ],
-    hiddenimports=[str(Path(os.path.expanduser('~')) / 'nymphes-osc'), 'zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
+    hiddenimports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
