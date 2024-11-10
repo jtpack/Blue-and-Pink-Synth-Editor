@@ -2,11 +2,17 @@
 A full-featured editor for the Dreadbox Nymphes synthesizer. 
 Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process to do the actual communication with the Nymphes.
 
+## This is BETA software. It may take some work to get it working for you.
+
+If you encounter any problems, please create an issue here: https://github.com/jtpack/Blue-and-Pink-Synth-Editor/issues.
+I will do my best to help.
+
+If you would like to join the beta testing discord server for Blue and Pink Synth Editor, send me an email at blueandpinksyntheditor+betatest@gmail.com
+
 2024, Scott Lumsden
 
-## This is BETA software
 
-## Features
+# Features
 
 - View and edit all MIDI-controllable Nymphes parameters in a preset, including modulation matrix and chords
 - Recall presets via MIDI Program Change and Bank MSB Messages
@@ -21,17 +27,24 @@ Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process 
 - MIDI pass-through from Nymphes to output ports
 
 
-## Nymphes Settings
+# Nymphes Preparation
 - Make sure you have Nymphes Firmware Version 2.1 (the latest version as of March 2024)
 - Make sure that MIDI CC send/receive is turned ON
 - Make sure that MIDI Program Change send/receive is turned ON
 - Make sure that you choose the correct MIDI channel on the Settings page in Blue and Pink Synth Editor
 
 
-## Platforms:
-- macOS
+# Platforms
 
-Support for Linux and Windows is planned for the future
+- macOS
+- Linux (Lightly tested with Debian 12 inside VirtualBox on a Mac)
+  - It is unknown whether this will work on a computer running Linux as its actual OS
+- Raspberry Pi with a Touchscreen (Use this repository: https://github.com/jtpack/Blue-and-Pink-Synth-Editor-RPi)
+- Support for Windows is planned for the future
+  - Note: There is an issue with rtmidi on Windows which prevents the reception of large SYSEX messages (like preset dumps from Nymphes)
+    - This means that when a preset is loaded on Nymphes, we only get its parameters via MIDI CC
+      - This means we do not get parameters as float values, and we also do not get chord parameters
+    - This does not stop us from sending these parameters to the Nymphes as a SYSEX message.
 
   
 # Installation
@@ -67,10 +80,14 @@ Create and activate the virtual environment:
 ## 6. Compile the app into an executable binary
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
-## 7. Move the compiled app to /Applications
+## 7. Run it from the command line to make sure it works
+
+### macOS:
+- `dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+
+### Linux:
+- `dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
+
+## 8. On macOS, move the compiled app to /Applications
 - `mv dist/BlueAndPinkSynthEditor.app /Applications/`
-
-## 8. Run the compiled app by double-clicking on it
-
-- To see debug output on the console, run the app from the command line instead
-  - `/Applications/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+- From now on you can run the compiled app by double-clicking on it in the Applications folder
