@@ -12,6 +12,19 @@ If you would like to join the beta testing discord server for Blue and Pink Synt
 2024, Scott Lumsden
 
 
+# Platforms
+
+- macOS
+- Linux (Lightly tested with Debian 12 inside VirtualBox on a Mac)
+  - It is unknown whether this will work on a computer running Linux as its actual OS
+- Raspberry Pi with a Touchscreen (Use this repository: https://github.com/jtpack/Blue-and-Pink-Synth-Editor-RPi)
+- Support for Windows is planned for the future
+  - Note: There is an issue with rtmidi on Windows which prevents the reception of large SYSEX messages (like preset dumps from Nymphes)
+    - This means that when a preset is loaded on Nymphes, we only get its parameters via MIDI CC
+      - This means we do not get parameters as float values, and we also do not get chord parameters
+    - This does not stop us from sending these parameters to the Nymphes as a SYSEX message.
+
+
 # Features
 
 - View and edit all MIDI-controllable Nymphes parameters in a preset, including modulation matrix and chords
@@ -32,19 +45,6 @@ If you would like to join the beta testing discord server for Blue and Pink Synt
 - Make sure that MIDI CC send/receive is turned ON
 - Make sure that MIDI Program Change send/receive is turned ON
 - Make sure that you choose the correct MIDI channel on the Settings page in Blue and Pink Synth Editor
-
-
-# Platforms
-
-- macOS
-- Linux (Lightly tested with Debian 12 inside VirtualBox on a Mac)
-  - It is unknown whether this will work on a computer running Linux as its actual OS
-- Raspberry Pi with a Touchscreen (Use this repository: https://github.com/jtpack/Blue-and-Pink-Synth-Editor-RPi)
-- Support for Windows is planned for the future
-  - Note: There is an issue with rtmidi on Windows which prevents the reception of large SYSEX messages (like preset dumps from Nymphes)
-    - This means that when a preset is loaded on Nymphes, we only get its parameters via MIDI CC
-      - This means we do not get parameters as float values, and we also do not get chord parameters
-    - This does not stop us from sending these parameters to the Nymphes as a SYSEX message.
 
   
 # Installation
