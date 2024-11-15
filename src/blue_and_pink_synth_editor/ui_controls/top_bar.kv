@@ -68,8 +68,12 @@
         size_hint_x: 2/20
         text: 'OPEN'
         tooltip_text: 'LOAD PRESET FILE'
-        on_release: app.show_load_dialog()
         disabled: not app.nymphes_connected
+        on_release:
+            app.root.transition = NoTransition()
+            app.root.current = 'file_load'
+            app.set_curr_screen_name('file_load')
+            self.mouse_inside_bounds = False
 
     TopBarButton:
         screen_name: root.screen_name

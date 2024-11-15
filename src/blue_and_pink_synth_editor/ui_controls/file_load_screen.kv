@@ -1,0 +1,54 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+
+<FileLoadScreen>:
+    name: 'file_load'
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        TopBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            right_button_is_settings: True
+            right_button_transition: ''
+
+        # Main Controls
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: self.parent.spacing
+            screen_name: root.name
+            size_hint_y: 34/40
+            corner_radius: root.height * 0.015
+
+            LeftBar:
+                size_hint: 1/12, 1
+                screen_name: root.name
+                corner_radius: self.parent.corner_radius
+
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: self.parent.spacing
+                corner_radius: self.parent.corner_radius
+
+                Widget
+
+
+        BottomBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
