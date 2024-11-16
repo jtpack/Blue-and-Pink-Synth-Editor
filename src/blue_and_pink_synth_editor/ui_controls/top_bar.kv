@@ -70,7 +70,7 @@
         tooltip_text: 'LOAD PRESET FILE'
         disabled: not app.nymphes_connected
         on_release:
-            app.root.transition = SlideTransition(direction='left')
+            app.root.transition = NoTransition()
             app.root.current = 'file_load'
             app.set_curr_screen_name('file_load')
             self.mouse_inside_bounds = False
@@ -89,7 +89,7 @@
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 3/20
-        text: 'SETTINGS' if root.right_button_is_settings else 'MAIN'
+        text: 'SETTINGS' if root.right_button_is_settings else 'BACK'
         tooltip_text: ''
         halign: 'right'
         on_release:

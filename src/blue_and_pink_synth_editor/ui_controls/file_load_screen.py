@@ -26,4 +26,4 @@ class FileLoadScreenTopBar(BoxLayout):
 class PresetSlotChooser(BoxLayout):
     preset_type = StringProperty('')
     preset_bank = StringProperty('')
-    preset_number = NumericProperty(0)
+    preset_number = StringProperty('')
