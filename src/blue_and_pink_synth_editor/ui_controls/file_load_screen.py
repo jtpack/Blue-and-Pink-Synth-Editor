@@ -14,6 +14,10 @@ class FileLoadScreen(Screen):
     pass
 
 
+class FileLoadScreenTopBar(BoxLayout):
+    corner_radius = NumericProperty(0)
+    screen_name = StringProperty('')
+
 # class FileLoadMainControlsBox(BoxLayout):
 #     screen_name = StringProperty('')
 #     corner_radius = NumericProperty(0)
