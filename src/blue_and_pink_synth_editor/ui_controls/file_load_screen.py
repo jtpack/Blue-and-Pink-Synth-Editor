@@ -21,3 +21,9 @@ class FileLoadScreenTopBar(BoxLayout):
 # class FileLoadMainControlsBox(BoxLayout):
 #     screen_name = StringProperty('')
 #     corner_radius = NumericProperty(0)
+
+
+class PresetSlotChooser(BoxLayout):
+    preset_type = StringProperty('')
+    preset_bank = StringProperty('')
+    preset_number = NumericProperty(0)

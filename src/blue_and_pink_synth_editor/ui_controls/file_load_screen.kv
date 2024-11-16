@@ -20,56 +20,67 @@
         orientation: 'vertical'
         padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
         spacing: root.height * 0.008
+        corner_radius: self.parent.corner_radius
 
         # Top Bar
         FileLoadScreenTopBar:
-            size_hint_y: 3/40
-            corner_radius: root.corner_radius
             screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            right_button_is_settings: False
+            right_button_transition: 'right'
 
         # Main Controls
         BoxLayout:
             orientation: 'horizontal'
             spacing: root.height * 0.008
+            corner_radius: self.parent.corner_radius
 
-            # File Load
+            # LEFT: Preset Slots Box
+            PresetSlotChooser:
+                corner_radius: root.height * 0.015
+                size_hint_x: 2/5
+                spacing: root.height * 0.008
+
+              
+            # RIGHT: File Loading
             BoxLayout:
                 orientation: 'vertical'
-                padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+                padding: 0
                 spacing: root.height * 0.008
                 corner_radius: root.corner_radius
+                size_hint_x: 3/5
 
-                canvas.before:
-                    Color:
-                        rgba: C('#103771FF')
-
-                    SmoothRoundedRectangle:
-                        pos: self.pos
-                        size: self.width, self.height
-                        radius: [root.height * 0.015]
-
-                PresetFileChooser:
-                    spacing: root.height * 0.008
+                # Init Preset
+                PresetButton:
+                    text: 'LOAD INIT PRESET FILE'
+                    size_hint_y: 1/10
                     corner_radius: root.corner_radius
+                    disabled: app.curr_preset_type == 'init' and app.unsaved_preset_changes == False
+                    on_release: app.load_init_preset()
 
-            # Preset Slots
-            BoxLayout:
-                orientation: 'vertical'
-                padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
-                spacing: root.height * 0.008
-                corner_radius: root.corner_radius
+                FileChooserListView:
+                    size_hint_y: 8/10
+                    id: filechooser
+                    args_converter: lambda row_index, rec: {'name': rec['name']}
+                    path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
+                    dirselect: False
+                    filters: ['*.txt', '*.TXT']
+                    sort_func: app.file_list_sort_func
 
-                canvas.before:
-                    Color:
-                        rgba: C('#257CFFFF')
+                PresetButton:
+                    corner_radius: root.corner_radius
+                    size_hint_y: 1/10
+                    text_size: self.size
+                    halign: 'center'
+                    valign: 'middle'
+                    text: "LOAD PRESET FILE"
+                    disabled: len(filechooser.selection) == 0
+                    on_release:
+                        app.load_preset_file(filechooser.selection[0])
 
-                    SmoothRoundedRectangle:
-                        pos: self.pos
-                        size: self.width, self.height
-                        radius: [root.height * 0.015]
 
-
-<FileButton@ButtonBehavior+Label>:
+<PresetButton@ButtonBehavior+Label>:
     corner_radius: 0
     canvas.before:
         Color:
@@ -79,6 +90,20 @@
             pos: self.pos
             size: self.width, self.height
             radius: [self.corner_radius]
+
+    font_size: self.height * 0.5
+    color: C('#06070FFF')
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+
+<PresetSlotTypeButton@ButtonBehavior+Label>:
+
+    font_size: self.height * 0.5
+    color: C('#06070FFF')
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
 
 
 <FileLoadScreenTopBar>:
@@ -96,64 +121,102 @@
             size: root.width, root.height
             radius: [0, 0, root.corner_radius, root.corner_radius]
 
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [0, 0, root.corner_radius, root.corner_radius]
+
+    PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL PREVIOUS PRESET'
+        size_hint_x: 1/20
+        text: '-'
+        base_font_size: self.height * 1.2
+        on_release: app.load_prev_preset()
+
     Label:
-        text: 'LOAD PRESET'
-        size_hint_y: None
-        height: self.parent.height
-        font_size: self.height * 0.5
-        color: C('#06070FFF')
+        size_hint_x: 12/20
+        text: app.presets_spinner_text
         text_size: self.size
+        font_size: self.height * 0.5
         halign: 'center'
         valign: 'middle'
+
+    PresetIncButton:
+        screen_name: root.screen_name
+        tooltip_text: 'RECALL NEXT PRESET'
+        size_hint_x: 1/20
+        text: '+'
+        on_release: app.load_next_preset()
+
+    Widget:
+        size_hint_x: 3/20
 
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 3/20
-        text: 'CANCEL'
+        text: 'MAIN'
         tooltip_text: ''
         halign: 'right'
         on_release:
-            app.root.transition = NoTransition()
+            app.root.transition = SlideTransition(direction='right')
             app.root.current = 'main'
             app.set_curr_screen_name('main')
             self.mouse_inside_bounds = False
 
 
-<TopBarButton@HoverButton>:
-    size_hint_x: 1/6
-    size_hint_y: None
-    height: self.parent.height
-    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
-    base_font_size: self.height * 0.45
-    text_size: self.size
-    halign: 'center'
-    valign: 'middle'
-
-<PresetFileChooser@BoxLayout>:
+<PresetSlotChooser>:
     orientation: 'vertical'
     spacing: 0
     padding: 0
     corner_radius: 0
 
-    FileChooserListView:
-        id: filechooser
-        args_converter: lambda row_index, rec: {'name': rec['name']}
-        path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
-        dirselect: False
-        filters: ['*.txt', '*.TXT']
-        sort_func: app.file_list_sort_func
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: 0
+        spacing: root.spacing
+        size_hint_y: 1/10
+    
+        PresetSlotTypeButton:
+            corner_radius: root.corner_radius
+            canvas.before:
+                Color:
+                    rgba: C('#257CFFFF') if root.preset_type == 'FACTORY' else C('#43454AFF')
 
-    FileButton:
+                SmoothRoundedRectangle:
+                    pos: self.pos
+                    size: self.width, self.height
+                    radius: [app.curr_height * 0.015]
+
+            text: 'FACTORY'
+            on_release: root.preset_type = 'FACTORY'
+
+        PresetSlotTypeButton:
+            corner_radius: root.corner_radius
+            canvas.before:
+                Color:
+                    rgba: C('#257CFFFF') if root.preset_type == 'USER' else C('#43454AFF')
+
+                SmoothRoundedRectangle:
+                    pos: self.pos
+                    size: self.width, self.height
+                    radius: [app.curr_height * 0.015]
+
+            text: 'USER'
+            on_release: root.preset_type = 'USER'
+        
+    Widget:
+        size_hint_y: 8/10
+
+    PresetButton:
         corner_radius: root.corner_radius
         size_hint_y: 1/10
-        text_size: self.size
-        font_size: self.height * 0.3
-        halign: 'center'
-        valign: 'middle'
-        text: "LOAD FILE"
-        disabled: len(filechooser.selection) == 0
+        text: "LOAD PRESET SLOT"
         on_release:
-            app.on_file_load_dialog(filechooser.path, filechooser.selection)
             app.root.transition = NoTransition()
             app.root.current = 'main'
             app.set_curr_screen_name('main')

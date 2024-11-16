@@ -2841,6 +2841,17 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._show_demo_mode_popup(can_be_dismissed=False)
 
+    def load_init_preset(self):
+        self.send_nymphes_osc('/load_init_file')
+
+    def load_preset_file(self, filepath):
+        """
+        Load the preset file at filepath
+        :param filepath: str
+        """
+        print(filepath)
+        self.send_nymphes_osc('/load_file', filepath)
+
     @staticmethod
     def _get_next_and_prev_files_for_file_path(file_path):
         """

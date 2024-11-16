@@ -70,7 +70,7 @@
         tooltip_text: 'LOAD PRESET FILE'
         disabled: not app.nymphes_connected
         on_release:
-            app.root.transition = NoTransition()
+            app.root.transition = SlideTransition(direction='left')
             app.root.current = 'file_load'
             app.set_curr_screen_name('file_load')
             self.mouse_inside_bounds = False
