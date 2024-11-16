@@ -881,7 +881,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_load_dialog(self, path, filepaths):
         # Close the file load dialog
-        self.dismiss_popup()
+        #self.dismiss_popup()
 
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')

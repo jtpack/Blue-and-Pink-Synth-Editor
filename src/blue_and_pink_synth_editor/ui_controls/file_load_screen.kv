@@ -18,37 +18,56 @@
         orientation: 'vertical'
         padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
         spacing: root.height * 0.008
+        corner_radius: root.height * 0.015
 
-        # Top Bar
-        TopBar:
-            screen_name: root.name
-            size_hint_y: 3/40
-            corner_radius: root.height * 0.015
-            right_button_is_settings: True
-            right_button_transition: ''
+        FileChooserListView:
+            id: filechooser
+            path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
+            dirselect: False
+            filters: ['*.txt', '*.TXT']
+            sort_func: app.file_list_sort_func
 
-        # Main Controls
         BoxLayout:
-            orientation: 'horizontal'
+            size_hint_y: 1/8
             spacing: self.parent.spacing
-            screen_name: root.name
-            size_hint_y: 34/40
-            corner_radius: root.height * 0.015
+            corner_radius: self.parent.corner_radius
 
-            LeftBar:
-                size_hint: 1/12, 1
-                screen_name: root.name
+            FileButton:
                 corner_radius: self.parent.corner_radius
+                text_size: self.size
+                font_size: self.height * 0.3
+                halign: 'center'
+                valign: 'middle'
+                text: "CANCEL"
+                on_release:
+                    app.root.transition = NoTransition()
+                    app.root.current = 'main'
+                    app.set_curr_screen_name('main')
+                    self.mouse_inside_bounds = False
 
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: self.parent.spacing
+            FileButton:
                 corner_radius: self.parent.corner_radius
+                text_size: self.size
+                font_size: self.height * 0.3
+                halign: 'center'
+                valign: 'middle'
+                text: "OK"
+                disabled: len(filechooser.selection) == 0
+                on_release:
+                    app.on_file_load_dialog(filechooser.path, filechooser.selection)
+                    app.root.transition = NoTransition()
+                    app.root.current = 'main'
+                    app.set_curr_screen_name('main')
+                    self.mouse_inside_bounds = False
 
-                Widget
 
+<FileButton@ButtonBehavior+Label>:
+    corner_radius: 0
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF') if not root.disabled else C('#43454AFF')
 
-        BottomBar:
-            screen_name: root.name
-            size_hint_y: 3/40
-            corner_radius: root.height * 0.015
+        SmoothRoundedRectangle:
+            pos: root.pos
+            size: root.width, root.height
+            radius: [root.corner_radius, root.corner_radius, root.corner_radius, root.corner_radius]
