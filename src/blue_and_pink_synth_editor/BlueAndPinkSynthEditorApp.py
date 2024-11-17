@@ -49,7 +49,7 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.blue_and_pink_synth_editor.ui_controls.file_load_screen import FileLoadScreen
+from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
 from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 Factory.register('LoadDialog', cls=LoadDialog)

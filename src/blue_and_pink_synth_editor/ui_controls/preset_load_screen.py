@@ -10,17 +10,12 @@ this_file_name = Path(__file__).stem
 Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
-class FileLoadScreen(Screen):
+class PresetLoadScreen(Screen):
     pass
 
 
-class FileLoadScreenTopBar(BoxLayout):
-    corner_radius = NumericProperty(0)
+class PresetLoadScreenTopBar(BoxLayout):\
     screen_name = StringProperty('')
-
-# class FileLoadMainControlsBox(BoxLayout):
-#     screen_name = StringProperty('')
-#     corner_radius = NumericProperty(0)
 
 
 class PresetSlotChooser(BoxLayout):
