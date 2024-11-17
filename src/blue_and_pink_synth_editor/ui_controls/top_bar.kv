@@ -68,8 +68,12 @@
         size_hint_x: 4/40
         text: 'SAVE AS'
         tooltip_text: 'SAVE TO PRESET SLOTS AND FILES'
-        on_release: app.show_save_dialog()
         disabled: not app.nymphes_connected
+        on_release:
+            app.root.transition = NoTransition()
+            app.root.current = 'preset_save'
+            app.set_curr_screen_name('preset_save')
+            self.mouse_inside_bounds = False
 
     TopBarButton:
         screen_name: root.screen_name

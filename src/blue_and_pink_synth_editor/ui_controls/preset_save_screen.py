@@ -10,15 +10,15 @@ this_file_name = Path(__file__).stem
 Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
-class PresetLoadScreen(Screen):
+class PresetSaveScreen(Screen):
     pass
 
 
-class PresetLoadScreenTopBar(BoxLayout):\
+class PresetSaveScreenTopBar(BoxLayout):\
     screen_name = StringProperty('')
 
 
-class PresetLoadSlotChooser(BoxLayout):
+class PresetSaveSlotChooser(BoxLayout):
     preset_type = StringProperty('')
     preset_bank = StringProperty('')
     preset_number = StringProperty('')

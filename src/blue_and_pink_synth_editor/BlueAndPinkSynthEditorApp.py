@@ -50,6 +50,7 @@ from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
 from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
+from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
 from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 Factory.register('LoadDialog', cls=LoadDialog)
@@ -771,15 +772,15 @@ class BlueAndPinkSynthEditorApp(App):
         preset_info = BlueAndPinkSynthEditorApp.parse_preset_index(preset_index)
 
         # Load the preset
-        self.load_preset(preset_info['bank_name'],
-                         preset_info['preset_num'],
-                         preset_info['preset_type'])
+        self.load_preset(preset_info['preset_type'],
+                         preset_info['preset_bank'],
+                         preset_info['preset_num'])
 
-    def load_preset(self, bank_name, preset_num, preset_type):
+    def load_preset(self, preset_type, preset_bank, preset_num):
         self.send_nymphes_osc(
             '/load_preset',
             preset_type,
-            bank_name,
+            preset_bank,
             preset_num
         )
 
@@ -2506,9 +2507,9 @@ class BlueAndPinkSynthEditorApp(App):
         preset_num = preset_nums[int((preset_index % 49) % 7)]
         preset_type = preset_types[int(preset_index / 49)]
 
-        return {'bank_name': bank_name,
-                'preset_num': preset_num,
-                'preset_type': preset_type}
+        return {'preset_type': preset_type,
+                'preset_bank': bank_name,
+                'preset_num': preset_num}
 
     @staticmethod
     def index_from_preset_info(bank_name, preset_num, preset_type):
@@ -2847,10 +2848,30 @@ class BlueAndPinkSynthEditorApp(App):
     def load_preset_file(self, filepath):
         """
         Load the preset file at filepath
+        :param filepath: Path or str
+        """
+        filepath = Path(filepath).resolve()
+        self.send_nymphes_osc('/load_file', str(filepath))
+
+    def save_to_preset_file(self, filepath):
+        """
+        Save the current Nymphes settings to a file at filepath.
         :param filepath: str
         """
-        print(filepath)
-        self.send_nymphes_osc('/load_file', filepath)
+        filepath = Path(filepath).resolve()
+        self.send_nymphes_osc('/save_to_file', str(filepath))
+
+    def save_to_preset_slot(self, preset_type, preset_bank, preset_number):
+        """
+        Save the current Nymphes settings to a preset slot.
+        :param preset_type: str. 'user' or 'factory'
+        :param preset_bank: str. 'A' through 'G'
+        :param preset_number: int. 1 through 7
+        """
+        self.send_nymphes_osc('/save_to_preset',
+                              preset_type,
+                              preset_bank,
+                              preset_number)
 
     @staticmethod
     def _get_next_and_prev_files_for_file_path(file_path):
