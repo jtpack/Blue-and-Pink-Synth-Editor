@@ -4,9 +4,13 @@
       - This is fixed now
 - Moved app_version_string to the top of BlueAndPinkSynthEditorApp.py
   - It's easier to find now
-- Now the OPEN button shows a full screen that can be used to load preset slots as well as files.
-- The MAIN button has been changed to BACK
-  - This seems more intuitive, as it takes you back to the place you were previously (the main screen)
+- The OPEN button has been changed to a LOAD button, and opens a full screen that can be used to load both preset slots and files
+- The top bar buttons have been rearranged
+  - I think this new order is more intuitive
+    - There is also a little bit of safety space between the preset + button and the revert button, to make it harder to accidentally press one when you intend to press the other
+- The MAIN buttons have been changed to BACK buttons
+  - This seems more intuitive to me, as it takes you back to the place you were previously (the main screen)
+
 
 ## v0.3.4-beta
 

@@ -29,6 +29,7 @@
 
         # Main Controls
         BoxLayout:
+            size_hint_y: 37/40
             orientation: 'horizontal'
             spacing: root.height * 0.008
 
@@ -86,53 +87,55 @@
         SmoothRoundedRectangle:
             pos: root.pos
             size: root.width, root.height
-            radius: [app.curr_height * 0.015]
+            radius: [0, 0, app.curr_height * 0.015, app.curr_height * 0.015]
 
     PresetIncButton:
         screen_name: root.screen_name
         tooltip_text: 'RECALL PREVIOUS PRESET'
-        size_hint_x: 1/20
+        size_hint_x: 2/40
         text: '-'
         base_font_size: self.height * 1.2
         on_release: app.load_prev_preset()
 
-    Label:
-        size_hint_x: 8/20
+    TopBarSpinner:
+        size_hint_x: 14/40
+        values: app.presets_spinner_values
         text: app.presets_spinner_text
-        text_size: self.size
-        font_size: self.height * 0.5
-        color: C('#06070FFF')
-        halign: 'center'
-        valign: 'middle'
+        on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
+        screen_name: root.screen_name
+        tooltip_text: 'SELECT A PRESET'
 
     PresetIncButton:
         screen_name: root.screen_name
         tooltip_text: 'RECALL NEXT PRESET'
-        size_hint_x: 1/20
+        size_hint_x: 2/40
         text: '+'
         on_release: app.load_next_preset()
+
+    Widget:
+        size_hint_x: 1/40
 
     TopBarButton:
         screen_name: root.screen_name
         tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
-        size_hint_x: 3/20
+        size_hint_x: 4/40
         text: 'REVERT'
         on_release: app.reload()
         disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
 
     TopBarButton:
         screen_name: root.screen_name
-        size_hint_x: 3/20
+        size_hint_x: 4/40
         text: 'INIT'
         disabled: app.curr_preset_type == 'init' and app.unsaved_preset_changes == False
         on_release: app.load_init_preset()
 
     Widget:
-        size_hint_x: 1/20
+        size_hint_x: 8/40
 
     TopBarButton:
         screen_name: root.screen_name
-        size_hint_x: 3/20
+        size_hint_x: 5/40
         text: 'BACK'
         tooltip_text: ''
         halign: 'right'

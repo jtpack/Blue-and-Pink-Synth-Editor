@@ -24,13 +24,13 @@
     PresetIncButton:
         screen_name: root.screen_name
         tooltip_text: 'RECALL PREVIOUS PRESET'
-        size_hint_x: 1/20
+        size_hint_x: 2/40
         text: '-'
         base_font_size: self.height * 1.2
         on_release: app.load_prev_preset()
 
     TopBarSpinner:
-        size_hint_x: 7/20
+        size_hint_x: 14/40
         values: app.presets_spinner_values
         text: app.presets_spinner_text
         on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
@@ -40,34 +40,42 @@
     PresetIncButton:
         screen_name: root.screen_name
         tooltip_text: 'RECALL NEXT PRESET'
-        size_hint_x: 1/20
+        size_hint_x: 2/40
         text: '+'
         on_release: app.load_next_preset()
+
+    Widget:
+        size_hint_x: 1/40
+
+    TopBarButton:
+        screen_name: root.screen_name
+        tooltip_text: 'DISCARD CHANGES AND RELOAD CURRENT PRESET'
+        size_hint_x: 4/40
+        text: 'REVERT'
+        on_release: app.reload()
+        disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
 
     TopBarButton:
         screen_name: root.screen_name
         text: 'SAVE'
-        tooltip_text: 'SAVE CURRENT CHANGES TO ' + app.presets_spinner_text
-        size_hint_x: 2/20
+        tooltip_text: 'SAVE CHANGES TO CURRENT PRESET'
+        size_hint_x: 4/40
         on_release: app.update_current_preset()
         disabled: not app.nymphes_connected or app.unsaved_preset_changes == False or app.curr_preset_type == 'init'
 
     TopBarButton:
         screen_name: root.screen_name
-        tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
-        size_hint_x: 2/20
-        text: 'REVERT'
-        on_release: app.reload()
-        disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
-
-    Widget:
-        size_hint_x: 1/20
+        size_hint_x: 4/40
+        text: 'SAVE AS'
+        tooltip_text: 'SAVE TO PRESET SLOTS AND FILES'
+        on_release: app.show_save_dialog()
+        disabled: not app.nymphes_connected
 
     TopBarButton:
         screen_name: root.screen_name
-        size_hint_x: 2/20
-        text: 'OPEN'
-        tooltip_text: 'LOAD PRESET FILE'
+        size_hint_x: 4/40
+        text: 'LOAD'
+        tooltip_text: 'LOAD PRESET SLOTS AND FILES'
         disabled: not app.nymphes_connected
         on_release:
             app.root.transition = NoTransition()
@@ -77,18 +85,7 @@
 
     TopBarButton:
         screen_name: root.screen_name
-        size_hint_x: 2/20
-        text: 'SAVE AS'
-        tooltip_text: 'SAVE TO NEW PRESET FILE'
-        on_release: app.show_save_dialog()
-        disabled: not app.nymphes_connected
-
-    Widget:
-        size_hint_x: 1/20
-
-    TopBarButton:
-        screen_name: root.screen_name
-        size_hint_x: 3/20
+        size_hint_x: 5/40
         text: 'SETTINGS' if root.right_button_is_settings else 'BACK'
         tooltip_text: ''
         halign: 'right'
