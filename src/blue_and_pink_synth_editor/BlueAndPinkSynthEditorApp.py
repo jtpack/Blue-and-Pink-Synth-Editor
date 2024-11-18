@@ -2859,6 +2859,7 @@ class BlueAndPinkSynthEditorApp(App):
         :param filepath: str
         """
         filepath = Path(filepath).resolve()
+        Logger.info(f'save_to_preset_file: {filepath}')
         self.send_nymphes_osc('/save_to_file', str(filepath))
 
     def save_to_preset_slot(self, preset_type, preset_bank, preset_number):
@@ -2868,6 +2869,7 @@ class BlueAndPinkSynthEditorApp(App):
         :param preset_bank: str. 'A' through 'G'
         :param preset_number: int. 1 through 7
         """
+        Logger.info(f'save_to_preset_slot: {preset_type} {preset_bank}{preset_number}')
         self.send_nymphes_osc('/save_to_preset',
                               preset_type,
                               preset_bank,

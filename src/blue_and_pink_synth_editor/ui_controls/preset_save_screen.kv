@@ -2,6 +2,7 @@
 #:import C kivy.utils.get_color_from_hex
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import Path pathlib.Path
 
 
 <PresetSaveScreen>:
@@ -323,7 +324,18 @@
                 size: self.width, self.height
                 radius: [app.curr_height * 0.015]
 
+        TextInput:
+            id: text_input
+            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else ''
+            text_size: self.size
+            font_size: self.height * 0.3
+            halign: 'left'
+            valign: 'middle'
+            size_hint_y: 2/21
+            multiline: False
+
         FileChooserListView:
+            size_hint_y: 19/21
             id: filechooser
             args_converter: lambda row_index, rec: {'name': rec['name']}
             path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
@@ -337,7 +349,7 @@
         halign: 'center'
         valign: 'middle'
         text: 'SAVE'
-        disabled: len(filechooser.selection) == 0
+        disabled: text_input.text == ''
         on_release:
-            app.save_to_preset_file(filechooser.selection[0])
+            app.save_to_preset_file(Path(filechooser.path) / f'{text_input.text}.txt')
             self.disabled = True

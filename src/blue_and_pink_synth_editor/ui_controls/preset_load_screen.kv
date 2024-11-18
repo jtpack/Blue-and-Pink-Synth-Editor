@@ -277,9 +277,6 @@
         disabled: not ((root.preset_type != '') & (root.preset_bank != '') & (root.preset_number != ''))
         on_release:
             app.load_preset(root.preset_type.lower(), root.preset_bank, int(root.preset_number))
-            root.preset_bank = ''
-            root.preset_number = ''
-            root.preset_type = ''
             self.disabled = True
 
 <PresetLoadSectionLabel@Label>:
