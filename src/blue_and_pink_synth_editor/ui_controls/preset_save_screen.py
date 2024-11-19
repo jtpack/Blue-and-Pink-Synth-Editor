@@ -22,3 +22,11 @@ class PresetSaveSlotChooser(BoxLayout):
     preset_type = StringProperty('')
     preset_bank = StringProperty('')
     preset_number = StringProperty('')
+
+
+class PresetSaveFileChooser(BoxLayout):
+    def refresh_filechooser_data(self):
+        filechooser = self.ids.filechooser
+        current_path = filechooser.path
+        filechooser.path = ''  # Temporarily clear the path
+        filechooser.path = current_path  # Reset the path to refresh

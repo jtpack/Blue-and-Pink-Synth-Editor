@@ -35,8 +35,6 @@ Logger.setLevel(LOG_LEVELS["debug"])
 from nymphes_midi.NymphesPreset import NymphesPreset
 from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from src.blue_and_pink_synth_editor.ui_controls.load_dialog import LoadDialog
-from src.blue_and_pink_synth_editor.ui_controls.save_dialog import SaveDialog, SavePopup
 from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
 from src.blue_and_pink_synth_editor.ui_controls import chords_screen
 from src.blue_and_pink_synth_editor.ui_controls import value_control
@@ -53,8 +51,6 @@ from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import Preset
 from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
 from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
-Factory.register('LoadDialog', cls=LoadDialog)
-Factory.register('SaveDialog', cls=SaveDialog)
 
 #
 # Make sure that activation_code_enabled.py file exists.
@@ -783,41 +779,6 @@ class BlueAndPinkSynthEditorApp(App):
             preset_bank,
             preset_num
         )
-
-    def show_load_dialog(self):
-        if self._popup is not None:
-            self.dismiss_popup()
-
-        content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content,
-                            size_hint=(0.9, 0.9))
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
-
-    def show_save_dialog(self):
-        if self._popup is not None:
-            self.dismiss_popup()
-
-        if self.curr_preset_type == 'init':
-            default_filename = 'new_preset.txt'
-        elif self.curr_preset_type == 'file' and self._curr_preset_file_path.name == 'init.txt':
-            default_filename = 'new_preset.txt'
-        elif self.curr_preset_type == 'preset_slot':
-            default_filename = f'{self._curr_preset_slot_type.upper()} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}.txt'
-        elif self.curr_preset_type == 'file':
-            default_filename = self._curr_preset_file_path.name
-        else:
-            default_filename = ''
-
-        content = SaveDialog(
-            save=self.on_file_save_dialog,
-            cancel=self.dismiss_popup,
-            default_filename=default_filename
-        )
-        self._popup = SavePopup(title="Save file", content=content,
-                                size_hint=(0.9, 0.9))
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
 
     def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
         def work_func(_, error_text, error_detail_text):

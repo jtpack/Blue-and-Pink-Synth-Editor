@@ -7,6 +7,9 @@
 <PresetLoadScreen>:
     name: 'preset_load'
 
+    on_pre_enter:
+        filechooser_box.refresh_filechooser_data()
+
     canvas.before:
         Color:
             rgba: C('#092042FF')
@@ -21,15 +24,15 @@
         spacing: root.height * 0.008
 
         # Top Bar
-        PresetLoadScreenTopBar:
+        TopBar:
             screen_name: root.name
             size_hint_y: 3/40
             right_button_is_settings: False
-            right_button_transition: 'right'
+            right_button_transition: ''
 
         # Main Controls
         BoxLayout:
-            size_hint_y: 37/40
+            size_hint_y: 34/40
             orientation: 'horizontal'
             spacing: root.height * 0.008
 
@@ -39,7 +42,13 @@
               
             # RIGHT: Preset Files
             PresetLoadFileChooser:
+                id: filechooser_box
                 size_hint_x: 5/9
+
+        BottomBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
 
 
 <PresetLoadButton@HoverButton>:
@@ -74,77 +83,6 @@
             size: self.width, self.height
             radius: [app.curr_height * 0.015]
 
-<PresetLoadScreenTopBar>:
-    orientation: 'horizontal'
-    padding: [0, 0, self.width * 0.01, 0]
-    spacing: self.parent.spacing
-    screen_name: 'preset_load'
-
-    canvas.before:
-        Color:
-            rgba: C('#257CFFFF')
-
-        SmoothRoundedRectangle:
-            pos: root.pos
-            size: root.width, root.height
-            radius: [0, 0, app.curr_height * 0.015, app.curr_height * 0.015]
-
-    PresetIncButton:
-        screen_name: root.screen_name
-        tooltip_text: 'RECALL PREVIOUS PRESET'
-        size_hint_x: 2/40
-        text: '-'
-        base_font_size: self.height * 1.2
-        on_release: app.load_prev_preset()
-
-    TopBarSpinner:
-        size_hint_x: 14/40
-        values: app.presets_spinner_values
-        text: app.presets_spinner_text
-        on_text: app.presets_spinner_text_changed(self.values.index(self.text), self.text)
-        screen_name: root.screen_name
-        tooltip_text: 'SELECT A PRESET'
-
-    PresetIncButton:
-        screen_name: root.screen_name
-        tooltip_text: 'RECALL NEXT PRESET'
-        size_hint_x: 2/40
-        text: '+'
-        on_release: app.load_next_preset()
-
-    Widget:
-        size_hint_x: 1/40
-
-    TopBarButton:
-        screen_name: root.screen_name
-        tooltip_text: 'DISCARD CHANGES AND RELOAD ' + app.presets_spinner_text
-        size_hint_x: 4/40
-        text: 'REVERT'
-        on_release: app.reload()
-        disabled: not app.nymphes_connected or app.curr_preset_type == '' or app.unsaved_preset_changes == False
-
-    TopBarButton:
-        screen_name: root.screen_name
-        size_hint_x: 4/40
-        text: 'INIT'
-        disabled: app.curr_preset_type == 'init' and app.unsaved_preset_changes == False
-        on_release: app.load_init_preset()
-
-    Widget:
-        size_hint_x: 8/40
-
-    TopBarButton:
-        screen_name: root.screen_name
-        size_hint_x: 5/40
-        text: 'BACK'
-        tooltip_text: ''
-        halign: 'right'
-        on_release:
-            app.root.transition = NoTransition()
-            app.root.current = 'main'
-            app.set_curr_screen_name('main')
-            self.mouse_inside_bounds = False
-
 
 <PresetLoadSlotChooser>:
     orientation: 'vertical'
@@ -161,7 +99,7 @@
             radius: [app.curr_height * 0.015]
 
     PresetLoadSectionLabel:
-        text: 'PRESET SLOTS'
+        text: 'LOAD PRESET SLOT'
         size_hint_y: 1/21
 
     BoxLayout:
@@ -273,7 +211,8 @@
 
     PresetLoadButton:
         size_hint_y: 2/21
-        text: "LOAD"
+        text: 'LOAD'
+        tooltip_text: 'LOAD ' + root.preset_type + ' ' + root.preset_bank + root.preset_number
         disabled: not ((root.preset_type != '') & (root.preset_bank != '') & (root.preset_number != ''))
         on_release:
             app.load_preset(root.preset_type.lower(), root.preset_bank, int(root.preset_number))
@@ -287,7 +226,7 @@
     color: C('#06070FFF')
 
 
-<PresetLoadFileChooser@BoxLayout>:
+<PresetLoadFileChooser>:
     orientation: 'vertical'
     padding: app.curr_height * 0.008
     spacing: app.curr_height * 0.016
@@ -302,7 +241,7 @@
             radius: [app.curr_height * 0.015]
 
     PresetLoadSectionLabel:
-        text: 'PRESET FILES'
+        text: 'LOAD PRESET FILE'
         size_hint_y: 1/21
 
     BoxLayout:
@@ -333,7 +272,8 @@
         text_size: self.size
         halign: 'center'
         valign: 'middle'
-        text: "LOAD"
+        text: 'LOAD'
+        tooltip_text: 'LOAD ' + Path(filechooser.selection[0]).name if len(filechooser.selection) > 0 else ''
         disabled: len(filechooser.selection) == 0
         on_release:
             app.load_preset_file(filechooser.selection[0])
