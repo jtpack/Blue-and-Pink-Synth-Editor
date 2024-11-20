@@ -55,7 +55,7 @@
 <PresetSaveButton@HoverButton>:
     canvas.before:
         Color:
-            rgba: C('#257CFFFF')
+            rgba: C('#5297FFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -64,7 +64,7 @@
 
     base_font_size: self.height * 0.5
     screen_name: 'preset_save'
-    color: C('#06070FFF') if not root.disabled else C('#B7B7B7FF')
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -77,7 +77,7 @@
     valign: 'middle'
     canvas.before:
         Color:
-            rgba: C('#257CFFFF')
+            rgba: C('#5297FFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -92,7 +92,7 @@
 
     canvas.before:
         Color:
-            rgba: C('#1E64CDFF')
+            rgba: C('#257CFFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -217,10 +217,7 @@
         tooltip_text: 'SAVE TO ' + root.preset_type + ' ' + root.preset_bank + root.preset_number
         on_release:
             app.save_to_preset_slot(root.preset_type.lower(), root.preset_bank, int(root.preset_number))
-            root.preset_bank = ''
-            root.preset_number = ''
-            root.preset_type = ''
-            self.disabled = True
+
 
 <PresetSaveSectionLabel@Label>:
     text_size: self.size
@@ -237,7 +234,7 @@
 
     canvas.before:
         Color:
-            rgba: C('#1E64CDFF')
+            rgba: C('#257CFFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -292,7 +289,6 @@
         disabled: text_input.text == ''
         on_release:
             app.save_to_preset_file(Path(filechooser.path) / f'{text_input.text}.txt')
-            self.disabled = True
             # Store the filechooser's current path
             self.prev_path = str(filechooser.path)
             # Clear the path

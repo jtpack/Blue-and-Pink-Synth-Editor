@@ -54,7 +54,7 @@
 <PresetLoadButton@HoverButton>:
     canvas.before:
         Color:
-            rgba: C('#257CFFFF')
+            rgba: C('#5297FFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -63,7 +63,7 @@
 
     base_font_size: self.height * 0.5
     screen_name: 'preset_load'
-    color: C('#06070FFF') if not root.disabled else C('#B7B7B7FF')
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
     text_size: self.size
     halign: 'center'
     valign: 'middle'
@@ -76,7 +76,7 @@
     valign: 'middle'
     canvas.before:
         Color:
-            rgba: C('#257CFFFF')
+            rgba: C('#5297FFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -91,7 +91,7 @@
 
     canvas.before:
         Color:
-            rgba: C('#1E64CDFF')
+            rgba: C('#257CFFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -216,7 +216,6 @@
         disabled: not ((root.preset_type != '') & (root.preset_bank != '') & (root.preset_number != ''))
         on_release:
             app.load_preset(root.preset_type.lower(), root.preset_bank, int(root.preset_number))
-            self.disabled = True
 
 <PresetLoadSectionLabel@Label>:
     text_size: self.size
@@ -233,7 +232,7 @@
 
     canvas.before:
         Color:
-            rgba: C('#1E64CDFF')
+            rgba: C('#257CFFFF')
 
         SmoothRoundedRectangle:
             pos: self.pos
@@ -277,4 +276,3 @@
         disabled: len(filechooser.selection) == 0
         on_release:
             app.load_preset_file(filechooser.selection[0])
-            self.disabled = True

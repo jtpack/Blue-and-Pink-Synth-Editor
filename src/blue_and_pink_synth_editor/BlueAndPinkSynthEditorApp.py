@@ -1660,8 +1660,7 @@ class BlueAndPinkSynthEditorApp(App):
             preset_slot_type = str(args[0])
             preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.info(
-                f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
             # Reset the unsaved changes flag
             self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
@@ -1859,14 +1858,38 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            preset_type = str(args[0])
-            bank_name = str(args[1])
-            preset_number = int(args[2])
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.info(f'Received from nymphes-osc: {address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+            # Reset the unsaved changes flag
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
+
+            # Update the current preset type property
+            self._set_prop_value_on_main_thread('curr_preset_type', 'preset_slot')
+
+            # Store preset slot info
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
+
+            # Get the index of the saved preset slot
+            preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
+            )
+
+            # Calculate the index within the presets spinner options
+            self._curr_presets_spinner_index = 2 + preset_slot_index
+
+            # Update the preset spinner's text
+            preset_name = self.presets_spinner_values[self._curr_presets_spinner_index]
+            if self.presets_spinner_text != preset_name:
+                self._set_presets_spinner_first_option_on_main_thread(preset_name)
 
             # Status bar message
-            msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            msg = f'SAVED TO PRESET SLOT {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/requested_preset_dump':
