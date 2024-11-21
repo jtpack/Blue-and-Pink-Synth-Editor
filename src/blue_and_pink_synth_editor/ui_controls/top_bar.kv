@@ -66,19 +66,6 @@
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 4/40
-        text: 'SAVE AS'
-        tooltip_text: 'SAVE TO PRESET SLOTS AND FILES'
-        disabled: not app.nymphes_connected
-        color: C('#ECBFEBFF') if (app.curr_screen_name == 'preset_save' or self.mouse_pressed) else C('#06070FFF')
-        on_release:
-            app.root.transition = NoTransition()
-            app.root.current = 'preset_save'
-            app.set_curr_screen_name('preset_save')
-            self.mouse_inside_bounds = False
-
-    TopBarButton:
-        screen_name: root.screen_name
-        size_hint_x: 4/40
         text: 'LOAD'
         tooltip_text: 'LOAD PRESET SLOTS AND FILES'
         disabled: not app.nymphes_connected
@@ -87,6 +74,19 @@
             app.root.transition = NoTransition()
             app.root.current = 'preset_load'
             app.set_curr_screen_name('preset_load')
+            self.mouse_inside_bounds = False
+
+    TopBarButton:
+        screen_name: root.screen_name
+        size_hint_x: 4/40
+        text: 'SAVE AS'
+        tooltip_text: 'SAVE TO PRESET SLOTS AND FILES'
+        disabled: not app.nymphes_connected
+        color: C('#ECBFEBFF') if (app.curr_screen_name == 'preset_save' or self.mouse_pressed) else C('#06070FFF')
+        on_release:
+            app.root.transition = NoTransition()
+            app.root.current = 'preset_save'
+            app.set_curr_screen_name('preset_save')
             self.mouse_inside_bounds = False
 
     TopBarButton:

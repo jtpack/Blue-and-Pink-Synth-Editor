@@ -262,9 +262,9 @@
 
         TextInput:
             id: text_input
-            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else ''
+            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else 'new_preset'
             text_size: self.size
-            font_size: self.height * 0.3
+            font_size: self.height * 0.5
             halign: 'left'
             valign: 'middle'
             size_hint_y: 2/21

@@ -1,4 +1,4 @@
-app_version_string = 'v0.3.4-beta_dev'
+app_version_string = 'v0.3.5-beta'
 
 import logging
 from pathlib import Path
@@ -30,7 +30,7 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
 
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["debug"])
+Logger.setLevel(LOG_LEVELS["info"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
 from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
