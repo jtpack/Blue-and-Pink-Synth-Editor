@@ -16,6 +16,7 @@
   - It's easier to find now
 - A bug has been fixed in nymphes-osc where the unsaved_changes flag was not reset after saving to a preset slot
   - Be sure to pull in the latest changes in nymphes-osc if you are running from code
+- Fixed bug where top bar would show the .txt extension in the filename after saving a file, rather than hiding it as it should
 
 
 ## v0.3.4-beta

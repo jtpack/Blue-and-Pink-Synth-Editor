@@ -3,6 +3,7 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 #:import Path pathlib.Path
+#:import Clock kivy.clock.Clock
 
 
 <PresetSaveScreen>:
@@ -10,6 +11,7 @@
 
     on_pre_enter:
         filechooser_box.refresh_filechooser_data()
+        filechooser_box.default_filename = app._curr_preset_file_path.stem if app.curr_preset_type == 'file' else 'new_preset'
 
     canvas.before:
         Color:
@@ -262,9 +264,9 @@
 
         TextInput:
             id: text_input
-            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else 'new_preset'
+            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else root.default_filename
             text_size: self.size
-            font_size: self.height * 0.5
+            font_size: self.height * 0.5 if len(self.text) <= 40 else self.height * 0.4
             halign: 'left'
             valign: 'middle'
             size_hint_y: 2/21
@@ -289,9 +291,4 @@
         disabled: text_input.text == ''
         on_release:
             app.save_to_preset_file(Path(filechooser.path) / f'{text_input.text}.txt')
-            # Store the filechooser's current path
-            self.prev_path = str(filechooser.path)
-            # Clear the path
-            filechooser.path = ''
-            # Set it again to make the filechooser refresh its data
-            filechooser.path = self.prev_path
+            Clock.schedule_once(lambda dt: root.refresh_filechooser_data(), 0.5)

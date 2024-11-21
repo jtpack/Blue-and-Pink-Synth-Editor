@@ -1785,7 +1785,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_preset_file_path = filepath
 
                 # Update the presets spinner.
-                self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.name)
+                self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
 
                 # Status bar message
                 msg = f'SAVED {filepath.name} PRESET FILE'

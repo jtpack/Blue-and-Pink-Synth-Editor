@@ -114,7 +114,7 @@
 
 <TopBarSpinner@HoverSpinner>:
     color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
-    base_font_size: self.height * 0.5 if len(self.text) <= 20 else self.height * 0.3
+    base_font_size: self.height * 0.5 if len(self.text) <= 23 else self.height * 0.4
     font_size: (self.base_font_size * 1.08) if self.mouse_inside_bounds else self.base_font_size
     text_size: self.size
     size_hint_y: None
