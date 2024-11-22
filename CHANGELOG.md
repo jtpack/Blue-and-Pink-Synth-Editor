@@ -1,12 +1,12 @@
 ## v0.3.5-beta
 
-- The OPEN button has been changed to a LOAD button
-  - Now you can select and load both preset slots and files in the same screen
-- The SAVE AS button opens a screen where you can now save to both files and preset slots
+- Now you can now save to both files and preset slots
   - This includes Factory preset slots
+- Now you can select and load both preset slots and files in the LOAD screen (formerly the OPEN file popup)
+  - The OPEN button in the Top Bar has been changed to a LOAD button
 - The top bar buttons have been rearranged
   - I think this new order is more intuitive
-    - There is also a little bit of safety space between the preset + button and the revert button, to make it harder to accidentally press one when you intend to press the other
+  - There is also a little bit of safety space between the preset + button and the revert button, to make it harder to accidentally press one when you intend to press the other
 - All MAIN buttons have been changed to BACK buttons
   - This seems more intuitive to me, as it takes you back to the place you were previously (the main screen)
 - In BlueAndPinkSynthEditor.spec: 
@@ -14,9 +14,9 @@
     - Some people (including me with a fresh install of the code) would get an error complaining about an invalid hidden import when using pyinstaller to compile the app
 - Moved app_version_string to the top of BlueAndPinkSynthEditorApp.py
   - It's easier to find now
-- A bug has been fixed in nymphes-osc where the unsaved_changes flag was not reset after saving to a preset slot
-  - Be sure to pull in the latest changes in nymphes-osc if you are running from code
 - Fixed bug where top bar would show the .txt extension in the filename after saving a file, rather than hiding it as it should
+- A bug has been fixed in nymphes-osc where the unsaved_changes flag was not reset after saving to a preset slot
+  - Be sure to pull in the latest changes in nymphes-osc if you are not using a compiled installer
 
 
 ## v0.3.4-beta
