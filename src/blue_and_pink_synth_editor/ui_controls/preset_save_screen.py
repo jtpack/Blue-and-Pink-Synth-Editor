@@ -29,6 +29,13 @@ class PresetSaveFileChooser(BoxLayout):
 
     def refresh_filechooser_data(self):
         filechooser = self.ids.filechooser
+
+        # In order to refresh the filechooser, we need
+        # to reset its path
         current_path = filechooser.path
-        filechooser.path = ''  # Temporarily clear the path
-        filechooser.path = current_path  # Reset the path to refresh
+        filechooser.path = ''
+        filechooser.path = current_path
+
+        # Also clear its selection if there is one
+        if len(filechooser.selection) > 0:
+            filechooser.selection = []

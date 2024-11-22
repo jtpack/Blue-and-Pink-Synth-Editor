@@ -59,7 +59,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     base_font_size: self.height * 0.5
     screen_name: 'preset_load'
@@ -81,13 +81,13 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
 
 <PresetLoadSlotChooser>:
     orientation: 'vertical'
-    padding: app.curr_height * 0.008
-    spacing: app.curr_height * 0.016
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
 
     canvas.before:
         Color:
@@ -96,7 +96,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     PresetLoadSectionLabel:
         text: 'LOAD PRESET SLOT'
@@ -105,7 +105,7 @@
     BoxLayout:
         orientation: 'vertical'
         padding: 0
-        spacing: app.curr_height * 0.008
+        spacing: app.curr_height * app.curr_scaling * 0.008
         size_hint_y: 18/21
 
         PresetLoadSlotButton:
@@ -124,14 +124,14 @@
         BoxLayout:
             orientation: 'horizontal'
             padding: 0
-            spacing: app.curr_height * 0.008
+            spacing: app.curr_height * app.curr_scaling * 0.008
             size_hint_y: 7/9
 
             # Preset Bank Buttons
             BoxLayout:
                 orientation: 'vertical'
                 padding: 0
-                spacing: app.curr_height * 0.008
+                spacing: app.curr_height * app.curr_scaling * 0.008
 
                 PresetLoadSlotButton:
                     text: 'A'
@@ -172,7 +172,7 @@
             BoxLayout:
                 orientation: 'vertical'
                 padding: 0
-                spacing: app.curr_height * 0.008
+                spacing: app.curr_height * app.curr_scaling * 0.008
 
                 PresetLoadSlotButton:
                     text: '1'
@@ -227,8 +227,8 @@
 
 <PresetLoadFileChooser>:
     orientation: 'vertical'
-    padding: app.curr_height * 0.008
-    spacing: app.curr_height * 0.016
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
 
     canvas.before:
         Color:
@@ -237,7 +237,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     PresetLoadSectionLabel:
         text: 'LOAD PRESET FILE'
@@ -256,7 +256,7 @@
             SmoothRoundedRectangle:
                 pos: self.pos
                 size: self.width, self.height
-                radius: [app.curr_height * 0.015]
+                radius: [app.curr_height * app.curr_scaling * 0.015]
 
         FileChooserListView:
             id: filechooser

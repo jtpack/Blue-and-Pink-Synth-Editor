@@ -11,7 +11,6 @@
 
     on_pre_enter:
         filechooser_box.refresh_filechooser_data()
-        filechooser_box.default_filename = app._curr_preset_file_path.stem if app.curr_preset_type == 'file' else 'new_preset'
 
     canvas.before:
         Color:
@@ -62,7 +61,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     base_font_size: self.height * 0.5
     screen_name: 'preset_save'
@@ -84,13 +83,13 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
 
 <PresetSaveSlotChooser>:
     orientation: 'vertical'
-    padding: app.curr_height * 0.008
-    spacing: app.curr_height * 0.016
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
 
     canvas.before:
         Color:
@@ -99,7 +98,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     PresetSaveSectionLabel:
         text: 'SAVE TO PRESET SLOT'
@@ -108,7 +107,7 @@
     BoxLayout:
         orientation: 'vertical'
         padding: 0
-        spacing: app.curr_height * 0.008
+        spacing: app.curr_height * app.curr_scaling * 0.008
         size_hint_y: 18/21
 
         PresetSaveSlotButton:
@@ -127,14 +126,14 @@
         BoxLayout:
             orientation: 'horizontal'
             padding: 0
-            spacing: app.curr_height * 0.008
+            spacing: app.curr_height * app.curr_scaling * 0.008
             size_hint_y: 7/9
 
             # Preset Bank Buttons
             BoxLayout:
                 orientation: 'vertical'
                 padding: 0
-                spacing: app.curr_height * 0.008
+                spacing: app.curr_height * app.curr_scaling * 0.008
 
                 PresetSaveSlotButton:
                     text: 'A'
@@ -175,7 +174,7 @@
             BoxLayout:
                 orientation: 'vertical'
                 padding: 0
-                spacing: app.curr_height * 0.008
+                spacing: app.curr_height * app.curr_scaling * 0.008
 
                 PresetSaveSlotButton:
                     text: '1'
@@ -230,9 +229,10 @@
 
 
 <PresetSaveFileChooser>:
+    default_filename: 'default_file_name'
     orientation: 'vertical'
-    padding: app.curr_height * 0.008
-    spacing: app.curr_height * 0.016
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
 
     canvas.before:
         Color:
@@ -241,7 +241,7 @@
         SmoothRoundedRectangle:
             pos: self.pos
             size: self.width, self.height
-            radius: [app.curr_height * 0.015]
+            radius: [app.curr_height * app.curr_scaling * 0.015]
 
     PresetSaveSectionLabel:
         text: 'SAVE TO FILE'
@@ -260,11 +260,11 @@
             SmoothRoundedRectangle:
                 pos: self.pos
                 size: self.width, self.height
-                radius: [app.curr_height * 0.015]
+                radius: [app.curr_height * app.curr_scaling * 0.015]
 
         TextInput:
             id: text_input
-            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else root.default_filename
+            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else app._curr_preset_file_path.stem if app.curr_preset_type == 'file' else 'new_preset'
             text_size: self.size
             font_size: self.height * 0.5 if len(self.text) <= 40 else self.height * 0.4
             halign: 'left'
