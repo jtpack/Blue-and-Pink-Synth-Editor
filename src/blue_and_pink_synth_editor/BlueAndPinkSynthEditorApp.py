@@ -1,4 +1,4 @@
-app_version_string = 'v0.3.4-beta_dev'
+app_version_string = 'v0.3.5-beta'
 
 import logging
 from pathlib import Path
@@ -30,13 +30,11 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.osc_message_builder import OscMessageBuilder
 
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["debug"])
+Logger.setLevel(LOG_LEVELS["info"])
 
 from nymphes_midi.NymphesPreset import NymphesPreset
 from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from src.blue_and_pink_synth_editor.ui_controls.load_dialog import LoadDialog
-from src.blue_and_pink_synth_editor.ui_controls.save_dialog import SaveDialog, SavePopup
 from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
 from src.blue_and_pink_synth_editor.ui_controls import chords_screen
 from src.blue_and_pink_synth_editor.ui_controls import value_control
@@ -49,10 +47,10 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
+from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
 from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
-Factory.register('LoadDialog', cls=LoadDialog)
-Factory.register('SaveDialog', cls=SaveDialog)
 
 #
 # Make sure that activation_code_enabled.py file exists.
@@ -770,52 +768,17 @@ class BlueAndPinkSynthEditorApp(App):
         preset_info = BlueAndPinkSynthEditorApp.parse_preset_index(preset_index)
 
         # Load the preset
-        self.load_preset(preset_info['bank_name'],
-                         preset_info['preset_num'],
-                         preset_info['preset_type'])
+        self.load_preset(preset_info['preset_type'],
+                         preset_info['preset_bank'],
+                         preset_info['preset_num'])
 
-    def load_preset(self, bank_name, preset_num, preset_type):
+    def load_preset(self, preset_type, preset_bank, preset_num):
         self.send_nymphes_osc(
             '/load_preset',
             preset_type,
-            bank_name,
+            preset_bank,
             preset_num
         )
-
-    def show_load_dialog(self):
-        if self._popup is not None:
-            self.dismiss_popup()
-
-        content = LoadDialog(load=self.on_file_load_dialog, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content,
-                            size_hint=(0.9, 0.9))
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
-
-    def show_save_dialog(self):
-        if self._popup is not None:
-            self.dismiss_popup()
-
-        if self.curr_preset_type == 'init':
-            default_filename = 'new_preset.txt'
-        elif self.curr_preset_type == 'file' and self._curr_preset_file_path.name == 'init.txt':
-            default_filename = 'new_preset.txt'
-        elif self.curr_preset_type == 'preset_slot':
-            default_filename = f'{self._curr_preset_slot_type.upper()} {self._curr_preset_slot_bank_and_number[0]}{self._curr_preset_slot_bank_and_number[1]}.txt'
-        elif self.curr_preset_type == 'file':
-            default_filename = self._curr_preset_file_path.name
-        else:
-            default_filename = ''
-
-        content = SaveDialog(
-            save=self.on_file_save_dialog,
-            cancel=self.dismiss_popup,
-            default_filename=default_filename
-        )
-        self._popup = SavePopup(title="Save file", content=content,
-                                size_hint=(0.9, 0.9))
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
 
     def show_error_dialog_on_main_thread(self, error_string, error_detail_string):
         def work_func(_, error_text, error_detail_text):
@@ -880,7 +843,7 @@ class BlueAndPinkSynthEditorApp(App):
 
     def on_file_load_dialog(self, path, filepaths):
         # Close the file load dialog
-        self.dismiss_popup()
+        #self.dismiss_popup()
 
         if len(filepaths) > 0:
             Logger.debug(f'load path: {path}, filename: {filepaths}')
@@ -1697,8 +1660,7 @@ class BlueAndPinkSynthEditorApp(App):
             preset_slot_type = str(args[0])
             preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.info(
-                f'{address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
 
             # Reset the unsaved changes flag
             self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
@@ -1823,7 +1785,7 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_preset_file_path = filepath
 
                 # Update the presets spinner.
-                self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.name)
+                self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
 
                 # Status bar message
                 msg = f'SAVED {filepath.name} PRESET FILE'
@@ -1896,14 +1858,38 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            preset_type = str(args[0])
-            bank_name = str(args[1])
-            preset_number = int(args[2])
+            preset_slot_type = str(args[0])
+            preset_slot_bank_and_number = str(args[1]), int(args[2])
 
-            Logger.info(f'Received from nymphes-osc: {address}: {preset_type} {bank_name}{preset_number}')
+            Logger.info(f'Received from nymphes-osc: {address}: {preset_slot_type} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}')
+
+            # Reset the unsaved changes flag
+            self._set_prop_value_on_main_thread('unsaved_preset_changes', False)
+
+            # Update the current preset type property
+            self._set_prop_value_on_main_thread('curr_preset_type', 'preset_slot')
+
+            # Store preset slot info
+            self._curr_preset_slot_type = preset_slot_type
+            self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
+
+            # Get the index of the saved preset slot
+            preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
+                bank_name=self._curr_preset_slot_bank_and_number[0],
+                preset_num=self._curr_preset_slot_bank_and_number[1],
+                preset_type=self._curr_preset_slot_type
+            )
+
+            # Calculate the index within the presets spinner options
+            self._curr_presets_spinner_index = 2 + preset_slot_index
+
+            # Update the preset spinner's text
+            preset_name = self.presets_spinner_values[self._curr_presets_spinner_index]
+            if self.presets_spinner_text != preset_name:
+                self._set_presets_spinner_first_option_on_main_thread(preset_name)
 
             # Status bar message
-            msg = f'SAVED TO PRESET SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            msg = f'SAVED TO PRESET SLOT {preset_slot_type.upper()} {preset_slot_bank_and_number[0]}{preset_slot_bank_and_number[1]}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/requested_preset_dump':
@@ -2505,9 +2491,9 @@ class BlueAndPinkSynthEditorApp(App):
         preset_num = preset_nums[int((preset_index % 49) % 7)]
         preset_type = preset_types[int(preset_index / 49)]
 
-        return {'bank_name': bank_name,
-                'preset_num': preset_num,
-                'preset_type': preset_type}
+        return {'preset_type': preset_type,
+                'preset_bank': bank_name,
+                'preset_num': preset_num}
 
     @staticmethod
     def index_from_preset_info(bank_name, preset_num, preset_type):
@@ -2839,6 +2825,39 @@ class BlueAndPinkSynthEditorApp(App):
         Logger.info('Demo mode timer ended')
 
         self._show_demo_mode_popup(can_be_dismissed=False)
+
+    def load_init_preset(self):
+        self.send_nymphes_osc('/load_init_file')
+
+    def load_preset_file(self, filepath):
+        """
+        Load the preset file at filepath
+        :param filepath: Path or str
+        """
+        filepath = Path(filepath).resolve()
+        self.send_nymphes_osc('/load_file', str(filepath))
+
+    def save_to_preset_file(self, filepath):
+        """
+        Save the current Nymphes settings to a file at filepath.
+        :param filepath: str
+        """
+        filepath = Path(filepath).resolve()
+        Logger.info(f'save_to_preset_file: {filepath}')
+        self.send_nymphes_osc('/save_to_file', str(filepath))
+
+    def save_to_preset_slot(self, preset_type, preset_bank, preset_number):
+        """
+        Save the current Nymphes settings to a preset slot.
+        :param preset_type: str. 'user' or 'factory'
+        :param preset_bank: str. 'A' through 'G'
+        :param preset_number: int. 1 through 7
+        """
+        Logger.info(f'save_to_preset_slot: {preset_type} {preset_bank}{preset_number}')
+        self.send_nymphes_osc('/save_to_preset',
+                              preset_type,
+                              preset_bank,
+                              preset_number)
 
     @staticmethod
     def _get_next_and_prev_files_for_file_path(file_path):

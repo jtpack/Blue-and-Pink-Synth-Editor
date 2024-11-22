@@ -1,0 +1,295 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import Path pathlib.Path
+#:import Clock kivy.clock.Clock
+
+
+<PresetSaveScreen>:
+    name: 'preset_save'
+
+    on_pre_enter:
+        filechooser_box.refresh_filechooser_data()
+
+    canvas.before:
+        Color:
+            rgba: C('#092042FF')
+
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.008
+
+        # Top Bar
+        TopBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+            right_button_is_settings: False
+            right_button_transition: ''
+
+        # Main Controls
+        BoxLayout:
+            size_hint_y: 34/40
+            orientation: 'horizontal'
+            spacing: root.height * 0.008
+
+            # LEFT: Preset Slots
+            PresetSaveSlotChooser:
+                size_hint_x: 4/9
+              
+            # RIGHT: Preset Files
+            PresetSaveFileChooser:
+                id: filechooser_box
+                size_hint_x: 5/9
+
+        BottomBar:
+            screen_name: root.name
+            size_hint_y: 3/40
+            corner_radius: root.height * 0.015
+
+
+<PresetSaveButton@HoverButton>:
+    canvas.before:
+        Color:
+            rgba: C('#5297FFFF')
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.width, self.height
+            radius: [app.curr_height * app.curr_scaling * 0.015]
+
+    base_font_size: self.height * 0.5
+    screen_name: 'preset_save'
+    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+
+<PresetSaveSlotButton@HoverButton>:
+    base_font_size: self.height * 0.5
+    screen_name: 'preset_save'
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    canvas.before:
+        Color:
+            rgba: C('#5297FFFF')
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.width, self.height
+            radius: [app.curr_height * app.curr_scaling * 0.015]
+
+
+<PresetSaveSlotChooser>:
+    orientation: 'vertical'
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.width, self.height
+            radius: [app.curr_height * app.curr_scaling * 0.015]
+
+    PresetSaveSectionLabel:
+        text: 'SAVE TO PRESET SLOT'
+        size_hint_y: 1/21
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 0
+        spacing: app.curr_height * app.curr_scaling * 0.008
+        size_hint_y: 18/21
+
+        PresetSaveSlotButton:
+            size_hint_y: 1/9
+            text: 'FACTORY'
+            color: C('#ECBFEBFF') if root.preset_type == self.text else C('#06070FFF')
+            on_release: root.preset_type = self.text
+
+        PresetSaveSlotButton:
+            size_hint_y: 1/9
+            color: C('#ECBFEBFF') if root.preset_type == self.text else C('#06070FFF')
+            text: 'USER'
+            on_release: root.preset_type = self.text
+
+        # Preset Slot Bank and Number Buttons
+        BoxLayout:
+            orientation: 'horizontal'
+            padding: 0
+            spacing: app.curr_height * app.curr_scaling * 0.008
+            size_hint_y: 7/9
+
+            # Preset Bank Buttons
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 0
+                spacing: app.curr_height * app.curr_scaling * 0.008
+
+                PresetSaveSlotButton:
+                    text: 'A'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'B'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'C'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'D'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'E'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'F'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+                PresetSaveSlotButton:
+                    text: 'G'
+                    color: C('#ECBFEBFF') if root.preset_bank == self.text else C('#06070FFF')
+                    on_release: root.preset_bank = self.text
+
+            # Preset Number Buttons
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 0
+                spacing: app.curr_height * app.curr_scaling * 0.008
+
+                PresetSaveSlotButton:
+                    text: '1'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '2'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '3'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '4'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '5'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '6'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+                PresetSaveSlotButton:
+                    text: '7'
+                    color: C('#ECBFEBFF') if root.preset_number == self.text else C('#06070FFF')
+                    on_release: root.preset_number = self.text
+
+    PresetSaveButton:
+        size_hint_y: 2/21
+        text: 'SAVE'
+        disabled: not ((root.preset_type != '') & (root.preset_bank != '') & (root.preset_number != ''))
+        tooltip_text: 'SAVE TO ' + root.preset_type + ' ' + root.preset_bank + root.preset_number
+        on_release:
+            app.save_to_preset_slot(root.preset_type.lower(), root.preset_bank, int(root.preset_number))
+
+
+<PresetSaveSectionLabel@Label>:
+    text_size: self.size
+    font_size: self.height * 0.7
+    halign: 'left'
+    valign: 'middle'
+    color: C('#06070FFF')
+
+
+<PresetSaveFileChooser>:
+    default_filename: 'default_file_name'
+    orientation: 'vertical'
+    padding: app.curr_height * app.curr_scaling * 0.008
+    spacing: app.curr_height * app.curr_scaling * 0.016
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.width, self.height
+            radius: [app.curr_height * app.curr_scaling * 0.015]
+
+    PresetSaveSectionLabel:
+        text: 'SAVE TO FILE'
+        size_hint_y: 1/21
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: 18/21
+        padding: 0
+        spacing: 0
+
+        canvas.before:
+            Color:
+                rgba: C('#257CFFFF')
+
+            SmoothRoundedRectangle:
+                pos: self.pos
+                size: self.width, self.height
+                radius: [app.curr_height * app.curr_scaling * 0.015]
+
+        TextInput:
+            id: text_input
+            text: Path(filechooser.selection[0]).stem if len(filechooser.selection) > 0 else app._curr_preset_file_path.stem if app.curr_preset_type == 'file' else 'new_preset'
+            text_size: self.size
+            font_size: self.height * 0.5 if len(self.text) <= 40 else self.height * 0.4
+            halign: 'left'
+            valign: 'middle'
+            size_hint_y: 2/21
+            multiline: False
+
+        FileChooserListView:
+            size_hint_y: 19/21
+            id: filechooser
+            args_converter: lambda row_index, rec: {'name': rec['name']}
+            path: str(app._curr_preset_file_path.parent if app._curr_preset_file_path is not None else app._presets_directory_path)
+            dirselect: False
+            filters: ['*.txt', '*.TXT']
+            sort_func: app.file_list_sort_func
+
+    PresetSaveButton:
+        size_hint_y: 2/21
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        text: 'SAVE'
+        tooltip_text: f'SAVE TO {text_input.text}.txt' if text_input.text != '' else ''
+        disabled: text_input.text == ''
+        on_release:
+            app.save_to_preset_file(Path(filechooser.path) / f'{text_input.text}.txt')
+            Clock.schedule_once(lambda dt: root.refresh_filechooser_data(), 0.5)
