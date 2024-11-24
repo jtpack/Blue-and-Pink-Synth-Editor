@@ -1,3 +1,10 @@
+## v0.3.6-beta
+
+- Now the LOAD, SAVE AS, and SETTINGS buttons in the top bar toggle between their screens and the main screen
+  - This means there's no longer a need for the SETTINGS button to turn into a BACK button
+    - This means that you can now directly access the settings screen from all screens
+    
+
 ## v0.3.5-beta
 
 - Now you can now save to both files and preset slots

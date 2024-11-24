@@ -8,8 +8,6 @@
     orientation: 'horizontal'
     padding: [0, 0, self.width * 0.01, 0]
     spacing: self.parent.spacing
-    right_button_is_settings: True
-    right_button_transition: 'left'
     screen_name: ''
 
     canvas.before:
@@ -67,38 +65,39 @@
         screen_name: root.screen_name
         size_hint_x: 4/40
         text: 'LOAD'
-        tooltip_text: 'LOAD PRESET SLOTS AND FILES'
+        tooltip_text: 'LOAD PRESET SLOTS AND FILES' if app.curr_screen_name != 'preset_load' else 'BACK TO MAIN SCREEN'
         disabled: not app.nymphes_connected
         color: C('#ECBFEBFF') if (app.curr_screen_name == 'preset_load' or self.mouse_pressed) else C('#06070FFF')
         on_release:
             app.root.transition = NoTransition()
-            app.root.current = 'preset_load'
-            app.set_curr_screen_name('preset_load')
+            app.root.current = 'preset_load' if app.curr_screen_name != 'preset_load' else 'main'
+            app.set_curr_screen_name('preset_load' if app.curr_screen_name != 'preset_load' else 'main')
             self.mouse_inside_bounds = False
 
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 4/40
         text: 'SAVE AS'
-        tooltip_text: 'SAVE TO PRESET SLOTS AND FILES'
+        tooltip_text: 'SAVE TO PRESET SLOTS AND FILES' if app.curr_screen_name != 'preset_save' else 'BACK TO MAIN SCREEN'
         disabled: not app.nymphes_connected
         color: C('#ECBFEBFF') if (app.curr_screen_name == 'preset_save' or self.mouse_pressed) else C('#06070FFF')
         on_release:
             app.root.transition = NoTransition()
-            app.root.current = 'preset_save'
-            app.set_curr_screen_name('preset_save')
+            app.root.current = 'preset_save' if app.curr_screen_name != 'preset_save' else 'main'
+            app.set_curr_screen_name('preset_save' if app.curr_screen_name != 'preset_save' else 'main')
             self.mouse_inside_bounds = False
 
     TopBarButton:
         screen_name: root.screen_name
         size_hint_x: 5/40
-        text: 'SETTINGS' if root.right_button_is_settings else 'BACK'
-        tooltip_text: ''
+        text: 'SETTINGS'
+        tooltip_text: 'SHOW SETTINGS SCREEN' if app.curr_screen_name != 'settings' else 'BACK TO MAIN SCREEN'
         halign: 'right'
+        color: C('#ECBFEBFF') if (app.curr_screen_name == 'settings' or self.mouse_pressed) else C('#06070FFF')
         on_release:
-            app.root.transition = SlideTransition(direction='left') if root.right_button_transition == 'left' else SlideTransition(direction='right') if root.right_button_transition == 'right' else NoTransition() 
-            app.root.current = 'settings' if root.right_button_is_settings else 'main'
-            app.set_curr_screen_name('settings' if root.right_button_is_settings else 'main')
+            app.root.transition = NoTransition()
+            app.root.current = 'settings' if app.curr_screen_name != 'settings' else 'main'
+            app.set_curr_screen_name('settings' if app.curr_screen_name != 'settings' else 'main')
             self.mouse_inside_bounds = False
 
 

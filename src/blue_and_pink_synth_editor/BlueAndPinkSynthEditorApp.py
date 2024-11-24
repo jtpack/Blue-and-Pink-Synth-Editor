@@ -1,4 +1,4 @@
-app_version_string = 'v0.3.5-beta'
+app_version_string = 'v0.3.6-beta'
 
 import logging
 from pathlib import Path

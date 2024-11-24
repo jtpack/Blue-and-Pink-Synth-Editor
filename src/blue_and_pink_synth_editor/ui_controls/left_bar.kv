@@ -122,7 +122,7 @@
 
 <ChordsButton@HoverButton>:
     text: 'BACK' if app.curr_screen_name == 'chords' else 'CHORD'
-    color: C('#ECBFEBFF') if self.mouse_pressed else C('#06070FFF')
+    color: C('#ECBFEBFF') if (app.curr_screen_name == 'chords' or self.mouse_pressed) else C('#06070FFF')
     base_font_size: self.height * 0.35
     on_release:
         app.root.transition = NoTransition()
