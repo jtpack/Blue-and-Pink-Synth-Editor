@@ -1815,9 +1815,7 @@ class BlueAndPinkSynthEditorApp(App):
         elif address == '/saved_to_preset':
             #
             # The current settings have been saved into one of
-            # Nymphes' preset slots. We will not make the preset
-            # active however, because Nymphes has not actually
-            # loaded the new preset.
+            # Nymphes' preset slots.
             #
 
             # Get the preset info
