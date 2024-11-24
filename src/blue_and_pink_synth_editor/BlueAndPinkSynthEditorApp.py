@@ -841,43 +841,6 @@ class BlueAndPinkSynthEditorApp(App):
                 self._curr_preset_slot_bank_and_number[1]
             )
 
-    def on_file_load_dialog(self, path, filepaths):
-        # Close the file load dialog
-        #self.dismiss_popup()
-
-        if len(filepaths) > 0:
-            Logger.debug(f'load path: {path}, filename: {filepaths}')
-
-            if Path(filepaths[0]).name == 'init.txt':
-                # This is the init file. Don't load it as a regular
-                # preset file. Load it as init.
-                self.send_nymphes_osc('/load_init_file')
-
-            else:
-                # Send message to nymphes controller to load the preset file
-                self.send_nymphes_osc('/load_file', filepaths[0])
-
-    def on_file_save_dialog(self, directory_path, filepath):
-        # Close the dialogue
-        self.dismiss_popup()
-
-        # Get the filename by removing all occurrences of the
-        # directory path (with a trailing slash added)
-        filename = filepath.replace(directory_path + '/', '')
-
-        if filename != '':
-            # Make sure that the filename has a .txt file extension
-            if '.txt' not in filename.lower():
-                filename += '.txt'
-
-            # Reconstruct the full path
-            filepath = directory_path + '/' + filename
-
-            Logger.info(f'Saving preset to {filepath}')
-
-            # Send message to nymphes controller to load the preset file
-            self.send_nymphes_osc('/save_to_file', filepath)
-
     def presets_spinner_text_changed(self, spinner_index, spinner_text):
         if self._curr_presets_spinner_index != spinner_index:
 
