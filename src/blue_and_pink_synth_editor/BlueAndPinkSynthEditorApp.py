@@ -441,8 +441,6 @@ class BlueAndPinkSynthEditorApp(App):
     # App Activation
     #
     demo_mode = BooleanProperty(False)
-    if activation_code_checking_enabled():
-        demo_mode = True
 
     user_name = StringProperty('')
     user_email = StringProperty('')
@@ -616,7 +614,7 @@ class BlueAndPinkSynthEditorApp(App):
         #
         self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
         self._demo_mode_timer = None
-        self.demo_mode_timer_duration_sec = 60 * 0.5
+        self.demo_mode_timer_duration_sec = 60 * 15
 
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)
@@ -2688,15 +2686,16 @@ class BlueAndPinkSynthEditorApp(App):
         :param file_path: Path or str
         :return:
         """
-        try:
-            # Get the file's contents as a string
-            activation_code_str = load_activation_code_from_file(file_path)
+        # Get the file's contents as a string
+        activation_code_str = load_activation_code_from_file(file_path)
 
-            # It contains data encoded via json. Get it as a dict
-            activation_code_data_dict = data_from_activation_code(activation_code_str)
+        # It contains data encoded via json. Get it as a dict
+        activation_code_data_dict = data_from_activation_code(activation_code_str)
 
-            # Verify whether the code is valid.
-            verify_activation_code(activation_code_str)
+        # Verify whether the code is valid.
+        valid = verify_activation_code(activation_code_str)
+
+        if valid:
 
             # Get license info from file
             self.user_name = activation_code_data_dict['display_name']
@@ -2731,10 +2730,10 @@ class BlueAndPinkSynthEditorApp(App):
                     self.show_error_dialog_on_main_thread(
                         f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
 
-        except Exception as e1:
+        else:
             # The activation code was not valid.
-            Logger.warning(f'Activation code file at {file_path} was invalid ({e1})')
-            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', str(e1))
+            Logger.warning(f'Activation code file at {file_path} was invalid')
+            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
 
             Clock.schedule_once(lambda dt: self.enter_demo_mode(), 2)
 
@@ -2753,30 +2752,33 @@ class BlueAndPinkSynthEditorApp(App):
 
     def enter_demo_mode(self):
         Logger.info('Entering Demo Mode')
+        already_in_demo_mode = self.demo_mode
+
         self.demo_mode = True
 
         self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
 
-        # Start the demo mode timer
-        self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_expired, self.demo_mode_timer_duration_sec)
-        Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
+        if not already_in_demo_mode:
+            # Start the demo mode timer
+            self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_expired, self.demo_mode_timer_duration_sec)
+            Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
 
-        # Show the demo mode popup
-        if self._popup is not None:
-            self.dismiss_popup()
+            # Show the demo mode popup
+            if self._popup is not None:
+                self.dismiss_popup()
 
-        content = DemoModePopup()
+            content = DemoModePopup()
 
-        self._popup = Popup(title='DEMO MODE',
-                            content=content,
-                            size_hint=(0.6, 0.6),
-                            background='',
-                            background_color=get_color_from_hex('#257CFFFF'),
-                            separator_color=get_color_from_hex('#257CFFFF'),
-                            auto_dismiss=True)
+            self._popup = Popup(title='DEMO MODE',
+                                content=content,
+                                size_hint=(0.6, 0.6),
+                                background='',
+                                background_color=get_color_from_hex('#257CFFFF'),
+                                separator_color=get_color_from_hex('#257CFFFF'),
+                                auto_dismiss=True)
 
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
+            self._popup.bind(on_dismiss=self._on_popup_dismiss)
+            self._popup.open()
 
     def exit_demo_mode(self):
         self.demo_mode = False
