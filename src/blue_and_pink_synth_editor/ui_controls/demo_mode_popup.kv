@@ -44,10 +44,8 @@
 
         WebsiteButtonLabel:
             size_hint_y: 1/2
-            font_size: self.height * 0.4
             text: 'www.scottlumsden.com/blueandpinksyntheditor'
-            url: 'https://www.scottlumsden.com/blueandpinksyntheditor'
-            color: C('0400FFFF')
+            on_release: app.open_website_url('https://www.scottlumsden.com/blueandpinksyntheditor')
 
     GeneralSectionBox:
         orientation: 'vertical'

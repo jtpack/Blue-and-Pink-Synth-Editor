@@ -616,7 +616,7 @@ class BlueAndPinkSynthEditorApp(App):
         #
         self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
         self._demo_mode_timer = None
-        self.demo_mode_timer_duration_sec = 60 * 15
+        self.demo_mode_timer_duration_sec = 60 * 0.25
 
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)

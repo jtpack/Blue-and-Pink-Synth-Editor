@@ -194,7 +194,6 @@ class ParamNameLabel(ButtonBehavior, Label):
 class WebsiteButtonLabel(ButtonBehavior, Label):
     hovered = BooleanProperty(False)
     border_point = (0, 0)
-    url = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -215,6 +214,3 @@ class WebsiteButtonLabel(ButtonBehavior, Label):
 
     def on_leave(self):
         Window.set_system_cursor('arrow')
-
-    def button_clicked(self):
-        webbrowser.open(self.url)
