@@ -9,6 +9,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.properties import NumericProperty, StringProperty, ObjectProperty, DictProperty, BooleanProperty, ListProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.logger import Logger
+import webbrowser
 
 
 class HoverButton(ButtonBehavior, Label):
@@ -190,4 +191,30 @@ class ParamNameLabel(ButtonBehavior, Label):
     text_color_string = StringProperty('#ECBFEBFF')
 
 
+class WebsiteButtonLabel(ButtonBehavior, Label):
+    hovered = BooleanProperty(False)
+    border_point = (0, 0)
+    url = StringProperty('')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouse_pos)
+
+    def on_mouse_pos(self, *args):
+        pos = args[1]
+        inside = self.collide_point(*self.to_widget(*pos))
+        if self.hovered != inside:
+            self.hovered = inside
+            if inside:
+                self.on_enter()
+            else:
+                self.on_leave()
+
+    def on_enter(self):
+        Window.set_system_cursor('hand')
+
+    def on_leave(self):
+        Window.set_system_cursor('arrow')
+
+    def button_clicked(self):
+        webbrowser.open(self.url)

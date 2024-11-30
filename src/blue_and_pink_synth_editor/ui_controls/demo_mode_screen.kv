@@ -1,0 +1,107 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+
+
+<DemoModeScreen@Screen>:
+    name: 'demo_mode'
+    orientation: 'vertical'
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: (root.height * 0.008, 0, root.height * 0.008, root.height * 0.008)
+        spacing: root.height * 0.016
+        size_hint_x: 0.8
+        size_hint_y: 0.8
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+        DemoModeScreenSectionBox:
+            orientation: 'vertical'
+            spacing: 0
+            padding: self.height * 1/12
+            size_hint_y: 2/7
+
+            DemoModeScreenLabel:
+                size_hint_y: 1/2
+                color: C('092041FF')
+                text: "We hope you've enjoyed using Blue and Pink Synth Editor in Demo Mode"
+                font_size: self.height * 0.4
+
+            DemoModeScreenLabel:
+                size_hint_y: 1/2
+                color: C('21354FFF')
+                text: "Quit and reopen for another 15 minutes"
+                font_size: self.height * 0.375
+
+
+        DemoModeScreenSectionBox:
+            orientation: 'vertical'
+            spacing: 0
+            padding: self.height * 1/12
+            size_hint_y: 3/7
+
+            DemoModeScreenLabel:
+                size_hint_y: 1/3
+                font_size: self.height * 0.55
+                color: C('FFCEFEFF')
+                text: 'What could you do without a time limit?'
+
+            DemoModeScreenLabel:
+                size_hint_y: 1/3
+                font_size: self.height * 0.4
+                text: 'Purchase an activation code at'
+                color: C('0400FFFF')
+
+            WebsiteButtonLabel:
+                size_hint_y: 1/3
+                text_size: self.size
+                font_size: self.height * 0.4
+                halign: 'center'
+                valign: 'middle'
+                text: 'www.scottlumsden.com/blueandpinksyntheditor'
+                color: C('0400FFFF')
+                underline: True
+                url: 'https://www.scottlumsden.com/blueandpinksyntheditor'
+                on_press: self.button_clicked()
+
+        DemoModeScreenSectionBox:
+            orientation: 'vertical'
+            size_hint_y: 2/7
+
+            Widget:
+                size_hint_y: 1/4
+
+            DemoModeScreenLabel:
+                size_hint_y: 1/2
+                font_size: self.height * 0.375
+                color: C('092041FF')
+                text: 'If you have an activation code file, drag it onto this window'
+
+            Widget:
+                size_hint_y: 1/4
+
+
+<DemoModeScreenLabel@Label>:
+    valign: 'middle'
+    halign: 'center'
+    text_size: self.size
+    font_size: self.height * 0.45
+
+
+<DemoModeScreenSectionBox@BoxLayout>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: C('#438EFEFF')
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height * 1/10]

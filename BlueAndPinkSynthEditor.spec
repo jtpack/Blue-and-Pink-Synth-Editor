@@ -20,6 +20,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/ui_controls/params_grid_non_mod_cell.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/preset_load_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/preset_save_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
+        ('src/blue_and_pink_synth_editor/ui_controls/demo_mode_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/settings_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/synth_editor_value_controls.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/top_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
