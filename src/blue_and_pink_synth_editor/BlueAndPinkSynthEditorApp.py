@@ -10,6 +10,7 @@ import platform
 import subprocess
 import glob
 import shutil
+import webbrowser
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -615,7 +616,7 @@ class BlueAndPinkSynthEditorApp(App):
         #
         self._activation_code_file_path = self._app_data_folder_path / 'activation_code.txt'
         self._demo_mode_timer = None
-        self.demo_mode_timer_duration_sec = 60 * 0.25
+        self.demo_mode_timer_duration_sec = 60 * 15
 
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)
@@ -2544,6 +2545,18 @@ class BlueAndPinkSynthEditorApp(App):
             # and select the file.
             most_recent_file = max(log_files, key=os.path.getctime)
             subprocess.call(['open', '-R', most_recent_file])
+
+    def open_website_url(self, url):
+        """
+        Open url in the system's webbrowser (or email app)
+        """
+        if url is None or len(url) == 0:
+            return
+
+        webbrowser.open(url)
+
+
+
 
     def activate_chord_number(self, chord_number):
         """

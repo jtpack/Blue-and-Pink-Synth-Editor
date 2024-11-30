@@ -703,3 +703,13 @@ ScreenManager:
 <ControlSection>:
     orientation: 'vertical'
     padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
+
+
+<WebsiteButtonLabel>:
+    text_size: self.size
+    font_size: self.height * 0.5
+    halign: 'center'
+    valign: 'middle'
+    color: C('092041FF')
+    underline: True
+    on_press: self.button_clicked()

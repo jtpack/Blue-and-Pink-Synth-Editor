@@ -1,3 +1,17 @@
+
+
+- Enabled Activation Codes and Demo Mode in preparation for commercial app release
+  - Only affects users who installed the compiled app using the installer
+    - It was compiled with activation_code_enabled.activation_code_checking_enabled() set to return True
+      - This is False by default, so open-source users running from python code are unaffected
+- Added Demo Mode popup which appears when app is started without an activation code
+- Added Demo Mode Screen which appears after running 15 minutes in Demo Mode
+- Added CONTACT US section to Settings screen
+  - Contains discord, web and email links
+- Fixed bug in nymphes-osc where MIDI Program Change messages above 97 caused the app to crash
+  - Open-source users should pull in the latest nymphes-osc changes
+
+
 ## v0.3.6-beta
 
 - Now the LOAD, SAVE AS, and SETTINGS buttons in the top bar toggle between their screens and the main screen
