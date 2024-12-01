@@ -11,6 +11,7 @@ parent_directory = Path(__file__).resolve().parent
 this_file_name = Path(__file__).stem
 Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
+
 class MidiInputPortsGrid(GridLayout):
     midi_ports = ListProperty([])
 

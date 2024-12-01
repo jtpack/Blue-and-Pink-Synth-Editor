@@ -40,15 +40,15 @@
 
                 NymphesPortsSection:
                     corner_radius: self.parent.corner_radius
-                    size_hint_y: 5/11
+                    size_hint_y: 19/40
 
                 MiscSettingsSection:
                     corner_radius: self.parent.corner_radius
-                    size_hint_y: 4/11
+                    size_hint_y: 16/40
                     
                 ContactSection:
                     corner_radius: self.parent.corner_radius
-                    size_hint_y: 2/11
+                    size_hint_y: 5/40
 
             MidiInputPortsSection:
                 corner_radius: self.parent.corner_radius
@@ -140,11 +140,13 @@
                 valign: 'middle'
 
         MiscSettingsButton:
-            text: '[u]NEED HELP SETTING UP NYMPHES?[/u]'
+            text: '[u]NYMPHES SETUP INSTRUCTIONS[/u]'
             screen_name: 'settings'
             tooltip_text: 'https://discord.gg/V3ZF5nCUq8'
             on_release: app.open_website_url('https://discord.gg/V3ZF5nCUq8')
             markup: True
+            height: app.curr_height * app.curr_scaling * 1/22
+            color: C('21354FFF')
 
 
 <MidiInputPortsSection@ControlSection>:
@@ -241,7 +243,7 @@
                     size_hint_x: 5/6
                     color: C('#06070FFF')
                     text_size: self.size
-                    font_size: self.height * 0.6
+                    font_size: self.height * 0.5
                     halign: 'center'
                     valign: 'middle'
 
@@ -361,15 +363,16 @@
     BoxLayout:
         orientation: 'vertical'
         spacing: self.parent.spacing
+        padding: 0
 
         SectionTitleLabel:
             size_hint_y: None
-            height: app.curr_height * app.curr_scaling * 1/16
+            height: app.curr_height * app.curr_scaling * 1/20
             text: 'CONTACT US'
 
-        GridLayout:
-            cols: 3
-            spacing: self.height * 1/24
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: self.width * 1/10
 
             MiscSettingsButton:
                 text: '[u]DISCORD[/u]'
@@ -394,5 +397,3 @@
                 on_release: app.open_website_url('https://scottlumsden.com/blueandpinksyntheditor')
                 markup: True
                 color: C('0400FFFF')
-
-            Widget
