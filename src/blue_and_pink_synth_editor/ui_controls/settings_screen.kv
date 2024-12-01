@@ -142,11 +142,11 @@
         MiscSettingsButton:
             text: '[u]NYMPHES SETUP INSTRUCTIONS[/u]'
             screen_name: 'settings'
-            tooltip_text: 'https://discord.gg/V3ZF5nCUq8'
-            on_release: app.open_website_url('https://discord.gg/V3ZF5nCUq8')
+            tooltip_text: 'SHOW NYMPHES SETUP INSTRUCTIONS'
+            on_release: app.show_nymphes_setup_instructions_popup()
             markup: True
             height: app.curr_height * app.curr_scaling * 1/22
-            color: C('21354FFF')
+            color: C('#ECBFEBFF') if self.mouse_pressed else C('21354FFF')
 
 
 <MidiInputPortsSection@ControlSection>:

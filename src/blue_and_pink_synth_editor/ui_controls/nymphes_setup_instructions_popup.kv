@@ -1,0 +1,98 @@
+#:kivy 2.1.0
+#:import C kivy.utils.get_color_from_hex
+
+<NymphesSetupInstructionsPopup>:
+    orientation: 'vertical'
+    spacing: self.height * 1/48
+#    padding: self.height * 1/48
+
+    canvas.before:
+        Color:
+            rgba: C('#257CFFFF')
+        SmoothRectangle:
+            pos: self.pos
+            size: self.size
+
+    GeneralSectionBox:
+        orientation: 'vertical'
+        spacing: 0
+        padding: self.height * 1/12
+
+        SectionTitleLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/20
+            text: 'FIRMWARE'
+
+        GeneralLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/18
+            color: C('ECBFEBFF')
+            text: '• Make sure your Nymphes is running firmware version v2.1'
+            font_size: self.height * 0.5
+            halign: 'left'
+
+        Widget
+
+    GeneralSectionBox:
+        orientation: 'vertical'
+        spacing: 0
+        padding: self.height * 1/12
+
+        SectionTitleLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/20
+            text: 'SETTINGS'
+
+        GeneralLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/18
+            color: C('ECBFEBFF')
+            text: '• Make sure MIDI CC IN and OUT are both ON'
+            font_size: self.height * 0.5
+            halign: 'left'
+
+        GeneralLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/18
+            color: C('ECBFEBFF')
+            text: '• Make sure MIDI PROGRAM CHANGE IN and OUT are both ON'
+            font_size: self.height * 0.5
+            halign: 'left'
+
+        Widget
+
+    GeneralSectionBox:
+        orientation: 'vertical'
+        spacing: 0
+        padding: self.height * 1/12
+
+        SectionTitleLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/20
+            text: 'MIDI CHANNEL'
+
+        GeneralLabel:
+            size_hint_y: None
+            height: app.curr_height * app.curr_scaling * 1/18
+            color: C('ECBFEBFF')
+            text: "• Make sure Nymphes' MIDI channel matches Blue and Pink Synth Editor's"
+            font_size: self.height * 0.5
+            halign: 'left'
+
+        Widget
+
+<GeneralLabel@Label>:
+    valign: 'middle'
+    halign: 'center'
+    text_size: self.size
+    font_size: self.height * 0.45
+
+<GeneralSectionBox@BoxLayout>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: C('#438EFEFF')
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height * 1/10]

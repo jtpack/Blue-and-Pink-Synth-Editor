@@ -1,6 +1,6 @@
 # Blue and Pink Synth Editor
 A full-featured editor for the Dreadbox Nymphes synthesizer. 
-Uses [nymphes-osc](https://github.com/jtpack/nymphes-osc) in a separate process to do the actual communication with the Nymphes.
+
 
 ## This is BETA software. It may take some work to get it working for you.
 

@@ -10,6 +10,9 @@
   - Contains discord, web and email links
 - Fixed bug in nymphes-osc where MIDI Program Change messages above 97 caused the app to crash
   - Open-source users should pull in the latest nymphes-osc changes
+- In the Nymphes Ports spinners in the SETTINGS Screen, renamed the NOT CONNECTED options to NO INPUT PORT and NO OUTPUT PORT
+  - I found the old NOT CONNECTED options confusing
+- Added Nymphes Setup Instructions button in SETTINGS Screen
 
 
 ## v0.3.6-beta

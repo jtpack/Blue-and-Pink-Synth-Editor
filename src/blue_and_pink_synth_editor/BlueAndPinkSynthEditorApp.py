@@ -49,6 +49,7 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from src.blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
 from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
 from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
@@ -108,11 +109,11 @@ class BlueAndPinkSynthEditorApp(App):
     connected_midi_input_names_for_gui = ListProperty([])
     connected_midi_output_names_for_gui = ListProperty([])
 
-    nymphes_input_spinner_names = ListProperty(['Not Connected'])
-    nymphes_output_spinner_names = ListProperty(['Not Connected'])
+    nymphes_input_spinner_names = ListProperty(['No Input Port'])
+    nymphes_output_spinner_names = ListProperty(['No Output Port'])
 
-    nymphes_input_name = StringProperty('Not Connected')
-    nymphes_output_name = StringProperty('Not Connected')
+    nymphes_input_name = StringProperty('No Input Port')
+    nymphes_output_name = StringProperty('No Output Port')
 
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty()
@@ -121,9 +122,6 @@ class BlueAndPinkSynthEditorApp(App):
     # Valid values: 'init', 'file', 'preset_slot'
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
-
-    midi_inputs_spinner_curr_value = StringProperty('Not Connected')
-    midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
     error_text = StringProperty('')
@@ -792,6 +790,23 @@ class BlueAndPinkSynthEditorApp(App):
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
+    def show_nymphes_setup_instructions_popup(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
+        content = NymphesSetupInstructionsPopup()
+
+        self._popup = Popup(title='NYMPHES SETUP INSTRUCTIONS',
+                            content=content,
+                            size_hint=(0.6, 0.8),
+                            background='',
+                            background_color=get_color_from_hex('#257CFFFF'),
+                            separator_color=get_color_from_hex('#257CFFFF'),
+                            auto_dismiss=True)
+
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
+        self._popup.open()
+
     def update_current_preset(self):
         """
         If a preset of any kind has been loaded, then update
@@ -1028,7 +1043,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Try connecting if we have both input and output names
             #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+            if self.nymphes_input_name != 'No Input Port' and self.nymphes_output_name != 'No Input Port':
                 self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
@@ -1050,7 +1065,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Try connecting if we have both input and output names
             #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+            if self.nymphes_input_name != 'No Output Port' and self.nymphes_output_name != 'No Output Port':
                 self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
@@ -1598,8 +1613,8 @@ class BlueAndPinkSynthEditorApp(App):
             self._nymphes_output_port = None
 
             self._set_prop_value_on_main_thread('nymphes_connected', False)
-            self._set_prop_value_on_main_thread('nymphes_input_name', 'Not Connected')
-            self._set_prop_value_on_main_thread('nymphes_output_name', 'Not Connected')
+            self._set_prop_value_on_main_thread('nymphes_input_name', 'No Input Port')
+            self._set_prop_value_on_main_thread('nymphes_output_name', 'No Output Port')
 
             # Status message
             self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES NOT CONNECTED')

@@ -13,6 +13,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/ui_controls/bottom_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/chords_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/demo_mode_popup.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
+        ('src/blue_and_pink_synth_editor/ui_controls/nymphes_setup_instructions_popup.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/error_dialog.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/left_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/params_grid_lfo_config_cell.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
