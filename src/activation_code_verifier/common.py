@@ -6,6 +6,10 @@ valid_app_names = ['Blue and Pink Synth Editor']
 valid_license_types = ['Registered User', 'Beta Testing']
 
 
+class ActivationCodeException(Exception):
+    pass
+
+
 def generate_license_string(name, display_name, email, app_name, license_type, expiration_date):
     """
     Combine name, display_name, email, app_name, license_type and expiration date into a single string
@@ -42,7 +46,7 @@ def validate_activation_code_parameters(name, display_name, email,
                                         app_name, license_type, expiration_date):
     """
     Verify that the supplied parameters are valid.
-    Raises an Exception if any are not.
+    Raises an ActivationCodeException if any are not.
     :param name: str
     :param display_name: str
     :param email: str
@@ -52,20 +56,20 @@ def validate_activation_code_parameters(name, display_name, email,
     :return:
     """
     if name is None or len(name) == 0:
-        raise Exception('name is empty or None')
+        raise ActivationCodeException('name is empty or None')
     
     if display_name is None or len(display_name) == 0:
-        raise Exception('display_name is empty or None')
+        raise ActivationCodeException('display_name is empty or None')
 
     if email is None or len(email) == 0:
-        raise Exception('email is empty or None')
+        raise ActivationCodeException('email is empty or None')
 
     if app_name not in valid_app_names:
-        raise Exception(f'Invalid app_name: {app_name}')
+        raise ActivationCodeException(f'Invalid app_name: {app_name}')
 
     if license_type not in valid_license_types:
-        raise Exception(f'Invalid license_type: {license_type}')
+        raise ActivationCodeException(f'Invalid license_type: {license_type}')
 
     if expiration_date is not None:
-        # This will raise an Exception if expiration_date is invalid
+        # This will raise an ActivationCodeException if expiration_date is invalid
         datetime.strptime(expiration_date, '%Y-%m-%d')

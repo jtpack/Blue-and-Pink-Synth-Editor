@@ -12,11 +12,6 @@ this_file_name = Path(__file__).stem
 Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
-class ChordsMainControlsBox(BoxLayout):
-    screen_name = StringProperty('')
-    corner_radius = NumericProperty(0)
-
-
 class ChordParamsGridCell(ButtonBehavior, BoxLayout):
     screen_name = StringProperty('')
     section_name = StringProperty('')

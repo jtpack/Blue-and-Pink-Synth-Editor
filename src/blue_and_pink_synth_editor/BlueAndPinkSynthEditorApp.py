@@ -1,4 +1,6 @@
-app_version_string = 'v0.3.6-beta'
+import json.decoder
+
+app_version_string = 'v0.3.7-beta'
 
 import logging
 from pathlib import Path
@@ -10,6 +12,8 @@ import platform
 import subprocess
 import glob
 import shutil
+import webbrowser
+from datetime import datetime
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -23,6 +27,7 @@ from kivy.factory import Factory
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.utils import get_color_from_hex
+from kivy.uix.screenmanager import NoTransition
 
 from pythonosc.udp_client import SimpleUDPClient
 from pythonosc.dispatcher import Dispatcher
@@ -47,8 +52,10 @@ from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_ce
 from src.blue_and_pink_synth_editor.ui_controls import settings_screen
 from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
 from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from src.blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
 from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
 from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
+from src.blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
 from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 
@@ -91,7 +98,7 @@ class BlueAndPinkSynthEditorApp(App):
         pass
 
     nymphes_connected = BooleanProperty(False)
-    nymphes_midi_channel = NumericProperty(1)
+    nymphes_midi_channel = NumericProperty(1) # Range: 1 to 16
     midi_feedback_suppression_enabled = BooleanProperty(False)
 
     mod_wheel = NumericProperty(0)
@@ -105,11 +112,11 @@ class BlueAndPinkSynthEditorApp(App):
     connected_midi_input_names_for_gui = ListProperty([])
     connected_midi_output_names_for_gui = ListProperty([])
 
-    nymphes_input_spinner_names = ListProperty(['Not Connected'])
-    nymphes_output_spinner_names = ListProperty(['Not Connected'])
+    nymphes_input_spinner_names = ListProperty(['No Input Port'])
+    nymphes_output_spinner_names = ListProperty(['No Output Port'])
 
-    nymphes_input_name = StringProperty('Not Connected')
-    nymphes_output_name = StringProperty('Not Connected')
+    nymphes_input_name = StringProperty('No Input Port')
+    nymphes_output_name = StringProperty('No Output Port')
 
     presets_spinner_text = StringProperty('PRESET')
     presets_spinner_values = ListProperty()
@@ -118,9 +125,6 @@ class BlueAndPinkSynthEditorApp(App):
     # Valid values: 'init', 'file', 'preset_slot'
     # Valid values: 'init', 'file', 'preset_slot'
     curr_preset_type = StringProperty('')
-
-    midi_inputs_spinner_curr_value = StringProperty('Not Connected')
-    midi_outputs_spinner_curr_value = StringProperty('Not Connected')
 
     status_bar_text = StringProperty('NYMPHES NOT CONNECTED')
     error_text = StringProperty('')
@@ -440,8 +444,6 @@ class BlueAndPinkSynthEditorApp(App):
     # App Activation
     #
     demo_mode = BooleanProperty(False)
-    if activation_code_checking_enabled():
-        demo_mode = True
 
     user_name = StringProperty('')
     user_email = StringProperty('')
@@ -617,38 +619,6 @@ class BlueAndPinkSynthEditorApp(App):
         self._demo_mode_timer = None
         self.demo_mode_timer_duration_sec = 60 * 15
 
-        if activation_code_checking_enabled():
-            #
-            # Activation code checking is enabled
-            #
-            Logger.info('Activation code checking is enabled')
-
-            if not self._activation_code_file_path.exists():
-                # No activation code file exists.
-                # Run the app in demo mode.
-                self.demo_mode = True
-                Logger.info(f'No activation code file found at {self._activation_code_file_path}')
-                Logger.info('Running in Demo Mode')
-
-                # Start the demo mode timer
-                self._start_demo_mode_timer()
-
-            else:
-                #
-                # Load the activation code file and check whether it is valid.
-                #
-                self._verify_activation_code_file(self._activation_code_file_path)
-
-        else:
-            #
-            # Activation code checking is not enabled
-            #
-            Logger.info(f'Activation code checking is not enabled')
-            self.demo_mode = False
-
-            # Set the app title
-            self.title = f'Blue and Pink Synth Editor {app_version_string}'
-
         # Bind file drop onto window
         Window.bind(on_drop_file=self._on_file_drop)
 
@@ -675,10 +645,36 @@ class BlueAndPinkSynthEditorApp(App):
         self._nymphes_osc_listener_dispatcher.map('*', self._on_nymphes_osc_message)
 
         #
-        # Show Demo Mode Popup if we are in Demo Mode
+        # Activation Code Checking
         #
-        if self.demo_mode:
-            self._show_demo_mode_popup(can_be_dismissed=True)
+        if activation_code_checking_enabled():
+            #
+            # Activation code checking is enabled
+            #
+            Logger.info('Activation code checking is enabled')
+
+            if not self._activation_code_file_path.exists():
+                # No activation code file exists.
+                # Run the app in demo mode.
+                Logger.info(f'No activation code file found at {self._activation_code_file_path}')
+                self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+                self.enter_demo_mode()
+
+            else:
+                #
+                # Load the activation code file and check whether it is valid.
+                #
+                self._verify_activation_code_file(self._activation_code_file_path)
+
+        else:
+            #
+            # Activation code checking is not enabled
+            #
+            Logger.info(f'Activation code checking is not enabled')
+            self.demo_mode = False
+
+            # Set the app title
+            self.title = f'Blue and Pink Synth Editor {app_version_string}'
 
     def on_stop(self):
         """
@@ -795,6 +791,23 @@ class BlueAndPinkSynthEditorApp(App):
         content = ErrorDialog(ok=self.dismiss_popup)
         self._popup = Popup(title="ERROR", content=content,
                             size_hint=(0.5, 0.5))
+        self._popup.bind(on_dismiss=self._on_popup_dismiss)
+        self._popup.open()
+
+    def show_nymphes_setup_instructions_popup(self):
+        if self._popup is not None:
+            self.dismiss_popup()
+
+        content = NymphesSetupInstructionsPopup()
+
+        self._popup = Popup(title='NYMPHES SETUP INSTRUCTIONS',
+                            content=content,
+                            size_hint=(0.6, 0.8),
+                            background='',
+                            background_color=get_color_from_hex('#257CFFFF'),
+                            separator_color=get_color_from_hex('#257CFFFF'),
+                            auto_dismiss=True)
+
         self._popup.bind(on_dismiss=self._on_popup_dismiss)
         self._popup.open()
 
@@ -1034,7 +1047,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Try connecting if we have both input and output names
             #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+            if self.nymphes_input_name != 'No Input Port' and self.nymphes_output_name != 'No Input Port':
                 self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
@@ -1056,7 +1069,7 @@ class BlueAndPinkSynthEditorApp(App):
 
             # Try connecting if we have both input and output names
             #
-            if self.nymphes_input_name != 'Not Connected' and self.nymphes_output_name != 'Not Connected':
+            if self.nymphes_input_name != 'No Output Port' and self.nymphes_output_name != 'No Output Port':
                 self.send_nymphes_osc(
                     '/connect_nymphes',
                     self.nymphes_input_name,
@@ -1360,6 +1373,12 @@ class BlueAndPinkSynthEditorApp(App):
         except Exception as e:
             Logger.critical(f'Failed to write to config file at {filepath} ({e})')
 
+    def _save_config_file_on_main_thread(self, filepath):
+        def work_func(_, _filepath):
+            self._save_config_file(_filepath)
+
+        Clock.schedule_once(lambda dt: work_func(dt, filepath), 0)
+
     @staticmethod
     def _get_local_ip_address():
         """
@@ -1604,8 +1623,8 @@ class BlueAndPinkSynthEditorApp(App):
             self._nymphes_output_port = None
 
             self._set_prop_value_on_main_thread('nymphes_connected', False)
-            self._set_prop_value_on_main_thread('nymphes_input_name', 'Not Connected')
-            self._set_prop_value_on_main_thread('nymphes_output_name', 'Not Connected')
+            self._set_prop_value_on_main_thread('nymphes_input_name', 'No Input Port')
+            self._set_prop_value_on_main_thread('nymphes_output_name', 'No Output Port')
 
             # Status message
             self._set_prop_value_on_main_thread('status_bar_text', 'NYMPHES NOT CONNECTED')
@@ -2066,7 +2085,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._set_prop_value_on_main_thread('nymphes_midi_channel', midi_channel)
 
             # Save the config file
-            self._save_config_file(self._config_file_path)
+            self._save_config_file_on_main_thread(self._config_file_path)
 
         elif address == '/midi_feedback_suppression_enabled':
             Logger.info(f'Received from nymphes-osc: {address}')
@@ -2552,6 +2571,18 @@ class BlueAndPinkSynthEditorApp(App):
             most_recent_file = max(log_files, key=os.path.getctime)
             subprocess.call(['open', '-R', most_recent_file])
 
+    def open_website_url(self, url):
+        """
+        Open url in the system's webbrowser (or email app)
+        """
+        if url is None or len(url) == 0:
+            return
+
+        webbrowser.open(url)
+
+
+
+
     def activate_chord_number(self, chord_number):
         """
         Send /pitch/chord/value to Nymphes to activate one
@@ -2677,23 +2708,6 @@ class BlueAndPinkSynthEditorApp(App):
         """
         print(name)
 
-    def _show_demo_mode_popup(self, can_be_dismissed):
-        if self._popup is not None:
-            self.dismiss_popup()
-
-        content = DemoModePopup()
-
-        self._popup = Popup(title='DEMO MODE',
-                            content=content,
-                            size_hint=(0.6, 0.6),
-                            background='',
-                            background_color=get_color_from_hex('#257CFFFF'),
-                            separator_color=get_color_from_hex('#257CFFFF'),
-                            auto_dismiss=can_be_dismissed)
-
-        self._popup.bind(on_dismiss=self._on_popup_dismiss)
-        self._popup.open()
-
     def _on_popup_dismiss(self, _):
         """
         This is called when a popup is dismissed.
@@ -2703,7 +2717,6 @@ class BlueAndPinkSynthEditorApp(App):
         if self._popup is not None:
             self._popup = None
 
-
     def _verify_activation_code_file(self, file_path):
         """
         Check the verification code file at file_path.
@@ -2712,16 +2725,22 @@ class BlueAndPinkSynthEditorApp(App):
         :param file_path: Path or str
         :return:
         """
-        try:
-            # Get the file's contents as a string
-            activation_code_str = load_activation_code_from_file(file_path)
+        # Get the file's contents as a string
+        activation_code_str = load_activation_code_from_file(file_path)
 
+        valid = False
+
+        try:
             # It contains data encoded via json. Get it as a dict
             activation_code_data_dict = data_from_activation_code(activation_code_str)
 
             # Verify whether the code is valid.
-            verify_activation_code(activation_code_str)
+            valid = verify_activation_code(activation_code_str)
 
+        except json.decoder.JSONDecodeError as e:
+            self.show_error_dialog_on_main_thread('Failed to load data from activation code', str(e))
+
+        if valid:
             # Get license info from file
             self.user_name = activation_code_data_dict['display_name']
             self.user_email = activation_code_data_dict['email']
@@ -2737,19 +2756,34 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'License Type: {self.license_type}')
             Logger.info(f'Expiration Date: {self.expiration_date}')
 
-            # Deactivate demo mode
-            self.demo_mode = False
+            if self.expiration_date == 'None':
+                # There is no expiration date
+                if self.license_type == 'Registered User':
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+                elif self.license_type == 'Beta Testing':
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing'
+                else:
+                    # This should never happen, as there are only two valid license types..
+                    self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
 
-            # If a popup is open right now (ie: the Demo Mode popup), close it
-            if self._popup is not None:
-                self.dismiss_popup()
+                self.exit_demo_mode()
+            else:
+                # There is an expiration date
+                if datetime.today().date() >= datetime.strptime(self.expiration_date, "%Y-%m-%d").date():
+                    # The activation code has expired
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Activation Code Expired {self.expiration_date})'
+                    self.enter_demo_mode()
+                else:
+                    # The activation code has not yet expired
+                    if self.license_type == 'Registered User':
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
+                    elif self.license_type == 'Beta Testing':
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing (Expires {self.expiration_date})'
+                    else:
+                        # This should never happen, as there are only two valid license types..
+                        self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
 
-            # Update the window title to indicate that
-            # the app is now activated
-            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
-
-            # Cancel the demo mode timer
-            self._cancel_demo_mode_timer()
+                    self.exit_demo_mode()
 
             # Copy the file to the data folder if necessary
             if Path(file_path).expanduser() != self._activation_code_file_path:
@@ -2762,30 +2796,74 @@ class BlueAndPinkSynthEditorApp(App):
                     self.show_error_dialog_on_main_thread(
                         f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
 
-        except Exception as e1:
+        else:
             # The activation code was not valid.
-            Logger.warning(f'Activation code file at {file_path} was invalid ({e1})')
+            self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Invalid Activation Code)'
+            Logger.warning(f'Activation code file at {file_path} was invalid')
+            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
 
-            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', str(e1))
+            Clock.schedule_once(lambda dt: self.enter_demo_mode(), 2)
 
-            self.demo_mode = True
-            self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
+    def _demo_mode_timer_expired(self, dt):
+        self._demo_mode_timer = None
+        Logger.info('Demo mode timer expired')
 
-    def _start_demo_mode_timer(self):
-        self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_ended, self.demo_mode_timer_duration_sec)
-        Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
+        # If a popup is open right now (ie: the Demo Mode popup), close it
+        if self._popup is not None:
+            self.dismiss_popup()
 
-    def _cancel_demo_mode_timer(self):
+        # Switch to the demo mode screen
+        self.root.transition = NoTransition()
+        self.root.current = 'demo_mode'
+        self.set_curr_screen_name('demo_mode')
+
+    def enter_demo_mode(self):
+        Logger.info('Entering Demo Mode')
+        already_in_demo_mode = self.demo_mode
+
+        self.demo_mode = True
+
+        if not already_in_demo_mode:
+            # Start the demo mode timer
+            self._demo_mode_timer = Clock.schedule_once(self._demo_mode_timer_expired, self.demo_mode_timer_duration_sec)
+            Logger.info(f'Started demo mode timer ({self.demo_mode_timer_duration_sec} sec)')
+
+            # Show the demo mode popup
+            if self._popup is not None:
+                self.dismiss_popup()
+
+            content = DemoModePopup()
+
+            self._popup = Popup(title='DEMO MODE',
+                                content=content,
+                                size_hint=(0.6, 0.6),
+                                background='',
+                                background_color=get_color_from_hex('#257CFFFF'),
+                                separator_color=get_color_from_hex('#257CFFFF'),
+                                auto_dismiss=True)
+
+            self._popup.bind(on_dismiss=self._on_popup_dismiss)
+            self._popup.open()
+
+    def exit_demo_mode(self):
+        self.demo_mode = False
+
+        # If a popup is open right now (ie: the Demo Mode popup), close it
+        if self._popup is not None:
+            self.dismiss_popup()
+
+        # Cancel the demo mode timer
         if self._demo_mode_timer is not None:
             Clock.unschedule(self._demo_mode_timer)
             self._demo_mode_timer = None
             Logger.info('Canceled demo mode timer')
 
-    def _demo_mode_timer_ended(self, dt):
-        self._demo_mode_timer = None
-        Logger.info('Demo mode timer ended')
-
-        self._show_demo_mode_popup(can_be_dismissed=False)
+        if self.curr_screen_name == 'demo_mode':
+            # The demo mode timer expired and we were showing the demo
+            # mode screen. Return to the main screen.
+            self.root.transition = NoTransition()
+            self.root.current = 'main'
+            self.set_curr_screen_name('main')
 
     def load_init_preset(self):
         self.send_nymphes_osc('/load_init_file')

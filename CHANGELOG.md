@@ -1,3 +1,30 @@
+## v0.3.7-beta
+
+### New Features / Improvements
+
+- Enabled Activation Codes and Demo Mode in preparation for commercial app release
+  - Only affects users who install the app using the installer
+    - Open Source users who download the code from github will never need an activation code
+  - Added Demo Mode popup which appears when app is started without an activation code
+  - Added Demo Mode Screen which appears after running 15 minutes in Demo Mode
+
+- Added CONTACT US section to Settings screen
+  - Contains discord, web and email links
+
+- In the Nymphes Ports spinners in the SETTINGS Screen, renamed the NOT CONNECTED options to NO INPUT PORT and NO OUTPUT PORT
+  - I found the old NOT CONNECTED options confusing
+- Added Nymphes Setup Instructions button in SETTINGS Screen
+
+### Bug Fixes
+
+- Fixed bug where Nymphes MIDI channel settings weren't being saved properly
+  - After receiving /nymphes_midi_channel_changed OSC message from nymphes-osc, config.txt was being updated before self._nymphes_midi_channel got updated
+  - Now it is done on the main thread, so it occurs after updating self._nymphes_midi_channel
+
+- Fixed bug in nymphes-osc where MIDI Program Change messages above 97 caused the app to crash
+  - Open-source users should pull in the latest nymphes-osc changes
+
+
 ## v0.3.6-beta
 
 - Now the LOAD, SAVE AS, and SETTINGS buttons in the top bar toggle between their screens and the main screen

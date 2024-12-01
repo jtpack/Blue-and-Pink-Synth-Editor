@@ -5,39 +5,40 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from activation_code_verifier.common import hash_from_string, generate_license_string
 from cryptography.hazmat.primitives import serialization
-from activation_code_verifier.common import validate_activation_code_parameters
+from activation_code_verifier.common import validate_activation_code_parameters, ActivationCodeException
 
 
 def verify_activation_code(activation_code):
     """
     Verify whether activation_code is valid.
-    If it is invalid then an Exception is raised
-    with information on what went wrong.
     :param activation_code: str
     :return: True if code is valid, False if not
     """
     if activation_code is None or len(activation_code) == 0:
-        raise Exception('activation_code is None or empty')
+        raise ActivationCodeException('activation_code is None or empty')
 
     # Load activation_code data into a dict
     data_dict = data_from_activation_code(activation_code)
 
     # Verify the data parameters.
-    validate_activation_code_parameters(name=data_dict['name'],
-                                        display_name=data_dict['display_name'],
-                                        email=data_dict['email'],
-                                        app_name=data_dict['app_name'],
-                                        license_type=data_dict['license_type'],
-                                        expiration_date=data_dict['expiration_date'])
+    try:
+        validate_activation_code_parameters(name=data_dict['name'],
+                                            display_name=data_dict['display_name'],
+                                            email=data_dict['email'],
+                                            app_name=data_dict['app_name'],
+                                            license_type=data_dict['license_type'],
+                                            expiration_date=data_dict['expiration_date'])
+    except ActivationCodeException:
+        return False
 
     # Verify signature matches the parameters and is valid.
-    _verify_signature(name=data_dict['name'],
-                      display_name=data_dict['display_name'],
-                      email=data_dict['email'],
-                      app_name=data_dict['app_name'],
-                      license_type=data_dict['license_type'],
-                      expiration_date=data_dict['expiration_date'],
-                      signature=data_dict['signature'])
+    return _verify_signature(name=data_dict['name'],
+                             display_name=data_dict['display_name'],
+                             email=data_dict['email'],
+                             app_name=data_dict['app_name'],
+                             license_type=data_dict['license_type'],
+                             expiration_date=data_dict['expiration_date'],
+                             signature=data_dict['signature'])
 
 
 def load_activation_code_from_file(file_path):
@@ -73,7 +74,6 @@ def _verify_signature(name, display_name, email,
     public key, and that the signature contains the
     correct hash for the supplied name, display_name, email,
     app_name, license type and expiration date.
-    If the signature is invalid, then and Exception is raised
     with information on what is wrong.
     :param name: str
     :param display_name: str
@@ -82,30 +82,36 @@ def _verify_signature(name, display_name, email,
     :param license_type: str
     :param expiration_date: str or None. Should be formatted as YYYY-MM-DD
     :param signature: str
-    :return:
+    :return: True if valid, False if not
     """
-    # Generate a code string from the name, email, license_type and expiration date
-    code_string = generate_license_string(name=name,
-                                          display_name=display_name,
-                                          email=email,
-                                          app_name=app_name,
-                                          license_type=license_type,
-                                          expiration_date=expiration_date)
+    try:
+        # Generate a code string from the name, email, license_type and expiration date
+        code_string = generate_license_string(name=name,
+                                              display_name=display_name,
+                                              email=email,
+                                              app_name=app_name,
+                                              license_type=license_type,
+                                              expiration_date=expiration_date)
 
-    # Generate a hash
-    code_hash = hash_from_string(code_string=code_string)
+        # Generate a hash
+        code_hash = hash_from_string(code_string=code_string)
 
-    public_key = load_public_key()
+        public_key = load_public_key()
 
-    public_key.verify(
-        base64.b64decode(signature),
-        code_hash,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
+        public_key.verify(
+            base64.b64decode(signature),
+            code_hash,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+
+        return True
+
+    except Exception as e:
+        return False
 
 
 def load_public_key_from_file(file_path):

@@ -9,5 +9,5 @@ this_file_name = Path(__file__).stem
 Builder.load_file(str(parent_directory / f'{this_file_name}.kv'))
 
 
-class DemoModePopup(BoxLayout):
+class NymphesSetupInstructionsPopup(BoxLayout):
     pass

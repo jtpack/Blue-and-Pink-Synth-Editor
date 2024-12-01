@@ -9,6 +9,7 @@ ScreenManager:
     ChordsScreen
     PresetLoadScreen
     PresetSaveScreen
+    DemoModeScreen
 
 
 <MainScreen@Screen>:
@@ -702,4 +703,28 @@ ScreenManager:
 <ControlSection>:
     orientation: 'vertical'
     padding: [self.corner_radius * 0.5, 0, self.corner_radius * 0.5, self.corner_radius * 0.5]
-    
+
+
+<WebsiteButtonLabel>:
+    text_size: self.size
+    font_size: self.height * 0.4
+    halign: 'center'
+    valign: 'middle'
+    color: C('0400FFFF')
+    underline: True
+
+<GeneralLabel@Label>:
+    valign: 'middle'
+    halign: 'center'
+    text_size: self.size
+    font_size: self.height * 0.45
+
+<GeneralSectionBox@BoxLayout>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: C('#438EFEFF')
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height * 1/10]
