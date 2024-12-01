@@ -1,3 +1,4 @@
+## v0.3.7-beta
 
 ### New Features / Improvements
 
