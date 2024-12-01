@@ -103,7 +103,7 @@ class NymphesMidiChannelValueControl(SynthEditorValueControl):
         super().__init__(**kwargs)
 
         self.min_value = 1
-        self.max_value = 16
+        self.max_value = 7
         self.float_value_decimal_places = 0
         self.enable_float_drag = False
         self.enable_float_value = False

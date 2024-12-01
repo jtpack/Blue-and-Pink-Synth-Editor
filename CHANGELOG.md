@@ -13,7 +13,9 @@
 - In the Nymphes Ports spinners in the SETTINGS Screen, renamed the NOT CONNECTED options to NO INPUT PORT and NO OUTPUT PORT
   - I found the old NOT CONNECTED options confusing
 - Added Nymphes Setup Instructions button in SETTINGS Screen
-
+- Fixed bug where Nymphes MIDI channel settings weren't being saved properly
+  - After receiving /nymphes_midi_channel_changed OSC message from nymphes-osc, config.txt was being updated before self._nymphes_midi_channel got updated
+  - Now it is done on the main thread, so it occurs after updating self._nymphes_midi_channel
 
 ## v0.3.6-beta
 

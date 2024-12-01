@@ -95,7 +95,7 @@ class BlueAndPinkSynthEditorApp(App):
         pass
 
     nymphes_connected = BooleanProperty(False)
-    nymphes_midi_channel = NumericProperty(1)
+    nymphes_midi_channel = NumericProperty(1) # Range: 1 to 16
     midi_feedback_suppression_enabled = BooleanProperty(False)
 
     mod_wheel = NumericProperty(0)
@@ -1369,6 +1369,12 @@ class BlueAndPinkSynthEditorApp(App):
         except Exception as e:
             Logger.critical(f'Failed to write to config file at {filepath} ({e})')
 
+    def _save_config_file_on_main_thread(self, filepath):
+        def work_func(_, _filepath):
+            self._save_config_file(_filepath)
+
+        Clock.schedule_once(lambda dt: work_func(dt, filepath), 0)
+
     @staticmethod
     def _get_local_ip_address():
         """
@@ -2075,7 +2081,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._set_prop_value_on_main_thread('nymphes_midi_channel', midi_channel)
 
             # Save the config file
-            self._save_config_file(self._config_file_path)
+            self._save_config_file_on_main_thread(self._config_file_path)
 
         elif address == '/midi_feedback_suppression_enabled':
             Logger.info(f'Received from nymphes-osc: {address}')
