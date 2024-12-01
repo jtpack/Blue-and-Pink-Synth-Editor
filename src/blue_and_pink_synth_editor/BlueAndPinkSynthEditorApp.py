@@ -2757,7 +2757,14 @@ class BlueAndPinkSynthEditorApp(App):
 
             if self.expiration_date == 'None':
                 # There is no expiration date
-                self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+                if self.license_type == 'Registered User':
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+                elif self.license_type == 'Beta Testing':
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - {self.user_name} Beta Testing'
+                else:
+                    # This should never happen, as there are only two valid license types..
+                    self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
+
                 self.exit_demo_mode()
             else:
                 # There is an expiration date
@@ -2767,7 +2774,14 @@ class BlueAndPinkSynthEditorApp(App):
                     self.enter_demo_mode()
                 else:
                     # The activation code has not yet expired
-                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
+                    if self.license_type == 'Registered User':
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
+                    elif self.license_type == 'Beta Testing':
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - {self.user_name} Beta Testing (Expires {self.expiration_date})'
+                    else:
+                        # This should never happen, as there are only two valid license types..
+                        self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
+
                     self.exit_demo_mode()
 
             # Copy the file to the data folder if necessary
@@ -2783,7 +2797,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         else:
             # The activation code was not valid.
-            self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
+            self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Invalid Activation Code)'
             Logger.warning(f'Activation code file at {file_path} was invalid')
             self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
 
