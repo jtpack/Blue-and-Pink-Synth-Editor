@@ -1,3 +1,5 @@
+import json.decoder
+
 app_version_string = 'v0.3.6-beta_dev'
 
 import logging
@@ -11,6 +13,7 @@ import subprocess
 import glob
 import shutil
 import webbrowser
+from datetime import datetime
 
 from kivy.config import Config
 Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
@@ -2724,14 +2727,19 @@ class BlueAndPinkSynthEditorApp(App):
         # Get the file's contents as a string
         activation_code_str = load_activation_code_from_file(file_path)
 
-        # It contains data encoded via json. Get it as a dict
-        activation_code_data_dict = data_from_activation_code(activation_code_str)
+        valid = False
 
-        # Verify whether the code is valid.
-        valid = verify_activation_code(activation_code_str)
+        try:
+            # It contains data encoded via json. Get it as a dict
+            activation_code_data_dict = data_from_activation_code(activation_code_str)
+
+            # Verify whether the code is valid.
+            valid = verify_activation_code(activation_code_str)
+
+        except json.decoder.JSONDecodeError as e:
+            self.show_error_dialog_on_main_thread('Failed to load data from activation code', str(e))
 
         if valid:
-
             # Get license info from file
             self.user_name = activation_code_data_dict['display_name']
             self.user_email = activation_code_data_dict['email']
@@ -2747,12 +2755,20 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'License Type: {self.license_type}')
             Logger.info(f'Expiration Date: {self.expiration_date}')
 
-            # Exit demo mode
-            self.exit_demo_mode()
-
-            # Update the window title to indicate that
-            # the app is now activated
-            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+            if self.expiration_date == 'None':
+                # There is no expiration date
+                self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
+                self.exit_demo_mode()
+            else:
+                # There is an expiration date
+                if datetime.today().date() >= datetime.strptime(self.expiration_date, "%Y-%m-%d").date():
+                    # The activation code has expired
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Activation Code Expired {self.expiration_date})'
+                    self.enter_demo_mode()
+                else:
+                    # The activation code has not yet expired
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
+                    self.exit_demo_mode()
 
             # Copy the file to the data folder if necessary
             if Path(file_path).expanduser() != self._activation_code_file_path:
@@ -2767,6 +2783,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         else:
             # The activation code was not valid.
+            self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
             Logger.warning(f'Activation code file at {file_path} was invalid')
             self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
 
@@ -2790,8 +2807,6 @@ class BlueAndPinkSynthEditorApp(App):
         already_in_demo_mode = self.demo_mode
 
         self.demo_mode = True
-
-        self.title = f'Blue and Pink Synth Editor {app_version_string} (DEMO MODE)'
 
         if not already_in_demo_mode:
             # Start the demo mode timer

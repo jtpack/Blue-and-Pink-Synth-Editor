@@ -712,3 +712,19 @@ ScreenManager:
     valign: 'middle'
     color: C('0400FFFF')
     underline: True
+
+<GeneralLabel@Label>:
+    valign: 'middle'
+    halign: 'center'
+    text_size: self.size
+    font_size: self.height * 0.45
+
+<GeneralSectionBox@BoxLayout>:
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: C('#438EFEFF')
+        SmoothRoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height * 1/10]
