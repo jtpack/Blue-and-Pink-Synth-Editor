@@ -657,6 +657,7 @@ class BlueAndPinkSynthEditorApp(App):
                 # No activation code file exists.
                 # Run the app in demo mode.
                 Logger.info(f'No activation code file found at {self._activation_code_file_path}')
+                self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                 self.enter_demo_mode()
 
             else:
@@ -2760,7 +2761,7 @@ class BlueAndPinkSynthEditorApp(App):
                 if self.license_type == 'Registered User':
                     self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
                 elif self.license_type == 'Beta Testing':
-                    self.title = f'Blue and Pink Synth Editor {app_version_string} - {self.user_name} Beta Testing'
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing'
                 else:
                     # This should never happen, as there are only two valid license types..
                     self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
@@ -2777,7 +2778,7 @@ class BlueAndPinkSynthEditorApp(App):
                     if self.license_type == 'Registered User':
                         self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
                     elif self.license_type == 'Beta Testing':
-                        self.title = f'Blue and Pink Synth Editor {app_version_string} - {self.user_name} Beta Testing (Expires {self.expiration_date})'
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing (Expires {self.expiration_date})'
                     else:
                         # This should never happen, as there are only two valid license types..
                         self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
