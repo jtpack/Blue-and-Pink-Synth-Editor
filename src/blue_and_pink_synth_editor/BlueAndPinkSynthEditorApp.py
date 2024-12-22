@@ -1,6 +1,6 @@
 import json.decoder
 
-app_version_string = 'v0.3.7-beta'
+app_version_string = 'v0.3.8-beta'
 
 import logging
 from pathlib import Path
@@ -2725,84 +2725,109 @@ class BlueAndPinkSynthEditorApp(App):
         :param file_path: Path or str
         :return:
         """
-        # Get the file's contents as a string
-        activation_code_str = load_activation_code_from_file(file_path)
-
-        valid = False
-
         try:
+            # Get the file's contents as a string
+            activation_code_str = load_activation_code_from_file(file_path)
+
             # It contains data encoded via json. Get it as a dict
             activation_code_data_dict = data_from_activation_code(activation_code_str)
 
             # Verify whether the code is valid.
             valid = verify_activation_code(activation_code_str)
 
-        except json.decoder.JSONDecodeError as e:
-            self.show_error_dialog_on_main_thread('Failed to load data from activation code', str(e))
+            if valid:
+                # Get license info from file
+                self.user_name = activation_code_data_dict['display_name']
+                self.user_email = activation_code_data_dict['email']
+                self.license_type = activation_code_data_dict['license_type']
+                self.expiration_date = activation_code_data_dict['expiration_date'] if activation_code_data_dict[
+                                                                                           'expiration_date'] is not None else 'None'
 
-        if valid:
-            # Get license info from file
-            self.user_name = activation_code_data_dict['display_name']
-            self.user_email = activation_code_data_dict['email']
-            self.license_type = activation_code_data_dict['license_type']
-            self.expiration_date = activation_code_data_dict['expiration_date'] if activation_code_data_dict[
-                                                                                       'expiration_date'] is not None else 'None'
+                Logger.info(f'Activation code file is valid ({file_path})')
 
-            Logger.info(f'Activation code file is valid ({file_path})')
+                Logger.info('License Info:')
+                Logger.info(f'Name: {self.user_name}')
+                Logger.info(f'Email: {self.user_email}')
+                Logger.info(f'License Type: {self.license_type}')
+                Logger.info(f'Expiration Date: {self.expiration_date}')
 
-            Logger.info('License Info:')
-            Logger.info(f'Name: {self.user_name}')
-            Logger.info(f'Email: {self.user_email}')
-            Logger.info(f'License Type: {self.license_type}')
-            Logger.info(f'Expiration Date: {self.expiration_date}')
-
-            if self.expiration_date == 'None':
-                # There is no expiration date
-                if self.license_type == 'Registered User':
-                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
-                elif self.license_type == 'Beta Testing':
-                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing'
-                else:
-                    # This should never happen, as there are only two valid license types..
-                    self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
-
-                self.exit_demo_mode()
-            else:
-                # There is an expiration date
-                if datetime.today().date() >= datetime.strptime(self.expiration_date, "%Y-%m-%d").date():
+                #
+                # Handle Expiration
+                #
+                if self.expiration_date != 'None' and datetime.today().date() >= datetime.strptime(self.expiration_date,
+                                                                                                   "%Y-%m-%d").date():
+                    #
                     # The activation code has expired
-                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Activation Code Expired {self.expiration_date})'
-                    self.enter_demo_mode()
-                else:
-                    # The activation code has not yet expired
-                    if self.license_type == 'Registered User':
-                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
-                    elif self.license_type == 'Beta Testing':
-                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing (Expires {self.expiration_date})'
+                    #
+                    self.show_error_dialog_on_main_thread('Activation Code Error',
+                                                          f'This activation code expired {self.expiration_date}')
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+                    Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
+
+                    return
+
+                #
+                # Handle License Type
+                #
+                if self.license_type == 'Registered User':
+                    if self.expiration_date == 'None':
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name}'
                     else:
-                        # This should never happen, as there are only two valid license types..
-                        self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
 
                     self.exit_demo_mode()
 
-            # Copy the file to the data folder if necessary
-            if Path(file_path).expanduser() != self._activation_code_file_path:
-                try:
-                    shutil.copyfile(file_path, self._activation_code_file_path)
-                    Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
+                elif self.license_type == 'Beta Testing':
+                    if 'beta' in app_version_string.lower():
+                        #
+                        # This code is good
+                        #
+                        if self.expiration_date == 'None':
+                            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing'
+                        else:
+                            self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing (Expires {self.expiration_date})'
 
-                except Exception as e:
-                    Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
-                    self.show_error_dialog_on_main_thread(
-                        f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
+                        self.exit_demo_mode()
 
-        else:
-            # The activation code was not valid.
-            self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode (Invalid Activation Code)'
-            Logger.warning(f'Activation code file at {file_path} was invalid')
-            self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
+                    else:
+                        #
+                        # This is a beta testing license but the app is not a beta test version
+                        #
+                        self.show_error_dialog_on_main_thread('Activation Code Error',
+                                                              'This activation code is for beta testing only')
+                        self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+                        Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
 
-            Clock.schedule_once(lambda dt: self.enter_demo_mode(), 2)
+                else:
+                    # This should never happen, as there are only two valid license types..
+                    self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
+                    self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+                    Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
+
+                # Copy the file to the data folder if necessary
+                if Path(file_path).expanduser() != self._activation_code_file_path:
+                    try:
+                        shutil.copyfile(file_path, self._activation_code_file_path)
+                        Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
+
+                    except Exception as e:
+                        Logger.warning(f'Failed to copy activation code file to {self._activation_code_file_path} ({e})')
+                        self.show_error_dialog_on_main_thread(
+                            f'Failed to copy activation code file to {self._activation_code_file_path}', str(e))
+
+            else:
+                #
+                # The activation code was not valid.
+                #
+                Logger.warning(f'Activation code file at {file_path} was invalid')
+                self.show_error_dialog_on_main_thread(f'Invalid activation code file.\nRunning in Demo Mode.', '')
+                self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+                Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
+
+        except json.decoder.JSONDecodeError as e:
+            self.show_error_dialog_on_main_thread('Failed to load data from activation code', str(e))
+            self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
+            Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
 
     def _demo_mode_timer_expired(self, dt):
         self._demo_mode_timer = None
