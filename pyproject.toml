@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "BlueAndPinkSynthEditor"
-version = "0.3.8-beta"
+version = "1.0.0"
 description = "A full-featured editor for the Dreadbox Nymphes MIDI synthesizer"
 readme = "README.md"
 authors = [{name = "Scott Lumsden", email = "jtpack@gmail.com"}]

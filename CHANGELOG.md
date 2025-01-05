@@ -1,3 +1,8 @@
+## v1.0.0
+
+- Improved activation code logging
+
+
 ## v0.3.8-beta
 
 - Fixed bug where app wasn't verifying that beta test users have a beta test version

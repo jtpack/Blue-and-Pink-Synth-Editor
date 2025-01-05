@@ -1,6 +1,6 @@
 import json.decoder
 
-app_version_string = 'v0.3.8-beta'
+app_version_string = 'v1.0.0'
 
 import logging
 from pathlib import Path
@@ -2743,8 +2743,6 @@ class BlueAndPinkSynthEditorApp(App):
                 self.expiration_date = activation_code_data_dict['expiration_date'] if activation_code_data_dict[
                                                                                            'expiration_date'] is not None else 'None'
 
-                Logger.info(f'Activation code file is valid ({file_path})')
-
                 Logger.info('License Info:')
                 Logger.info(f'Name: {self.user_name}')
                 Logger.info(f'Email: {self.user_email}')
@@ -2759,7 +2757,8 @@ class BlueAndPinkSynthEditorApp(App):
                     #
                     # The activation code has expired
                     #
-                    self.show_error_dialog_on_main_thread('Activation Code Error',
+                    Logger.warning(f"Activation code expired {self.expiration_date}")
+                    self.show_error_dialog_on_main_thread('Invalid Activation Code',
                                                           f'This activation code expired {self.expiration_date}')
                     self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                     Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
@@ -2775,6 +2774,7 @@ class BlueAndPinkSynthEditorApp(App):
                     else:
                         self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} (Expires {self.expiration_date})'
 
+                    Logger.info(f'Activation code file is valid ({file_path})')
                     self.exit_demo_mode()
 
                 elif self.license_type == 'Beta Testing':
@@ -2787,19 +2787,22 @@ class BlueAndPinkSynthEditorApp(App):
                         else:
                             self.title = f'Blue and Pink Synth Editor {app_version_string} - Registered to {self.user_name} for Beta Testing (Expires {self.expiration_date})'
 
+                        Logger.info(f'Activation code file is valid ({file_path})')
                         self.exit_demo_mode()
 
                     else:
                         #
                         # This is a beta testing license but the app is not a beta test version
                         #
-                        self.show_error_dialog_on_main_thread('Activation Code Error',
+                        Logger.warning(f"Invalid Activation Code - This is not a beta test version of Blue and Pink Synth Editor")
+                        self.show_error_dialog_on_main_thread('Invalid Activation Code',
                                                               'This activation code is for beta testing only')
                         self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                         Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
 
                 else:
                     # This should never happen, as there are only two valid license types..
+                    Logger.warning(f"Unknown license type. This should never happen: {self.license_type}")
                     self.show_error_dialog_on_main_thread('Unknown License Type', self.license_type)
                     self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                     Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
