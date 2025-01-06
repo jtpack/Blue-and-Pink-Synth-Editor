@@ -7,7 +7,7 @@ name = "BlueAndPinkSynthEditor"
 version = "1.0.0"
 description = "A full-featured editor for the Dreadbox Nymphes MIDI synthesizer"
 readme = "README.md"
-authors = [{name = "Scott Lumsden", email = "jtpack@gmail.com"}]
+authors = [{name = "Scott Lumsden", email = "scott@scottlumsden.com"}]
 license = { file = "LICENSE"}
 classifiers = [
     "License :: OSI Approved :: MIT License",

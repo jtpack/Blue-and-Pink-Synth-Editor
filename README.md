@@ -1,15 +1,12 @@
 # Blue and Pink Synth Editor
 A full-featured editor for the Dreadbox Nymphes synthesizer. 
 
-
-## This is BETA software. It may take some work to get it working for you.
-
 If you encounter any problems, please create an issue here: https://github.com/jtpack/Blue-and-Pink-Synth-Editor/issues.
 I will do my best to help.
 
-If you would like to join the beta testing discord server for Blue and Pink Synth Editor, send me an email at blueandpinksyntheditor+betatest@gmail.com
+If you would like to join the Blue and Pink Synth Editor discord server for Blue and Pink Synth Editor, there is an invitation link inside the app, on the Settings page.
 
-2024, Scott Lumsden
+2025, Scott Lumsden
 
 
 # Platforms
@@ -18,7 +15,7 @@ If you would like to join the beta testing discord server for Blue and Pink Synt
 - Linux (Lightly tested with Debian 12 inside VirtualBox on a Mac)
   - It is unknown whether this will work on a computer running Linux as its actual OS
 - Raspberry Pi with a Touchscreen (Use this repository: https://github.com/jtpack/Blue-and-Pink-Synth-Editor-RPi)
-- Support for Windows is planned for the future
+- Windows support is planned for the future
   - Note: There is an issue with rtmidi on Windows which prevents the reception of large SYSEX messages (like preset dumps from Nymphes)
     - This means that when a preset is loaded on Nymphes, we only get its parameters via MIDI CC
       - This means we do not get parameters as float values, and we also do not get chord parameters
@@ -32,6 +29,7 @@ If you would like to join the beta testing discord server for Blue and Pink Synt
 - Request SYSEX dump of all presets
 - Decode and generate Nymphes preset SYSEX messages
   - This allows full floating-point resolution for most parameters, not just 0-127 MIDI CC values
+- Save to Factory preset slots
 - Save and load preset files
   - These are human-readable txt files
 - Convert syx SYSEX preset files to txt preset files
@@ -41,13 +39,19 @@ If you would like to join the beta testing discord server for Blue and Pink Synt
 
 
 # Nymphes Preparation
-- Make sure you have Nymphes Firmware Version 2.1 (the latest version as of March 2024)
+- Make sure you have Nymphes Firmware Version 2.1 (the current version as of this writing - January 2025)
 - Make sure that MIDI CC send/receive is turned ON
 - Make sure that MIDI Program Change send/receive is turned ON
 - Make sure that you choose the correct MIDI channel on the Settings page in Blue and Pink Synth Editor
 
   
 # Installation
+
+Blue and Pink Synth Editor is free and open source. 
+
+If you are a python programmer, you can follow the instructions below and use it for free without any limitations. If you find a bug, make improvements or have suggestions or comments, I'd appreciate your input.
+
+If you would rather download an installer and not need to deal with things like python code and the command line, TODO: Finish this
 
 ## 1. Download nymphes-osc
 
