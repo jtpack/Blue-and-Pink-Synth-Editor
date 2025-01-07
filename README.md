@@ -9,6 +9,17 @@ If you would like to join the Blue and Pink Synth Editor discord server for Blue
 2025, Scott Lumsden
 
 
+# How to Get It
+
+Blue and Pink Synth Editor is open source.
+Follow the instructions in the Installation section below to download the source code and run it on your computer.
+
+If you'd rather avoid the python programming stuff and just download an installer, go to https://scottlumsden.com/blueandpinksyntheditor. 
+
+The version from the website runs as a time-limited fully-functional demo so you can make sure that it works for you.
+You can purchase an activation code for $20 to remove the time limit. It's a one-time purchase and the code will work for all future versions of Blue and Pink Synth Editor.
+
+
 # Platforms
 
 - macOS
@@ -46,12 +57,6 @@ If you would like to join the Blue and Pink Synth Editor discord server for Blue
 
   
 # Installation
-
-Blue and Pink Synth Editor is free and open source. 
-
-If you are a python programmer, you can follow the instructions below and use it for free without any limitations. If you find a bug, make improvements or have suggestions or comments, I'd appreciate your input.
-
-If you would rather download an installer and not need to deal with things like python code and the command line, TODO: Finish this
 
 ## 1. Download nymphes-osc
 
