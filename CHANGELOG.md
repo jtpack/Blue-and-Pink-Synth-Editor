@@ -1,7 +1,8 @@
 ## v1.0.0
 
 - Improved activation code logging
-- Replaced email address
+- Replaced support email address with new one from scottlumsden.com
+- Increased status bar text length before reducing font size
 
 
 ## v0.3.8-beta
