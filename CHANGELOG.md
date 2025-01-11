@@ -1,6 +1,7 @@
 ## v1.0.0
 
 - Improved activation code logging
+- Replaced email address
 
 
 ## v0.3.8-beta
