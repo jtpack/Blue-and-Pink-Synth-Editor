@@ -48,6 +48,7 @@ It's a one-time purchase and your code will work for all future versions of Blue
   - This allows you to see their settings, and to load them without overwriting your Nymphes' preset slots
 - MIDI pass-through from input ports to Nymphes
 - MIDI pass-through from Nymphes to output ports
+- Creates virtual MIDI input and output ports so you can record and automate from a DAW like Ableton Live, Logic, etc
 
 
 # Nymphes Preparation
