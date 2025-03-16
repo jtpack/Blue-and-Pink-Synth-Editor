@@ -1,3 +1,8 @@
+## v1.0.1
+
+- Fixed bug where the MIDI Channel control only allowed channels 1-7 instead of 1-16
+
+
 ## v1.0.0
 
 - Improved activation code logging

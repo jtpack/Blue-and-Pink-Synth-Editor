@@ -1,6 +1,6 @@
 import json.decoder
 
-app_version_string = 'v1.0.0'
+app_version_string = 'v1.0.1'
 
 import logging
 from pathlib import Path
