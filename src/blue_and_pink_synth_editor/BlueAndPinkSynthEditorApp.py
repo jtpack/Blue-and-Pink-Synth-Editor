@@ -2204,8 +2204,8 @@ class BlueAndPinkSynthEditorApp(App):
                 client_host=self._nymphes_osc_listener_host,
                 client_port=self._nymphes_osc_listener_port,
                 nymphes_midi_channel=self.nymphes_midi_channel,
-                osc_log_level=logging.INFO,
-                midi_log_level=logging.INFO,
+                osc_log_level=logging.DEBUG,
+                midi_log_level=logging.DEBUG,
                 presets_directory_path=self._presets_directory_path
             )
 
