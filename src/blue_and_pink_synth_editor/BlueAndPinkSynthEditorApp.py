@@ -2151,6 +2151,10 @@ class BlueAndPinkSynthEditorApp(App):
             # used by the UI
             self._set_prop_value_on_main_thread('voice_mode_name', voice_mode_name)
 
+        elif address == '/mod_source':
+            # Just log the message but don't do anything else
+            Logger.debug(f'Received from nymphes-osc: {address}: {args[0]}')
+
         else:
             # This could be a Nymphes parameter message
 

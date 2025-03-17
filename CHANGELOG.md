@@ -1,3 +1,8 @@
+- Added support for previously-undocumented /mod_source OSC message that nymphes-osc sends when it receives MIDI CC #30 from Nymphes
+  - We don't do anything with the message other than log it
+    - Support for the message may not really be necessary
+
+
 ## v1.0.1
 
 - Fixed bug where the MIDI Channel control only allowed channels 1-7 instead of 1-16
