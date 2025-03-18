@@ -25,9 +25,10 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/ui_controls/settings_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/synth_editor_value_controls.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/top_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
-        ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor')
+        ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor'),
+        ('icon.ico', '.')
     ],
-    hiddenimports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
+    hiddenimports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers', 'win32timezone'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -52,6 +53,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon="icon.ico"
 )
 coll = COLLECT(
     exe,

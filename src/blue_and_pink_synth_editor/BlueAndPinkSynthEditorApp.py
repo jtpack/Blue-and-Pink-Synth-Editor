@@ -37,6 +37,11 @@ from pythonosc.osc_message_builder import OscMessageBuilder
 from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["info"])
 
+# Set the window icon on Windows. This doesn't
+# seem to be necessary for macOS
+if platform.system() == 'Windows':
+    Window.icon = 'icon.ico'
+
 from nymphes_midi.NymphesPreset import NymphesPreset
 from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
