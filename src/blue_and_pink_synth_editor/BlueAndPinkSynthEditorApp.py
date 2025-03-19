@@ -38,7 +38,7 @@ from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["info"])
 
 # Set the window icon on Windows. This doesn't
-# seem to be necessary for macOS`
+# seem to be necessary for macOS
 if platform.system() == 'Windows':
     Window.icon = 'icon.ico'
 
