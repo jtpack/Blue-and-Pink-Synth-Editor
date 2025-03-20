@@ -1,7 +1,13 @@
+## v1.0.2-beta
+
 - Added support for previously-undocumented /mod_source OSC message that nymphes-osc sends when it receives MIDI CC #30 from Nymphes
   - We don't do anything with the message other than log it
     - Support for the message may not really be necessary
-- Added icon for Windows
+- This is the first version that supports the Windows operating system
+  - Changes related to this:
+    - Added icon for Windows
+    - Added support for correct native filebrowser on Windows
+  - Open-source users should also get the latest changes for nymphes-osc
 
 
 ## v1.0.1
