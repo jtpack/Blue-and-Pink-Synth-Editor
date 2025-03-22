@@ -1,3 +1,9 @@
+## v1.0.3-beta
+
+- No changes to this repository other than incrementing app version
+- Reverted most changes of nymphes-osc as I found a way to compile python-rtmidi with a higher max input message size
+
+
 ## v1.0.2-beta
 
 - Added support for previously-undocumented /mod_source OSC message that nymphes-osc sends when it receives MIDI CC #30 from Nymphes
