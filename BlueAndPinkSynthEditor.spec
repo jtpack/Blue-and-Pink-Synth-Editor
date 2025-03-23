@@ -1,7 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import sys
 from pathlib import Path
 
+hidden_imports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers']
+
+if sys.platform == "win32":
+    hidden_imports.append('win32timezone')
 
 a = Analysis(
     ['src/blue_and_pink_synth_editor/__main__.py'],
@@ -28,7 +33,7 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor'),
         ('icon.ico', '.')
     ],
-    hiddenimports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers', 'win32timezone'],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

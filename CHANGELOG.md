@@ -1,7 +1,7 @@
 ## v1.0.3-beta
 
-- No changes to this repository other than incrementing app version
-- Reverted most changes of nymphes-osc as I found a way to compile python-rtmidi with a higher max input message size
+- Windows is now supported, with exactly the same features and functionality as on macOS
+  - Make sure you pull in the latest changes from nymphes-osc (v1.0.1 or later)
 
 
 ## v1.0.2-beta
