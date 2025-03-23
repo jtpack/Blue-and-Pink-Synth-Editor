@@ -1,6 +1,19 @@
+## v1.0.3-beta
+
+- Windows is now supported, with exactly the same features and functionality as on macOS
+  - Make sure you pull in the latest changes from nymphes-osc (v1.0.1 or later)
+
+
+## v1.0.2-beta
+
 - Added support for previously-undocumented /mod_source OSC message that nymphes-osc sends when it receives MIDI CC #30 from Nymphes
   - We don't do anything with the message other than log it
     - Support for the message may not really be necessary
+- This is the first version that supports the Windows operating system
+  - Changes related to this:
+    - Added icon for Windows
+    - Added support for correct native filebrowser on Windows
+  - Open-source users should also get the latest changes for nymphes-osc
 
 
 ## v1.0.1

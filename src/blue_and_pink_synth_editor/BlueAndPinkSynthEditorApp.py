@@ -1,6 +1,6 @@
 import json.decoder
 
-app_version_string = 'v1.0.1'
+app_version_string = 'v1.0.3-beta'
 
 import logging
 from pathlib import Path
@@ -36,6 +36,11 @@ from pythonosc.osc_message_builder import OscMessageBuilder
 
 from kivy.logger import Logger, LOG_LEVELS
 Logger.setLevel(LOG_LEVELS["info"])
+
+# Set the window icon on Windows. This doesn't
+# seem to be necessary for macOS
+if platform.system() == 'Windows':
+    Window.icon = 'icon.ico'
 
 from nymphes_midi.NymphesPreset import NymphesPreset
 from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
@@ -579,7 +584,7 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             # Create the app data folder
             #
-            self._app_data_folder_path = Path.home() / 'Blue and Pink Synth Editor Data'
+            self._app_data_folder_path = Path.home().expanduser() / 'Blue and Pink Synth Editor Data'
             if not self._app_data_folder_path.exists():
                 try:
                     self._app_data_folder_path.mkdir()
@@ -2532,50 +2537,72 @@ class BlueAndPinkSynthEditorApp(App):
 
     def open_presets_folder_in_native_file_browser(self):
         """
-        Opens a new native filebrowser (Finder on macOS)
+        Opens a new native filebrowser (Finder on macOS, Explorer on Windows, something on Linux)
         showing the presets folder.
         """
-        #
-        # In order to make open -R show the contents of a directory,
-        # we need to provide a path to a file inside the directory.
-        # Otherwise it opens the parent folder of the directory instead.
-        # We will use the init.txt preset file because we know that
-        # it exists.
-        #
+        if platform.system() == "Darwin":
+            #
+            # On macOS, in order to make open -R show the contents of a directory,
+            # we need to provide a path to a file inside the directory.
+            # Otherwise it opens the parent folder of the directory instead.
+            # We will use the init.txt preset file because we know that
+            # it exists.
+            #
+            subprocess.call(['open', '-R', self._init_preset_file_path])
 
-        subprocess.call(['open', '-R', self._init_preset_file_path])
+        elif platform.system() == "Windows":
+            os.startfile(self._presets_directory_path)
+
+        elif platform.system() == "Linux":
+            os.system(f"xdg-open {self._presets_directory_path}")
+
+        else:
+            self.show_error_dialog_on_main_thread(f'Unknown operating system', platform.system())
 
     def open_logs_folder_in_native_file_browser(self):
         """
-        Opens a new native filebrowser (Finder on macOS)
+        Opens a new native filebrowser Finder on macOS, Explorer on Windows, something on Linux)
         showing the kivy logs folder.
         """
-        #
-        # In order to make open -R show the contents of a directory,
-        # we need to provide a path to a file inside the directory.
-        # Otherwise it opens the parent folder of the directory instead.
-        # We will select the most recently created log file in the directory.
-        #
-
-        # Check whether the logs directory contains any files
         logs_dir_path = Path(os.path.expanduser('~/.kivy/logs/'))
-        log_files = glob.glob(os.path.join(logs_dir_path, '*'))
 
-        if not log_files:
-            # The directory is empty.
-            # Open the directory itself, which will cause Finder
-            # to show the directory inside its parent directory.
-            subprocess.call(['open', '-R', logs_dir_path])
+        if platform.system() == "Darwin":
+            #
+            # In order to make open -R show the contents of a directory,
+            # we need to provide a path to a file inside the directory.
+            # Otherwise it opens the parent folder of the directory instead.
+            # We will select the most recently created log file in the directory.
+            #
+
+            # Check whether the logs directory contains any files
+            log_files = glob.glob(os.path.join(logs_dir_path, '*'))
+
+            if not log_files:
+                # The directory is empty.
+                # Open the directory itself, which will cause Finder
+                # to show the directory inside its parent directory.
+                subprocess.call(['open', '-R', logs_dir_path])
+
+            else:
+                # The directory contains files.
+                # Open the most recent one, which will cause
+                # Finder to show the contents of the folder
+                # and select the file.
+                most_recent_file = max(log_files, key=os.path.getctime)
+                subprocess.call(['open', '-R', most_recent_file])
+
+        elif platform.system() == "Windows":
+            os.startfile(logs_dir_path)
+
+        elif platform.system() == "Linux":
+            os.system(f"xdg-open {logs_dir_path}")
 
         else:
-            # The directory contains files.
-            # Open the most recent one, which will cause
-            # Finder to show the contents of the folder
-            # and select the file.
-            most_recent_file = max(log_files, key=os.path.getctime)
-            subprocess.call(['open', '-R', most_recent_file])
+            self.show_error_dialog_on_main_thread(f'Unknown operating system', platform.system())
 
-    def open_website_url(self, url):
+
+    @staticmethod
+    def open_website_url(url):
         """
         Open url in the system's webbrowser (or email app)
         """
@@ -2929,6 +2956,7 @@ class BlueAndPinkSynthEditorApp(App):
                               preset_type,
                               preset_bank,
                               preset_number)
+
 
     @staticmethod
     def _get_next_and_prev_files_for_file_path(file_path):

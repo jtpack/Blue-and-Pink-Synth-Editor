@@ -1,7 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import sys
 from pathlib import Path
 
+hidden_imports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers']
+
+if sys.platform == "win32":
+    hidden_imports.append('win32timezone')
 
 a = Analysis(
     ['src/blue_and_pink_synth_editor/__main__.py'],
@@ -25,9 +30,10 @@ a = Analysis(
         ('src/blue_and_pink_synth_editor/ui_controls/settings_screen.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/synth_editor_value_controls.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
         ('src/blue_and_pink_synth_editor/ui_controls/top_bar.kv', 'src/blue_and_pink_synth_editor/ui_controls'),
-        ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor')
+        ('src/blue_and_pink_synth_editor/icon.png', 'src/blue_and_pink_synth_editor'),
+        ('icon.ico', '.')
     ],
-    hiddenimports=['zeroconf._utils.ipaddress', 'zeroconf._handlers.answers'],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -52,6 +58,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon="icon.ico"
 )
 coll = COLLECT(
     exe,

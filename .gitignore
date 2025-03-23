@@ -8,4 +8,5 @@ src/blue_and_pink_synth_editor/config.txt
 /src/BlueAndPinkSynthEditor.egg-info/
 /src/blue_and_pink_synth_editor/activation_code_enabled.py
 entitlements.plist
-BlueAndPinkSynthEditor_codesigned.spec
+BlueAndPinkSynthEditor_macOS_codesigned.spec
+python-rtmidi/
