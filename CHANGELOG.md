@@ -1,3 +1,6 @@
+- Fixed bug where dragging a beta test activation code file onto a non-beta version of the app still copied the file to the data folder
+
+
 ## v1.0.3-beta
 
 - Windows is now supported, with exactly the same features and functionality as on macOS

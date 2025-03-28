@@ -2831,6 +2831,8 @@ class BlueAndPinkSynthEditorApp(App):
                         self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                         Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
 
+                        return
+
                 else:
                     # This should never happen, as there are only two valid license types..
                     Logger.warning(f"Unknown license type. This should never happen: {self.license_type}")
@@ -2838,7 +2840,11 @@ class BlueAndPinkSynthEditorApp(App):
                     self.title = f'Blue and Pink Synth Editor {app_version_string} - Demo Mode'
                     Clock.schedule_once(lambda dt: self.enter_demo_mode(), 10)
 
+                    return
+
+                #
                 # Copy the file to the data folder if necessary
+                #
                 if Path(file_path).expanduser() != self._activation_code_file_path:
                     try:
                         shutil.copyfile(file_path, self._activation_code_file_path)
