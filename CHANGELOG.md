@@ -1,3 +1,5 @@
+## v1.0.4
+
 - Fixed bug where dragging a beta test activation code file onto a non-beta version of the app still copied the file to the data folder
 
 
