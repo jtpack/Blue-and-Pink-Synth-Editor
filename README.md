@@ -16,6 +16,7 @@ If you're a python programmer, you can follow the instructions in the Installati
 Blue and Pink Synth Editor will always be free to use in this way.
 
 If you are not a programmer, you can download a pre-compiled version at https://scottlumsden.com/blueandpinksyntheditor. 
+
 The pre-compiled version runs as a time-limited fully-functional demo.
 You can purchase an activation code for $20 to remove the time limit.
 It's a one-time purchase and your code will work for all future versions of Blue and Pink Synth Editor.
@@ -24,9 +25,8 @@ It's a one-time purchase and your code will work for all future versions of Blue
 # Platforms
 
 - macOS
-- Windows (Experimental)
-  - Seems to be working, but testing is ongoing as of late March 2025
-- Linux (Lightly tested with Debian 12 inside VirtualBox on a Mac)
+- Windows
+- Linux (Lightly tested with Debian 12 inside VirtualBox)
   - It is unknown whether this will work on a computer running Linux as its actual OS
 - Raspberry Pi with a Touchscreen (Use this repository: https://github.com/jtpack/Blue-and-Pink-Synth-Editor-RPi)
 
