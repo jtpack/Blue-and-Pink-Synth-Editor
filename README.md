@@ -125,6 +125,8 @@ Make sure you have Cmake installed
 ## 8. Run it from the command line to make sure it works
 - macOS:
   - `$ dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+- Windows:
+  - `$ dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
 - Linux:
   - `$ dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
 
