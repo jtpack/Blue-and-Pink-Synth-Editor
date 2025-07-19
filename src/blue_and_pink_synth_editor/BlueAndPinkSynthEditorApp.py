@@ -1818,6 +1818,22 @@ class BlueAndPinkSynthEditorApp(App):
             msg = f'SAVED PRESET {preset_type.upper()} {bank_name}{preset_number} TO FILE {filepath.name}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
+        elif address == '/saved_to_preset_pack_file':
+            #
+            # A preset pack file has been saved
+            #
+
+            filepath = Path(str(args[0])).expanduser()
+
+            Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
+
+            # Status bar message
+            msg = f'SAVED PRESET PACK TO {filepath}'
+            self._set_prop_value_on_main_thread('status_bar_text', msg)
+
+            # Also open the parent folder of the new file
+            self.show_file_in_native_file_browser(filepath)
+
         elif address == '/loaded_file_to_preset':
             #
             # A preset file has been loaded into one of Nymphes'
@@ -2600,6 +2616,25 @@ class BlueAndPinkSynthEditorApp(App):
         else:
             self.show_error_dialog_on_main_thread(f'Unknown operating system', platform.system())
 
+    def show_file_in_native_file_browser(self, filepath):
+        """
+        Opens a new native filebrowser Finder on macOS, Explorer on Windows, something on Linux)
+        showing the supplied file in its parent folder.
+        :param filepath: Path or str
+        """
+        filepath = Path(filepath).expanduser()
+
+        if platform.system() == "Darwin":
+            subprocess.call(['open', '-R', filepath])
+
+        elif platform.system() == "Windows":
+            os.startfile(filepath.parent)
+
+        elif platform.system() == "Linux":
+            os.system(f"xdg-open {filepath.parent}")
+
+        else:
+            self.show_error_dialog_on_main_thread(f'Unknown operating system', platform.system())
 
     @staticmethod
     def open_website_url(url):
@@ -2610,9 +2645,6 @@ class BlueAndPinkSynthEditorApp(App):
             return
 
         webbrowser.open(url)
-
-
-
 
     def activate_chord_number(self, chord_number):
         """

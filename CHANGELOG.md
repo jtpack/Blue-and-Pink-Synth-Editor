@@ -1,3 +1,8 @@
+- Added support for preset pack file save notification
+  - The notification displays in the status bar
+  - The newly-saved file is shown in a new native filebrowser window
+
+
 ## v1.0.4
 
 - Fixed bug where dragging a beta test activation code file onto a non-beta version of the app still copied the file to the data folder
