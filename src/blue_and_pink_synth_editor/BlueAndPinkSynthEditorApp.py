@@ -1849,7 +1849,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
-            msg = f'LOADED PRESET FILE {filepath} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            msg = f'LOADED {Path(filepath).stem} TO {preset_type.upper()} {bank_name}{preset_number} PRESET SLOT'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_to_preset':
