@@ -1,6 +1,6 @@
 import json.decoder
 
-app_version_string = 'v1.0.4'
+app_version_string = 'v1.0.5_dev'
 
 import logging
 from pathlib import Path
@@ -1507,7 +1507,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/presets_directory_path':
             # Get the path
-            path = Path(args[0]).expanduser().resolve()
+            path = args[0]
 
             Logger.info(f'Received from nymphes-osc: {address}: {path}')
 
@@ -1700,7 +1700,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # A preset file was loaded
             #
-            filepath = Path(args[0]).expanduser().resolve()
+            filepath = Path(args[0])
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1708,7 +1708,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._set_prop_value_on_main_thread('curr_preset_type', 'file')
 
             # Store the path to the file
-            self._curr_preset_file_path = filepath
+            self._curr_preset_file_path = Path(filepath)
 
             # Reset current preset slot info
             self._curr_preset_slot_type = None
@@ -1730,7 +1730,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the path to the init preset file
-            filepath = Path(args[0]).expanduser().resolve()
+            filepath = Path(args[0])
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1760,7 +1760,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # The current settings have been saved to a preset file
             #
-            filepath = Path(args[0]).expanduser().resolve()
+            filepath = Path(args[0])
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1807,7 +1807,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            filepath = Path(str(args[0])).expanduser().resolve()
+            filepath = str(args[0])
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
@@ -1823,7 +1823,7 @@ class BlueAndPinkSynthEditorApp(App):
             # A preset pack file has been saved
             #
 
-            filepath = Path(str(args[0])).expanduser().resolve()
+            filepath = str(args[0])
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1841,7 +1841,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            filepath = Path(args[0]).expanduser().resolve()
+            filepath = str(args[0])
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
@@ -1849,7 +1849,7 @@ class BlueAndPinkSynthEditorApp(App):
             Logger.info(f'Received from nymphes-osc: {address}: {filepath} {preset_type} {bank_name}{preset_number}')
 
             # Status bar message
-            msg = f'LOADED PRESET FILE {filepath.name} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
+            msg = f'LOADED PRESET FILE {filepath} TO SLOT {preset_type.upper()} {bank_name}{preset_number}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/saved_to_preset':
