@@ -1721,7 +1721,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._set_presets_spinner_first_option_on_main_thread(self._curr_preset_file_path.stem)
 
             # Status bar message
-            msg = f'LOADED {filepath.name}'
+            msg = f'LOADED {self._curr_preset_file_path.name}'
             self._set_prop_value_on_main_thread('status_bar_text', msg)
 
         elif address == '/loaded_init_file':
