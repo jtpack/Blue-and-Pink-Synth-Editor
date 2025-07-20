@@ -2,6 +2,7 @@
   - The notification displays in the status bar
   - The newly-saved file is shown in a new native filebrowser window
 - Improved status message when a file is loaded into a preset slot
+- Fixed bug in handler for /saved_preset_to_file
 
 
 ## v1.0.4
