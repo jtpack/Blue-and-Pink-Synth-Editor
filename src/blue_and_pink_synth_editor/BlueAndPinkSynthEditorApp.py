@@ -16,7 +16,7 @@ import webbrowser
 from datetime import datetime
 
 from kivy.config import Config
-Config.read(str(Path(__file__).resolve().parent / 'app_config.ini'))
+Config.read(str(Path(__file__).expanduser().resolve().parent / 'app_config.ini'))
 
 from kivy.app import App
 import kivy
@@ -75,7 +75,7 @@ from src.activation_code_verifier.code_verifier import load_activation_code_from
 # the return value in this file to True
 #
 
-activation_code_checking_file_path = Path(__file__).parent / 'activation_code_enabled.py'
+activation_code_checking_file_path = Path(__file__).expanduser().resolve().parent / 'activation_code_enabled.py'
 if not activation_code_checking_file_path.exists():
     Logger.info(f'activation_code_enabled.py does not exist at {activation_code_checking_file_path}')
     # Create the file and populate it with its only function
@@ -459,7 +459,7 @@ class BlueAndPinkSynthEditorApp(App):
         super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
 
         # Set the app icon
-        self.icon = str(Path(__file__).resolve().parent / 'icon.png')
+        self.icon = str(Path(__file__).expanduser().resolve().parent / 'icon.png')
 
         #
         # Window Aspect Ratio Control
@@ -558,7 +558,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Create the app data folder. On macOS, the app bundle is also installed
             # in this folder by the pkg installer.
             #
-            self._app_data_folder_path = Path(os.path.expanduser('~')) / 'Library/Application Support/Blue and Pink Synth Editor'
+            self._app_data_folder_path = Path('~/Library/Application Support/Blue and Pink Synth Editor').expanduser().resolve()
             if not self._app_data_folder_path.exists():
                 try:
                     self._app_data_folder_path.mkdir()
@@ -1507,7 +1507,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/presets_directory_path':
             # Get the path
-            path = Path(args[0])
+            path = Path(args[0]).expanduser().resolve()
 
             Logger.info(f'Received from nymphes-osc: {address}: {path}')
 
@@ -1700,7 +1700,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # A preset file was loaded
             #
-            filepath = Path(args[0])
+            filepath = Path(args[0]).expanduser().resolve()
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1730,7 +1730,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the path to the init preset file
-            filepath = Path(args[0])
+            filepath = Path(args[0]).expanduser().resolve()
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1760,7 +1760,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
             # The current settings have been saved to a preset file
             #
-            filepath = Path(args[0])
+            filepath = Path(args[0]).expanduser().resolve()
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1807,7 +1807,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            filepath = Path(str(args[0]))
+            filepath = Path(str(args[0])).expanduser().resolve()
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
@@ -1823,7 +1823,7 @@ class BlueAndPinkSynthEditorApp(App):
             # A preset pack file has been saved
             #
 
-            filepath = Path(str(args[0])).expanduser()
+            filepath = Path(str(args[0])).expanduser().resolve()
 
             Logger.info(f'Received from nymphes-osc: {address}: {filepath}')
 
@@ -1841,7 +1841,7 @@ class BlueAndPinkSynthEditorApp(App):
             #
 
             # Get the preset info
-            filepath = Path(args[0])
+            filepath = Path(args[0]).expanduser().resolve()
             preset_type = str(args[1])
             bank_name = str(args[2])
             preset_number = int(args[3])
@@ -2580,7 +2580,7 @@ class BlueAndPinkSynthEditorApp(App):
         Opens a new native filebrowser Finder on macOS, Explorer on Windows, something on Linux)
         showing the kivy logs folder.
         """
-        logs_dir_path = Path(os.path.expanduser('~/.kivy/logs/'))
+        logs_dir_path = Path('~/.kivy/logs/').expanduser().resolve()
 
         if platform.system() == "Darwin":
             #
@@ -2622,7 +2622,7 @@ class BlueAndPinkSynthEditorApp(App):
         showing the supplied file in its parent folder.
         :param filepath: Path or str
         """
-        filepath = Path(filepath).expanduser()
+        filepath = Path(filepath).expanduser().resolve()
 
         if platform.system() == "Darwin":
             subprocess.call(['open', '-R', filepath])
@@ -2692,7 +2692,7 @@ class BlueAndPinkSynthEditorApp(App):
         file_path = file_path.decode('utf-8')
 
         # Convert to a Path
-        file_path = Path(file_path).expanduser()
+        file_path = Path(file_path).expanduser().resolve()
 
         #
         # Determine the file type
@@ -2877,7 +2877,7 @@ class BlueAndPinkSynthEditorApp(App):
                 #
                 # Copy the file to the data folder if necessary
                 #
-                if Path(file_path).expanduser() != self._activation_code_file_path:
+                if Path(file_path).expanduser().resolve() != self._activation_code_file_path:
                     try:
                         shutil.copyfile(file_path, self._activation_code_file_path)
                         Logger.info(f'Copied activation code file to {self._activation_code_file_path}')
@@ -2970,7 +2970,7 @@ class BlueAndPinkSynthEditorApp(App):
         Load the preset file at filepath
         :param filepath: Path or str
         """
-        filepath = Path(filepath).resolve()
+        filepath = Path(filepath).expanduser().resolve()
         self.send_nymphes_osc('/load_file', str(filepath))
 
     def save_to_preset_file(self, filepath):
@@ -2978,7 +2978,7 @@ class BlueAndPinkSynthEditorApp(App):
         Save the current Nymphes settings to a file at filepath.
         :param filepath: str
         """
-        filepath = Path(filepath).resolve()
+        filepath = Path(filepath).expanduser().resolve()
         Logger.info(f'save_to_preset_file: {filepath}')
         self.send_nymphes_osc('/save_to_file', str(filepath))
 
@@ -3005,7 +3005,7 @@ class BlueAndPinkSynthEditorApp(App):
         file in the folder.
         returns: tuple of prev and next file path (Path)
         """
-        file_path = Path(file_path)
+        file_path = Path(file_path).expanduser().resolve()
         parent_folder = file_path.parent
 
         # Get a list of all file paths in the parent folder of file_path

@@ -48,7 +48,7 @@ def load_activation_code_from_file(file_path):
     :return: str
     """
     # Make sure file_path is a Path
-    file_path = Path(file_path).expanduser()
+    file_path = Path(file_path).expanduser().resolve()
 
     # Load the file
     with open(file_path, 'r') as file:
@@ -122,7 +122,7 @@ def load_public_key_from_file(file_path):
     :return: RSAPublicKey
     """
     # Make sure file_path is a Path
-    file_path = Path(file_path).expanduser()
+    file_path = Path(file_path).expanduser().resolve()
 
     with open(file_path, "rb") as key_file:
         public_key = serialization.load_pem_public_key(

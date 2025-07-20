@@ -1,6 +1,7 @@
 - Added support for preset pack file save notification
   - The notification displays in the status bar
   - The newly-saved file is shown in a new native filebrowser window
+- App now uses expanduser() and resolve() on all filesystem Paths
 
 
 ## v1.0.4
