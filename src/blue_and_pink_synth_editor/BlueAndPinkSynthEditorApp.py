@@ -989,14 +989,18 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif self.curr_preset_type == 'preset_slot':
             # Get the index of the last preset slot that was loaded
-            preset_slot_index = self.index_from_preset_info(
-                bank_name=self._curr_preset_slot_bank_and_number[0],
-                preset_num=self._curr_preset_slot_bank_and_number[1],
-                preset_type=self._curr_preset_slot_type
-            )
-
-            # Load the preset
-            self.load_preset_by_index(preset_slot_index)
+            try:
+                preset_slot_index = self.index_from_preset_info(
+                    bank_name=self._curr_preset_slot_bank_and_number[0],
+                    preset_num=self._curr_preset_slot_bank_and_number[1],
+                    preset_type=self._curr_preset_slot_type
+                )
+                
+                # Load the preset
+                self.load_preset_by_index(preset_slot_index)
+                
+            except Exception as e:
+                Logger.warning(f"Failed to create preset index ({e})")
 
     def update_current_preset_file(self):
         """
@@ -1660,6 +1664,7 @@ class BlueAndPinkSynthEditorApp(App):
             self._curr_preset_slot_bank_and_number = preset_slot_bank_and_number
 
             # Get the index of the loaded preset slot
+            
             preset_slot_index = BlueAndPinkSynthEditorApp.index_from_preset_info(
                 bank_name=self._curr_preset_slot_bank_and_number[0],
                 preset_num=self._curr_preset_slot_bank_and_number[1],
