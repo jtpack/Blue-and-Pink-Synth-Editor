@@ -110,7 +110,7 @@ Make sure you have Cmake installed
   - `$ python -m build`
 - Install the newly-built wheel into the virtual environment
   - `$ python -m installer <Full absolute path to the .whl file that was just built>`
-    - example: `$ python -m installer C:\Users\scott\nymphes-osc\python-rtmidi\dist\python_rtmidi-1.5.8-cp312-cp312-win_amd64.whl`
+    - example: `$ python -m installer C:\Users\jtpack\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
 
 ## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `$ cd ~/Blue-and-Pink-Synth-Editor`
