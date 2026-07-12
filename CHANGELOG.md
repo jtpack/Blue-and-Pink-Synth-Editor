@@ -1,4 +1,5 @@
 - Created a Windows batch file for easily running the app without compiling on Windows
+- Updated installation instructions in README
 
 
 ## v1.0.4
