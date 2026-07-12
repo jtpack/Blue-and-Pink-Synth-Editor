@@ -1,3 +1,6 @@
+- Created a Windows batch file for easily running the app without compiling on Windows
+
+
 ## v1.0.4
 
 - Fixed bug where dragging a beta test activation code file onto a non-beta version of the app still copied the file to the data folder
