@@ -58,84 +58,116 @@ It's a one-time purchase and your code will work for all future versions of Blue
   
 # Installation
 
+## 0. Install the Required Basic Tools
+
+### Python (Install a recent stable version of Python 3, not Python 2)
+- macOS / Linux: Download and install from https://www.python.org/downloads/
+- Windows: Download using the Windows App Store: https://apps.microsoft.com/detail/9PNRBTZXMB4Z?hl=en-us&gl=US&ocid=pdpshare
+
+### Git
+- macOS: Go to the git website and follow the instructions for one of the installation methods: https://git-scm.com/install/mac
+- Windows: Download and install from the git website: https://git-scm.com/install/windows
+- Linux: Go to the git website and follow the instructions: https://git-scm.com/install/linux
+
+## 0.5 Extra Tools to Install on Windows
+
+### CMake
+Download and run the CMake installer: https://cmake.org/download/
+
+### Visual Studio Code
+This one is optional, but it's a nice free code editor with a built-in terminal, and it will be nicer to use than `notepad.exe` when you need to edit `RtMidi.h` later on
+
+
 ## 1. Download nymphes-osc
 
+From the command line, navigate to your home directory
+- `cd ~`
+
 Clone the nymphes-osc repository to your home directory
-- `$ cd ~`
-- `$ git clone https://github.com/jtpack/nymphes-osc.git`
+- `git clone https://github.com/jtpack/nymphes-osc.git`
 
 ## 2. Download Blue and Pink Synth Editor
-Clone the Blue-and-Pink-Synth-Editor repository to your home directory
-- `$ cd ~`
-- `$ git clone https://github.com/jtpack/Blue-and-Pink-Synth-Editor.git`
+
+ While still in your home directory, clone the Blue-and-Pink-Synth-Editor repository
+- `git clone https://github.com/jtpack/Blue-and-Pink-Synth-Editor.git`
 
 ## 3. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
-- `$ cd ~/Blue-and-Pink-Synth-Editor`
+
+- `cd Blue-and-Pink-Synth-Editor`
 - macOS and Linux: 
-  - `$ python3 -m venv venv`
-  - `$ source venv/bin/activate`
+  - `python3 -m venv venv`
+  - `source venv/bin/activate`
 - Windows: 
-  - `$ py -3 -m venv venv`
-  - `$ venv\Scripts\activate`
-  - _If you are using Windows PowerShell and get an error message, you may need to first use the following command:_ 
-    - `$ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
+  - `py -3 -m venv venv`
+  - `venv\Scripts\activate`
+    - If you are using Windows PowerShell and get an error message indicating that running scripts is disabled on your system, enter the following command and then try again: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
 
 ## 4. Install nymphes-osc in the virtual environment as an editable package
-- macOS and Linux: `$ pip install -e ~/nymphes-osc`
-- Windows: `$ pip install -e <full absolute path to nymphes-osc folder>`
-  - ie: `$ pip install -e C:\Users\jtpack\nymphes-osc`
 
-### Windows: Manual Installation of python-rtmidi
-Make sure you have Cmake installed
+- macOS and Linux: `pip install -e ~/nymphes-osc`
+- Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\jtpack\nymphes-osc`
+  - Obviously, replace `jtpack` with your own username
+
+## 4.1 (Only on Windows): Modify and Manually Install python-rtmidi
+On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large SYSEX messages like the ones Nymphes generates. This is solved by downloading the python-rtmidi source code, making a modification, compiling it, and then installing it into the python virtual environment.
+
 - Download python-rtmidi source code
-  - `$ cd ~/Blue-and-Pink-Synth-Editor`
-  - `$ git clone --recurse-submodules https://github.com/SpotlightKid/python-rtmidi.git`
+  - `cd ~/Blue-and-Pink-Synth-Editor`
+  - `git clone --recurse-submodules https://github.com/SpotlightKid/python-rtmidi.git`
 - Increase the RtMidiInData bufferSize in RtMidi.h
-  - `$ cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi/src/rtmidi`
+  - `cd python-rtmidi/src/rtmidi`
   - Open RtMidi.h and find the RtMidiInData Default constructor
     - Change `bufferSize(1024)` to `bufferSize(8196)`
     - Save the file
   - Commit the changes to the local python-midi and rtmidi repositories
     - This appears to be necessary for the changes to work
-    - `$ cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi/src/rtmidi`
-    - `$ git add RtMidi.h`
-    - `$ git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
-    - `$ cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
-    - `$ git add -A`
-    - `$ git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
+    - `git add RtMidi.h`
+    - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
+    - Navigate up one level (to `python-rtmidi/src/`):
+      - `cd ..`
+    - `git add -A`
+    - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
 - Install packages needed to build a wheel and install it
-  - `$ pip install build installer`
+  - `pip install build installer`
 - Build the wheel
-  - `$ cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
-  - `$ python -m build`
+  - Navigate up one level (to `python-rtmidi/`):
+      - `cd ..`
+  - `python -m build`
 - Install the newly-built wheel into the virtual environment
-  - `$ python -m installer <Full absolute path to the .whl file that was just built>`
-    - example: `$ python -m installer C:\Users\jtpack\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
+  - `python -m installer <Full absolute path to the .whl file that was just built>`
+    - example: `python -m installer C:\Users\jtpack\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
+      - Replace `jtpack` with your own username, and replace the actual filename with the one that you created, as it may have a newer version in its name
 
 ## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
-- `$ cd ~/Blue-and-Pink-Synth-Editor`
-- `$ pip install -e .`
+- `cd ~/Blue-and-Pink-Synth-Editor`
+- `pip install -e .`
 
-## 6. Run Blue-and-Pink-Synth-Editor to make sure it works
-- `$ python -m blue_and_pink_synth_editor`
+## 6. Run Blue-and-Pink-Synth-Editor before compiling to make sure it works
+- `python -m blue_and_pink_synth_editor`
 
-## 7. Compile the app into an executable binary
-- `$ pyinstaller BlueAndPinkSynthEditor.spec`
+## 7. Compile Blue and Pink Synth Editor
+This makes it easier to run, just like any other app on your computer
+- `pyinstaller BlueAndPinkSynthEditor.spec`
 
-## 8. Run it from the command line to make sure it works
+### Run it from the command line to make sure it works
+Make sure you are in the `Blue-and-Pink-Synth-Editor` folder in your home directory.
+
+Then:
 - macOS:
-  - `$ dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+  - `dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+  - Move the app to your Applications folder:
+    - `mv dist/BlueAndPinkSynthEditor.app /Applications/`
 - Windows:
-  - `$ dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
+  - `dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
 - Linux:
-  - `$ dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
+  - `dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
 
-## 9. Run it by double-clicking its icon
+### Run it by double-clicking its icon
+
 - macOS:
-  - Double-click the file at `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor.app`
+  - Use the Finder to navigate to your Applications folder, and double-click `BlueAndPinkSynthEditor.app`
 - Windows:
-  - Double-click the file at `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
-
-## 10. On macOS, move the compiled app to /Applications
-- `mv dist/BlueAndPinkSynthEditor.app /Applications/`
-- From now on you can run the compiled app by double-clicking on it in the Applications folder
+  - Use Windows Explorer to navigate to the `Blue-and-Pink-Synth-Editor` folder in your home directory
+  - Navigate to the `dist` folder
+  - Double-click `BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
+  - Drag the app onto the Taskbar to create a link to it
