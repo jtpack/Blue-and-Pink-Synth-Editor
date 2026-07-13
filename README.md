@@ -69,7 +69,7 @@ It's a one-time purchase and your code will work for all future versions of Blue
 - Windows: Download and install from the git website: https://git-scm.com/install/windows
 - Linux: Go to the git website and follow the instructions: https://git-scm.com/install/linux
 
-## 0.5 Extra Tools to Install on Windows
+## Extra Tools to Install on Windows
 
 ### CMake
 Download and run the CMake installer: https://cmake.org/download/
