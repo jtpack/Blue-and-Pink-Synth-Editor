@@ -76,6 +76,7 @@ Download and run the CMake installer: https://cmake.org/download/
 
 ### Visual Studio Code
 This one is optional, but it's a nice free code editor with a built-in terminal, and it will be nicer to use than `notepad.exe` when you need to edit `RtMidi.h` later on
+https://code.visualstudio.com/download
 
 
 ## 1. Download nymphes-osc
