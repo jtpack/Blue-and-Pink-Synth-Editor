@@ -118,11 +118,11 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
   - Open RtMidi.h and find the RtMidiInData Default constructor
     - Change `bufferSize(1024)` to `bufferSize(8196)`
     - Save the file
-  - Commit the changes to the local rtmidi repository
+  - Commit the changes to the local `rtmidi` folder
     - This appears to be necessary for the changes to work
     - `git add RtMidi.h`
     - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
-  - Commit the changes again, this time to the python-rtmidi repository
+  - Commit the changes again, this time to the `python-rtmidi` folder
     - Navigate up one level (to `python-rtmidi/src/`):
       - `cd ..`
     - `git add -A`
