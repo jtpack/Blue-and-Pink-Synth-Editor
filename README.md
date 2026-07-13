@@ -141,24 +141,23 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
 - `pip install -e .`
 
 ## 6. Run Blue-and-Pink-Synth-Editor before compiling to make sure it works
+- `cd ~/Blue-and-Pink-Synth-Editor`
 - `python -m blue_and_pink_synth_editor`
 
 ## 7. Compile Blue and Pink Synth Editor
-This makes it easier to run, just like any other app on your computer
+Compiling Blue and Pink Synth Editor makes it easier to run, more like any other app on your computer.
+- `cd ~/Blue-and-Pink-Synth-Editor`
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
 ### Run it from the command line to make sure it works
-Make sure you are in the `Blue-and-Pink-Synth-Editor` folder in your home directory.
-
-Then:
 - macOS:
-  - `dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
+  - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
   - Move the app to your Applications folder:
-    - `mv dist/BlueAndPinkSynthEditor.app /Applications/`
+    - `mv ~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor.app /Applications/`
 - Windows:
-  - `dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
+  - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor.exe`
 - Linux:
-  - `dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
+  - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
 
 ### Run it by double-clicking its icon
 
