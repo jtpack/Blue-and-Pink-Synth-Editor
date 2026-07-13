@@ -80,7 +80,7 @@ This one is optional, but it's a nice free code editor with a built-in terminal,
 
 ## 1. Download nymphes-osc
 
-From the command line, navigate to your home directory
+From the Terminal (use PowerShell or Git Bash on Windows), navigate to your home directory
 - `cd ~`
 
 Clone the nymphes-osc repository to your home directory
