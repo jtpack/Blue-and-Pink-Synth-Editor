@@ -114,24 +114,22 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
   - `cd ~/Blue-and-Pink-Synth-Editor`
   - `git clone --recurse-submodules https://github.com/SpotlightKid/python-rtmidi.git`
 - Increase the RtMidiInData bufferSize in RtMidi.h
-  - `cd python-rtmidi/src/rtmidi`
-  - Open RtMidi.h and find the RtMidiInData Default constructor
+  - Edit `~/Blue-and-Pink-Synth-Editor/python-rtmidi/src/rtmidi/RtMidi.h` and find the RtMidiInData Default constructor
     - Change `bufferSize(1024)` to `bufferSize(8196)`
     - Save the file
-  - Commit the changes to the local `rtmidi` folder
-    - This appears to be necessary for the changes to work
+  - Commit the changes to the local `rtmidi` folder (it appears this is necessary for the changes to work)
+    - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi/src/rtmidi`
     - `git add RtMidi.h`
     - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
   - Commit the changes again, this time to the `python-rtmidi` folder
-    - Navigate up one level (to `python-rtmidi/src/`):
-      - `cd ..`
+    - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
     - `git add -A`
     - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
 - Install packages needed to build a wheel and install it
+  - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi/src`
   - `pip install build installer`
 - Build the wheel
-  - Navigate up one level (to `python-rtmidi/`):
-      - `cd ..`
+  - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
   - `python -m build`
 - Install the newly-built wheel into the virtual environment
   - `python -m installer <Full absolute path to the .whl file that was just built>`
