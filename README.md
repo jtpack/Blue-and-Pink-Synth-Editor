@@ -93,7 +93,7 @@ Clone the nymphes-osc repository to your home directory
 
 ## 3. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
 
-- `cd Blue-and-Pink-Synth-Editor`
+- `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: 
   - `python3 -m venv venv`
   - `source venv/bin/activate`
