@@ -103,7 +103,7 @@ Clone the nymphes-osc repository to your home directory
     - If you are using Windows PowerShell and get an error message indicating that running scripts is disabled on your system, enter the following command and then try again: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
 
 ## 4. Install nymphes-osc in the virtual environment as an editable package
-Make sure you are still in the Blue-and-Pink-Synth-Editor folder in your home directory (ie: `cd ~/Blue-and-Pink-Synth-Editor`)
+- `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: `pip install -e ~/nymphes-osc`
 - Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\jtpack\nymphes-osc`
   - Obviously, replace `jtpack` with your own username
