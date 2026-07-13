@@ -106,7 +106,7 @@ Clone the nymphes-osc repository to your home directory
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: `pip install -e ~/nymphes-osc`
 - Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\jtpack\nymphes-osc`
-  - Obviously, replace `jtpack` with your own username
+  - _Replace `jtpack` with your own username_
 
 ## 4.1 (Only on Windows): Modify and Manually Install python-rtmidi
 On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large SYSEX messages like the ones Nymphes generates. This is solved by downloading the python-rtmidi source code, making a modification, compiling it, and then installing it into the python virtual environment.
