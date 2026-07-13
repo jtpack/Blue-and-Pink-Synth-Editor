@@ -105,8 +105,7 @@ Clone the nymphes-osc repository to your home directory
 ## 4. Install nymphes-osc in the virtual environment as an editable package
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: `pip install -e ~/nymphes-osc`
-- Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\jtpack\nymphes-osc`
-  - _Replace `jtpack` with your own username_
+- Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\your-username\nymphes-osc`
 
 ## 4.1 (Only on Windows): Modify and Manually Install python-rtmidi
 On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large SYSEX messages like the ones Nymphes generates. This is solved by downloading the python-rtmidi source code, making a modification, compiling it, and then installing it into the python virtual environment.
@@ -135,8 +134,8 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
   - `python -m build`
 - Install the newly-built wheel into the virtual environment
   - `python -m installer <Full absolute path to the .whl file that was just built>`
-    - example: `python -m installer C:\Users\jtpack\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
-      - Replace `jtpack` with your own username, and replace the actual filename with the one that you created, as it may have a newer version in its name
+    - example: `python -m installer C:\Users\your-username\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
+      - _Replace the actual filename with the one that you created, as it may have a newer version in its name_
 
 ## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `cd ~/Blue-and-Pink-Synth-Editor`
