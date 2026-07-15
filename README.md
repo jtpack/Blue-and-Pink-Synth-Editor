@@ -108,7 +108,7 @@ Clone the nymphes-osc repository to your home directory
 - Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\your-username\nymphes-osc`
 
 
-## 4.1 (Only on Windows): Modify and Manually Install python-rtmidi
+## 4.1 (Only on Windows): Download python-rtmidi Source Code, Modify, and Install
 On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large SYSEX messages like the ones Nymphes generates. This is solved by downloading the python-rtmidi source code, making a modification, compiling it, and then installing it into the python virtual environment.
 
 - Download python-rtmidi source code
