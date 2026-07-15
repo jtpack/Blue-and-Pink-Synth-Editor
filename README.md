@@ -138,12 +138,12 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
       - _Replace the actual filename with the one that you created, as it may not be exactly the same as above_
 
 
-## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
+## 5. Install Blue-and-Pink-Synth-Editor in the Virtual Environment as an Editable Package
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `pip install -e .`
 
 
-## 6. Run Blue-and-Pink-Synth-Editor before compiling to make sure it works
+## 6. Run Blue-and-Pink-Synth-Editor From Source Code to Make Sure it Works
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `python -m blue_and_pink_synth_editor`
 
