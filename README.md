@@ -132,9 +132,10 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
   - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
   - `python -m build`
 - Install the newly-built wheel into the virtual environment
-  - `python -m installer <Full absolute path to the .whl file that was just built>`
-    - example: `python -m installer C:\Users\your-username\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
-      - _Replace the actual filename with the one that you created, as it may have a newer version in its name_
+  - `cd dist`
+  - Find the name of the newly-built whl file: `ls`
+  - `python -m installer .\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
+      - _Replace the actual filename with the one that you created, as it may not be exactly the same as above_
 
 
 ## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
