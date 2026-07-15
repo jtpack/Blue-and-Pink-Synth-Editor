@@ -138,18 +138,18 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
       - _Replace the actual filename with the one that you created, as it may not be exactly the same as above_
 
 
-## 5. Install Blue-and-Pink-Synth-Editor in the Virtual Environment as an Editable Package
+## 5. Install Blue and Pink Synth Editor in the Virtual Environment as an Editable Package
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `pip install -e .`
 
 
-## 6. Run Blue-and-Pink-Synth-Editor From Source Code to Make Sure it Works
+## 6. Run Blue and Pink Synth Editor From Source Code to Make Sure it Works
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `python -m blue_and_pink_synth_editor`
 
 
 ## 7. Compile Blue and Pink Synth Editor
-Compiling Blue and Pink Synth Editor makes it easier to run, more like any other app on your computer.
+Compiling Blue and Pink Synth Editor makes it easier to run, like any other app on your computer.
 
 ### macOS / Linux:
 - `cd ~/Blue-and-Pink-Synth-Editor`
@@ -183,7 +183,7 @@ Now that pyinstaller has been built and installed from source, compile the app a
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
 
-## 8. Run ii from the command line to make sure it works
+## 8. Run it From the Command Line to Make Sure it Works
 - macOS:
   - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
   - Move the app to your Applications folder:
@@ -194,7 +194,7 @@ Now that pyinstaller has been built and installed from source, compile the app a
   - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
 
 
-## 9. Run it by double-clicking its icon
+## 9. Run it by Double-Clicking its Icon
 - macOS:
   - Use the Finder to navigate to your Applications folder, and double-click `BlueAndPinkSynthEditor.app`
 - Windows:
