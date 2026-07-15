@@ -127,7 +127,6 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
     - `git add -A`
     - `git commit -m "Increased bufferSize to 8196 in RtMidiInData default constructor"`
 - Install packages needed to build a wheel and install it
-  - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi/src`
   - `pip install build installer`
 - Build the wheel
   - `cd ~/Blue-and-Pink-Synth-Editor/python-rtmidi`
