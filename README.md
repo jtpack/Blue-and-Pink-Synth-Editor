@@ -79,20 +79,19 @@ This one is optional, but it's a nice free code editor with a built-in terminal,
 
 
 ## 1. Download nymphes-osc
-
 From the Terminal (use PowerShell or Git Bash on Windows), navigate to your home directory
 - `cd ~`
 
 Clone the nymphes-osc repository to your home directory
 - `git clone https://github.com/jtpack/nymphes-osc.git`
 
-## 2. Download Blue and Pink Synth Editor
 
+## 2. Download Blue and Pink Synth Editor
  While still in your home directory, clone the Blue-and-Pink-Synth-Editor repository
 - `git clone https://github.com/jtpack/Blue-and-Pink-Synth-Editor.git`
 
-## 3. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
 
+## 3. Create a virtual environment for Blue-and-Pink-Synth-Editor and activate it
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: 
   - `python3 -m venv venv`
@@ -102,10 +101,12 @@ Clone the nymphes-osc repository to your home directory
   - `venv\Scripts\activate`
     - If you are using Windows PowerShell and get an error message indicating that running scripts is disabled on your system, enter the following command and then try again: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process`
 
+
 ## 4. Install nymphes-osc in the virtual environment as an editable package
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - macOS and Linux: `pip install -e ~/nymphes-osc`
 - Windows: On Windows you must enter the absolute path to the folder, so it will be something like this: `pip install -e C:\Users\your-username\nymphes-osc`
+
 
 ## 4.1 (Only on Windows): Modify and Manually Install python-rtmidi
 On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large SYSEX messages like the ones Nymphes generates. This is solved by downloading the python-rtmidi source code, making a modification, compiling it, and then installing it into the python virtual environment.
@@ -136,20 +137,53 @@ On Windows, an issue with MME MIDI prevents python-rtmidi from receiving large S
     - example: `python -m installer C:\Users\your-username\Blue-and-Pink-Synth-Editor\python-rtmidi\dist\python_rtmidi-1.6.0-cp313-cp313-win_amd64.whl`
       - _Replace the actual filename with the one that you created, as it may have a newer version in its name_
 
+
 ## 5. Install Blue-and-Pink-Synth-Editor in the virtual environment as an editable package
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `pip install -e .`
+
 
 ## 6. Run Blue-and-Pink-Synth-Editor before compiling to make sure it works
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `python -m blue_and_pink_synth_editor`
 
+
 ## 7. Compile Blue and Pink Synth Editor
 Compiling Blue and Pink Synth Editor makes it easier to run, more like any other app on your computer.
+
+### macOS / Linux:
 - `cd ~/Blue-and-Pink-Synth-Editor`
 - `pyinstaller BlueAndPinkSynthEditor.spec`
 
-### Run it from the command line to make sure it works
+### Windows: On Windows, we need to compile our own pyinstaller bootloader to prevent Windows Defender from mistakenly identifying our compiled python app as malicious software
+
+#### Download PyInstaller Source Code
+- `cd ~`
+  - `git clone https://github.com/pyinstaller/pyinstaller.git`
+  - `cd pyinstaller`
+  - Check out the most recent version (v6.21.0 as of 2026-07-15)
+    - `git checkout v6.21.0`
+
+#### Install Build Tools
+**Make sure the virtual environment for Blue and Pink Synth Editor is still activated**
+- `pip install wheel pefile`
+
+#### Build The Bootloader
+- `cd bootloader`
+- `python ./waf distclean all`
+
+#### Install Into the Virtual Environment
+- First remove the previously-installed copy of pyinstaller: `pip uninstall pyinstaller`
+- `cd ~/pyinstaller`
+- `pip install .`
+
+#### Compile Blue and Pink Synth Editor
+Now that pyinstaller has been built and installed from source, compile the app as usual
+- `cd ~/Blue-and-Pink-Synth-Editor`
+- `pyinstaller BlueAndPinkSynthEditor.spec`
+
+
+## 8. Run ii from the command line to make sure it works
 - macOS:
   - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor.app/Contents/MacOS/BlueAndPinkSynthEditor`
   - Move the app to your Applications folder:
@@ -159,8 +193,8 @@ Compiling Blue and Pink Synth Editor makes it easier to run, more like any other
 - Linux:
   - `~/Blue-and-Pink-Synth-Editor/dist/BlueAndPinkSynthEditor/BlueAndPinkSynthEditor`
 
-### Run it by double-clicking its icon
 
+## 9. Run it by double-clicking its icon
 - macOS:
   - Use the Finder to navigate to your Applications folder, and double-click `BlueAndPinkSynthEditor.app`
 - Windows:
