@@ -159,10 +159,10 @@ Compiling Blue and Pink Synth Editor makes it easier to run, like any other app 
 
 #### Download PyInstaller Source Code
 - `cd ~`
-  - `git clone https://github.com/pyinstaller/pyinstaller.git`
-  - `cd pyinstaller`
-  - Check out the most recent version (v6.21.0 as of 2026-07-15)
-    - `git checkout v6.21.0`
+- `git clone https://github.com/pyinstaller/pyinstaller.git`
+- `cd pyinstaller`
+- Check out the most recent version (v6.21.0 as of 2026-07-15)
+  - `git checkout v6.21.0`
 
 #### Install Build Tools
 **Make sure the virtual environment for Blue and Pink Synth Editor is still activated**
