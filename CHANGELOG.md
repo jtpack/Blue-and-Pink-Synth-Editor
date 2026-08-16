@@ -1,5 +1,6 @@
 - Created a Windows batch file for easily running the app without compiling on Windows
 - Updated installation instructions in README
+- Updated to be compatible with nymphes-osc's new connect_to_first_detected_nymphes feature
 
 
 ## v1.0.4

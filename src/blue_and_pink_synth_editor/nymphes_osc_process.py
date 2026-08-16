@@ -30,7 +30,8 @@ class NymphesOscProcess(Process):
             use_mdns=False,
             osc_log_level=self.osc_log_level,
             midi_log_level=self.midi_log_level,
-            presets_directory_path=self.presets_directory_path
+            presets_directory_path=self.presets_directory_path,
+            should_connect_first_detected_nymphes=False
         )
 
         # Start updating
