@@ -2,6 +2,9 @@
 - Updated installation instructions in README
 - Updated to be compatible with nymphes-osc's new connect_to_first_detected_nymphes feature
 - Small change to log message when starting OSC server to make the message a little less confusing
+- Made the creation of the nymphes-osc child subprocess optional, configurable in config.txt
+  - This makes it possible to target a remote nymphes-osc server on another machine
+- Renamed nymphes-osc configuration options in the config.txt file to be easier to understand
 
 
 ## v1.0.4

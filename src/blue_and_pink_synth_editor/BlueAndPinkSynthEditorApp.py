@@ -470,25 +470,30 @@ class BlueAndPinkSynthEditorApp(App):
         self._just_resized_window = False
 
         #
-        # OSC communication with nymphes-osc
+        # nymphes-osc child process
         #
 
         self._nymphes_osc_child_process = None
         self._connected_to_nymphes_osc = False
 
+        #
+        # OSC communication with nymphes-osc
+        #
+
+        self._create_nymphes_osc_child_process = True
+
+        self._nymphes_osc_server_host = None
+        self._nymphes_osc_server_port = None
+        self._editor_osc_host = None
+        self._editor_osc_port = None
+
         # OSC Server that listens for OSC messages from nymphes-osc
-        # child process
-        self._nymphes_osc_listener = None
-        self._nymphes_osc_listener_host = None
-        self._nymphes_osc_listener_port = None
-        self._nymphes_osc_listener_thread = None
-        self._nymphes_osc_listener_dispatcher = Dispatcher()
+        self._osc_server = None
+        self._osc_server_thread = None
+        self._osc_server_dispatcher = Dispatcher()
 
         # OSC Client that sends OSC messages to nymphes-osc
-        # child process
-        self._nymphes_osc_sender = None
-        self._nymphes_osc_sender_host = None
-        self._nymphes_osc_sender_port = None
+        self._osc_client = None
 
         #
         # Nymphes Synthesizer State
@@ -634,20 +639,35 @@ class BlueAndPinkSynthEditorApp(App):
 
         Logger.debug(f'Window size: {self.curr_width}, {self.curr_height}')
 
-        # Start the nymphes_osc child process
-        self._start_nymphes_osc_child_process()
-
         #
         # Start OSC Communication
         #
 
-        self._nymphes_osc_sender = SimpleUDPClient(self._nymphes_osc_sender_host, self._nymphes_osc_sender_port)
+        # Create the OSC client that we use to send messages
+        # to the nymphes-osc server
+        self._osc_client = SimpleUDPClient(
+            '127.0.0.1' if self._nymphes_osc_server_host == '0.0.0.0' else self._nymphes_osc_server_host,
+            self._nymphes_osc_server_port
+        )
+
+        # Create OSC server object that we to receive messages
+        # from the nymphes-osc server
         self._start_nymphes_osc_listener()
+
+        # Create a subprocess running nymphes-osc if necessary
+        if self._create_nymphes_osc_child_process:
+            self._start_nymphes_osc_child_process()
+
+        # Register as a client of the nymphes-osc server if it
+        # isn't a subprocess (as that would automatically be
+        # registered
+        if not self._create_nymphes_osc_child_process:
+            self._register_as_nymphes_osc_client()
 
         #
         # Map Incoming OSC Messages
         #
-        self._nymphes_osc_listener_dispatcher.map('*', self._on_nymphes_osc_message)
+        self._osc_server_dispatcher.map('*', self._on_nymphes_osc_message)
 
         #
         # Activation Code Checking
@@ -1250,55 +1270,104 @@ class BlueAndPinkSynthEditorApp(App):
         # Nymphes OSC Communication
         #
 
-        self._nymphes_osc_sender_host = config['NYMPHES_OSC']['sender host']
-        self._nymphes_osc_sender_port = int(config['NYMPHES_OSC']['sender port'])
+        # Whether to use a remote nymphes-osc server
+        #
+        try:
+            self._create_nymphes_osc_child_process = config.getboolean(
+                'NYMPHES_OSC',
+                'create nymphes-osc child process'
+            )
+            Logger.info(f'-- Create nymphes-osc child process {self._create_nymphes_osc_child_process}')
+        except configparser.NoOptionError:
+            self._create_nymphes_osc_child_process = True
+            Logger.warning(
+                f'-- Create nymphes-osc child process option was missing. Using {self._create_nymphes_osc_child_process}')
 
-        if config.has_option('NYMPHES_OSC', 'listener host'):
-            #
-            # Listener host has been specified in config.txt
-            #
+        except ValueError:
+            self._create_nymphes_osc_child_process = True
+            Logger.warning(f'Create nymphes-osc child process option was invalid. Using {self._create_nymphes_osc_child_process}')
 
-            self._nymphes_osc_listener_host = config['NYMPHES_OSC']['listener host']
-            Logger.info(
-                f'[NYMPHES_OSC][listener_host]: {self._nymphes_osc_listener_host}')
-
+        # Editor OSC Host
+        #
+        editor_osc_host = config.get(
+            'NYMPHES_OSC',
+            'editor osc host',
+            fallback=config.get('NYMPHES_OSC', 'sender host', fallback=None)
+        )
+        if editor_osc_host is not None:
+            self._editor_osc_host = editor_osc_host
+            Logger.info(f'-- Editor OSC Host {self._editor_osc_host}')
         else:
-            #
-            # Listener host is not specified.
-            # Try to automatically determine the local ip address
-            #
+            # Use localhost
+            self._editor_osc_host = "127.0.0.1"
+            Logger.warning(f'-- Editor OSC Host was missing or invalid. Using {self._editor_osc_host}')
 
-            in_host = self._get_local_ip_address()
-            self._nymphes_osc_listener_host = in_host
-            Logger.info(f'[NYMPHES_OSC][listener_host] not specified. Will use detected local ip address: {in_host}')
+        # Editor OSC Port
+        #
+        try:
+            editor_osc_port = config.getint(
+                'NYMPHES_OSC',
+                'editor osc port',
+                fallback=config.getint('NYMPHES_OSC', 'sender port', fallback=None)
+            )
+            if editor_osc_host is not None:
+                self._editor_osc_port = editor_osc_port
+                Logger.info(f'-- Editor OSC Port {self._editor_osc_port}')
+            else:
+                self._editor_osc_port = 1236
+                Logger.warning(f'-- Editor OSC Port was missing. Using {self._editor_osc_port}')
 
-        self._nymphes_osc_listener_port = int(config['NYMPHES_OSC']['listener port'])
+        except ValueError:
+            self._editor_osc_port = 1236
+            Logger.warning(f'-- Editor OSC Port was invalid. Using {self._editor_osc_port}')
+
+        # nymphes-osc Server Host
+        #
+        nymphes_osc_server_host = config.get(
+            'NYMPHES_OSC',
+            'nymphes-osc server host',
+            fallback=config.get('NYMPHES_OSC', 'listener host', fallback=None)
+        )
+        if nymphes_osc_server_host is not None:
+            self._nymphes_osc_server_host = nymphes_osc_server_host
+            Logger.info(f'-- nymphes-osc server host {self._nymphes_osc_server_host}')
+        else:
+            # Use 0.0.0.0
+            self._nymphes_osc_server_host = "0.0.0.0"
+            Logger.warning(f'-- nymphes-osc server host was missing or invalid. Using {self._nymphes_osc_server_host}')
+
+        # nymphes-osc Server Port
+        #
+        try:
+            nymphes_osc_server_port = config.getint(
+                'NYMPHES_OSC',
+                'nymphes-osc server port',
+                fallback=config.getint('NYMPHES_OSC', 'listener port', fallback=None)
+            )
+            if nymphes_osc_server_port is not None:
+                self._nymphes_osc_server_port = nymphes_osc_server_port
+                Logger.info(f'-- nymphes-osc server port {self._nymphes_osc_server_port}')
+            else:
+                self._nymphes_osc_server_port = 1237
+                Logger.warning(f'-- nymphes-osc server port was missing. Using {self._nymphes_osc_server_port}')
+
+        except ValueError:
+            self._nymphes_osc_server_port = 1237
+            Logger.warning(f'-- nymphes-osc server port was invalid. Using {self._nymphes_osc_server_port}')
 
         #
         # Nymphes MIDI Channel
         #
-
-        if config.has_option('MIDI', 'nymphes midi channel'):
-            try:
-                self.nymphes_midi_channel = int(config['MIDI']['nymphes midi channel'])
-                Logger.info(f'[MIDI][nymphes midi channel]: {self.nymphes_midi_channel}')
-
-            except Exception as e:
-                # Something went wrong retrieving and converting the MIDI
-                # channel
-
-                # Use MIDI channel 1
-                self.nymphes_midi_channel = 1
-
-                Logger.warning(
-                    f'[MIDI][nymphes midi channel] was invalid. Using channel {self.nymphes_midi_channel}: {e}')
-
-        else:
-            # Use MIDI channel 1
+        try:
+            self.nymphes_midi_channel = config.getint(
+                'MIDI',
+                'nymphes midi channel',
+                fallback=1
+            )
+            Logger.info(f'-- Nymphes midi channel {self.nymphes_midi_channel}')
+        except ValueError:
             self.nymphes_midi_channel = 1
-
-            Logger.warning(
-                f'[MIDI][nymphes midi channel] not specified. Using channel {self.nymphes_midi_channel}')
+            Logger.warning(f'-- Nymphes midi channel was missing or invalid. Using channel {self.nymphes_midi_channel}')
 
         #
         # GUI
@@ -1309,10 +1378,10 @@ class BlueAndPinkSynthEditorApp(App):
 
             if raw_value in ['0', '1']:
                 self.invert_mouse_wheel = True if raw_value == '1' else False
-                Logger.info(f'[GUI][invert mouse wheel]: {self.invert_mouse_wheel}')
+                Logger.info(f'-- Invert mouse wheel {self.invert_mouse_wheel}')
 
             else:
-                Logger.warning(f"[GUI][invert mouse wheel] was invalid: {raw_value}. Using {self.invert_mouse_wheel}")
+                Logger.warning(f"-- Invert mouse wheel value was invalid ({raw_value}). Using {self.invert_mouse_wheel}")
 
     def _reload_config_file(self):
         Logger.info(f'Reloading config file at {self._config_file_path}')
@@ -1323,10 +1392,12 @@ class BlueAndPinkSynthEditorApp(App):
 
         # OSC Communication with Nymphes-OSC App
         config['NYMPHES_OSC'] = {
-            'sender host': '127.0.0.1',
-            'sender port': '1236',
-            'listener host': '127.0.0.1',
-            'listener port': '1237'}
+            'create nymphes-osc child process': 'True',
+            'editor osc host': '0.0.0.0',
+            'editor osc port': '1236',
+            'nymphes-osc server host': '127.0.0.1',
+            'nymphes-osc server port': '1237'
+        }
 
         # Nymphes MIDI Channel
         config['MIDI'] = {
@@ -1353,10 +1424,12 @@ class BlueAndPinkSynthEditorApp(App):
 
         # OSC Communication with Nymphes-OSC App
         config['NYMPHES_OSC'] = {
-            'sender host': self._nymphes_osc_sender_host,
-            'sender port': self._nymphes_osc_sender_port,
-            'listener host': self._nymphes_osc_listener_host,
-            'listener port': self._nymphes_osc_listener_port}
+            'create nymphes-osc child process': str(self._create_nymphes_osc_child_process),
+            'editor osc host': self._editor_osc_host,
+            'editor osc port': self._editor_osc_port,
+            'nymphes-osc server host': self._nymphes_osc_server_host,
+            'nymphes-osc server port': self._nymphes_osc_server_port
+        }
 
         # Nymphes MIDI Channel
         config['MIDI'] = {
@@ -1422,27 +1495,28 @@ class BlueAndPinkSynthEditorApp(App):
         on a background thread
         :return:
         """
-        self._nymphes_osc_listener = BlockingOSCUDPServer(
-            (self._nymphes_osc_listener_host, self._nymphes_osc_listener_port),
-            self._nymphes_osc_listener_dispatcher
+
+        self._osc_server = BlockingOSCUDPServer(
+            (self._editor_osc_host, self._editor_osc_port),
+            self._osc_server_dispatcher
         )
-        self._nymphes_osc_listener_thread = threading.Thread(target=self._nymphes_osc_listener.serve_forever)
-        self._nymphes_osc_listener_thread.start()
+        self._osc_server_thread = threading.Thread(target=self._osc_server.serve_forever)
+        self._osc_server_thread.start()
 
         Logger.info(
-            f'Listening for OSC messages from nymphes-osc on {self._nymphes_osc_listener_host} {self._nymphes_osc_listener_port}')
+            f'Listening for OSC messages from nymphes-osc on {self._editor_osc_host} {self._editor_osc_port}')
 
     def _stop_nymphes_osc_listener(self):
         """
         Shut down the OSC server that listens for OSC messages from nymphes-osc
         :return:
         """
-        if self._nymphes_osc_listener is not None:
-            self._nymphes_osc_listener.shutdown()
-            self._nymphes_osc_listener.server_close()
-            self._nymphes_osc_listener = None
-            self._nymphes_osc_listener_thread.join()
-            self._nymphes_osc_listener_thread = None
+        if self._osc_server is not None:
+            self._osc_server.shutdown()
+            self._osc_server.server_close()
+            self._osc_server = None
+            self._osc_server_thread.join()
+            self._osc_server_thread = None
             Logger.info('Stopped nymphes-osc listener')
 
     def _register_as_nymphes_osc_client(self):
@@ -1451,13 +1525,16 @@ class BlueAndPinkSynthEditorApp(App):
         /register_client OSC message
         :return:
         """
-
         # To connect to the nymphes_osc server, we need
         # to send it a /register_host OSC message
         # with the port we are listening on.
         Logger.info(
-            f'Registering as client with nymphes-osc server at {self._nymphes_osc_sender_host}:{self._nymphes_osc_sender_port}...')
-        self.send_nymphes_osc('/register_client', self._nymphes_osc_listener_port)
+            f'Registering as client with nymphes-osc server on {self._nymphes_osc_server_host} {self._nymphes_osc_server_port}...')
+
+        self.send_nymphes_osc(
+            '/register_client',
+            self._editor_osc_port
+        )
 
     def send_nymphes_osc(self, address, *args):
         """
@@ -1470,7 +1547,7 @@ class BlueAndPinkSynthEditorApp(App):
         for arg in args:
             msg.add_arg(arg)
         msg = msg.build()
-        self._nymphes_osc_sender.send(msg)
+        self._osc_client.send(msg)
 
         Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
 
@@ -2204,10 +2281,10 @@ class BlueAndPinkSynthEditorApp(App):
         """
         try:
             self._nymphes_osc_child_process = NymphesOscProcess(
-                server_host=self._nymphes_osc_sender_host,
-                server_port=self._nymphes_osc_sender_port,
-                client_host=self._nymphes_osc_listener_host,
-                client_port=self._nymphes_osc_listener_port,
+                server_host=self._nymphes_osc_server_host,
+                server_port=self._nymphes_osc_server_port,
+                client_host=self._editor_osc_host if self._editor_osc_host != '0.0.0.0' else '127.0.0.1',
+                client_port=self._editor_osc_port,
                 nymphes_midi_channel=self.nymphes_midi_channel,
                 osc_log_level=logging.INFO,
                 midi_log_level=logging.INFO,
