@@ -1,6 +1,7 @@
 - Created a Windows batch file for easily running the app without compiling on Windows
 - Updated installation instructions in README
 - Updated to be compatible with nymphes-osc's new connect_to_first_detected_nymphes feature
+- Small change to log message when starting OSC server to make the message a little less confusing
 
 
 ## v1.0.4

@@ -1430,7 +1430,7 @@ class BlueAndPinkSynthEditorApp(App):
         self._nymphes_osc_listener_thread.start()
 
         Logger.info(
-            f'Started listener for nymphes-osc at: {self._nymphes_osc_listener_host}:{self._nymphes_osc_listener_port}')
+            f'Listening for OSC messages from nymphes-osc on {self._nymphes_osc_listener_host} {self._nymphes_osc_listener_port}')
 
     def _stop_nymphes_osc_listener(self):
         """
@@ -2106,7 +2106,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         elif address == '/status':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}')
-            self._set_prop_value_on_main_thread('status_bar_text', f'status: {args[0]}')
+            self._set_prop_value_on_main_thread('status_bar_text', f'nymphes-osc status: {args[0]}')
 
         elif address == '/error':
             Logger.info(f'Received from nymphes-osc: {address}: {args[0]}, {args[1]}')
