@@ -4,4 +4,7 @@ if __name__ == '__main__':
 
     set_start_method('spawn')
     from src.blue_and_pink_synth_editor.BlueAndPinkSynthEditorApp import BlueAndPinkSynthEditorApp
-    BlueAndPinkSynthEditorApp().run()
+    try:
+        BlueAndPinkSynthEditorApp().run()
+    except KeyboardInterrupt:
+        print("Blue and Pink Synth Editor is stopping...")

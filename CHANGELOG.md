@@ -5,6 +5,10 @@
 - Made the creation of the nymphes-osc child subprocess optional, configurable in config.txt
   - This makes it possible to target a remote nymphes-osc server on another machine
 - Renamed nymphes-osc configuration options in the config.txt file to be easier to understand
+- Added KeyboardInterrupt handling for graceful shutdown when running from code
+- Added support for /heartbeat OSC message from nymphes-osc server, as well as automatic reconnection to server
+- Improved the way that the nymphes-osc server is created when run as a child subprocess
+
 
 
 ## v1.0.4
