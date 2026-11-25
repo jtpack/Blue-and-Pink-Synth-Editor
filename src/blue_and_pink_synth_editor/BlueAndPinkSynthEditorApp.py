@@ -475,7 +475,6 @@ class BlueAndPinkSynthEditorApp(App):
         #
 
         self._nymphes_osc_child_process = None
-        self._connected_to_nymphes_osc = False
 
         #
         # OSC communication with nymphes-osc
@@ -488,6 +487,8 @@ class BlueAndPinkSynthEditorApp(App):
         self._editor_osc_host = None
         self._editor_osc_port = None
 
+        self._connected_to_nymphes_osc = False
+        self._nymphes_osc_heartbeat_timer = Clock.schedule_interval(self._on_nymphes_osc_heartbeat_timer, 1.0)
         self._last_nymphes_osc_heartbeat_time = None
 
         # OSC Server that listens for OSC messages from nymphes-osc
@@ -1609,17 +1610,6 @@ class BlueAndPinkSynthEditorApp(App):
                 self._detected_nymphes_midi_inputs.append(port_name)
                 self._add_name_to_nymphes_input_spinner_on_main_thread(port_name)
 
-            # Try automatically connecting to the first Nymphes if we
-            # now have both an input and output port
-            if not self.nymphes_connected:
-                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
-                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self.send_nymphes_osc(
-                        '/connect_nymphes',
-                        self._detected_nymphes_midi_inputs[0],
-                        self._detected_nymphes_midi_outputs[0]
-                    )
-
         elif address == '/nymphes_midi_input_no_longer_detected':
             #
             # A previously-detected Nymphes MIDI input port is no longer found
@@ -1649,17 +1639,6 @@ class BlueAndPinkSynthEditorApp(App):
             if port_name not in self._detected_nymphes_midi_outputs:
                 self._detected_nymphes_midi_outputs.append(port_name)
                 self._add_name_to_nymphes_output_spinner_on_main_thread(port_name)
-
-            # Try automatically connecting to the first Nymphes if we
-            # now have both an input and output port
-            if not self.nymphes_connected:
-                if len(self._detected_nymphes_midi_inputs) > 0 and len(self._detected_nymphes_midi_outputs) > 0:
-                    Logger.info('Attempting to automatically connect to the first detected Nymphes')
-                    self.send_nymphes_osc(
-                        '/connect_nymphes',
-                        self._detected_nymphes_midi_inputs[0],
-                        self._detected_nymphes_midi_outputs[0]
-                    )
 
         elif address == '/nymphes_midi_output_no_longer_detected':
             #
@@ -2245,7 +2224,7 @@ class BlueAndPinkSynthEditorApp(App):
             # regular intervals so we know that it is still present.
             # Store the time of the most recent message.
             Logger.debug('Received /heartbeat from nymphes-osc')
-            self._last_nymphes_osc_heartbeat_time = time.monotonic()
+            self._set_prop_value_on_main_thread('_last_nymphes_osc_heartbeat_time', time.monotonic())
 
         else:
             # This could be a Nymphes parameter message
@@ -3049,6 +3028,27 @@ class BlueAndPinkSynthEditorApp(App):
                               preset_type,
                               preset_bank,
                               preset_number)
+
+    def _on_nymphes_osc_heartbeat_timer(self, _):
+        if self._connected_to_nymphes_osc:
+            #
+            # Determine whether it has been more than 2 seconds since we last
+            # received the /heartbeat message from the nymphes-osc server.
+            #
+            current_time = time.monotonic()
+            if (current_time - self._last_nymphes_osc_heartbeat_time) > 2.0:
+                Logger.info("Lost connection with nymphes-osc server")
+                # We've lost connection with the nymphes-osc server
+                self._connected_to_nymphes_osc = False
+
+                self.nymphes_connected = False
+                self.status_bar_text = 'NOT CONNECTED TO NYMPHES-OSC SERVER'
+
+        else:
+            # Try to connect to the server
+            self.nymphes_connected = False
+            self.status_bar_text = 'NOT CONNECTED TO NYMPHES-OSC SERVER'
+            self._register_as_nymphes_osc_client()
 
 
     @staticmethod
