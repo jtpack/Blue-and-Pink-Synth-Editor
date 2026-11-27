@@ -8,6 +8,7 @@
 - Added KeyboardInterrupt handling for graceful shutdown when running from code
 - Added support for /heartbeat OSC message from nymphes-osc server, as well as automatic reconnection to server
 - Improved the way that the nymphes-osc server is created when run as a child subprocess
+- No longer storing the presets folder path provided by the nymphes-osc server, as it is the editor's path that is important
 
 
 
