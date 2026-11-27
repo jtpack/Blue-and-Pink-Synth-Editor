@@ -488,7 +488,7 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._connected_to_nymphes_osc = False
         self._nymphes_osc_heartbeat_timer = Clock.schedule_interval(self._on_nymphes_osc_heartbeat_timer, 1.0)
-        self._last_nymphes_osc_heartbeat_time = None
+        self._last_nymphes_osc_heartbeat_time = 0
 
         # OSC Server that listens for OSC messages from nymphes-osc
         self._osc_server = None
@@ -2224,7 +2224,8 @@ class BlueAndPinkSynthEditorApp(App):
             # regular intervals so we know that it is still present.
             # Store the time of the most recent message.
             Logger.debug('Received /heartbeat from nymphes-osc')
-            self._set_prop_value_on_main_thread('_last_nymphes_osc_heartbeat_time', time.monotonic())
+            current_time = time.monotonic()
+            self._set_prop_value_on_main_thread('_last_nymphes_osc_heartbeat_time', current_time)
 
         else:
             # This could be a Nymphes parameter message
@@ -3030,18 +3031,14 @@ class BlueAndPinkSynthEditorApp(App):
                               preset_number)
 
     def _on_nymphes_osc_heartbeat_timer(self, _):
+        time_since_last_heartbeat = time.monotonic() - self._last_nymphes_osc_heartbeat_time
         if self._connected_to_nymphes_osc:
             #
             # Determine whether it has been more than 2 seconds since we last
             # received the /heartbeat message from the nymphes-osc server.
             #
-            current_time = time.monotonic()
-
-            if self._last_nymphes_osc_heartbeat_time is None:
-                self._last_nymphes_osc_heartbeat_time = current_time
-
-            if (current_time - self._last_nymphes_osc_heartbeat_time) > 2.0:
-                Logger.info("Lost connection with nymphes-osc server")
+            if time_since_last_heartbeat > 2.0:
+                Logger.info(f"Lost connection with nymphes-osc server ({time_since_last_heartbeat} seconds since last /heartbeat message)")
                 # We've lost connection with the nymphes-osc server
                 self._connected_to_nymphes_osc = False
 
