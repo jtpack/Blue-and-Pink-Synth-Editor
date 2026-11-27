@@ -8,10 +8,12 @@
 - Added KeyboardInterrupt handling for graceful shutdown when running from code
 - Added support for /heartbeat OSC message from nymphes-osc server, as well as automatic reconnection to server
 - Improved the way that the nymphes-osc server is created when run as a child subprocess
-- No longer storing the presets folder path provided by the nymphes-osc server, as it is the editor's path that is important
+- Reorganized __main__ and added a project script to pyproject.toml
+  - This required removing 'src.' from all imports, which I think is a good thing
+- No longer storing presets folder path provided by nymphes-osc server, as it is not relevant
+  - We really want to stick with the editor's presets folder path
 
-
-
+  
 ## v1.0.4
 
 - Fixed bug where dragging a beta test activation code file onto a non-beta version of the app still copied the file to the data folder

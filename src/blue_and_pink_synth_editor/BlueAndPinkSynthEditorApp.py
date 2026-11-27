@@ -455,6 +455,8 @@ class BlueAndPinkSynthEditorApp(App):
     license_type = StringProperty('')
     expiration_date = StringProperty('')
 
+    last_nymphes_osc_heartbeat_time = NumericProperty(0.0)
+
     def __init__(self, **kwargs):
         super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
 
@@ -488,7 +490,6 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._connected_to_nymphes_osc = False
         self._nymphes_osc_heartbeat_timer = Clock.schedule_interval(self._on_nymphes_osc_heartbeat_timer, 1.0)
-        self._last_nymphes_osc_heartbeat_time = 0
 
         # OSC Server that listens for OSC messages from nymphes-osc
         self._osc_server = None
@@ -2225,7 +2226,7 @@ class BlueAndPinkSynthEditorApp(App):
             # Store the time of the most recent message.
             Logger.debug('Received /heartbeat from nymphes-osc')
             current_time = time.monotonic()
-            self._set_prop_value_on_main_thread('_last_nymphes_osc_heartbeat_time', current_time)
+            self._set_prop_value_on_main_thread('last_nymphes_osc_heartbeat_time', current_time)
 
         else:
             # This could be a Nymphes parameter message
@@ -3031,7 +3032,7 @@ class BlueAndPinkSynthEditorApp(App):
                               preset_number)
 
     def _on_nymphes_osc_heartbeat_timer(self, _):
-        time_since_last_heartbeat = time.monotonic() - self._last_nymphes_osc_heartbeat_time
+        time_since_last_heartbeat = time.monotonic() - self.last_nymphes_osc_heartbeat_time
         if self._connected_to_nymphes_osc:
             #
             # Determine whether it has been more than 2 seconds since we last
