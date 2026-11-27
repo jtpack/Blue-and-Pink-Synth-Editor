@@ -44,26 +44,25 @@ if platform.system() == 'Windows':
     Window.icon = 'icon.ico'
 
 from nymphes_midi.NymphesPreset import NymphesPreset
-from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
+from blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
-from src.blue_and_pink_synth_editor.ui_controls import chords_screen
-from src.blue_and_pink_synth_editor.ui_controls import value_control
-from src.blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
-from src.blue_and_pink_synth_editor.ui_controls import left_bar
-from src.blue_and_pink_synth_editor.ui_controls import top_bar
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
-from src.blue_and_pink_synth_editor.ui_controls import settings_screen
-from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
-from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
-from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
-from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
-from src.blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
-from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
-
+from blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
+from blue_and_pink_synth_editor.ui_controls import chords_screen
+from blue_and_pink_synth_editor.ui_controls import value_control
+from blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
+from blue_and_pink_synth_editor.ui_controls import left_bar
+from blue_and_pink_synth_editor.ui_controls import top_bar
+from blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
+from blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
+from blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
+from blue_and_pink_synth_editor.ui_controls import settings_screen
+from blue_and_pink_synth_editor.ui_controls import bottom_bar
+from blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
+from blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
+from blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
+from blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
+from activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 #
 # Make sure that activation_code_enabled.py file exists.
@@ -92,7 +91,7 @@ if not activation_code_checking_file_path.exists():
         Logger.info(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
-from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
+from blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
@@ -1551,9 +1550,13 @@ class BlueAndPinkSynthEditorApp(App):
         for arg in args:
             msg.add_arg(arg)
         msg = msg.build()
-        self._osc_client.send(msg)
-
-        Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
+        try:
+            self._osc_client.send(msg)
+            Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
+        except OSError as e:
+            Logger.warning(f'Failed to send message to nymphes-osc {e}')
+            self._connected_to_nymphes_osc = False
+            self.nymphes_connected = False
 
     def _on_nymphes_osc_message(self, address, *args):
         """
@@ -3036,6 +3039,10 @@ class BlueAndPinkSynthEditorApp(App):
             # received the /heartbeat message from the nymphes-osc server.
             #
             current_time = time.monotonic()
+
+            if self._last_nymphes_osc_heartbeat_time is None:
+                self._last_nymphes_osc_heartbeat_time = current_time
+
             if (current_time - self._last_nymphes_osc_heartbeat_time) > 2.0:
                 Logger.info("Lost connection with nymphes-osc server")
                 # We've lost connection with the nymphes-osc server

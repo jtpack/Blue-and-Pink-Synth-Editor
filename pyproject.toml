@@ -27,3 +27,6 @@ requires-python = ">=3.9"
 
 [project.urls]
 Homepage = "https://github.com/jtpack/Blue-and-Pink-Synth-Editor"
+
+[project.scripts]
+bnp = "blue_and_pink_synth_editor.__main__:main"
