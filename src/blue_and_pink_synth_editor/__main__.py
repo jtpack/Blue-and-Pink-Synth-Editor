@@ -1,8 +1,6 @@
-from multiprocessing import set_start_method, freeze_support
-from blue_and_pink_synth_editor.BlueAndPinkSynthEditorApp import BlueAndPinkSynthEditorApp
-
-
 def main():
+    from multiprocessing import set_start_method, freeze_support
+    from blue_and_pink_synth_editor.BlueAndPinkSynthEditorApp import BlueAndPinkSynthEditorApp
     freeze_support()
     set_start_method('spawn')
     try:
