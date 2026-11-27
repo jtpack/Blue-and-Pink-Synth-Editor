@@ -44,26 +44,25 @@ if platform.system() == 'Windows':
     Window.icon = 'icon.ico'
 
 from nymphes_midi.NymphesPreset import NymphesPreset
-from src.blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
+from blue_and_pink_synth_editor.nymphes_osc_process import NymphesOscProcess
 
-from src.blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
-from src.blue_and_pink_synth_editor.ui_controls import chords_screen
-from src.blue_and_pink_synth_editor.ui_controls import value_control
-from src.blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
-from src.blue_and_pink_synth_editor.ui_controls import left_bar
-from src.blue_and_pink_synth_editor.ui_controls import top_bar
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
-from src.blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
-from src.blue_and_pink_synth_editor.ui_controls import settings_screen
-from src.blue_and_pink_synth_editor.ui_controls import bottom_bar
-from src.blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
-from src.blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
-from src.blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
-from src.blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
-from src.blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
-from src.activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
-
+from blue_and_pink_synth_editor.ui_controls.error_dialog import ErrorDialog
+from blue_and_pink_synth_editor.ui_controls import chords_screen
+from blue_and_pink_synth_editor.ui_controls import value_control
+from blue_and_pink_synth_editor.ui_controls import synth_editor_value_controls
+from blue_and_pink_synth_editor.ui_controls import left_bar
+from blue_and_pink_synth_editor.ui_controls import top_bar
+from blue_and_pink_synth_editor.ui_controls import params_grid_mod_cell
+from blue_and_pink_synth_editor.ui_controls import params_grid_non_mod_cell
+from blue_and_pink_synth_editor.ui_controls import params_grid_lfo_config_cell
+from blue_and_pink_synth_editor.ui_controls import settings_screen
+from blue_and_pink_synth_editor.ui_controls import bottom_bar
+from blue_and_pink_synth_editor.ui_controls.demo_mode_popup import DemoModePopup
+from blue_and_pink_synth_editor.ui_controls.nymphes_setup_instructions_popup import NymphesSetupInstructionsPopup
+from blue_and_pink_synth_editor.ui_controls.preset_load_screen import PresetLoadScreen
+from blue_and_pink_synth_editor.ui_controls.preset_save_screen import PresetSaveScreen
+from blue_and_pink_synth_editor.ui_controls.demo_mode_screen import DemoModeScreen
+from activation_code_verifier.code_verifier import load_activation_code_from_file, verify_activation_code, data_from_activation_code, load_public_key
 
 #
 # Make sure that activation_code_enabled.py file exists.
@@ -92,7 +91,7 @@ if not activation_code_checking_file_path.exists():
         Logger.info(f'Failed to create activation_code_enabled.py file at {activation_code_checking_file_path}')
 
 # Now import it
-from src.blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
+from blue_and_pink_synth_editor.activation_code_enabled import activation_code_checking_enabled
 
 kivy.require('2.1.0')
 
@@ -456,6 +455,8 @@ class BlueAndPinkSynthEditorApp(App):
     license_type = StringProperty('')
     expiration_date = StringProperty('')
 
+    last_nymphes_osc_heartbeat_time = NumericProperty(0.0)
+
     def __init__(self, **kwargs):
         super(BlueAndPinkSynthEditorApp, self).__init__(**kwargs)
 
@@ -489,7 +490,6 @@ class BlueAndPinkSynthEditorApp(App):
 
         self._connected_to_nymphes_osc = False
         self._nymphes_osc_heartbeat_timer = Clock.schedule_interval(self._on_nymphes_osc_heartbeat_timer, 1.0)
-        self._last_nymphes_osc_heartbeat_time = None
 
         # OSC Server that listens for OSC messages from nymphes-osc
         self._osc_server = None
@@ -1551,9 +1551,13 @@ class BlueAndPinkSynthEditorApp(App):
         for arg in args:
             msg.add_arg(arg)
         msg = msg.build()
-        self._osc_client.send(msg)
-
-        Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
+        try:
+            self._osc_client.send(msg)
+            Logger.info(f'Sent to nymphes-osc: {address}, {[str(arg) for arg in args]}')
+        except OSError as e:
+            Logger.warning(f'Failed to send message to nymphes-osc {e}')
+            self._connected_to_nymphes_osc = False
+            self.nymphes_connected = False
 
     def _on_nymphes_osc_message(self, address, *args):
         """
@@ -1591,9 +1595,6 @@ class BlueAndPinkSynthEditorApp(App):
             path = Path(args[0])
 
             Logger.info(f'Received from nymphes-osc: {address}: {path}')
-
-            # Store it
-            self._presets_directory_path = str(path)
 
         elif address == '/nymphes_midi_input_detected':
             #
@@ -2224,7 +2225,8 @@ class BlueAndPinkSynthEditorApp(App):
             # regular intervals so we know that it is still present.
             # Store the time of the most recent message.
             Logger.debug('Received /heartbeat from nymphes-osc')
-            self._set_prop_value_on_main_thread('_last_nymphes_osc_heartbeat_time', time.monotonic())
+            current_time = time.monotonic()
+            self._set_prop_value_on_main_thread('last_nymphes_osc_heartbeat_time', current_time)
 
         else:
             # This could be a Nymphes parameter message
@@ -3030,14 +3032,14 @@ class BlueAndPinkSynthEditorApp(App):
                               preset_number)
 
     def _on_nymphes_osc_heartbeat_timer(self, _):
+        time_since_last_heartbeat = time.monotonic() - self.last_nymphes_osc_heartbeat_time
         if self._connected_to_nymphes_osc:
             #
             # Determine whether it has been more than 2 seconds since we last
             # received the /heartbeat message from the nymphes-osc server.
             #
-            current_time = time.monotonic()
-            if (current_time - self._last_nymphes_osc_heartbeat_time) > 2.0:
-                Logger.info("Lost connection with nymphes-osc server")
+            if time_since_last_heartbeat > 2.0:
+                Logger.info(f"Lost connection with nymphes-osc server ({time_since_last_heartbeat} seconds since last /heartbeat message)")
                 # We've lost connection with the nymphes-osc server
                 self._connected_to_nymphes_osc = False
 
