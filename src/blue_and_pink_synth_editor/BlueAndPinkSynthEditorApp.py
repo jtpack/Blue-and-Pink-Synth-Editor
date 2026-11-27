@@ -1595,9 +1595,6 @@ class BlueAndPinkSynthEditorApp(App):
 
             Logger.info(f'Received from nymphes-osc: {address}: {path}')
 
-            # Store it
-            self._presets_directory_path = str(path)
-
         elif address == '/nymphes_midi_input_detected':
             #
             # A Nymphes MIDI input port has been detected
